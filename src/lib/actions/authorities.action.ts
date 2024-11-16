@@ -69,6 +69,6 @@ export const deleteUserFromAuthority = async (
   userId: number,
 ) => {
   return deleteExec(
-    `${BACKEND_API}/api/authorities/${authorityName}/${userId}`,
+    `${BACKEND_API}/api/authorities/${authorityName}/users/${userId}`,
   );
 };

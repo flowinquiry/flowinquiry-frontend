@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { Ellipsis, Plus, Trash } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
@@ -11,11 +11,27 @@ import { Button } from "@/components/ui/button";
 import { ViewProps } from "@/components/ui/ext-form";
 import DefaultUserLogo from "@/components/users/user-logo";
 import { usePagePermission } from "@/hooks/use-page-permission";
-import { findMembersByTeamId } from "@/lib/actions/teams.action";
+import {
+  deleteUserFromTeam,
+  findMembersByTeamId,
+} from "@/lib/actions/teams.action";
 import { obfuscate } from "@/lib/endecode";
 import { PermissionUtils } from "@/types/resources";
 import { TeamType } from "@/types/teams";
 import { UserType } from "@/types/users";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { deleteUserFromAuthority } from "@/lib/actions/authorities.action";
 
 const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
   const permissionLevel = usePagePermission();
@@ -39,10 +55,14 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
     }
   };
 
-  // Fetch data when component mounts or page changes
   useEffect(() => {
     fetchUsers(currentPage);
   }, [currentPage]);
+
+  async function removeUserOutTeam(user: UserType) {
+    await deleteUserFromTeam(team.id!, user.id!);
+    await fetchUsers(0);
+  }
 
   if (loading) return <div>Loading...</div>;
 
@@ -68,7 +88,7 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
         {items?.map((user) => (
           <div
             key={user.id}
-            className="w-[28rem] flex flex-row gap-4 border border-gray-200 px-4 py-4 rounded-2xl"
+            className="w-[28rem] flex flex-row gap-4 border border-gray-200 px-4 py-4 rounded-2xl relative"
           >
             <div>
               <Avatar className="size-24 cursor-pointer ">
@@ -98,6 +118,33 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
               <div>Timezone: {user.timezone}</div>
               <div>Title: {user.title}</div>
             </div>
+            {PermissionUtils.canWrite(permissionLevel) && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Ellipsis className="cursor-pointer absolute top-2 right-2 text-gray-400" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-[14rem] w-full">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <DropdownMenuItem
+                          className="cursor-pointer"
+                          onClick={() => removeUserOutTeam(user)}
+                        >
+                          <Trash /> Remove user
+                        </DropdownMenuItem>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>
+                          This action will remove user {user.firstName}{" "}
+                          {user.lastName} out of team {team.name}
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         ))}
       </div>

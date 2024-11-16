@@ -53,3 +53,7 @@ export async function findUsersNotInTeam(userTerm: string, teamId: number) {
 export const addUsersToTeam = (teamId: number, userIds: number[]) => {
   return post(`${BACKEND_API}/api/teams/${teamId}/add-users`, userIds);
 };
+
+export const deleteUserFromTeam = async (teamId: number, userId: number) => {
+  return deleteExec(`${BACKEND_API}/api/teams/${teamId}/users/${userId}`);
+};
