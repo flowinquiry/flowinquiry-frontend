@@ -1,7 +1,7 @@
 import { SimpleContentView } from "@/components/admin-panel/simple-content-view";
 import { TeamForm } from "@/components/teams/team-form";
 import { findTeamById } from "@/lib/actions/teams.action";
-import { deobfuscateToNumber } from "@/lib/endecode";
+import { deobfuscateToNumber, obfuscate } from "@/lib/endecode";
 
 export default async function Page({
   params,
@@ -16,7 +16,15 @@ export default async function Page({
   const breadcrumbItems = [
     { title: "Dashboard", link: "/portal" },
     { title: "Teams", link: "/portal/teams" },
-    { title: `${team ? `Edit ${team.name}` : "Create"}`, link: "#" },
+    ...(team
+      ? [
+          {
+            title: `${team.name}`,
+            link: `/portal/teams/${obfuscate(team.id)}`,
+          },
+          { title: "Edit", link: "#" },
+        ]
+      : [{ title: "Add", link: "#" }]),
   ];
 
   return (

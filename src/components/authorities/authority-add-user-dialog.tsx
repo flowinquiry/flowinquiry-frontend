@@ -77,7 +77,7 @@ const AddUserToAuthorityDialog: React.FC<NewAuthorityDialogProps> = ({
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>
-            Add user to authority {authorityEntity.name}{" "}
+            Add user to authority {authorityEntity.descriptiveName}{" "}
           </DialogTitle>
           <DialogDescription>
             Add a user to this authority group by searching for them. Begin

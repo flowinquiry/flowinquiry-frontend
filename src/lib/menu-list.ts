@@ -34,6 +34,9 @@ export function getMenuList(
 ): Group[] {
   // Helper function to check if a menu or submenu is enabled
   const isMenuEnabled = (menuLabel: string): boolean => {
+    if (menuLabel === "Dashboard") {
+      return true; // Always enable "Dashboard"
+    }
     const permission = permissions.find(
       (perm) => perm.resourceName === menuLabel,
     );
