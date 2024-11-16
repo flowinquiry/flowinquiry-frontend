@@ -25,7 +25,8 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
   const [totalPages, setTotalPages] = useState(0); // Total pages
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(false); // Loading state
-  const fetchData = async (page: number) => {
+
+  const fetchUsers = async (page: number) => {
     setLoading(true);
     try {
       const pageResult = await findMembersByTeamId(team.id!);
@@ -40,7 +41,7 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
 
   // Fetch data when component mounts or page changes
   useEffect(() => {
-    fetchData(currentPage);
+    fetchUsers(currentPage);
   }, [currentPage]);
 
   if (loading) return <div>Loading...</div>;
@@ -58,7 +59,7 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
               open={open}
               setOpen={setOpen}
               teamEntity={team}
-              onSaveSuccess={() => console.log("Reload users")}
+              onSaveSuccess={() => fetchUsers(0)}
             />
           </div>
         )}

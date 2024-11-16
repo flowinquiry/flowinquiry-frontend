@@ -22,8 +22,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import MultipleSelector from "@/components/ui/multi-select-dynamic";
-import { addUsersToAuthority } from "@/lib/actions/authorities.action";
-import { findUsersNotInAuthority } from "@/lib/actions/users.action";
+import {
+  addUsersToAuthority,
+  findUsersNotInAuthority,
+} from "@/lib/actions/authorities.action";
 import { AuthorityType } from "@/types/authorities";
 
 type AddUserToAuthorityDialogProps = {

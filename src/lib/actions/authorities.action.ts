@@ -7,6 +7,7 @@ import {
   AuthorityType,
 } from "@/types/authorities";
 import { PageableResult } from "@/types/commons";
+import { UserType } from "@/types/users";
 
 export const getAuthorities = async () => {
   return get<PageableResult<AuthorityType>>(`${BACKEND_API}/api/authorities`);
@@ -37,6 +38,21 @@ export const batchSavePermissions = async (
     Array<AuthorityResourcePermissionType>
   >(`${BACKEND_API}/api/authority-permissions/batchSave`, permissions);
 };
+
+export async function getUsersByAuthority(authority: string) {
+  return get<Array<UserType>>(
+    `${BACKEND_API}/api/authorities/${authority}/users`,
+  );
+}
+
+export async function findUsersNotInAuthority(
+  userTerm: string,
+  authorityName: string,
+) {
+  return get<Array<UserType>>(
+    `${BACKEND_API}/api/authorities/searchUsersNotInAuthority?userTerm=${userTerm}&&authorityName=${authorityName}`,
+  );
+}
 
 export const addUsersToAuthority = (
   authorityName: string,

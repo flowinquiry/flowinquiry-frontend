@@ -28,8 +28,8 @@ import { usePagePermission } from "@/hooks/use-page-permission";
 import {
   deleteUserFromAuthority,
   findPermissionsByAuthorityName,
+  getUsersByAuthority,
 } from "@/lib/actions/authorities.action";
-import { getUsersByAuthority } from "@/lib/actions/users.action";
 import { obfuscate } from "@/lib/endecode";
 import {
   AuthorityResourcePermissionType,

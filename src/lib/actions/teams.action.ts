@@ -2,7 +2,12 @@
 
 import { unstable_noStore as noStore } from "next/dist/server/web/spec-extension/unstable-no-store";
 
-import { deleteExec, doAdvanceSearch, get } from "@/lib/actions/commons.action";
+import {
+  deleteExec,
+  doAdvanceSearch,
+  get,
+  post,
+} from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
 import { PageableResult } from "@/types/commons";
 import { Filter, Pagination } from "@/types/query";
@@ -38,3 +43,13 @@ export async function findMembersByTeamId(teamId: number) {
 export async function findTeamsByMemberId(userId: number) {
   return get<Array<TeamType>>(`${BACKEND_API}/api/teams/users/${userId}`);
 }
+
+export async function findUsersNotInTeam(userTerm: string, teamId: number) {
+  return get<Array<UserType>>(
+    `${BACKEND_API}/api/teams/searchUsersNotInTeam?userTerm=${userTerm}&&teamId=${teamId}`,
+  );
+}
+
+export const addUsersToTeam = (teamId: number, userIds: number[]) => {
+  return post(`${BACKEND_API}/api/teams/${teamId}/add-users`, userIds);
+};

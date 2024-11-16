@@ -22,7 +22,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import MultipleSelector from "@/components/ui/multi-select-dynamic";
-import { findUsersNotInTeam } from "@/lib/actions/users.action";
+import { addUsersToTeam, findUsersNotInTeam } from "@/lib/actions/teams.action";
 import { TeamType } from "@/types/teams";
 
 type AddUserToTeamDialogProps = {
@@ -55,7 +55,10 @@ const AddUserToTeamDialog: React.FC<AddUserToTeamDialogProps> = ({
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     if (data && data.users) {
       const userIds = data.users.map((user) => Number(user.value));
-      // await addUsersToAuthority(teamEntity.name, userIds);
+      console.log(
+        `Save user to team ${JSON.stringify(teamEntity.id)} ${JSON.stringify(userIds)}}`,
+      );
+      await addUsersToTeam(teamEntity.id!, userIds);
       setOpen(false);
       onSaveSuccess();
     }
@@ -93,7 +96,7 @@ const AddUserToTeamDialog: React.FC<AddUserToTeamDialogProps> = ({
                     <MultipleSelector
                       {...field}
                       onSearch={searchUsers}
-                      placeholder="Add user to authority..."
+                      placeholder="Add user to team..."
                       emptyIndicator={
                         <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
                           no results found.
