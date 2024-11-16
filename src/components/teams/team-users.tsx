@@ -4,8 +4,8 @@ import { Plus } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
-import AddUserToAuthorityDialog from "@/components/authorities/authority-add-user-dialog";
 import PaginationExt from "@/components/shared/pagination-ext";
+import AddUserToTeamDialog from "@/components/teams/team-add-user-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ViewProps } from "@/components/ui/ext-form";
@@ -16,7 +16,6 @@ import { obfuscate } from "@/lib/endecode";
 import { PermissionUtils } from "@/types/resources";
 import { TeamType } from "@/types/teams";
 import { UserType } from "@/types/users";
-import AddUserToTeamDialog from "@/components/teams/team-add-user-dialog";
 
 const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
   const permissionLevel = usePagePermission();
