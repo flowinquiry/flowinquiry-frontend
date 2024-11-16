@@ -8,7 +8,19 @@ import PaginationExt from "@/components/shared/pagination-ext";
 import AddUserToTeamDialog from "@/components/teams/team-add-user-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ViewProps } from "@/components/ui/ext-form";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import DefaultUserLogo from "@/components/users/user-logo";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import {
@@ -19,19 +31,6 @@ import { obfuscate } from "@/lib/endecode";
 import { PermissionUtils } from "@/types/resources";
 import { TeamType } from "@/types/teams";
 import { UserType } from "@/types/users";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { deleteUserFromAuthority } from "@/lib/actions/authorities.action";
 
 const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
   const permissionLevel = usePagePermission();
