@@ -4,6 +4,7 @@ import { Plus } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
+import AddUserToAuthorityDialog from "@/components/authorities/authority-add-user-dialog";
 import PaginationExt from "@/components/shared/pagination-ext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -15,9 +16,11 @@ import { obfuscate } from "@/lib/endecode";
 import { PermissionUtils } from "@/types/resources";
 import { TeamType } from "@/types/teams";
 import { UserType } from "@/types/users";
+import AddUserToTeamDialog from "@/components/teams/team-add-user-dialog";
 
 const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
   const permissionLevel = usePagePermission();
+  const [open, setOpen] = useState(false);
   const [items, setItems] = useState<Array<UserType>>([]); // Store the items
   const [currentPage, setCurrentPage] = useState(1); // Track current page
   const [totalPages, setTotalPages] = useState(0); // Total pages
@@ -48,9 +51,17 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
       <div className="flex flex-row justify-between gap-4 items-center justify-center">
         <div className="text-2xl w-full">{team.name}</div>
         {PermissionUtils.canWrite(permissionLevel) && (
-          <Button onClick={() => console.log("Add user")}>
-            <Plus /> Add User
-          </Button>
+          <div>
+            <Button onClick={() => setOpen(true)}>
+              <Plus /> Add User
+            </Button>
+            <AddUserToTeamDialog
+              open={open}
+              setOpen={setOpen}
+              teamEntity={team}
+              onSaveSuccess={() => console.log("Reload users")}
+            />
+          </div>
         )}
       </div>
       <div className="flex flex-row flex-wrap gap-4 content-around">

@@ -22,14 +22,13 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import MultipleSelector from "@/components/ui/multi-select-dynamic";
-import { addUsersToAuthority } from "@/lib/actions/authorities.action";
-import { findUsersNotInAuthority } from "@/lib/actions/users.action";
-import { AuthorityType } from "@/types/authorities";
+import { findUsersNotInTeam } from "@/lib/actions/users.action";
+import { TeamType } from "@/types/teams";
 
-type AddUserToAuthorityDialogProps = {
+type AddUserToTeamDialogProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  authorityEntity: AuthorityType;
+  teamEntity: TeamType;
   onSaveSuccess: () => void;
 };
 
@@ -43,10 +42,10 @@ const FormSchema = z.object({
   users: z.array(optionSchema).min(1),
 });
 
-const AddUserToAuthorityDialog: React.FC<AddUserToAuthorityDialogProps> = ({
+const AddUserToTeamDialog: React.FC<AddUserToTeamDialogProps> = ({
   open,
   setOpen,
-  authorityEntity,
+  teamEntity,
   onSaveSuccess,
 }) => {
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -56,14 +55,14 @@ const AddUserToAuthorityDialog: React.FC<AddUserToAuthorityDialogProps> = ({
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     if (data && data.users) {
       const userIds = data.users.map((user) => Number(user.value));
-      await addUsersToAuthority(authorityEntity.name, userIds);
+      // await addUsersToAuthority(teamEntity.name, userIds);
       setOpen(false);
       onSaveSuccess();
     }
   };
 
   const searchUsers = async (userTerm: string) => {
-    const users = await findUsersNotInAuthority(userTerm, authorityEntity.name);
+    const users = await findUsersNotInTeam(userTerm, teamEntity.id!);
     return Promise.all(
       users.map((user) => ({
         value: `${user.id}`,
@@ -76,12 +75,10 @@ const AddUserToAuthorityDialog: React.FC<AddUserToAuthorityDialogProps> = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>
-            Add user to authority {authorityEntity.descriptiveName}{" "}
-          </DialogTitle>
+          <DialogTitle>Add user to team {teamEntity.name} </DialogTitle>
           <DialogDescription>
-            Add a user to this authority group by searching for them. Begin
-            typing to see suggestions that match your input
+            Add a user to this team by searching for them. Begin typing to see
+            suggestions that match your input
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -116,4 +113,4 @@ const AddUserToAuthorityDialog: React.FC<AddUserToAuthorityDialogProps> = ({
   );
 };
 
-export default AddUserToAuthorityDialog;
+export default AddUserToTeamDialog;

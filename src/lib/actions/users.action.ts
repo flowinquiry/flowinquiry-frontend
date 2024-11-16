@@ -35,6 +35,12 @@ export async function findUsersNotInAuthority(
   );
 }
 
+export async function findUsersNotInTeam(userTerm: string, teamId: number) {
+  return get<Array<UserType>>(
+    `${BACKEND_API}/api/users/authorities/searchUsersNotInTeam?userTerm=${userTerm}&&teamId=${teamId}`,
+  );
+}
+
 export const findUserById = async (userId: number) => {
   return get<UserType>(`${BACKEND_API}/api/users/${userId}`);
 };
