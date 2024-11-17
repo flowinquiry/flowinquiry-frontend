@@ -11,3 +11,5 @@ export const teamSchema = z.object({
 });
 
 export type TeamType = z.infer<typeof teamSchema>;
+
+export type TeamRole = "Manager" | "Member" | "Guest" | "None";

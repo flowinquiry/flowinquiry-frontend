@@ -31,3 +31,17 @@ export const userSchema = z.object({
 });
 
 export type UserType = z.infer<typeof userSchema>;
+
+export const UserWithTeamRoleSchema = z.object({
+  id: z.number().nullable().optional(),
+  email: z.string().email().nullable().optional(),
+  firstName: z.string().nullable().optional(),
+  lastName: z.string().nullable().optional(),
+  timezone: z.string().nullable().optional(),
+  imageUrl: z.string().nullable().optional(),
+  title: z.string().nullable().optional(),
+  teamId: z.number().nullable().optional(),
+  teamRole: z.string().nullable().optional(),
+});
+
+export type UserWithTeamRoleDTO = z.infer<typeof UserWithTeamRoleSchema>;

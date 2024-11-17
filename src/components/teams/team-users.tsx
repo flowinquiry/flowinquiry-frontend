@@ -30,14 +30,15 @@ import {
 import { obfuscate } from "@/lib/endecode";
 import { PermissionUtils } from "@/types/resources";
 import { TeamType } from "@/types/teams";
-import { UserType } from "@/types/users";
+import { UserType, UserWithTeamRoleDTO } from "@/types/users";
+import { Badge } from "@/components/ui/badge";
 
 const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
   const permissionLevel = usePagePermission();
   const [open, setOpen] = useState(false);
-  const [items, setItems] = useState<Array<UserType>>([]); // Store the items
-  const [currentPage, setCurrentPage] = useState(1); // Track current page
-  const [totalPages, setTotalPages] = useState(0); // Total pages
+  const [items, setItems] = useState<Array<UserWithTeamRoleDTO>>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(false); // Loading state
 
@@ -58,7 +59,7 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
     fetchUsers(currentPage);
   }, [currentPage]);
 
-  async function removeUserOutTeam(user: UserType) {
+  async function removeUserOutTeam(user: UserWithTeamRoleDTO) {
     await deleteUserFromTeam(team.id!, user.id!);
     await fetchUsers(0);
   }
@@ -116,6 +117,9 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
               </div>
               <div>Timezone: {user.timezone}</div>
               <div>Title: {user.title}</div>
+              <div>
+                Role: <Badge>{user.teamRole}</Badge>
+              </div>
             </div>
             {PermissionUtils.canWrite(permissionLevel) && (
               <DropdownMenu>

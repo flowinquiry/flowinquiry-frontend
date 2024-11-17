@@ -12,7 +12,7 @@ import { BACKEND_API } from "@/lib/constants";
 import { PageableResult } from "@/types/commons";
 import { Filter, Pagination } from "@/types/query";
 import { TeamType } from "@/types/teams";
-import { UserType } from "@/types/users";
+import { UserType, UserWithTeamRoleDTO } from "@/types/users";
 
 export const findTeamById = async (teamId: number) => {
   return get<TeamType>(`${BACKEND_API}/api/teams/${teamId}`);
@@ -35,7 +35,7 @@ export async function deleteTeams(ids: number[]) {
 }
 
 export async function findMembersByTeamId(teamId: number) {
-  return get<PageableResult<UserType>>(
+  return get<PageableResult<UserWithTeamRoleDTO>>(
     `${BACKEND_API}/api/teams/${teamId}/members`,
   );
 }
