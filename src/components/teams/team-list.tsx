@@ -157,7 +157,7 @@ export const TeamList = () => {
             <div>
               <Button variant="link" asChild className="px-0">
                 <Link href={`/portal/teams/${obfuscate(team.id)}`}>
-                  {team.name} ({team.memberCount})
+                  {team.name} ({team.usersCount})
                 </Link>
               </Button>
               <div>{team.description}</div>

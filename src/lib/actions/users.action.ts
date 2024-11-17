@@ -20,6 +20,12 @@ export async function searchUsers(
   );
 }
 
+export const getDirectReports = async (userId: number) => {
+  return get<Array<UserType>>(
+    `${BACKEND_API}/api/users/${userId}/direct-reports`,
+  );
+};
+
 export const findUserById = async (userId: number) => {
   return get<UserType>(`${BACKEND_API}/api/users/${userId}`);
 };

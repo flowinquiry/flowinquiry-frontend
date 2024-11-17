@@ -7,7 +7,7 @@ export const teamSchema = z.object({
   slogan: z.string().nullish(),
   description: z.string().nullish(),
   organizationId: z.number().nullish(),
-  memberCount: z.number().nullish(),
+  usersCount: z.number().nullish(),
 });
 
 export type TeamType = z.infer<typeof teamSchema>;
