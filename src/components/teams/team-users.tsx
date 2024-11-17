@@ -30,7 +30,7 @@ import {
 import { obfuscate } from "@/lib/endecode";
 import { PermissionUtils } from "@/types/resources";
 import { TeamType } from "@/types/teams";
-import { UserType, UserWithTeamRoleDTO } from "@/types/users";
+import { UserWithTeamRoleDTO } from "@/types/users";
 import { Badge } from "@/components/ui/badge";
 
 const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
@@ -66,6 +66,22 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
 
   if (loading) return <div>Loading...</div>;
 
+  // Group users by role
+  const groupedUsers = items.reduce<Record<string, UserWithTeamRoleDTO[]>>(
+    (groups, user) => {
+      const role = user.teamRole || "Unassigned";
+      if (!groups[role]) {
+        groups[role] = [];
+      }
+      groups[role].push(user);
+      return groups;
+    },
+    {},
+  );
+
+  // Define the order of roles
+  const roleOrder = ["Manager", "Member", "Guest", "Unassigned"];
+
   return (
     <div className="grid grid-cols-1 gap-4">
       <div className="flex flex-row justify-between gap-4 items-center justify-center">
@@ -84,73 +100,82 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
           </div>
         )}
       </div>
-      <div className="flex flex-row flex-wrap gap-4 content-around">
-        {items?.map((user) => (
-          <div
-            key={user.id}
-            className="w-[28rem] flex flex-row gap-4 border border-gray-200 px-4 py-4 rounded-2xl relative"
-          >
-            <div>
-              <Avatar className="size-24 cursor-pointer ">
-                <AvatarImage
-                  src={
-                    user?.imageUrl ? `/api/files/${user.imageUrl}` : undefined
-                  }
-                  alt={`${user.firstName} ${user.lastName}`}
-                />
-                <AvatarFallback>
-                  <DefaultUserLogo />
-                </AvatarFallback>
-              </Avatar>
+
+      {roleOrder.map(
+        (role) =>
+          groupedUsers[role] && (
+            <div key={role} className="mb-6">
+              <h2 className="text-lg font-bold mb-4">{role}</h2>
+              <div className="flex flex-row flex-wrap gap-4 content-around">
+                {groupedUsers[role].map((user) => (
+                  <div
+                    key={user.id}
+                    className="w-[28rem] flex flex-row gap-4 border border-gray-200 px-4 py-4 rounded-2xl relative"
+                  >
+                    <div>
+                      <Avatar className="size-24 cursor-pointer">
+                        <AvatarImage
+                          src={
+                            user?.imageUrl
+                              ? `/api/files/${user.imageUrl}`
+                              : undefined
+                          }
+                          alt={`${user.firstName} ${user.lastName}`}
+                        />
+                        <AvatarFallback>
+                          <DefaultUserLogo />
+                        </AvatarFallback>
+                      </Avatar>
+                    </div>
+                    <div>
+                      <div className="text-xl">
+                        <Button variant="link" asChild className="px-0">
+                          <Link href={`/portal/users/${obfuscate(user.id)}`}>
+                            {user.firstName}, {user.lastName}
+                          </Link>
+                        </Button>
+                      </div>
+                      <div>
+                        <b>Email:</b>{" "}
+                        <Link href={`mailto:${user.email}`}>{user.email}</Link>
+                      </div>
+                      <div>Timezone: {user.timezone}</div>
+                      <div>Title: {user.title}</div>
+                    </div>
+                    {PermissionUtils.canWrite(permissionLevel) && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Ellipsis className="cursor-pointer absolute top-2 right-2 text-gray-400" />
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="w-[14rem] w-full">
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger>
+                                <DropdownMenuItem
+                                  className="cursor-pointer"
+                                  onClick={() => removeUserOutTeam(user)}
+                                >
+                                  <Trash /> Remove user
+                                </DropdownMenuItem>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>
+                                  This action will remove user {user.firstName}{" "}
+                                  {user.lastName} out of team {team.name}
+                                </p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </TooltipProvider>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
-            <div>
-              <div className="text-xl">
-                <Button variant="link" asChild className="px-0">
-                  <Link href={`/portal/users/${obfuscate(user.id)}`}>
-                    {user.firstName}, {user.lastName}
-                  </Link>
-                </Button>
-              </div>
-              <div>
-                <b>Email:</b>{" "}
-                <Link href={`mailto:${user.email}`}>{user.email}</Link>
-              </div>
-              <div>Timezone: {user.timezone}</div>
-              <div>Title: {user.title}</div>
-              <div>
-                Role: <Badge>{user.teamRole}</Badge>
-              </div>
-            </div>
-            {PermissionUtils.canWrite(permissionLevel) && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Ellipsis className="cursor-pointer absolute top-2 right-2 text-gray-400" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-[14rem] w-full">
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <DropdownMenuItem
-                          className="cursor-pointer"
-                          onClick={() => removeUserOutTeam(user)}
-                        >
-                          <Trash /> Remove user
-                        </DropdownMenuItem>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>
-                          This action will remove user {user.firstName}{" "}
-                          {user.lastName} out of team {team.name}
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
-          </div>
-        ))}
-      </div>
+          ),
+      )}
+
       <PaginationExt
         currentPage={currentPage}
         totalPages={totalPages}
