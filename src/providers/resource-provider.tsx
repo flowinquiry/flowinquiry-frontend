@@ -26,7 +26,7 @@ export const useResourceId = (): ResourceContextType => {
 // Props for ResourceProvider
 interface ResourceProviderProps {
   children: ReactNode;
-  resourceId: ResourceId | undefined; // Accept undefined for validation
+  resourceId: ResourceId | undefined;
 }
 
 // ResourceProvider component

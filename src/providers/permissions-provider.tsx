@@ -42,7 +42,7 @@ interface PermissionsProviderProps {
   children: ReactNode;
 }
 
-// Fetch permissions from your API
+// Fetch permissions
 const fetchPermissions = async (
   userId: number,
   authToken: string,

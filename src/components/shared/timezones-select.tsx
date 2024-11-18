@@ -11,7 +11,6 @@ const TimezoneSelect = ({
   label,
   placeholder,
   required,
-  type = undefined,
 }: ExtInputProps & UiAttributes) => {
   return (
     <ValuesQuerySelect<TimezoneInfo>

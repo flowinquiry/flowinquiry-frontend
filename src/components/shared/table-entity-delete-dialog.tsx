@@ -29,7 +29,6 @@ import {
 } from "@/components/ui/drawer";
 import { useMediaQuery } from "@/hooks/use-media-query";
 
-// Constrain TEntity to be an object
 export interface RowEntitiesDeleteDialogProps<
   TEntity extends Record<string, any>,
 > extends React.ComponentPropsWithoutRef<typeof Dialog> {

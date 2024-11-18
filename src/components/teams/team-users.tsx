@@ -28,14 +28,28 @@ import {
   findMembersByTeamId,
 } from "@/lib/actions/teams.action";
 import { obfuscate } from "@/lib/endecode";
+import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { PermissionUtils } from "@/types/resources";
 import { TeamType } from "@/types/teams";
 import { UserWithTeamRoleDTO } from "@/types/users";
-import { Badge } from "@/components/ui/badge";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
   const permissionLevel = usePagePermission();
+  const teamRole = useUserTeamRole().role;
   const [open, setOpen] = useState(false);
+  const [notDeleteOnlyManagerDialogOpen, setNotDeleteOnlyManagerDialogOpen] =
+    useState(false);
   const [items, setItems] = useState<Array<UserWithTeamRoleDTO>>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -60,6 +74,16 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
   }, [currentPage]);
 
   async function removeUserOutTeam(user: UserWithTeamRoleDTO) {
+    // Check if the user is the only Manager
+    const isOnlyManager =
+      user.teamRole === "Manager" &&
+      items.filter((u) => u.teamRole === "Manager").length === 1;
+
+    if (isOnlyManager) {
+      setNotDeleteOnlyManagerDialogOpen(true);
+      return;
+    }
+
     await deleteUserFromTeam(team.id!, user.id!);
     await fetchUsers(0);
   }
@@ -84,9 +108,10 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
 
   return (
     <div className="grid grid-cols-1 gap-4">
-      <div className="flex flex-row justify-between gap-4 items-center justify-center">
+      <div className="flex flex-row justify-between gap-4 items-center">
         <div className="text-2xl w-full">{team.name}</div>
-        {PermissionUtils.canWrite(permissionLevel) && (
+        {(PermissionUtils.canWrite(permissionLevel) ||
+          teamRole === "Manager") && (
           <div>
             <Button onClick={() => setOpen(true)}>
               <Plus /> Add User
@@ -136,18 +161,23 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
                         </Button>
                       </div>
                       <div>
-                        <b>Email:</b>{" "}
-                        <Link href={`mailto:${user.email}`}>{user.email}</Link>
+                        Email:{" "}
+                        <Button variant="link" className="px-0 py-0 h-0">
+                          <Link href={`mailto:${user.email}`}>
+                            {user.email}
+                          </Link>
+                        </Button>
                       </div>
                       <div>Timezone: {user.timezone}</div>
                       <div>Title: {user.title}</div>
                     </div>
-                    {PermissionUtils.canWrite(permissionLevel) && (
+                    {(PermissionUtils.canWrite(permissionLevel) ||
+                      teamRole === "Manager") && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <Ellipsis className="cursor-pointer absolute top-2 right-2 text-gray-400" />
                         </DropdownMenuTrigger>
-                        <DropdownMenuContent className="w-[14rem] w-full">
+                        <DropdownMenuContent className="w-[14rem]">
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger>
@@ -175,7 +205,23 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
             </div>
           ),
       )}
-
+      <AlertDialog open={notDeleteOnlyManagerDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Manager Role Required</AlertDialogTitle>
+            <AlertDialogDescription>
+              You cannot remove the only Manager from the team
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogAction
+              onClick={() => setNotDeleteOnlyManagerDialogOpen(false)}
+            >
+              Close
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
       <PaginationExt
         currentPage={currentPage}
         totalPages={totalPages}

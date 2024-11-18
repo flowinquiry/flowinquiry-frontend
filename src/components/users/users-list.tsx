@@ -1,5 +1,6 @@
 "use client";
 
+import { formatDistanceToNow } from "date-fns";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
@@ -7,13 +8,15 @@ import React, { useEffect, useState } from "react";
 
 import { Heading } from "@/components/heading";
 import PaginationExt from "@/components/shared/pagination-ext";
-import { buttonVariants } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import UserCard from "@/components/users/user-card";
+import DefaultUserLogo from "@/components/users/user-logo";
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import { searchUsers } from "@/lib/actions/users.action";
+import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { PermissionUtils } from "@/types/resources";
 import { UserType } from "@/types/users";
@@ -102,7 +105,51 @@ export const UserList = () => {
       </div>
       <Separator />
       <div className="flex flex-row flex-wrap gap-4 content-around">
-        {items?.map((user) => UserCard({ user }))}
+        {items?.map((user) => (
+          <div
+            key={user.id}
+            className="w-[28rem] flex flex-row gap-4 border border-gray-200 px-4 py-4 rounded-2xl"
+          >
+            <div>
+              <Avatar className="size-24 cursor-pointer ">
+                <AvatarImage
+                  src={
+                    user?.imageUrl ? `/api/files/${user.imageUrl}` : undefined
+                  }
+                  alt={`${user.firstName} ${user.lastName}`}
+                />
+                <AvatarFallback>
+                  <DefaultUserLogo />
+                </AvatarFallback>
+              </Avatar>
+            </div>
+            <div>
+              <div className="text-xl">
+                <Button variant="link" asChild className="px-0">
+                  <Link href={`/portal/users/${obfuscate(user.id)}`}>
+                    {user.firstName}, {user.lastName}
+                  </Link>
+                </Button>
+              </div>
+              <div>
+                Email:{" "}
+                <Button variant="link" className="px-0 py-0 h-0">
+                  <Link href={`mailto:${user.email}`}>{user.email}</Link>
+                </Button>
+              </div>
+              <div>Title: {user.title}</div>
+              <div>Timezone: {user.timezone}</div>
+              <div>
+                Last login time:{" "}
+                {user.lastLoginTime
+                  ? formatDistanceToNow(new Date(user.lastLoginTime), {
+                      addSuffix: true,
+                    })
+                  : "No recent login"}
+              </div>
+            </div>
+          </div>
+        ))}
       </div>
       <PaginationExt
         currentPage={currentPage}

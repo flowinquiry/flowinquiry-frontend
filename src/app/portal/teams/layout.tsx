@@ -9,7 +9,7 @@ export default function TeamsLayout({
 }) {
   return (
     <ResourceProvider resourceId="Teams">
-      <div className="teams-layout">{children}</div>
+      <div>{children}</div>
     </ResourceProvider>
   );
 }

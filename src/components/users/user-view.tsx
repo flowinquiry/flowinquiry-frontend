@@ -84,11 +84,11 @@ export const UserView = ({ entity: user }: ViewProps<UserType>) => {
         {user.managerId && (
           <div>
             Report to:{" "}
-            <Button variant="link" className="px-0">
+            <Badge>
               <Link href={`/portal/users/${obfuscate(user.managerId)}`}>
                 {user.managerName}
               </Link>
-            </Button>
+            </Badge>
           </div>
         )}
         {directReports && directReports.length > 0 && (
