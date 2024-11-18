@@ -41,6 +41,7 @@ const optionSchema = z.object({
 
 const FormSchema = z.object({
   users: z.array(optionSchema).min(1),
+  role: z.string(),
 });
 
 const AddUserToTeamDialog: React.FC<AddUserToTeamDialogProps> = ({
@@ -56,7 +57,7 @@ const AddUserToTeamDialog: React.FC<AddUserToTeamDialogProps> = ({
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     if (data && data.users) {
       const userIds = data.users.map((user) => Number(user.value));
-      await addUsersToTeam(teamEntity.id!, userIds);
+      await addUsersToTeam(teamEntity.id!, userIds, data.role);
       setOpen(false);
       onSaveSuccess();
     }
