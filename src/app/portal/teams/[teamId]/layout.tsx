@@ -10,9 +10,12 @@ export default function TeamsLayout({
   children: React.ReactNode;
   params: { teamId: string };
 }) {
-  const teamIdNum = deobfuscateToNumber(params.teamId);
+  const teamIdNum =
+    params.teamId !== "new" ? deobfuscateToNumber(params.teamId) : null;
 
-  return (
-    <UserTeamRoleProvider teamId={teamIdNum}>{children}</UserTeamRoleProvider>
+  return params.teamId === "new" ? (
+    <>{children}</>
+  ) : (
+    <UserTeamRoleProvider teamId={teamIdNum!}>{children}</UserTeamRoleProvider>
   );
 }

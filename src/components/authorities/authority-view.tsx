@@ -133,9 +133,10 @@ export const AuthorityView: React.FC<ViewProps<AuthorityType>> = ({
                   </Button>
                 </div>
                 <div>
-                  <b>Email:</b>{" "}
-                  <Link href={`mailto:${user.email}`}>{user.email}</Link>
+                  Email: <Link href={`mailto:${user.email}`}>{user.email}</Link>
                 </div>
+                <div>Title: {user.title}</div>
+                <div>Activated: {user.activated}</div>
               </div>
               {PermissionUtils.canWrite(permissionLevel) && (
                 <DropdownMenu>

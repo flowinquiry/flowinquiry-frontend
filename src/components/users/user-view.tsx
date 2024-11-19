@@ -49,7 +49,7 @@ export const UserView = ({ entity: user }: ViewProps<UserType>) => {
           </Avatar>
         </div>
 
-        <div className="text-sm py-4">
+        <div className="text-sm py-2 pr-2">
           <div>
             Email:{" "}
             <Button variant="link" className="px-0 py-0 h-0">
@@ -65,6 +65,7 @@ export const UserView = ({ entity: user }: ViewProps<UserType>) => {
                 })
               : "No recent login"}
           </div>
+          <div>About: {user.about}</div>
         </div>
       </div>
       <div className="grid grid-cols-1 w-full md:w-[56rem] rounded-lg border border-gray-300 px-4 py-4">

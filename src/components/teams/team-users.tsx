@@ -52,7 +52,7 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false);
 
   const fetchUsers = async (page: number) => {
     setLoading(true);
