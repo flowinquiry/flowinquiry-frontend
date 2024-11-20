@@ -130,9 +130,9 @@ export const UserList = () => {
                 </AvatarFallback>
               </Avatar>
             </div>
-            <div>
-              <div className="text-xl">
-                <Button variant="link" asChild className="px-0">
+            <div className="grid grid-cols-1">
+              <div className="text-2xl">
+                <Button variant="link" className="px-0">
                   <Link href={`/portal/users/${obfuscate(user.id)}`}>
                     {user.firstName}, {user.lastName}
                   </Link>

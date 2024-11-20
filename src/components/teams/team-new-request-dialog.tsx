@@ -24,6 +24,7 @@ import {
 import { MinimalTiptapEditor } from "@/components/ui/minimal-tiptap";
 import WorkflowSelectField from "@/components/workflows/workflow-select";
 import { TeamRequestDTOSchema, TeamRequestType, TeamType } from "@/types/teams";
+import { createTeamRequest } from "@/lib/actions/teams-request.action";
 
 type NewRequestToTeamDialogProps = {
   open: boolean;
@@ -48,12 +49,11 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
     },
   });
 
-  const onSubmit = (data: TeamRequestType) => {
+  const onSubmit = async (data: TeamRequestType) => {
     console.log(`Submit team request ${JSON.stringify(data)}`);
-  };
-
-  const onError = (data) => {
-    console.log(`Error ${JSON.stringify(data)}`);
+    await createTeamRequest(data);
+    setOpen(false);
+    onSaveSuccess();
   };
 
   return (
@@ -68,10 +68,7 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit, onError)}
-            className="space-y-6"
-          >
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <ExtInputField
               form={form}
               fieldName="requestTitle"
