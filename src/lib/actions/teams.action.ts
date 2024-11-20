@@ -9,7 +9,6 @@ import {
   post,
 } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
-import { PageableResult } from "@/types/commons";
 import { Filter, Pagination } from "@/types/query";
 import { TeamType } from "@/types/teams";
 import { UserType, UserWithTeamRoleDTO } from "@/types/users";
@@ -35,7 +34,7 @@ export async function deleteTeams(ids: number[]) {
 }
 
 export async function findMembersByTeamId(teamId: number) {
-  return get<PageableResult<UserWithTeamRoleDTO>>(
+  return get<Array<UserWithTeamRoleDTO>>(
     `${BACKEND_API}/api/teams/${teamId}/members`,
   );
 }

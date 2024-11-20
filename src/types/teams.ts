@@ -26,8 +26,8 @@ export const TeamRequestDTOSchema = z.object({
   assignUserName: z.string().nullable().optional(),
   requestTitle: z.string(),
   requestDescription: z.string().nullable(),
-  createdDate: z.string().optional(), // ISO string for date representation
-  currentState: z.string(),
+  createdDate: z.string().optional(),
+  currentState: z.string().optional(),
 });
 
 export type TeamRequestType = z.infer<typeof TeamRequestDTOSchema>;

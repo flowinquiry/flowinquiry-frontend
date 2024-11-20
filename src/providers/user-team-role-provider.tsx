@@ -33,7 +33,7 @@ export const UserTeamRoleProvider: React.FC<{
       }
     }
     fetchTeamRole();
-  }, []);
+  }, [teamId, session, status]);
   return (
     <UserTeamRoleContext.Provider value={{ role, setRole }}>
       {children}

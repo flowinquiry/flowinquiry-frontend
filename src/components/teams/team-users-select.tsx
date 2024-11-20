@@ -25,24 +25,25 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { getWorkflowsByTeam } from "@/lib/actions/workflows.action";
+import { findMembersByTeamId } from "@/lib/actions/teams.action";
 import { cn } from "@/lib/utils";
 import { UiAttributes } from "@/types/ui-components";
-import { WorkflowType } from "@/types/workflows";
+import { UserWithTeamRoleDTO } from "@/types/users";
 
-const WorkflowSelectField = ({
+const TeamUserSelectField = ({
   form,
   fieldName,
   label,
   teamId,
 }: ExtInputProps & UiAttributes & { teamId: number }) => {
-  const [workflows, setWorkflows] = useState<Array<WorkflowType>>([]);
+  const [users, setUsers] = useState<UserWithTeamRoleDTO[]>([]);
+
   useEffect(() => {
-    async function fetchWorkflows() {
-      const workflowData = await getWorkflowsByTeam(teamId);
-      setWorkflows(workflowData);
+    async function fetchUsers() {
+      const usersData = await findMembersByTeamId(teamId);
+      setUsers(usersData);
     }
-    fetchWorkflows();
+    fetchUsers();
   }, [teamId]);
 
   return (
@@ -64,12 +65,12 @@ const WorkflowSelectField = ({
                   )}
                 >
                   {(() => {
-                    const selectedWorkflow = workflows.find(
-                      (workflow) => workflow.id === field.value,
+                    const selectedUser = users.find(
+                      (user) => user.id === field.value,
                     );
-                    return selectedWorkflow
-                      ? `${selectedWorkflow.name}`
-                      : "Select workflow";
+                    return selectedUser
+                      ? `${selectedUser.firstName} ${selectedUser.lastName}`
+                      : "Select user";
                   })()}
                   <ChevronsUpDown className="opacity-50" />
                 </Button>
@@ -77,26 +78,23 @@ const WorkflowSelectField = ({
             </PopoverTrigger>
             <PopoverContent className="w-[18rem] p-0">
               <Command>
-                <CommandInput
-                  placeholder="Search workflow..."
-                  className="h-9"
-                />
+                <CommandInput placeholder="Search user..." className="h-9" />
                 <CommandList>
-                  <CommandEmpty>No workflow found.</CommandEmpty>
+                  <CommandEmpty>No user found.</CommandEmpty>
                   <CommandGroup>
-                    {workflows.map((workflow) => (
+                    {users.map((user) => (
                       <CommandItem
-                        value={workflow.name!}
-                        key={workflow.id}
+                        value={user.firstName!}
+                        key={user.id}
                         onSelect={() => {
-                          form.setValue(fieldName, workflow.id);
+                          form.setValue(fieldName, user.id);
                         }}
                       >
-                        {workflow.name}
+                        {user.firstName} {user.lastName} ({user.teamRole})
                         <Check
                           className={cn(
                             "ml-auto",
-                            workflow.id === field.value
+                            user.id === field.value
                               ? "opacity-100"
                               : "opacity-0",
                           )}
@@ -115,4 +113,4 @@ const WorkflowSelectField = ({
   );
 };
 
-export default WorkflowSelectField;
+export default TeamUserSelectField;

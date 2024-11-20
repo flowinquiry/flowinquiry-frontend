@@ -4,7 +4,6 @@ import { Ellipsis, Plus, Trash } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
-import PaginationExt from "@/components/shared/pagination-ext";
 import AddUserToTeamDialog from "@/components/teams/team-add-user-dialog";
 import {
   AlertDialog,
@@ -49,27 +48,22 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
   const [notDeleteOnlyManagerDialogOpen, setNotDeleteOnlyManagerDialogOpen] =
     useState(false);
   const [items, setItems] = useState<Array<UserWithTeamRoleDTO>>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(false);
 
-  const fetchUsers = async (page: number) => {
+  const fetchUsers = async () => {
     setLoading(true);
     try {
-      const pageResult = await findMembersByTeamId(team.id!);
+      const membersData = await findMembersByTeamId(team.id!);
 
-      setItems(pageResult.content); // Update items
-      setTotalElements(pageResult.totalElements);
-      setTotalPages(pageResult.totalPages); // Update total pages
+      setItems(membersData); // Update items
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchUsers(currentPage);
-  }, [currentPage]);
+    fetchUsers();
+  }, []);
 
   async function removeUserOutTeam(user: UserWithTeamRoleDTO) {
     // Check if the user is the only Manager
@@ -83,7 +77,7 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
     }
 
     await deleteUserFromTeam(team.id!, user.id!);
-    await fetchUsers(0);
+    await fetchUsers();
   }
 
   if (loading) return <div>Loading...</div>;
@@ -118,7 +112,7 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
               open={open}
               setOpen={setOpen}
               teamEntity={team}
-              onSaveSuccess={() => fetchUsers(0)}
+              onSaveSuccess={() => fetchUsers()}
             />
           </div>
         )}
@@ -220,11 +214,6 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      <PaginationExt
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={(page) => setCurrentPage(page)}
-      />
     </div>
   );
 };

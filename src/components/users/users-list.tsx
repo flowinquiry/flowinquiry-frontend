@@ -4,7 +4,7 @@ import { formatDistanceToNow } from "date-fns";
 import { Plus } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { Heading } from "@/components/heading";
 import PaginationExt from "@/components/shared/pagination-ext";
@@ -36,7 +36,7 @@ export const UserList = () => {
   const { replace } = useRouter();
   const pathname = usePathname();
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     try {
       const pageResult = await searchUsers(
@@ -57,7 +57,14 @@ export const UserList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [
+    userSearchTerm,
+    currentPage,
+    setLoading,
+    setItems,
+    setTotalElements,
+    setTotalPages,
+  ]);
 
   const handleSearchTeams = useDebouncedCallback((userName: string) => {
     const params = new URLSearchParams(searchParams);
@@ -72,7 +79,7 @@ export const UserList = () => {
 
   useEffect(() => {
     fetchData();
-  }, [currentPage, userSearchTerm]);
+  }, [fetchData]);
 
   if (loading) return <div>Loading...</div>;
 
