@@ -50,7 +50,10 @@ const TeamRequestsStatusView = ({ entity: team }: ViewProps<TeamType>) => {
     <div className="grid grid-cols-1">
       <div>
         {requests.map((request) => (
-          <div className="odd:bg-gray-100 even:bg-blue-100 p-4 hover:bg-blue-300">
+          <div
+            className="odd:bg-gray-100 even:bg-blue-100 p-4 hover:bg-blue-300"
+            key={request.id}
+          >
             <Button
               variant="link"
               className="px-0"

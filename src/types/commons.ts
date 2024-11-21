@@ -33,3 +33,15 @@ export interface EntityValueDefinition {
   value: string;
   description?: string;
 }
+
+import { z } from "zod";
+
+export const NotificationSchema = z.object({
+  id: z.number().nullable(),
+  content: z.string(),
+  createdAt: z.date(),
+  userId: z.number(),
+  isRead: z.boolean(),
+});
+
+export type NotificationType = z.infer<typeof NotificationSchema>;

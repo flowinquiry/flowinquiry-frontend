@@ -31,7 +31,7 @@ import {
 } from "@/components/ui/tooltip";
 
 export function UserNav() {
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   return (
     <Dialog>

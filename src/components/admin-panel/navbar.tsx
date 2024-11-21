@@ -1,5 +1,6 @@
 import { SheetMenu } from "@/components/admin-panel/sheet-menu";
 import { UserNav } from "@/components/admin-panel/user-nav";
+import NotificationsDropdown from "@/components/dashboard/notifications-dropdown";
 import { ModeToggle } from "@/components/mode-toggle";
 
 interface NavbarProps {
@@ -14,7 +15,8 @@ export function Navbar({ title }: NavbarProps) {
           <SheetMenu />
           <h1 className="font-bold">{title}</h1>
         </div>
-        <div className="flex flex-1 items-center justify-end">
+        <div className="flex flex-1 items-center gap-2 justify-end">
+          <NotificationsDropdown />
           <ModeToggle />
           <UserNav />
         </div>
