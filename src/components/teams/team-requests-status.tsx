@@ -1,6 +1,8 @@
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 import PaginationExt from "@/components/shared/pagination-ext";
+import TruncatedHtmlLabel from "@/components/shared/truncate-html-label";
 import { Button } from "@/components/ui/button";
 import { ViewProps } from "@/components/ui/ext-form";
 import { Label } from "@/components/ui/label";
@@ -12,6 +14,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { searchTeamRequests } from "@/lib/actions/teams-request.action";
+import { obfuscate } from "@/lib/endecode";
 import { TeamRequestType, TeamType } from "@/types/teams";
 
 const TeamRequestsStatusView = ({ entity: team }: ViewProps<TeamType>) => {
@@ -55,8 +58,9 @@ const TeamRequestsStatusView = ({ entity: team }: ViewProps<TeamType>) => {
             >
               {request.requestTitle}
             </Button>
-            <div
-              dangerouslySetInnerHTML={{ __html: request.requestDescription! }}
+            <TruncatedHtmlLabel
+              htmlContent={request.requestDescription!}
+              wordLimit={400}
             />
             <Sheet
               open={openRequestView}
@@ -64,9 +68,14 @@ const TeamRequestsStatusView = ({ entity: team }: ViewProps<TeamType>) => {
             >
               <SheetContent className="w-[50rem] sm:w-full">
                 <SheetHeader>
-                  <SheetTitle>{request.requestTitle}</SheetTitle>
+                  <SheetTitle>
+                    <Button variant="link" className="px-0">
+                      <Link href="">{request.requestTitle}</Link>
+                    </Button>
+                  </SheetTitle>
                   <SheetDescription>
                     <div
+                      className="prose"
                       dangerouslySetInnerHTML={{
                         __html: request.requestDescription!,
                       }}
@@ -79,12 +88,27 @@ const TeamRequestsStatusView = ({ entity: team }: ViewProps<TeamType>) => {
                       Requested User
                     </Label>
                     <Label className="col-span-3">
-                      {request.requestUserName}
+                      <Button variant="link" className="px-0">
+                        <Link
+                          href={`/portal/users/${obfuscate(request.requestUserId)}`}
+                        >
+                          {request.requestUserName}
+                        </Link>
+                      </Button>
                     </Label>
                   </div>
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="username" className="text-right">
-                      Asignee
+                      Assignee
+                    </Label>
+                    <Label className="col-span-3">
+                      <Button variant="link" className="px-0">
+                        <Link
+                          href={`/portal/users/${obfuscate(request.assignUserId)}`}
+                        >
+                          {request.assignUserName}
+                        </Link>
+                      </Button>
                     </Label>
                   </div>
                 </div>
