@@ -80,7 +80,7 @@ const TeamRequestsStatusView = ({
           >
             <Button
               variant="link"
-              className="px-0"
+              className="px-0 text-xl"
               onClick={() => openSheet(request)}
               tabIndex={0}
               role="button"

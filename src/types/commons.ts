@@ -45,3 +45,18 @@ export const NotificationSchema = z.object({
 });
 
 export type NotificationType = z.infer<typeof NotificationSchema>;
+
+export const CommentDTOSchema = z.object({
+  id: z.number().optional(),
+  content: z.string().optional(),
+  createdById: z.number(),
+  createdByName: z.string().optional(),
+  createdByImageUrl: z.string().optional(),
+  createdAt: z.string().datetime().optional(),
+  entityType: z.string(),
+  entityId: z.number(),
+});
+
+export type CommentType = z.infer<typeof CommentDTOSchema>;
+
+export type EntityType = "Team_Request";
