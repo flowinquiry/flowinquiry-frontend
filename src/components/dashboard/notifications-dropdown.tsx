@@ -56,11 +56,16 @@ const NotificationsDropdown = () => {
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="end"
-        className=" z-[999] mx-4 lg:w-[24rem] p-0"
+        className={cn(
+          "z-[999] mx-4 lg:w-[24rem] p-0",
+          "bg-[rgba(255,255,255,0.9)] dark:bg-[rgba(23,23,23,0.8)]",
+          "border border-[hsl(var(--border))] dark:border-[hsl(var(--border-dark))]",
+          "backdrop-blur-md backdrop-brightness-110 dark:backdrop-brightness-75 shadow-lg",
+        )}
       >
         <DropdownMenuLabel>
-          <div className="flex justify-between px-2 py-2 ">
-            <div className="text-sm text-default-800  font-medium ">
+          <div className="flex justify-between px-2 py-2">
+            <div className="text-sm text-default-800 dark:text-default-200 font-medium">
               Notifications ({notifications.length})
             </div>
           </div>
@@ -75,7 +80,11 @@ const NotificationsDropdown = () => {
                 )}
               >
                 <DropdownMenuItem
-                  className="flex gap-9 py-2 px-4 cursor-pointer group"
+                  className={cn(
+                    "flex gap-9 py-2 px-4 cursor-pointer group",
+                    "bg-[rgba(255,255,255,0.9)] dark:bg-[rgba(23,23,23,0.8)]",
+                    "hover:bg-[hsl(var(--muted))] dark:hover:bg-[rgba(255,255,255,0.05)]",
+                  )}
                   onClick={() =>
                     console.log(`Click on ${JSON.stringify(item)}`)
                   }

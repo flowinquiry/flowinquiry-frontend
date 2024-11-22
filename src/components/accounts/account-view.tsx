@@ -100,13 +100,19 @@ export const AccountView: React.FC<ViewProps<AccountType>> = ({
           <div className="grid grid-cols-1 px-4 py-4 gap-4 md:grid-cols-2">
             <div>
               Type:{" "}
-              <Badge variant="outline" className="bg-amber-300">
+              <Badge
+                variant="outline"
+                className="bg-amber-300 text-black dark:bg-amber-600 dark:text-white"
+              >
                 {account.type}
               </Badge>
             </div>
             <div>
               Industry:{" "}
-              <Badge variant="outline" className="bg-amber-300">
+              <Badge
+                variant="outline"
+                className="bg-amber-300 text-black dark:bg-amber-600 dark:text-white"
+              >
                 {account.industry}
               </Badge>
             </div>
@@ -120,7 +126,10 @@ export const AccountView: React.FC<ViewProps<AccountType>> = ({
             <div>Phone number: {account.phoneNumber}</div>
             <div>
               Status:{" "}
-              <Badge variant="outline" className="bg-amber-300">
+              <Badge
+                variant="outline"
+                className="bg-amber-300 text-black dark:bg-amber-600 dark:text-white"
+              >
                 {account.status}
               </Badge>
             </div>
@@ -141,6 +150,7 @@ export const AccountView: React.FC<ViewProps<AccountType>> = ({
           </div>
         </CardContent>
       </Card>
+
       <div className="flex flex-row justify-between">
         <div className="text-xl w-full">Contacts</div>
         <div>
