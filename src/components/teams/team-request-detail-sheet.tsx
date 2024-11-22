@@ -4,8 +4,7 @@ import Link from "next/link";
 import React from "react";
 
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area"; // Import ScrollArea
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
   SheetContent,
@@ -32,7 +31,7 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
         <ScrollArea className="h-full">
           <SheetHeader>
             <SheetTitle>
-              <Button variant="link" className="px-0">
+              <Button variant="link" className="px-0 text-2xl">
                 <Link href="">{request.requestTitle}</Link>
               </Button>
             </SheetTitle>
@@ -46,36 +45,27 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
             </SheetDescription>
           </SheetHeader>
           <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="name" className="text-right">
-                Requested User
-              </Label>
-              <Label className="col-span-3">
-                <Button variant="link" className="px-0">
-                  <Link
-                    href={`/portal/users/${request.requestUserId}`}
-                    className="text-[hsl(var(--primary))] hover:text-[hsl(var(--primary-foreground))]"
-                  >
-                    {request.requestUserName}
-                  </Link>
-                </Button>
-              </Label>
+            <div>
+              Requested User:{" "}
+              <Button variant="link" className="px-0">
+                <Link
+                  href={`/portal/users/${request.requestUserId}`}
+                  className="text-[hsl(var(--primary))] hover:text-[hsl(var(--primary-foreground))]"
+                >
+                  {request.requestUserName}
+                </Link>
+              </Button>
             </div>
-
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label htmlFor="username" className="text-right">
-                Assignee
-              </Label>
-              <Label className="col-span-3">
-                <Button variant="link" className="px-0">
-                  <Link
-                    href={`/portal/users/${request.assignUserId}`}
-                    className="text-[hsl(var(--primary))] hover:text-[hsl(var(--primary-foreground))]"
-                  >
-                    {request.assignUserName}
-                  </Link>
-                </Button>
-              </Label>
+            <div>
+              Assignee:{" "}
+              <Button variant="link" className="px-0">
+                <Link
+                  href={`/portal/users/${request.assignUserId}`}
+                  className="text-[hsl(var(--primary))] hover:text-[hsl(var(--primary-foreground))]"
+                >
+                  {request.assignUserName}
+                </Link>
+              </Button>
             </div>
           </div>
         </ScrollArea>
