@@ -5,6 +5,7 @@ import React from "react";
 
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { ScrollArea } from "@/components/ui/scroll-area"; // Import ScrollArea
 import {
   Sheet,
   SheetContent,
@@ -12,7 +13,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { ScrollArea } from "@/components/ui/scroll-area"; // Import ScrollArea
 import { TeamRequestType } from "@/types/teams";
 
 type RequestDetailsProps = {

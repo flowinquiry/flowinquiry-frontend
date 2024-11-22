@@ -1,23 +1,13 @@
-import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 import PaginationExt from "@/components/shared/pagination-ext";
 import TruncatedHtmlLabel from "@/components/shared/truncate-html-label";
+import TeamRequestDetailSheet from "@/components/teams/team-request-detail-sheet";
 import { Button } from "@/components/ui/button";
 import { ViewProps } from "@/components/ui/ext-form";
-import { Label } from "@/components/ui/label";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
 import { searchTeamRequests } from "@/lib/actions/teams-request.action";
-import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { TeamRequestType, TeamType } from "@/types/teams";
-import TeamRequestDetailSheet from "@/components/teams/team-request-detail-sheet";
 
 const TeamRequestsStatusView = ({ entity: team }: ViewProps<TeamType>) => {
   const [requests, setRequests] = useState<TeamRequestType[]>([]);
