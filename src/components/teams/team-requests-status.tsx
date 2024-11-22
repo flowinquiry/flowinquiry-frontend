@@ -51,12 +51,14 @@ const TeamRequestsStatusView = ({ entity: team }: ViewProps<TeamType>) => {
   return (
     <div className="grid grid-cols-1">
       <div>
-        {requests.map((request) => (
+        {requests.map((request, index) => (
           <div
             className={cn(
               "p-4 hover:bg-[hsl(var(--muted))] transition-colors",
               "odd:bg-[hsl(var(--card))] odd:text-[hsl(var(--card-foreground))]",
               "even:bg-[hsl(var(--secondary))] even:text-[hsl(var(--secondary-foreground))]",
+              "border-t border-l border-r border-[hsl(var(--border))]",
+              index === requests.length - 1 && "border-b", // Add bottom border for the last element
             )}
             key={request.id}
           >
@@ -64,6 +66,9 @@ const TeamRequestsStatusView = ({ entity: team }: ViewProps<TeamType>) => {
               variant="link"
               className="px-0"
               onClick={() => openSheet(request)}
+              tabIndex={0}
+              role="button"
+              aria-label={`Open details for ${request.requestTitle}`}
             >
               {request.requestTitle}
             </Button>

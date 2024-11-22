@@ -1,10 +1,8 @@
 "use client";
-import Link from "next/link";
 
 import { Menu } from "@/components/admin-panel/menu";
 import { SidebarToggle } from "@/components/admin-panel/sidebar-toggle";
 import AppLogo from "@/components/app-logo";
-import { Button } from "@/components/ui/button";
 import { useSidebar } from "@/hooks/use-sidebar";
 import { useStore } from "@/hooks/use-store";
 import { cn } from "@/lib/utils";
@@ -27,28 +25,19 @@ export function Sidebar() {
         onMouseLeave={() => setIsHover(false)}
         className="relative h-full flex flex-col px-3 py-4 overflow-y-auto shadow-md dark:shadow-zinc-800"
       >
-        <Button
-          className={cn(
-            "transition-transform ease-in-out duration-300 mb-1",
-            !getOpenState() ? "translate-x-1" : "translate-x-0",
-          )}
-          variant="link"
-          asChild
-        >
-          <Link href="/" className="flex items-start gap-2">
-            <AppLogo className="w-6 h-6 mr-1" />
-            <h1
-              className={cn(
-                "font-bold text-lg whitespace-nowrap transition-[transform,opacity,display] ease-in-out duration-300",
-                !getOpenState()
-                  ? "-translate-x-96 opacity-0 hidden"
-                  : "translate-x-0 opacity-100",
-              )}
-            >
-              Flexwork
-            </h1>
-          </Link>
-        </Button>
+        <div className="px-6 flex items-center">
+          <AppLogo className="w-10 h-10 mr-2" />
+          <h1
+            className={cn(
+              "font-bold text-lg whitespace-nowrap transition-[transform,opacity,display] ease-in-out duration-300",
+              !getOpenState()
+                ? "-translate-x-96 opacity-0 hidden"
+                : "translate-x-0 opacity-100",
+            )}
+          >
+            Flexwork
+          </h1>
+        </div>
         <Menu isOpen={getOpenState()} />
       </div>
     </aside>

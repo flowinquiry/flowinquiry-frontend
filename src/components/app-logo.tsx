@@ -1,20 +1,18 @@
 import React from "react";
+
 type IconProps = React.HTMLAttributes<SVGElement>;
 const AppLogo = (props: IconProps) => {
   return (
     <>
       <svg
         {...props}
-        width="62"
-        height="62"
         viewBox="0 0 400 400"
-        fill="none"
         preserveAspectRatio="xMidYMid meet"
         xmlns="http://www.w3.org/2000/svg"
       >
         <g
           transform="translate(0.000000,400.000000) scale(0.100000,-0.100000)"
-          fill="#000000"
+          fill="currentColor"
           stroke="none"
         >
           <path
@@ -57,14 +55,6 @@ const AppLogo = (props: IconProps) => {
         203 l32 0 33 -117 c54 -190 50 -188 86 -28 l31 140 34 3 c39 4 41 24 -21 -205
         l-41 -153 -37 0 -36 0 -39 125 c-22 69 -42 121 -46 117 -4 -4 -23 -60 -43 -125
         l-37 -118 -37 3 -37 3 -41 150 c-62 228 -60 205 -21 205 l34 0 27 -127z"
-          />
-          <path
-            d="M1221 1546 c-24 -13 -50 -51 -51 -73 0 -10 25 -13 91 -13 l91 0 -6
-        28 c-8 34 -50 72 -79 72 -12 -1 -33 -7 -46 -14z"
-          />
-          <path
-            d="M2461 1544 c-49 -35 -66 -138 -33 -204 32 -64 104 -76 153 -24 31 33
-        40 144 15 193 -26 50 -90 66 -135 35z"
           />
         </g>
       </svg>

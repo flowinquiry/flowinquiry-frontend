@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/tooltip";
 import { getUnReadNotificationsByUserId } from "@/lib/actions/notifications.action";
 import { formatDateTime, formatDateTimeDistanceToNow } from "@/lib/datetime";
+import { cn } from "@/lib/utils";
 import { NotificationType } from "@/types/commons";
 
 const NotificationsDropdown = () => {
@@ -58,7 +59,7 @@ const NotificationsDropdown = () => {
         className=" z-[999] mx-4 lg:w-[24rem] p-0"
       >
         <DropdownMenuLabel>
-          <div className="flex justify-between px-4 py-3 border-b border-default-100 ">
+          <div className="flex justify-between px-2 py-2 ">
             <div className="text-sm text-default-800  font-medium ">
               Notifications ({notifications.length})
             </div>
@@ -67,39 +68,47 @@ const NotificationsDropdown = () => {
         <div className="max-h-[16rem] xl:max-h-[20rem]">
           <ScrollArea className="h-full">
             {notifications.map((item: NotificationType, index: number) => (
-              <DropdownMenuItem
+              <div
                 key={`inbox-${index}`}
-                className="flex gap-9 py-2 px-4 cursor-pointer group"
-                onClick={() => console.log(`Click on ${JSON.stringify(item)}`)}
-              >
-                <div className="flex items-start gap-2 flex-1">
-                  <div className="flex-1 flex flex-col gap-0.5">
-                    <div className="html-display">
-                      <TruncatedHtmlLabel
-                        htmlContent={item.content}
-                        wordLimit={400}
-                      />
-                    </div>
-                    <div>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          {formatDateTimeDistanceToNow(
-                            new Date(item.createdAt),
-                          )}
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{formatDateTime(new Date(item.createdAt))}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </div>
-                  </div>
-                </div>
-                {item.isRead && (
-                  <div className="flex-0">
-                    <span className="h-[10px] w-[10px] bg-destructive border border-destructive-foreground dark:border-default-400 rounded-full inline-block" />
-                  </div>
+                className={cn(
+                  "border-t border-[hsl(var(--border))] dark:border-[hsl(var(--border-dark))]",
                 )}
-              </DropdownMenuItem>
+              >
+                <DropdownMenuItem
+                  className="flex gap-9 py-2 px-4 cursor-pointer group"
+                  onClick={() =>
+                    console.log(`Click on ${JSON.stringify(item)}`)
+                  }
+                >
+                  <div className="flex items-start gap-2 flex-1">
+                    <div className="flex-1 flex flex-col gap-0.5">
+                      <div className="html-display">
+                        <TruncatedHtmlLabel
+                          htmlContent={item.content}
+                          wordLimit={400}
+                        />
+                      </div>
+                      <div>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            {formatDateTimeDistanceToNow(
+                              new Date(item.createdAt),
+                            )}
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{formatDateTime(new Date(item.createdAt))}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </div>
+                    </div>
+                  </div>
+                  {item.isRead && (
+                    <div className="flex-0">
+                      <span className="h-[10px] w-[10px] bg-destructive border border-destructive-foreground dark:border-default-400 rounded-full inline-block" />
+                    </div>
+                  )}
+                </DropdownMenuItem>
+              </div>
             ))}
           </ScrollArea>
         </div>
