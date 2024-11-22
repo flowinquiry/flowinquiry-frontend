@@ -7,6 +7,5 @@ export const formatDateTimeDistanceToNow = (date: Date) => {
 };
 
 export const formatDateTime = (date: Date) => {
-  // return `${date.toDateString()} ${date.toLocaleTimeString()}`;
-  return "Hello";
+  return `${date.toDateString()} ${date.toLocaleTimeString()}`;
 };

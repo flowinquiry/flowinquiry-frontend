@@ -39,7 +39,7 @@ import { z } from "zod";
 export const NotificationSchema = z.object({
   id: z.number().nullable(),
   content: z.string(),
-  createdAt: z.date(),
+  createdAt: z.string(),
   userId: z.number(),
   isRead: z.boolean(),
 });

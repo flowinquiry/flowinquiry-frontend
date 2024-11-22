@@ -58,61 +58,76 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[56rem]">
-        <DialogHeader>
-          <DialogTitle>Create a New Ticket Request</DialogTitle>
-          <DialogDescription>
-            Submit a request to the team to get assistance or initiate a task.
-            Provide all necessary details to help the team understand and
-            address your request effectively
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent className="sm:max-w-[56rem] max-h-[90vh] p-4 sm:p-6 flex flex-col">
+        {/* Header: Title and Description */}
+        <div>
+          <DialogHeader>
+            <DialogTitle>Create a New Ticket Request</DialogTitle>
+            <DialogDescription>
+              Submit a request to the team to get assistance or initiate a task.
+              Provide all necessary details to help the team understand and
+              address your request effectively.
+            </DialogDescription>
+          </DialogHeader>
+        </div>
+
+        {/* Form */}
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <ExtInputField
-              form={form}
-              fieldName="requestTitle"
-              label="Title"
-              required={true}
-            />
-            <FormField
-              control={form.control}
-              name="requestDescription"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Description <span className="text-destructive"> *</span>
-                  </FormLabel>
-                  <FormControl>
-                    <MinimalTiptapEditor
-                      value={field.value}
-                      onChange={field.onChange}
-                      className="w-full"
-                      editorContentClassName="p-5"
-                      output="html"
-                      placeholder="Type your description here..."
-                      autofocus={true}
-                      editable={true}
-                      editorClassName="focus:outline-none"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <TeamUserSelectField
-              form={form}
-              fieldName="assignUserId"
-              label="Assignee"
-              teamId={teamEntity.id!}
-            />
-            <WorkflowSelectField
-              form={form}
-              fieldName="workflowId"
-              label="Workflow"
-              teamId={teamEntity.id!}
-            />
-            <SubmitButton label="Save" labelWhileLoading="Saving ..." />
+          <form
+            onSubmit={form.handleSubmit(onSubmit)}
+            className="flex flex-col flex-1"
+          >
+            {/* Scrollable Content */}
+            <div className="flex-1 overflow-y-auto space-y-6">
+              <ExtInputField
+                form={form}
+                fieldName="requestTitle"
+                label="Title"
+                required={true}
+              />
+              <FormField
+                control={form.control}
+                name="requestDescription"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Description <span className="text-destructive"> *</span>
+                    </FormLabel>
+                    <FormControl>
+                      <MinimalTiptapEditor
+                        value={field.value}
+                        onChange={field.onChange}
+                        className="w-full h-[10rem] max-h-[30rem] overflow-y-auto"
+                        editorContentClassName="p-5"
+                        output="html"
+                        placeholder="Type your description here..."
+                        autofocus={true}
+                        editable={true}
+                        editorClassName="focus:outline-none"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <TeamUserSelectField
+                form={form}
+                fieldName="assignUserId"
+                label="Assignee"
+                teamId={teamEntity.id!}
+              />
+              <WorkflowSelectField
+                form={form}
+                fieldName="workflowId"
+                label="Workflow"
+                teamId={teamEntity.id!}
+              />
+            </div>
+
+            {/* Footer: Submit Button */}
+            <div className="pt-4">
+              <SubmitButton label="Save" labelWhileLoading="Saving ..." />
+            </div>
           </form>
         </Form>
       </DialogContent>

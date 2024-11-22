@@ -37,7 +37,7 @@ const TeamNavLayout = ({
 
   return (
     <div className="flex h-full pt-4 gap-4">
-      <aside className="w-64 bg-gray-100 h-full">
+      <aside className="w-64 bg-[hsl(var(--card))] text-[hsl(var(--card-foreground))] h-full">
         <div className="p-4">
           <nav className="mt-4 space-y-2">
             {teamFeatures.map((feature) => (
@@ -47,8 +47,8 @@ const TeamNavLayout = ({
                 className={cn(
                   "flex items-center p-2 text-sm font-medium rounded-md",
                   pathname.startsWith(feature.href)
-                    ? "bg-gray-200 text-gray-900"
-                    : "text-gray-700 hover:bg-gray-200",
+                    ? "bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))]"
+                    : "text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]",
                 )}
               >
                 <feature.icon className="w-5 h-5 mr-2" />

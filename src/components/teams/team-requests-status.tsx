@@ -15,11 +15,12 @@ import {
 } from "@/components/ui/sheet";
 import { searchTeamRequests } from "@/lib/actions/teams-request.action";
 import { obfuscate } from "@/lib/endecode";
+import { cn } from "@/lib/utils";
 import { TeamRequestType, TeamType } from "@/types/teams";
+import TeamRequestDetailSheet from "@/components/teams/team-request-detail-sheet";
 
 const TeamRequestsStatusView = ({ entity: team }: ViewProps<TeamType>) => {
   const [requests, setRequests] = useState<TeamRequestType[]>([]);
-  const [openRequestView, setOpenRequestView] = useState(false);
   const [currentPage, setCurrentPage] = useState(1); // Track current page
   const [totalPages, setTotalPages] = useState(0); // Total pages
   const [totalElements, setTotalElements] = useState(0);
@@ -40,6 +41,17 @@ const TeamRequestsStatusView = ({ entity: team }: ViewProps<TeamType>) => {
     }
   };
 
+  const [selectedRequest, setSelectedRequest] =
+    useState<TeamRequestType | null>(null);
+
+  const openSheet = (request: TeamRequestType) => {
+    setSelectedRequest(request);
+  };
+
+  const closeSheet = () => {
+    setSelectedRequest(null);
+  };
+
   useEffect(() => {
     fetchData();
   }, [currentPage]);
@@ -51,75 +63,37 @@ const TeamRequestsStatusView = ({ entity: team }: ViewProps<TeamType>) => {
       <div>
         {requests.map((request) => (
           <div
-            className="odd:bg-gray-100 even:bg-blue-100 p-4 hover:bg-blue-300"
+            className={cn(
+              "p-4 hover:bg-[hsl(var(--muted))] transition-colors",
+              "odd:bg-[hsl(var(--card))] odd:text-[hsl(var(--card-foreground))]",
+              "even:bg-[hsl(var(--secondary))] even:text-[hsl(var(--secondary-foreground))]",
+            )}
             key={request.id}
           >
             <Button
               variant="link"
               className="px-0"
-              onClick={() => setOpenRequestView(true)}
+              onClick={() => openSheet(request)}
             >
               {request.requestTitle}
             </Button>
+
             <TruncatedHtmlLabel
               htmlContent={request.requestDescription!}
               wordLimit={400}
             />
-            <Sheet
-              open={openRequestView}
-              onOpenChange={() => setOpenRequestView(false)}
-            >
-              <SheetContent className="w-[50rem] sm:w-full">
-                <SheetHeader>
-                  <SheetTitle>
-                    <Button variant="link" className="px-0">
-                      <Link href="">{request.requestTitle}</Link>
-                    </Button>
-                  </SheetTitle>
-                  <SheetDescription>
-                    <div
-                      className="prose"
-                      dangerouslySetInnerHTML={{
-                        __html: request.requestDescription!,
-                      }}
-                    />
-                  </SheetDescription>
-                </SheetHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="name" className="text-right">
-                      Requested User
-                    </Label>
-                    <Label className="col-span-3">
-                      <Button variant="link" className="px-0">
-                        <Link
-                          href={`/portal/users/${obfuscate(request.requestUserId)}`}
-                        >
-                          {request.requestUserName}
-                        </Link>
-                      </Button>
-                    </Label>
-                  </div>
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="username" className="text-right">
-                      Assignee
-                    </Label>
-                    <Label className="col-span-3">
-                      <Button variant="link" className="px-0">
-                        <Link
-                          href={`/portal/users/${obfuscate(request.assignUserId)}`}
-                        >
-                          {request.assignUserName}
-                        </Link>
-                      </Button>
-                    </Label>
-                  </div>
-                </div>
-              </SheetContent>
-            </Sheet>
           </div>
         ))}
+
+        {selectedRequest && (
+          <TeamRequestDetailSheet
+            open={!!selectedRequest}
+            onClose={closeSheet}
+            request={selectedRequest}
+          />
+        )}
       </div>
+
       <PaginationExt
         currentPage={currentPage}
         totalPages={totalPages}
