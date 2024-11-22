@@ -1,6 +1,7 @@
 "use client";
 
-import { Badge, BellDot } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { BellDot } from "lucide-react";
 import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 
@@ -19,7 +20,10 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { getUnReadNotificationsByUserId } from "@/lib/actions/notifications.action";
+import {
+  getUnReadNotificationsByUserId,
+  markNotificationsAsRead,
+} from "@/lib/actions/notifications.action";
 import { formatDateTime, formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { cn } from "@/lib/utils";
 import { NotificationType } from "@/types/commons";
@@ -41,17 +45,57 @@ const NotificationsDropdown = () => {
     fetchNotifications();
   }, []);
 
+  const handleNotificationClick = async (notificationId: number) => {
+    await markNotificationsAsRead([notificationId]);
+
+    setNotifications((prevNotifications) =>
+      prevNotifications.map((notification) =>
+        notification.id === notificationId
+          ? { ...notification, isRead: true }
+          : notification,
+      ),
+    );
+
+    setTimeout(() => {
+      setNotifications((prevNotifications) =>
+        prevNotifications.filter(
+          (notification) => notification.id !== notificationId,
+        ),
+      );
+    }, 500);
+  };
+
+  const handleMarkAllRead = async () => {
+    const notificationIds = notifications
+      .map((notification) => notification.id)
+      .filter((id): id is number => id !== null);
+
+    await markNotificationsAsRead(notificationIds);
+
+    setNotifications([]);
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="relative h-8 w-8 rounded-full">
           <BellDot className="animate-tada h-5 w-5" />
-          <Badge
-            className="bg-red-400 text-white absolute top-[2px] right-[2px] translate-x-1/2 translate-y-[-50%] w-4 h-4 p-0 text-[8px] rounded-full font-semibold flex items-center justify-center"
-            color="destructive"
-          >
-            2
-          </Badge>
+          {notifications.filter((notification) => !notification.isRead).length >
+            0 && (
+            <div
+              className={cn(
+                "absolute top-[2px] right-[2px] translate-x-1/2 translate-y-[-50%]",
+                "w-5 h-5 text-[10px] rounded-full font-semibold flex items-center justify-center",
+                "bg-red-400 text-white",
+                "dark:bg-red-500 dark:text-white",
+              )}
+            >
+              {
+                notifications.filter((notification) => !notification.isRead)
+                  .length
+              }
+            </div>
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -63,64 +107,86 @@ const NotificationsDropdown = () => {
           "backdrop-blur-md backdrop-brightness-110 dark:backdrop-brightness-75 shadow-lg",
         )}
       >
-        <DropdownMenuLabel>
-          <div className="flex justify-between px-2 py-2">
-            <div className="text-sm text-default-800 dark:text-default-200 font-medium">
-              Notifications ({notifications.length})
-            </div>
-          </div>
-        </DropdownMenuLabel>
-        <div className="max-h-[16rem] xl:max-h-[20rem]">
-          <ScrollArea className="h-full">
-            {notifications.map((item: NotificationType, index: number) => (
-              <div
-                key={`inbox-${index}`}
-                className={cn(
-                  "border-t border-[hsl(var(--border))] dark:border-[hsl(var(--border-dark))]",
-                )}
-              >
-                <DropdownMenuItem
-                  className={cn(
-                    "flex gap-9 py-2 px-4 cursor-pointer group",
-                    "bg-[rgba(255,255,255,0.9)] dark:bg-[rgba(23,23,23,0.8)]",
-                    "hover:bg-[hsl(var(--muted))] dark:hover:bg-[rgba(255,255,255,0.05)]",
-                  )}
-                  onClick={() =>
-                    console.log(`Click on ${JSON.stringify(item)}`)
-                  }
+        {notifications.length > 0 ? (
+          <>
+            <DropdownMenuLabel>
+              <div className="flex justify-between px-2 py-2">
+                <div className="text-sm text-default-800 dark:text-default-200 font-medium">
+                  Notifications ({notifications.length})
+                </div>
+                <button
+                  onClick={handleMarkAllRead}
+                  className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
                 >
-                  <div className="flex items-start gap-2 flex-1">
-                    <div className="flex-1 flex flex-col gap-0.5">
-                      <div className="html-display">
-                        <TruncatedHtmlLabel
-                          htmlContent={item.content}
-                          wordLimit={400}
-                        />
-                      </div>
-                      <div>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            {formatDateTimeDistanceToNow(
-                              new Date(item.createdAt),
-                            )}
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{formatDateTime(new Date(item.createdAt))}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </div>
-                    </div>
-                  </div>
-                  {item.isRead && (
-                    <div className="flex-0">
-                      <span className="h-[10px] w-[10px] bg-destructive border border-destructive-foreground dark:border-default-400 rounded-full inline-block" />
-                    </div>
-                  )}
-                </DropdownMenuItem>
+                  Mark all read
+                </button>
               </div>
-            ))}
-          </ScrollArea>
-        </div>
+            </DropdownMenuLabel>
+            <div className="max-h-[16rem] xl:max-h-[20rem] overflow-auto">
+              <ScrollArea className="h-full">
+                <AnimatePresence>
+                  {notifications.map(
+                    (item: NotificationType, index: number) => (
+                      <motion.div
+                        key={item.id}
+                        initial={{ opacity: 1, y: 0 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        transition={{ duration: 0.5 }}
+                        className={cn(
+                          "border-t border-[hsl(var(--border))] dark:border-[hsl(var(--border-dark))]",
+                          item.isRead
+                            ? "bg-gray-100 dark:bg-gray-800"
+                            : "bg-white dark:bg-black",
+                        )}
+                      >
+                        <DropdownMenuItem
+                          onSelect={(e) => e.preventDefault()}
+                          className={cn(
+                            "flex gap-9 py-2 px-4 cursor-pointer group",
+                            "hover:bg-[hsl(var(--muted))] dark:hover:bg-[rgba(255,255,255,0.05)]",
+                          )}
+                          onClick={() => handleNotificationClick(item.id!)}
+                        >
+                          <div className="flex items-start gap-2 flex-1">
+                            <div className="flex-1 flex flex-col gap-0.5">
+                              <div className="html-display">
+                                <TruncatedHtmlLabel
+                                  htmlContent={item.content}
+                                  wordLimit={400}
+                                />
+                              </div>
+                              <div>
+                                <Tooltip>
+                                  <TooltipTrigger>
+                                    {formatDateTimeDistanceToNow(
+                                      new Date(item.createdAt),
+                                    )}
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <p>
+                                      {formatDateTime(new Date(item.createdAt))}
+                                    </p>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </div>
+                            </div>
+                          </div>
+                        </DropdownMenuItem>
+                      </motion.div>
+                    ),
+                  )}
+                </AnimatePresence>
+              </ScrollArea>
+            </div>
+          </>
+        ) : (
+          <div className="flex items-center justify-center p-4">
+            <p className="text-sm text-default-800 dark:text-default-200">
+              You have no notifications.
+            </p>
+          </div>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );

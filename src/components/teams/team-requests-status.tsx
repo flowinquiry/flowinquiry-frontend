@@ -49,7 +49,7 @@ const TeamRequestsStatusView = ({ entity: team }: ViewProps<TeamType>) => {
   if (loading) return <div>Loading...</div>;
 
   return (
-    <div className="grid grid-cols-1">
+    <div className="grid grid-cols-1 gap-4">
       <div>
         {requests.map((request, index) => (
           <div
