@@ -98,12 +98,23 @@ export const doAdvanceSearch = async <R>(
   filters: Filter[] = [], // Filters for the search
   pagination: Pagination = defaultPagination, // Default pagination with page 1 and size 10
 ) => {
+  // Filter out filters with null values and log warnings
+  const validFilters = filters.filter((filter) => {
+    if (filter.value === null || filter.value === undefined) {
+      console.warn(
+        `Filter with field "${filter.field}" and operator "${filter.operator}" has a null value and will be ignored.`,
+      );
+      return false;
+    }
+    return true;
+  });
+
   // Validate query
-  const queryValidation = querySchema.safeParse({ filters });
+  const queryValidation = querySchema.safeParse({ filters: validFilters });
   if (!queryValidation.success) {
     throw new HttpError(
       HttpError.BAD_REQUEST,
-      `Invalid query ${queryValidation.error.errors}`,
+      `Invalid query ${JSON.stringify(validFilters)}. Root cause is ${JSON.stringify(queryValidation.error.errors)}`,
     );
   }
 
@@ -132,6 +143,6 @@ export const doAdvanceSearch = async <R>(
   return fetchData<QueryDTO, PageableResult<R>>(
     `${url}?${queryParams.toString()}`,
     "POST",
-    buildSearchQuery(filters),
+    buildSearchQuery(validFilters),
   );
 };

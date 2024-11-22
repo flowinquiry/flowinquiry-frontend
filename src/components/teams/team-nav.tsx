@@ -38,8 +38,8 @@ const TeamNavLayout = ({
   return (
     <div className="flex h-full pt-4 gap-4">
       <aside className="w-64 bg-[hsl(var(--card))] text-[hsl(var(--card-foreground))] h-full">
-        <div className="p-4">
-          <nav className="mt-4 space-y-2">
+        <div>
+          <nav className="space-y-2">
             {teamFeatures.map((feature) => (
               <Link
                 key={feature.href}

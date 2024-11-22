@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 
 import PaginationExt from "@/components/shared/pagination-ext";
@@ -7,9 +9,17 @@ import { Button } from "@/components/ui/button";
 import { ViewProps } from "@/components/ui/ext-form";
 import { searchTeamRequests } from "@/lib/actions/teams-request.action";
 import { cn } from "@/lib/utils";
+import { Filter, QueryDTO } from "@/types/query";
 import { TeamRequestType, TeamType } from "@/types/teams";
 
-const TeamRequestsStatusView = ({ entity: team }: ViewProps<TeamType>) => {
+interface TeamRequestsStatusViewProps extends ViewProps<TeamType> {
+  query: QueryDTO;
+}
+
+const TeamRequestsStatusView = ({
+  entity: team,
+  query,
+}: TeamRequestsStatusViewProps) => {
   const [requests, setRequests] = useState<TeamRequestType[]>([]);
   const [currentPage, setCurrentPage] = useState(1); // Track current page
   const [totalPages, setTotalPages] = useState(0); // Total pages
@@ -19,10 +29,16 @@ const TeamRequestsStatusView = ({ entity: team }: ViewProps<TeamType>) => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const pageResult = await searchTeamRequests([], {
+      const combinedFilters: Filter[] = [
+        { field: "team.id", operator: "eq", value: team.id },
+        ...(query.filters || []), // Ensure query.filters is an array or use an empty array
+      ];
+
+      const pageResult = await searchTeamRequests(combinedFilters, {
         page: currentPage,
         size: 10,
       });
+
       setRequests(pageResult.content);
       setTotalElements(pageResult.totalElements);
       setTotalPages(pageResult.totalPages);
@@ -44,7 +60,7 @@ const TeamRequestsStatusView = ({ entity: team }: ViewProps<TeamType>) => {
 
   useEffect(() => {
     fetchData();
-  }, [currentPage]);
+  }, [currentPage, query]); // Fetch data whenever currentPage or query changes
 
   if (loading) return <div>Loading...</div>;
 

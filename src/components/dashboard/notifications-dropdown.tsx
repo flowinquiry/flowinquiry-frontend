@@ -114,12 +114,13 @@ const NotificationsDropdown = () => {
                 <div className="text-sm text-default-800 dark:text-default-200 font-medium">
                   Notifications ({notifications.length})
                 </div>
-                <button
+                <Button
+                  variant="link"
                   onClick={handleMarkAllRead}
-                  className="text-sm text-blue-600 dark:text-blue-400 hover:underline"
+                  className="text-sm px-0 h-0"
                 >
                   Mark all read
-                </button>
+                </Button>
               </div>
             </DropdownMenuLabel>
             <div className="max-h-[16rem] xl:max-h-[20rem] overflow-auto">
