@@ -28,6 +28,7 @@ import {
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { CommentType } from "@/types/commons";
 import { TeamRequestType } from "@/types/teams";
+import { obfuscate } from "@/lib/endecode";
 
 type RequestDetailsProps = {
   open: boolean;
@@ -100,19 +101,27 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
           <div className="grid gap-4 py-4">
             <div>
               Requested User:{" "}
-              <Button variant="link" className="px-0">
-                <Link href={`/portal/users/${request.requestUserId}`}>
-                  {request.requestUserName}
-                </Link>
-              </Button>
+              {request.requestUserId !== undefined && (
+                <Button variant="link" className="px-0">
+                  <Link
+                    href={`/portal/users/${obfuscate(request.requestUserId)}`}
+                  >
+                    {request.requestUserName}
+                  </Link>
+                </Button>
+              )}
             </div>
             <div>
               Assignee:{" "}
-              <Button variant="link" className="px-0">
-                <Link href={`/portal/users/${request.assignUserId}`}>
-                  {request.assignUserName}
-                </Link>
-              </Button>
+              {request.assignUserId !== undefined && (
+                <Button variant="link" className="px-0">
+                  <Link
+                    href={`/portal/users/${obfuscate(request.assignUserId)}`}
+                  >
+                    {request.assignUserName}
+                  </Link>
+                </Button>
+              )}
             </div>
           </div>
           <div className="border-t pt-4 pr-4">
@@ -160,8 +169,14 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
 
                     {/* Comment Content Section */}
                     <div>
-                      <div className="font-semibold">
-                        {comment.createdByName}
+                      <div>
+                        <Button variant="link" className="px-0 h-0">
+                          <Link
+                            href={`/portal/users/${obfuscate(comment.createdById)}`}
+                          >
+                            {comment.createdByName}
+                          </Link>
+                        </Button>
                       </div>
                       <div className="text-sm text-gray-600">
                         <Tooltip>
