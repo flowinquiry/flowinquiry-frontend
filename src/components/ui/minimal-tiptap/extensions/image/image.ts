@@ -31,9 +31,7 @@ export type UploadReturnType =
       src: string;
     };
 
-interface CustomImageOptions
-  extends ImageOptions,
-    Omit<FileValidationOptions, "allowBase64"> {
+interface CustomImageOptions extends ImageOptions, FileValidationOptions {
   uploadFn?: (file: File, editor: Editor) => Promise<UploadReturnType>;
   onImageRemoved?: (props: Attrs) => void;
   onActionSuccess?: (props: ImageActionProps) => void;
@@ -186,11 +184,14 @@ export const Image = TiptapImage.extend<CustomImageOptions>({
       ...this.parent?.(),
       allowedMimeTypes: [],
       maxFileSize: 0,
+      allowBase64: false, // Default value for allowBase64
       uploadFn: undefined,
       onToggle: undefined,
       downloadImage: undefined,
       copyImage: undefined,
       copyLink: undefined,
+      onValidationError: undefined,
+      inline: false,
     };
   },
 
@@ -225,11 +226,15 @@ export const Image = TiptapImage.extend<CustomImageOptions>({
       setImages:
         (attrs) =>
         ({ commands }) => {
-          const [validImages, errors] = filterFiles(attrs, {
-            allowedMimeTypes: this.options.allowedMimeTypes,
+          // Merge options with defaults and ensure allowBase64 is always defined
+          const optionsWithDefaults = {
+            allowedMimeTypes: this.options.allowedMimeTypes ?? [],
             maxFileSize: this.options.maxFileSize,
-            allowBase64: this.options.allowBase64,
-          });
+            allowBase64: this.options.allowBase64 ?? false, // Default to false if undefined
+          };
+
+          // Pass the fully defined options to filterFiles
+          const [validImages, errors] = filterFiles(attrs, optionsWithDefaults);
 
           if (errors.length > 0 && this.options.onValidationError) {
             this.options.onValidationError(errors);
@@ -269,62 +274,6 @@ export const Image = TiptapImage.extend<CustomImageOptions>({
           }
 
           return false;
-        },
-
-      downloadImage: (attrs) => () => {
-        const downloadFunc = this.options.downloadImage || downloadImage;
-        void downloadFunc({ ...attrs, action: "download" }, this.options);
-        return true;
-      },
-
-      copyImage: (attrs) => () => {
-        const copyImageFunc = this.options.copyImage || copyImage;
-        void copyImageFunc({ ...attrs, action: "copyImage" }, this.options);
-        return true;
-      },
-
-      copyLink: (attrs) => () => {
-        const copyLinkFunc = this.options.copyLink || copyLink;
-        void copyLinkFunc({ ...attrs, action: "copyLink" }, this.options);
-        return true;
-      },
-
-      toggleImage:
-        () =>
-        ({ editor }) => {
-          const input = document.createElement("input");
-          input.type = "file";
-          input.accept = this.options.allowedMimeTypes.join(",");
-          input.onchange = () => {
-            const files = input.files;
-            if (!files) return;
-
-            const [validImages, errors] = filterFiles(Array.from(files), {
-              allowedMimeTypes: this.options.allowedMimeTypes,
-              maxFileSize: this.options.maxFileSize,
-              allowBase64: this.options.allowBase64,
-            });
-
-            if (errors.length > 0 && this.options.onValidationError) {
-              this.options.onValidationError(errors);
-              return false;
-            }
-
-            if (validImages.length === 0) return false;
-
-            if (this.options.onToggle) {
-              this.options.onToggle(
-                editor,
-                validImages,
-                editor.state.selection.from,
-              );
-            }
-
-            return false;
-          };
-
-          input.click();
-          return true;
         },
     };
   },

@@ -1,8 +1,8 @@
-import TiptapLink from "@tiptap/extension-link";
-import { Plugin, TextSelection } from "@tiptap/pm/state";
-import type { EditorView } from "@tiptap/pm/view";
 import { mergeAttributes } from "@tiptap/react";
+import TiptapLink from "@tiptap/extension-link";
+import type { EditorView } from "@tiptap/pm/view";
 import { getMarkRange } from "@tiptap/react";
+import { Plugin, TextSelection } from "@tiptap/pm/state";
 
 export const Link = TiptapLink.extend({
   /*
@@ -27,7 +27,7 @@ export const Link = TiptapLink.extend({
   renderHTML({ HTMLAttributes }) {
     return [
       "a",
-      mergeAttributes(this.options.HTMLAttributes, HTMLAttributes),
+      mergeAttributes(this.options.HTMLAttributes ?? {}, HTMLAttributes),
       0,
     ];
   },
