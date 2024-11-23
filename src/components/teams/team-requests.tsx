@@ -142,7 +142,7 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamType>) => {
         {/* Status Filter */}
         <div className="flex items-center gap-2">
           {[
-            { label: "Open", icon: Clock },
+            { label: "New", icon: Clock },
             { label: "Assigned", icon: UserCheck },
             { label: "Completed", icon: CheckCircle },
           ].map(({ label, icon: Icon }) => (

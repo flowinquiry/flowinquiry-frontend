@@ -1,6 +1,13 @@
 "use client";
 
-import { Layout, Settings, Users } from "lucide-react";
+import {
+  ArrowRightCircleIcon,
+  HelpCircleIcon,
+  Layout,
+  Settings,
+  Shuffle,
+  Users,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -26,12 +33,12 @@ const TeamNavLayout = ({
     {
       href: `/portal/teams/${obfuscate(team.id)}/requests`,
       label: "Requests",
-      icon: Layout,
+      icon: ArrowRightCircleIcon,
     },
     {
       href: `/portal/teams/${obfuscate(team.id)}/workflows`,
       label: "Workflows",
-      icon: Settings,
+      icon: Shuffle,
     },
   ];
 

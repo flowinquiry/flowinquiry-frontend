@@ -106,9 +106,10 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
                 </Button>
               </SheetTitle>
             </SheetHeader>
-            <div>
-              <div>
-                Description:
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* First Row: Description (Spans 2 columns) */}
+              <div className="col-span-1 md:col-span-2 pt-4">
+                <label className="text-sm font-medium">Description</label>
                 <div
                   className="prose"
                   dangerouslySetInnerHTML={{
@@ -116,10 +117,16 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
                   }}
                 />
               </div>
-              <div>
-                Requested User:{" "}
+
+              {/* Second Row: Requested User */}
+              <div className="flex flex-col space-y-2 pt-4">
+                <label className="text-sm font-medium">Requested User</label>
                 {teamRequest.requestUserId !== null && (
-                  <Button variant="link" className="px-0">
+                  <Button
+                    variant="link"
+                    className="p-0 text-left w-auto h-auto"
+                    style={{ display: "block", textAlign: "left" }}
+                  >
                     <Link
                       href={`/portal/users/${obfuscate(teamRequest.requestUserId)}`}
                     >
@@ -128,20 +135,25 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
                   </Button>
                 )}
               </div>
-              <form>
-                <div className="grid gap-4 py-4">
-                  <div>
-                    <TeamUserSelectField
-                      form={form}
-                      fieldName="assignUserId"
-                      label="Assignee"
-                      teamId={teamRequest.teamId!}
-                      onUserSelect={(user) => form.handleSubmit(onSubmit)()}
-                    />
+
+              {/* Second Row: Assignee */}
+              <div>
+                <form>
+                  <div className="grid gap-4 py-4">
+                    <div>
+                      <TeamUserSelectField
+                        form={form}
+                        fieldName="assignUserId"
+                        label="Assignee"
+                        teamId={teamRequest.teamId!}
+                        onUserSelect={(user) => form.handleSubmit(onSubmit)()}
+                      />
+                    </div>
                   </div>
-                </div>
-              </form>
+                </form>
+              </div>
             </div>
+
             <div className="border-t pt-4 pr-4">
               <h3 className="text-lg font-semibold mb-2">Add a Comment</h3>
               <Textarea
