@@ -35,7 +35,12 @@ const TeamUserSelectField = ({
   fieldName,
   label,
   teamId,
-}: ExtInputProps & UiAttributes & { teamId: number }) => {
+  onUserSelect,
+}: ExtInputProps &
+  UiAttributes & {
+    teamId: number;
+    onUserSelect?: (user: UserWithTeamRoleDTO) => void;
+  }) => {
   const [users, setUsers] = useState<UserWithTeamRoleDTO[]>([]);
 
   useEffect(() => {
@@ -88,6 +93,9 @@ const TeamUserSelectField = ({
                         key={user.id}
                         onSelect={() => {
                           form.setValue(fieldName, user.id);
+                          if (onUserSelect) {
+                            onUserSelect(user);
+                          }
                         }}
                       >
                         {user.firstName} {user.lastName} ({user.teamRole})

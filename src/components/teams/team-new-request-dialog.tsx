@@ -70,7 +70,6 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
           </DialogHeader>
         </div>
 
-        {/* Form */}
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}

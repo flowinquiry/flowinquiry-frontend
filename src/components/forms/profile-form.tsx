@@ -61,10 +61,7 @@ export const ProfileForm = () => {
     formData.append("userDTO", userJsonBlob);
 
     if (selectedFile) {
-      console.log("Having file upload");
       formData.append("file", selectedFile);
-    } else {
-      console.log("Not Having file upload");
     }
 
     await apiClient(

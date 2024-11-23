@@ -8,7 +8,6 @@ export default async function Page({
 }: {
   params: { authorityId: string | "new" };
 }) {
-  console.log("Authoriuty name", params.authorityId);
   const authority =
     params.authorityId !== "new"
       ? await findAuthorityByName(deobfuscateToString(params.authorityId))
