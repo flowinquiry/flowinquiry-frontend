@@ -37,8 +37,8 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamType>) => {
   const [searchText, setSearchText] = useState("");
   const [isAscending, setIsAscending] = useState(true);
 
-  // Default to 'Open' as the selected status
-  const [statuses, setStatuses] = useState<string[]>(["Open"]);
+  // Default to 'New' as the selected status
+  const [statuses, setStatuses] = useState<string[]>(["New"]);
 
   const toggleStatus = (status: string) => {
     if (statuses.includes(status)) {

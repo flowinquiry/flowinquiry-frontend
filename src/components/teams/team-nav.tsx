@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  ArrowRightCircleIcon,
-  HelpCircleIcon,
-  Layout,
-  Settings,
-  Shuffle,
-  Users,
-} from "lucide-react";
+import { ArrowRightCircleIcon, Shuffle, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
