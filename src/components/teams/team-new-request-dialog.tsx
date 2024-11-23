@@ -50,7 +50,6 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
   });
 
   const onSubmit = async (data: TeamRequestType) => {
-    console.log(`Submit team request ${JSON.stringify(data)}`);
     await createTeamRequest(data);
     setOpen(false);
     onSaveSuccess();

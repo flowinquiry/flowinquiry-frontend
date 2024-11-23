@@ -58,7 +58,7 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamType>) => {
     // Add status filter
     if (statuses.length > 0) {
       filters.push({
-        field: "status",
+        field: "currentState",
         operator: "in",
         value: statuses,
       });

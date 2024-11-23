@@ -51,7 +51,9 @@ const WorkflowSelectField = ({
       name={fieldName}
       render={({ field }) => (
         <FormItem className="grid grid-cols-1">
-          <FormLabel>{label}</FormLabel>
+          <FormLabel>
+            {label} <span className="text-destructive"> *</span>
+          </FormLabel>
           <Popover>
             <PopoverTrigger asChild>
               <FormControl>

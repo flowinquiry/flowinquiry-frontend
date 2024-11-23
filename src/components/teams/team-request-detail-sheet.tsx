@@ -101,7 +101,7 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
           <div className="grid gap-4 py-4">
             <div>
               Requested User:{" "}
-              {request.requestUserId !== undefined && (
+              {request.requestUserId !== null && (
                 <Button variant="link" className="px-0">
                   <Link
                     href={`/portal/users/${obfuscate(request.requestUserId)}`}
@@ -113,7 +113,7 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
             </div>
             <div>
               Assignee:{" "}
-              {request.assignUserId !== undefined && (
+              {request.assignUserId !== null && (
                 <Button variant="link" className="px-0">
                   <Link
                     href={`/portal/users/${obfuscate(request.assignUserId)}`}

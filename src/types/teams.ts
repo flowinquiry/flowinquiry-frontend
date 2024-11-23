@@ -22,7 +22,7 @@ export const TeamRequestDTOSchema = z.object({
   workflowName: z.string().nullable().optional(),
   requestUserId: z.number().nullable(),
   requestUserName: z.string().nullable().optional(),
-  assignUserId: z.number().nullable(),
+  assignUserId: z.number().nullable().optional(),
   assignUserName: z.string().nullable().optional(),
   requestTitle: z.string(),
   requestDescription: z.string().nullable(),
