@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
+import UserAvatar from "@/components/shared/user-avatar";
 import TeamUserSelectField from "@/components/teams/team-users-select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -121,17 +122,20 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
               <div className="flex flex-col space-y-2 pt-4">
                 <label className="text-sm font-medium">Requested User</label>
                 {teamRequest.requestUserId !== null && (
-                  <Button
-                    variant="link"
-                    className="p-0 text-left w-auto h-auto"
-                    style={{ display: "block", textAlign: "left" }}
-                  >
-                    <Link
-                      href={`/portal/users/${obfuscate(teamRequest.requestUserId)}`}
+                  <div className="flex items-center gap-2">
+                    <UserAvatar imageUrl={teamRequest.requestUserImageUrl} />
+                    <Button
+                      variant="link"
+                      className="p-0 text-left w-auto h-auto"
+                      style={{ display: "block", textAlign: "left" }}
                     >
-                      {teamRequest.requestUserName}
-                    </Link>
-                  </Button>
+                      <Link
+                        href={`/portal/users/${obfuscate(teamRequest.requestUserId)}`}
+                      >
+                        {teamRequest.requestUserName}
+                      </Link>
+                    </Button>
+                  </div>
                 )}
               </div>
 
@@ -143,7 +147,7 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
                       <TeamUserSelectField
                         form={form}
                         fieldName="assignUserId"
-                        label="Assignee"
+                        label="Assigned User"
                         teamId={teamRequest.teamId!}
                         onUserSelect={(user) => form.handleSubmit(onSubmit)()}
                       />

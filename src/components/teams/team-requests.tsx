@@ -28,6 +28,12 @@ import { Filter, QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { TeamType } from "@/types/teams";
 
+export type Pagination = {
+  page: number;
+  size: number;
+  sort?: { field: string; direction: "asc" | "desc" }[];
+};
+
 const TeamRequestsView = ({ entity: team }: ViewProps<TeamType>) => {
   const permissionLevel = usePagePermission();
   const teamRole = useUserTeamRole().role;
@@ -35,10 +41,26 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamType>) => {
   const [open, setOpen] = useState(false);
 
   const [searchText, setSearchText] = useState("");
+  const [debouncedSearchText, setDebouncedSearchText] = useState(""); // Debounced text
   const [isAscending, setIsAscending] = useState(true);
 
   // Default to 'New' as the selected status
   const [statuses, setStatuses] = useState<string[]>(["New"]);
+
+  // Trigger to refresh team requests
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
+
+  // Pagination state
+  const [pagination, setPagination] = useState<Pagination>({
+    page: 1,
+    size: 10,
+    sort: [
+      {
+        field: "createdDate",
+        direction: isAscending ? "asc" : "desc",
+      },
+    ],
+  });
 
   const toggleStatus = (status: string) => {
     if (statuses.includes(status)) {
@@ -64,24 +86,41 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamType>) => {
       });
     }
 
-    // Add search text filter
-    if (searchText.trim() !== "") {
+    // Add debounced search text filter
+    if (debouncedSearchText.trim() !== "") {
       filters.push({
-        field: "title", // Assuming you're searching by the 'title' field
+        field: "requestTitle", // Changed field from `title` to `requestTitle`
         operator: "lk", // 'lk' for 'like'
-        value: `%${searchText}%`, // SQL-style wildcard for 'LIKE'
+        value: `%${debouncedSearchText}%`, // SQL-style wildcard for 'LIKE'
       });
     }
 
-    // Add sort order
-    filters.push({
-      field: "createdAt",
-      operator: isAscending ? "gt" : "lt",
-      value: null, // Sorting doesn't require a specific value
-    });
-
+    // Update the query and pagination sort
     setQuery({ filters });
-  }, [searchText, statuses, isAscending]);
+    setPagination((prev) => ({
+      ...prev,
+      sort: [
+        {
+          field: "createdDate",
+          direction: isAscending ? "asc" : "desc",
+        },
+      ],
+    }));
+  }, [debouncedSearchText, statuses, isAscending]);
+
+  // Debounce logic to delay updates to `debouncedSearchText`
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchText(searchText); // Update the debounced text after 3 seconds
+    }, 3000);
+
+    return () => clearTimeout(handler); // Cleanup the timeout if the input changes again
+  }, [searchText]);
+
+  const onCreatedTeamRequestSuccess = () => {
+    // Increment refresh trigger to reload data
+    setRefreshTrigger((prev) => prev + 1);
+  };
 
   return (
     <div className="grid grid-cols-1 gap-4">
@@ -101,7 +140,7 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamType>) => {
               open={open}
               setOpen={setOpen}
               teamEntity={team}
-              onSaveSuccess={() => console.log("Save success")}
+              onSaveSuccess={onCreatedTeamRequestSuccess}
             />
           </div>
         )}
@@ -163,8 +202,13 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamType>) => {
           ))}
         </div>
       </div>
-      {/* Pass query as props */}
-      <TeamRequestsStatusView entity={team} query={query} />
+      {/* Pass query, refreshTrigger, and pagination as props */}
+      <TeamRequestsStatusView
+        entity={team}
+        query={query}
+        refreshTrigger={refreshTrigger}
+        pagination={pagination}
+      />
     </div>
   );
 };
