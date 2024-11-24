@@ -44,13 +44,11 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamType>) => {
   const [debouncedSearchText, setDebouncedSearchText] = useState(""); // Debounced text
   const [isAscending, setIsAscending] = useState(false);
 
-  // Default to 'New' as the selected status
   const [statuses, setStatuses] = useState<string[]>(["New"]);
 
   // Trigger to refresh team requests
   const [refreshTrigger, setRefreshTrigger] = useState(0);
 
-  // Pagination state
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
     size: 10,
@@ -89,9 +87,9 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamType>) => {
     // Add debounced search text filter
     if (debouncedSearchText.trim() !== "") {
       filters.push({
-        field: "requestTitle", // Changed field from `title` to `requestTitle`
+        field: "requestTitle",
         operator: "lk", // 'lk' for 'like'
-        value: `%${debouncedSearchText}%`, // SQL-style wildcard for 'LIKE'
+        value: `%${debouncedSearchText}%`,
       });
     }
 
