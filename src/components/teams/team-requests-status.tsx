@@ -3,10 +3,11 @@
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
+import { UserAvatar } from "@/components/shared/avatar-display";
 import PaginationExt from "@/components/shared/pagination-ext";
 import TruncatedHtmlLabel from "@/components/shared/truncate-html-label";
-import UserAvatar from "@/components/shared/user-avatar";
 import TeamRequestDetailSheet from "@/components/teams/team-request-detail-sheet";
+import { PriorityDisplay } from "@/components/teams/team-requests-priority-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ViewProps } from "@/components/ui/ext-form";
@@ -16,7 +17,6 @@ import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { Filter, Pagination, QueryDTO } from "@/types/query";
 import { TeamRequestType, TeamType } from "@/types/teams";
-import { PriorityDisplay } from "@/components/teams/team-requests-priority-display";
 
 interface TeamRequestsStatusViewProps extends ViewProps<TeamType> {
   query: QueryDTO;

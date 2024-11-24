@@ -24,7 +24,7 @@ const Page = async ({ params }: { params: { teamId: string } }) => {
   return (
     <ContentLayout title="Teams">
       <Breadcrumbs items={breadcrumbItems} />
-      <TeamNavLayout team={team}>
+      <TeamNavLayout teamId={team.id!}>
         <TeamWorkflowsView entity={team} />
       </TeamNavLayout>
     </ContentLayout>

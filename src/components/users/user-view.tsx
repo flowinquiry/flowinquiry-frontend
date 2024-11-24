@@ -4,11 +4,10 @@ import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { TeamAvatar, UserAvatar } from "@/components/shared/avatar-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ViewProps } from "@/components/ui/ext-form";
-import DefaultUserLogo from "@/components/users/user-logo";
 import { findTeamsByMemberId } from "@/lib/actions/teams.action";
 import { getDirectReports } from "@/lib/actions/users.action";
 import { obfuscate } from "@/lib/endecode";
@@ -36,17 +35,9 @@ export const UserView = ({ entity: user }: ViewProps<UserType>) => {
 
   return (
     <div className="flex flex-col md:flex-row items-start py-4 gap-4">
-      <div className="grid grid-cols-1 w-full md:w-[18rem] space-x-4 space-y-4 gap-4 justify-items-start rounded-lg border border-gray-300">
+      <div className="grid grid-cols-1 w-full md:w-[18rem] space-x-4 space-y-4 justify-items-start rounded-lg border border-gray-300">
         <div className="flex justify-center w-full pt-4">
-          <Avatar className="size-24 cursor-pointer ">
-            <AvatarImage
-              src={user?.imageUrl ? `/api/files/${user.imageUrl}` : undefined}
-              alt={`${user.firstName} ${user.lastName}`}
-            />
-            <AvatarFallback>
-              <DefaultUserLogo />
-            </AvatarFallback>
-          </Avatar>
+          <UserAvatar imageUrl={user.imageUrl} size="w-32 h-32" />
         </div>
 
         <div className="text-sm py-2 pr-2">
@@ -85,7 +76,8 @@ export const UserView = ({ entity: user }: ViewProps<UserType>) => {
         {user.managerId && (
           <div>
             Report to:{" "}
-            <Badge>
+            <Badge variant="outline" className="gap-2">
+              <UserAvatar imageUrl={user.managerImageUrl} size="w-5 h-5" />
               <Link href={`/portal/users/${obfuscate(user.managerId)}`}>
                 {user.managerName}
               </Link>
@@ -97,7 +89,8 @@ export const UserView = ({ entity: user }: ViewProps<UserType>) => {
             <div>Direct Reports</div>
             <div className="flex flex-row flex-wrap gap-4 pt-4">
               {directReports.map((report) => (
-                <Badge key={report.id}>
+                <Badge key={report.id} variant="outline" className="gap-2">
+                  <UserAvatar imageUrl={report.imageUrl} size="w-5 h-5" />
                   <Link href={`/portal/users/${obfuscate(report.id)}`}>
                     {report.firstName} {report.lastName}
                   </Link>
@@ -110,7 +103,8 @@ export const UserView = ({ entity: user }: ViewProps<UserType>) => {
           <div>Member of Teams</div>
           <div className="flex flex-row flex-wrap gap-4">
             {teams.map((team) => (
-              <Badge key={team.id}>
+              <Badge key={team.id} variant="outline" className="gap-2">
+                <TeamAvatar imageUrl={team.logoUrl} size="w-5 h-5" />
                 <Link href={`/portal/teams/${obfuscate(team.id)}`}>
                   {team.name}
                 </Link>

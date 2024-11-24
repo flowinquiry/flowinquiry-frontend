@@ -6,30 +6,29 @@ import { usePathname } from "next/navigation";
 
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
-import { TeamType } from "@/types/teams";
 
 const TeamNavLayout = ({
-  team,
+  teamId,
   children,
 }: {
-  team: TeamType;
+  teamId: number;
   children: React.ReactNode;
 }) => {
   const pathname = usePathname();
 
   const teamFeatures = [
     {
-      href: `/portal/teams/${obfuscate(team.id)}/members`,
+      href: `/portal/teams/${obfuscate(teamId)}/members`,
       label: "Members",
       icon: Users,
     },
     {
-      href: `/portal/teams/${obfuscate(team.id)}/requests`,
+      href: `/portal/teams/${obfuscate(teamId)}/requests`,
       label: "Requests",
       icon: ArrowRightCircleIcon,
     },
     {
-      href: `/portal/teams/${obfuscate(team.id)}/workflows`,
+      href: `/portal/teams/${obfuscate(teamId)}/workflows`,
       label: "Workflows",
       icon: Shuffle,
     },

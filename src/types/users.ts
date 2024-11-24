@@ -18,6 +18,7 @@ export const userSchema = z.object({
   state: z.string().nullish(),
   country: z.string().nullish(),
   managerId: z.number().nullish(),
+  managerImageUrl: z.string().nullish(),
   managerName: z.string().nullish(),
   authorities: z
     .array(z.union([authoritySchema, z.string()]))

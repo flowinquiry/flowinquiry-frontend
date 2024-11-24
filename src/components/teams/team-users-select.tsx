@@ -3,7 +3,7 @@
 import { Check, ChevronsUpDown } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
-import UserAvatar from "@/components/shared/user-avatar";
+import { UserAvatar } from "@/components/shared/avatar-display";
 import { Button } from "@/components/ui/button";
 import {
   Command,

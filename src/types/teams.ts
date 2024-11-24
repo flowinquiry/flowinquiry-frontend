@@ -14,13 +14,20 @@ export type TeamType = z.infer<typeof teamSchema>;
 
 export type TeamRole = "Manager" | "Member" | "Guest" | "None";
 
+export type TeamRequestPriority =
+  | "Critical"
+  | "High"
+  | "Medium"
+  | "Low"
+  | "Trivial";
+
 export const TeamRequestDTOSchema = z.object({
   id: z.number().optional(),
   teamId: z.number().nullable(),
   teamName: z.string().nullable().optional(),
   workflowId: z.number().nullable(),
   workflowName: z.string().nullable().optional(),
-  priority: z.string().min(1),
+  priority: z.enum(["Critical", "High", "Medium", "Low", "Trivial"]),
   requestUserId: z.number().nullable(),
   requestUserName: z.string().nullable().optional(),
   requestUserImageUrl: z.string().nullable().optional(),

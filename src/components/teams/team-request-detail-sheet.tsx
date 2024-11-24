@@ -5,7 +5,7 @@ import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
-import UserAvatar from "@/components/shared/user-avatar";
+import { UserAvatar } from "@/components/shared/avatar-display";
 import TeamUserSelectField from "@/components/teams/team-users-select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -102,12 +102,15 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
             <SheetHeader>
               <SheetTitle>
                 <Button variant="link" className="px-0 text-2xl">
-                  <Link href="">{teamRequest.requestTitle}</Link>
+                  <Link
+                    href={`/portal/teams/${obfuscate(teamRequest.teamId)}/requests/${obfuscate(teamRequest.id)}`}
+                  >
+                    {teamRequest.requestTitle}
+                  </Link>
                 </Button>
               </SheetTitle>
             </SheetHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* First Row: Description (Spans 2 columns) */}
               <div className="col-span-1 md:col-span-2 pt-4">
                 <label className="text-sm font-medium">Description</label>
                 <div
