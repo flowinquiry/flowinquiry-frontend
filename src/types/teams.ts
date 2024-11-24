@@ -20,6 +20,7 @@ export const TeamRequestDTOSchema = z.object({
   teamName: z.string().nullable().optional(),
   workflowId: z.number().nullable(),
   workflowName: z.string().nullable().optional(),
+  priority: z.string().min(1),
   requestUserId: z.number().nullable(),
   requestUserName: z.string().nullable().optional(),
   requestUserImageUrl: z.string().nullable().optional(),

@@ -42,7 +42,7 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamType>) => {
 
   const [searchText, setSearchText] = useState("");
   const [debouncedSearchText, setDebouncedSearchText] = useState(""); // Debounced text
-  const [isAscending, setIsAscending] = useState(true);
+  const [isAscending, setIsAscending] = useState(false);
 
   // Default to 'New' as the selected status
   const [statuses, setStatuses] = useState<string[]>(["New"]);

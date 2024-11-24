@@ -16,6 +16,7 @@ import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { Filter, Pagination, QueryDTO } from "@/types/query";
 import { TeamRequestType, TeamType } from "@/types/teams";
+import { PriorityDisplay } from "@/components/teams/team-requests-priority-display";
 
 interface TeamRequestsStatusViewProps extends ViewProps<TeamType> {
   query: QueryDTO;
@@ -103,8 +104,8 @@ const TeamRequestsStatusView = ({
               htmlContent={request.requestDescription!}
               wordLimit={400}
             />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-8">
-              <div className="flex items-start gap-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2">
+              <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
                   Created
                 </span>
@@ -113,13 +114,25 @@ const TeamRequestsStatusView = ({
                 </div>
               </div>
 
-              <div className="flex items-start gap-2">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
+                  Priority
+                </span>
+                <div className="text-sm w-2/3 text-left">
+                  <PriorityDisplay priority={request.priority} />
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
                   Request User
                 </span>
                 <div className="w-2/3 text-left flex items-center gap-2">
-                  <UserAvatar imageUrl={request.requestUserImageUrl} />
-                  <Button variant="link" className="p-0 h-0">
+                  <UserAvatar
+                    imageUrl={request.requestUserImageUrl}
+                    size="w-6 h-6"
+                  />
+                  <Button variant="link" className="p-0 h-auto">
                     <Link
                       href={`/portal/users/${obfuscate(request.requestUserId)}`}
                     >
@@ -129,37 +142,37 @@ const TeamRequestsStatusView = ({
                 </div>
               </div>
 
-              <div className="flex items-start gap-2">
-                <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right">
                   Assign User
                 </span>
-                <div className="w-2/3 text-left flex items-center gap-2">
-                  {request.assignUserId ? (
-                    <div className="flex items-center gap-2">
-                      <UserAvatar imageUrl={request.assignUserImageUrl} />
-                      <Button variant="link" className="p-0 h-0">
-                        <Link
-                          href={`/portal/users/${obfuscate(
-                            request.assignUserId,
-                          )}`}
-                        >
-                          {request.assignUserName}
-                        </Link>
-                      </Button>
-                    </div>
-                  ) : (
-                    <span className="text-sm text-gray-500">
-                      No user assigned
-                    </span>
-                  )}
-                </div>
+
+                {request.assignUserId ? (
+                  <div className="w-2/3 flex items-center gap-2">
+                    <UserAvatar
+                      imageUrl={request.assignUserImageUrl}
+                      size="w-6 h-6"
+                    />
+                    <Button variant="link" className="p-0 h-auto">
+                      <Link
+                        href={`/portal/users/${obfuscate(request.assignUserId)}`}
+                      >
+                        {request.assignUserName}
+                      </Link>
+                    </Button>
+                  </div>
+                ) : (
+                  <span className="w-2/3 text-sm text-gray-500">
+                    No user assigned
+                  </span>
+                )}
               </div>
 
-              <div className="flex items-start gap-2">
+              <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
                   Current State
                 </span>
-                <div className="w-2/3 text-left">
+                <div className="w-2/3 text-left flex items-center">
                   <Badge>{request.currentState}</Badge>
                 </div>
               </div>

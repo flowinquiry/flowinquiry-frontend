@@ -6,15 +6,15 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import DefaultUserLogo from "@/components/users/user-logo";
 
 interface UserAvatarProps {
-  imageUrl?: string | null; // URL for the user's image
-  size?: string; // Tailwind class for size (e.g., "w-8 h-8")
-  className?: string; // Additional classes
-  onClick?: () => void; // Optional click handler
+  imageUrl?: string | null;
+  size?: string;
+  className?: string;
+  onClick?: () => void;
 }
 
 const UserAvatar: React.FC<UserAvatarProps> = ({
   imageUrl,
-  size = "w-8 h-8", // Default size
+  size = "w-8 h-8",
   className = "",
   onClick,
 }) => {
