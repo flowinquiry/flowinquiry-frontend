@@ -38,10 +38,10 @@ import {
 import { obfuscate } from "@/lib/endecode";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { PermissionUtils } from "@/types/resources";
-import { TeamType } from "@/types/teams";
+import { TeamDTO } from "@/types/teams";
 import { UserWithTeamRoleDTO } from "@/types/users";
 
-const TeamUsersView = ({ entity: team }: ViewProps<TeamType>) => {
+const TeamUsersView = ({ entity: team }: ViewProps<TeamDTO>) => {
   const permissionLevel = usePagePermission();
   const teamRole = useUserTeamRole().role;
   const [open, setOpen] = useState(false);

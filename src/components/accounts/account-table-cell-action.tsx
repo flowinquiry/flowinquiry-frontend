@@ -13,9 +13,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { obfuscate } from "@/lib/endecode";
-import { AccountType } from "@/types/accounts";
+import { AccountDTO } from "@/types/accounts";
 
-export function AccountTableRowActions({ row }: { row: Row<AccountType> }) {
+export function AccountTableRowActions({ row }: { row: Row<AccountDTO> }) {
   const router = useRouter();
 
   function showDeleteConfirmDialog() {}

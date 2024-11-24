@@ -26,12 +26,12 @@ import {
 } from "@/lib/actions/notifications.action";
 import { formatDateTime, formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { cn } from "@/lib/utils";
-import { NotificationType } from "@/types/commons";
+import { NotificationDTO } from "@/types/commons";
 
 const NotificationsDropdown = () => {
   const { data: session } = useSession();
 
-  const [notifications, setNotifications] = useState<Array<NotificationType>>(
+  const [notifications, setNotifications] = useState<Array<NotificationDTO>>(
     [],
   );
 
@@ -126,57 +126,55 @@ const NotificationsDropdown = () => {
             <div className="max-h-[16rem] xl:max-h-[20rem] overflow-auto">
               <ScrollArea className="h-full">
                 <AnimatePresence>
-                  {notifications.map(
-                    (item: NotificationType, index: number) => (
-                      <motion.div
-                        key={item.id}
-                        initial={{ opacity: 1, y: 0 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: -20 }}
-                        transition={{ duration: 0.5 }}
+                  {notifications.map((item: NotificationDTO, index: number) => (
+                    <motion.div
+                      key={item.id}
+                      initial={{ opacity: 1, y: 0 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, y: -20 }}
+                      transition={{ duration: 0.5 }}
+                      className={cn(
+                        "border-t border-[hsl(var(--border))] dark:border-[hsl(var(--border-dark))]",
+                        item.isRead
+                          ? "bg-gray-100 dark:bg-gray-800"
+                          : "bg-white dark:bg-black",
+                      )}
+                    >
+                      <DropdownMenuItem
+                        onSelect={(e) => e.preventDefault()}
                         className={cn(
-                          "border-t border-[hsl(var(--border))] dark:border-[hsl(var(--border-dark))]",
-                          item.isRead
-                            ? "bg-gray-100 dark:bg-gray-800"
-                            : "bg-white dark:bg-black",
+                          "flex gap-9 py-2 px-4 cursor-pointer group",
+                          "hover:bg-[hsl(var(--muted))] dark:hover:bg-[rgba(255,255,255,0.05)]",
                         )}
+                        onClick={() => handleNotificationClick(item.id!)}
                       >
-                        <DropdownMenuItem
-                          onSelect={(e) => e.preventDefault()}
-                          className={cn(
-                            "flex gap-9 py-2 px-4 cursor-pointer group",
-                            "hover:bg-[hsl(var(--muted))] dark:hover:bg-[rgba(255,255,255,0.05)]",
-                          )}
-                          onClick={() => handleNotificationClick(item.id!)}
-                        >
-                          <div className="flex items-start gap-2 flex-1">
-                            <div className="flex-1 flex flex-col gap-0.5">
-                              <div className="html-display">
-                                <TruncatedHtmlLabel
-                                  htmlContent={item.content}
-                                  wordLimit={400}
-                                />
-                              </div>
-                              <div>
-                                <Tooltip>
-                                  <TooltipTrigger>
-                                    {formatDateTimeDistanceToNow(
-                                      new Date(item.createdAt),
-                                    )}
-                                  </TooltipTrigger>
-                                  <TooltipContent>
-                                    <p>
-                                      {formatDateTime(new Date(item.createdAt))}
-                                    </p>
-                                  </TooltipContent>
-                                </Tooltip>
-                              </div>
+                        <div className="flex items-start gap-2 flex-1">
+                          <div className="flex-1 flex flex-col gap-0.5">
+                            <div className="html-display">
+                              <TruncatedHtmlLabel
+                                htmlContent={item.content}
+                                wordLimit={400}
+                              />
+                            </div>
+                            <div>
+                              <Tooltip>
+                                <TooltipTrigger>
+                                  {formatDateTimeDistanceToNow(
+                                    new Date(item.createdAt),
+                                  )}
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>
+                                    {formatDateTime(new Date(item.createdAt))}
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
                             </div>
                           </div>
-                        </DropdownMenuItem>
-                      </motion.div>
-                    ),
-                  )}
+                        </div>
+                      </DropdownMenuItem>
+                    </motion.div>
+                  ))}
                 </AnimatePresence>
               </ScrollArea>
             </div>

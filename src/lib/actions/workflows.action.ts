@@ -2,10 +2,10 @@
 
 import { get } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
-import { WorkflowType } from "@/types/workflows";
+import { WorkflowDTO } from "@/types/workflows";
 
 export const getWorkflowsByTeam = (teamId: number) => {
-  return get<Array<WorkflowType>>(
+  return get<Array<WorkflowDTO>>(
     `${BACKEND_API}/api/workflows/teams/${teamId}`,
   );
 };

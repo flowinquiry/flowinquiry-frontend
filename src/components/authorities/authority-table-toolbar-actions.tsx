@@ -5,10 +5,10 @@ import { Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { exportTableToCSV } from "@/lib/export";
-import { AuthorityType } from "@/types/authorities";
+import { AuthorityDTO } from "@/types/authorities";
 
 interface AuthorityTableToolbarActionsProps {
-  table: Table<AuthorityType>;
+  table: Table<AuthorityDTO>;
 }
 
 export function AuthoritiesTableToolbarActions({

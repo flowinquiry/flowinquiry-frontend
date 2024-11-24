@@ -31,19 +31,19 @@ import {
 } from "@/lib/actions/authorities.action";
 import { obfuscate } from "@/lib/endecode";
 import {
-  authorityResourcePermissionSchema,
-  AuthorityResourcePermissionType,
-  authoritySchema,
-  AuthorityType,
+  AuthorityResourcePermissionDTOSchema,
+  AuthorityResourcePermissionDTO,
+  AuthorityDTOSchema,
+  AuthorityDTO,
 } from "@/types/authorities";
 
 type NewAuthorityFormProps = {
-  authorityEntity?: AuthorityType | undefined;
+  authorityEntity?: AuthorityDTO | undefined;
 };
 
 const formSchema = z.object({
-  authority: authoritySchema,
-  permissions: z.array(authorityResourcePermissionSchema),
+  authority: AuthorityDTOSchema,
+  permissions: z.array(AuthorityResourcePermissionDTOSchema),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -55,7 +55,7 @@ const AuthorityForm: React.FC<NewAuthorityFormProps> = ({
 }) => {
   const router = useRouter();
   const [authorityResourcePermissions, setAuthorityResourcePermissions] =
-    useState<Array<AuthorityResourcePermissionType>>();
+    useState<Array<AuthorityResourcePermissionDTO>>();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),

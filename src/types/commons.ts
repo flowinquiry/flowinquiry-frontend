@@ -36,7 +36,7 @@ export interface EntityValueDefinition {
 
 import { z } from "zod";
 
-export const NotificationSchema = z.object({
+export const NotificationDTOSchema = z.object({
   id: z.number().nullable(),
   content: z.string(),
   createdAt: z.string(),
@@ -44,7 +44,7 @@ export const NotificationSchema = z.object({
   isRead: z.boolean(),
 });
 
-export type NotificationType = z.infer<typeof NotificationSchema>;
+export type NotificationDTO = z.infer<typeof NotificationDTOSchema>;
 
 export const CommentDTOSchema = z.object({
   id: z.number().optional(),
@@ -57,6 +57,6 @@ export const CommentDTOSchema = z.object({
   entityId: z.number(),
 });
 
-export type CommentType = z.infer<typeof CommentDTOSchema>;
+export type CommentDTO = z.infer<typeof CommentDTOSchema>;
 
 export type EntityType = "Team_Request";

@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const teamSchema = z.object({
+export const TeamDTOSchema = z.object({
   id: z.number().nullish(),
   name: z.string().min(1),
   logoUrl: z.string().nullish(),
@@ -10,7 +10,7 @@ export const teamSchema = z.object({
   usersCount: z.number().nullish(),
 });
 
-export type TeamType = z.infer<typeof teamSchema>;
+export type TeamDTO = z.infer<typeof TeamDTOSchema>;
 
 export type TeamRole = "Manager" | "Member" | "Guest" | "None";
 
@@ -40,4 +40,4 @@ export const TeamRequestDTOSchema = z.object({
   currentState: z.string().optional(),
 });
 
-export type TeamRequestType = z.infer<typeof TeamRequestDTOSchema>;
+export type TeamRequestDTO = z.infer<typeof TeamRequestDTOSchema>;

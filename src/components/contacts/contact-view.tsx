@@ -14,15 +14,15 @@ import {
 } from "@/lib/actions/contacts.action";
 import { obfuscate } from "@/lib/endecode";
 import { navigateToRecord } from "@/lib/navigation-record";
-import { ContactType } from "@/types/contacts";
+import { ConTactDTO } from "@/types/contacts";
 
-export const ContactView: React.FC<ViewProps<ContactType>> = ({
+export const ContactView: React.FC<ViewProps<ConTactDTO>> = ({
   entity,
-}: ViewProps<ContactType>) => {
+}: ViewProps<ConTactDTO>) => {
   const router = useRouter();
   const pathname = usePathname();
 
-  const [contact, setContact] = useState<ContactType>(entity);
+  const [contact, setContact] = useState<ConTactDTO>(entity);
 
   const navigateToPreviousRecord = async () => {
     const previousContact = await navigateToRecord(

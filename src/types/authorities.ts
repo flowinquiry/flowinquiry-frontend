@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const authoritySchema = z
+export const AuthorityDTOSchema = z
   .object({
     name: z.string().nullish(),
     descriptiveName: z.string().min(1),
@@ -18,14 +18,14 @@ export const authoritySchema = z
     };
   });
 
-export type AuthorityType = z.infer<typeof authoritySchema>;
+export type AuthorityDTO = z.infer<typeof AuthorityDTOSchema>;
 
-export const authorityResourcePermissionSchema = z.object({
+export const AuthorityResourcePermissionDTOSchema = z.object({
   authorityName: z.string().nullish(),
   resourceName: z.string().nullish(),
   permission: z.string().nullish(),
 });
 
-export type AuthorityResourcePermissionType = z.infer<
-  typeof authorityResourcePermissionSchema
+export type AuthorityResourcePermissionDTO = z.infer<
+  typeof AuthorityResourcePermissionDTOSchema
 >;

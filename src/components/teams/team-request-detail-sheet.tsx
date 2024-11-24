@@ -30,13 +30,13 @@ import {
 import { updateTeamRequest } from "@/lib/actions/teams-request.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
-import { CommentType } from "@/types/commons";
-import { TeamRequestType } from "@/types/teams";
+import { CommentDTO } from "@/types/commons";
+import { TeamRequestDTO } from "@/types/teams";
 
 type RequestDetailsProps = {
   open: boolean;
   onClose: () => void;
-  request: TeamRequestType;
+  request: TeamRequestDTO;
 };
 
 const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
@@ -44,14 +44,14 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
   onClose,
   request,
 }) => {
-  const [teamRequest, setTeamRequest] = useState<TeamRequestType>(request);
+  const [teamRequest, setTeamRequest] = useState<TeamRequestDTO>(request);
   const { data: session } = useSession();
-  const [comments, setComments] = useState<CommentType[]>([]);
+  const [comments, setComments] = useState<CommentDTO[]>([]);
   const [newComment, setNewComment] = useState<string>("");
   const [loading, setLoading] = useState<boolean>(false);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
-  const form = useForm<TeamRequestType>({
+  const form = useForm<TeamRequestDTO>({
     defaultValues: teamRequest,
   });
 
@@ -67,7 +67,7 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
 
-    const newCommentObj: CommentType = {
+    const newCommentObj: CommentDTO = {
       content: newComment,
       createdById: Number(session?.user?.id!),
       entityType: "Team_Request",
@@ -87,7 +87,7 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
     }
   };
 
-  const onSubmit = async (data: TeamRequestType) => {
+  const onSubmit = async (data: TeamRequestDTO) => {
     setSubmitting(true);
     await updateTeamRequest(teamRequest.id!, data)
       .then((data) => setTeamRequest(data))

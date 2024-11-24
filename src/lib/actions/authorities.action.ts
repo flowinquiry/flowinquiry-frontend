@@ -3,39 +3,39 @@
 import { deleteExec, get, post } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
 import {
-  AuthorityResourcePermissionType,
-  AuthorityType,
+  AuthorityResourcePermissionDTO,
+  AuthorityDTO,
 } from "@/types/authorities";
 import { PageableResult } from "@/types/commons";
 import { UserType } from "@/types/users";
 
 export const getAuthorities = async () => {
-  return get<PageableResult<AuthorityType>>(`${BACKEND_API}/api/authorities`);
+  return get<PageableResult<AuthorityDTO>>(`${BACKEND_API}/api/authorities`);
 };
 
 export const findAuthorityByName = async (name: string) => {
-  return get<AuthorityType>(`${BACKEND_API}/api/authorities/${name}`);
+  return get<AuthorityDTO>(`${BACKEND_API}/api/authorities/${name}`);
 };
 
-export const createAuthority = async (authority: AuthorityType) => {
-  return post<AuthorityType, AuthorityType>(
+export const createAuthority = async (authority: AuthorityDTO) => {
+  return post<AuthorityDTO, AuthorityDTO>(
     `${BACKEND_API}/api/authorities`,
     authority,
   );
 };
 
 export const findPermissionsByAuthorityName = async (authorityName: string) => {
-  return get<Array<AuthorityResourcePermissionType>>(
+  return get<Array<AuthorityResourcePermissionDTO>>(
     `${BACKEND_API}/api/authority-permissions/${authorityName}`,
   );
 };
 
 export const batchSavePermissions = async (
-  permissions: Array<AuthorityResourcePermissionType>,
+  permissions: Array<AuthorityResourcePermissionDTO>,
 ) => {
   return post<
-    Array<AuthorityResourcePermissionType>,
-    Array<AuthorityResourcePermissionType>
+    Array<AuthorityResourcePermissionDTO>,
+    Array<AuthorityResourcePermissionDTO>
   >(`${BACKEND_API}/api/authority-permissions/batchSave`, permissions);
 };
 

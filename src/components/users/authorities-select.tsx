@@ -17,7 +17,7 @@ import {
   MultiSelectorTrigger,
 } from "@/components/ui/multi-select";
 import { getAuthorities } from "@/lib/actions/authorities.action";
-import { AuthorityType } from "@/types/authorities";
+import { AuthorityDTO } from "@/types/authorities";
 import { UiAttributes } from "@/types/ui-components";
 
 interface AuthoritiesSelectProps {
@@ -30,7 +30,7 @@ const AuthoritiesSelect = ({
   label,
   required,
 }: AuthoritiesSelectProps & UiAttributes) => {
-  const [authorities, setAuthorities] = useState<Array<AuthorityType>>();
+  const [authorities, setAuthorities] = useState<Array<AuthorityDTO>>();
   useEffect(() => {
     const fetchAuthorities = async () => {
       const data = await getAuthorities();

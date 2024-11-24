@@ -7,10 +7,10 @@ import { AccountDeleteDialog } from "@/components/accounts/account-delete-dialog
 import { Button } from "@/components/ui/button";
 import { deleteAccounts } from "@/lib/actions/accounts.action";
 import { exportTableToCSV } from "@/lib/export";
-import { AccountType } from "@/types/accounts";
+import { AccountDTO } from "@/types/accounts";
 
 interface AccountTableToolbarActionsProps {
-  table: Table<AccountType>;
+  table: Table<AccountDTO>;
 }
 
 export function AccountsTableToolbarActions({

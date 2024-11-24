@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { authoritySchema } from "@/types/authorities";
+import { AuthorityDTOSchema } from "@/types/authorities";
 
 export const userSchema = z.object({
   id: z.number().nullish(),
@@ -21,7 +21,7 @@ export const userSchema = z.object({
   managerImageUrl: z.string().nullish(),
   managerName: z.string().nullish(),
   authorities: z
-    .array(z.union([authoritySchema, z.string()]))
+    .array(z.union([AuthorityDTOSchema, z.string()]))
     .transform((authorities) =>
       authorities.map((auth) =>
         typeof auth === "string"

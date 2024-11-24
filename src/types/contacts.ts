@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const contactSchema = z.object({
+export const ContactDTOSchema = z.object({
   id: z.number().nullish(),
   accountId: z.number().nullish(),
   accountName: z.string().nullish(),
@@ -20,7 +20,7 @@ export const contactSchema = z.object({
   notes: z.string().nullish(),
 });
 
-export type ContactType = z.infer<typeof contactSchema>;
+export type ConTactDTO = z.infer<typeof ContactDTOSchema>;
 
 export type ContactSearchSchema = {
   account_id: number;

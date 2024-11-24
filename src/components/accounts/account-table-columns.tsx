@@ -15,9 +15,9 @@ import {
 } from "@/components/ui/tooltip";
 import { formatDateTime, formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
-import { AccountType } from "@/types/accounts";
+import { AccountDTO } from "@/types/accounts";
 
-export const accounts_columns_def: ColumnDef<AccountType>[] = [
+export const accounts_columns_def: ColumnDef<AccountDTO>[] = [
   {
     id: "select",
     header: ({ table }) => (

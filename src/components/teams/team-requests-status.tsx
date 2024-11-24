@@ -16,9 +16,9 @@ import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { Filter, Pagination, QueryDTO } from "@/types/query";
-import { TeamRequestType, TeamType } from "@/types/teams";
+import { TeamRequestDTO, TeamDTO } from "@/types/teams";
 
-interface TeamRequestsStatusViewProps extends ViewProps<TeamType> {
+interface TeamRequestsStatusViewProps extends ViewProps<TeamDTO> {
   query: QueryDTO;
   pagination: Pagination;
   refreshTrigger: number; // Add refreshTrigger prop
@@ -30,7 +30,7 @@ const TeamRequestsStatusView = ({
   pagination,
   refreshTrigger,
 }: TeamRequestsStatusViewProps) => {
-  const [requests, setRequests] = useState<TeamRequestType[]>([]);
+  const [requests, setRequests] = useState<TeamRequestDTO[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
@@ -58,10 +58,11 @@ const TeamRequestsStatusView = ({
     }
   };
 
-  const [selectedRequest, setSelectedRequest] =
-    useState<TeamRequestType | null>(null);
+  const [selectedRequest, setSelectedRequest] = useState<TeamRequestDTO | null>(
+    null,
+  );
 
-  const openSheet = (request: TeamRequestType) => {
+  const openSheet = (request: TeamRequestDTO) => {
     setSelectedRequest(request);
   };
 

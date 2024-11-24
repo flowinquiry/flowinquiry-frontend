@@ -10,11 +10,11 @@ import {
 } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
 import { Filter, Pagination } from "@/types/query";
-import { TeamType } from "@/types/teams";
+import { TeamDTO } from "@/types/teams";
 import { UserType, UserWithTeamRoleDTO } from "@/types/users";
 
 export const findTeamById = async (teamId: number) => {
-  return get<TeamType>(`${BACKEND_API}/api/teams/${teamId}`);
+  return get<TeamDTO>(`${BACKEND_API}/api/teams/${teamId}`);
 };
 
 export async function searchTeams(
@@ -22,7 +22,7 @@ export async function searchTeams(
   pagination: Pagination,
 ) {
   noStore();
-  return doAdvanceSearch<TeamType>(
+  return doAdvanceSearch<TeamDTO>(
     `${BACKEND_API}/api/teams/search`,
     filters,
     pagination,
@@ -40,7 +40,7 @@ export async function findMembersByTeamId(teamId: number) {
 }
 
 export async function findTeamsByMemberId(userId: number) {
-  return get<Array<TeamType>>(`${BACKEND_API}/api/teams/users/${userId}`);
+  return get<Array<TeamDTO>>(`${BACKEND_API}/api/teams/users/${userId}`);
 }
 
 export async function findUsersNotInTeam(userTerm: string, teamId: number) {

@@ -6,19 +6,19 @@ import { doAdvanceSearch, get, post, put } from "@/lib/actions/commons.action";
 import { findEntitiesFilterOptions } from "@/lib/actions/shared.action";
 import { BACKEND_API } from "@/lib/constants";
 import { EntityValueDefinition, PageableResult } from "@/types/commons";
-import { contactSchema, ContactType } from "@/types/contacts";
+import { ContactDTOSchema, ConTactDTO } from "@/types/contacts";
 import { Filter } from "@/types/query";
 
 export const findContactById = async (
   contactId: number,
-): Promise<ContactType> => {
-  return get<ContactType>(`${BACKEND_API}/api/crm/contacts/${contactId}`);
+): Promise<ConTactDTO> => {
+  return get<ConTactDTO>(`${BACKEND_API}/api/crm/contacts/${contactId}`);
 };
 
 export const findContactsByAccountId = async (
   accountId: number,
-): Promise<PageableResult<ContactType>> => {
-  return get<PageableResult<ContactType>>(
+): Promise<PageableResult<ConTactDTO>> => {
+  return get<PageableResult<ConTactDTO>>(
     `${BACKEND_API}/api/crm/contacts/account/${accountId}`,
   );
 };
@@ -36,7 +36,7 @@ export const findContactStatusesFilterOptions = async () => {
 };
 
 export async function searchContacts(filters: Filter[]) {
-  return doAdvanceSearch<ContactType>(
+  return doAdvanceSearch<ConTactDTO>(
     `${BACKEND_API}/api/crm/contacts/search`,
     filters,
   );
@@ -44,18 +44,18 @@ export async function searchContacts(filters: Filter[]) {
 
 export const saveOrUpdateContact = async (
   isEdit: boolean,
-  contact: ContactType,
+  contact: ConTactDTO,
 ): Promise<void> => {
-  const validation = contactSchema.safeParse(contact);
+  const validation = ContactDTOSchema.safeParse(contact);
 
   if (validation.success) {
     if (isEdit) {
-      await put<ContactType, string>(
+      await put<ConTactDTO, string>(
         `${BACKEND_API}/api/crm/contacts/${contact.id}`,
         contact,
       );
     } else {
-      await post<ContactType, string>(
+      await post<ConTactDTO, string>(
         `${BACKEND_API}/api/crm/contacts`,
         contact,
       );
@@ -66,11 +66,11 @@ export const saveOrUpdateContact = async (
 };
 
 export const findPreviousContact = async (contactId: number) => {
-  return get<ContactType>(
+  return get<ConTactDTO>(
     `${BACKEND_API}/api/crm/contacts/previous/${contactId}`,
   );
 };
 
 export const findNextContact = async (contactId: number) => {
-  return get<ContactType>(`${BACKEND_API}/api/crm/contacts/next/${contactId}`);
+  return get<ConTactDTO>(`${BACKEND_API}/api/crm/contacts/next/${contactId}`);
 };

@@ -12,14 +12,14 @@ import { getWorkflowsByTeam } from "@/lib/actions/workflows.action";
 import { cn } from "@/lib/utils";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { PermissionUtils } from "@/types/resources";
-import { TeamType } from "@/types/teams";
-import { WorkflowType } from "@/types/workflows";
+import { TeamDTO } from "@/types/teams";
+import { WorkflowDTO } from "@/types/workflows";
 
-const TeamWorkflowsView = ({ entity: team }: ViewProps<TeamType>) => {
+const TeamWorkflowsView = ({ entity: team }: ViewProps<TeamDTO>) => {
   const permissionLevel = usePagePermission();
   const teamRole = useUserTeamRole().role;
   const [loading, setLoading] = useState(false);
-  const [workflows, setWorkflows] = useState<WorkflowType[]>([]);
+  const [workflows, setWorkflows] = useState<WorkflowDTO[]>([]);
 
   const fetchWorkflows = async () => {
     setLoading(true);

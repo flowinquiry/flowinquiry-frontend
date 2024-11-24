@@ -12,9 +12,9 @@ import { usePagePermission } from "@/hooks/use-page-permission";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { PermissionUtils } from "@/types/resources";
-import { TeamType } from "@/types/teams";
+import { TeamDTO } from "@/types/teams";
 
-const TeamView = ({ entity: team }: ViewProps<TeamType>) => {
+const TeamView = ({ entity: team }: ViewProps<TeamDTO>) => {
   const permissionLevel = usePagePermission();
 
   return (

@@ -28,9 +28,9 @@ import {
 import { useImageCropper } from "@/hooks/use-image-cropper";
 import { apiClient } from "@/lib/api-client";
 import { validateForm } from "@/lib/validator";
-import { teamSchema, TeamType } from "@/types/teams";
+import { TeamDTOSchema, TeamDTO } from "@/types/teams";
 
-export const TeamForm = ({ initialData }: FormProps<TeamType>) => {
+export const TeamForm = ({ initialData }: FormProps<TeamDTO>) => {
   const router = useRouter();
   const { data: session } = useSession();
 
@@ -43,13 +43,13 @@ export const TeamForm = ({ initialData }: FormProps<TeamType>) => {
     getInputProps,
   } = useImageCropper();
 
-  const form = useForm<TeamType>({
-    resolver: zodResolver(teamSchema),
+  const form = useForm<TeamDTO>({
+    resolver: zodResolver(TeamDTOSchema),
     defaultValues: initialData,
   });
 
-  async function onSubmit(team: TeamType) {
-    if (validateForm(team, teamSchema, form)) {
+  async function onSubmit(team: TeamDTO) {
+    if (validateForm(team, TeamDTOSchema, form)) {
       const formData = new FormData();
 
       const teamJsonBlob = new Blob([JSON.stringify(team)], {

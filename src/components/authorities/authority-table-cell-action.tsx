@@ -13,9 +13,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { obfuscate } from "@/lib/endecode";
-import { AuthorityType } from "@/types/authorities";
+import { AuthorityDTO } from "@/types/authorities";
 
-export function AuthorityTableRowActions({ row }: { row: Row<AuthorityType> }) {
+export function AuthorityTableRowActions({ row }: { row: Row<AuthorityDTO> }) {
   const router = useRouter();
 
   const authority = row.original;

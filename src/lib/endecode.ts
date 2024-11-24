@@ -33,7 +33,10 @@ export const deobfuscate = (encodedValue: string): string | number => {
 export const deobfuscateToNumber = (encodedValue: string): number => {
   const decodedValue = deobfuscate(encodedValue);
   if (typeof decodedValue !== "number") {
-    throw new Error("Decoded value is not a valid number");
+    throw new Error(
+      "Decoded value is not a valid number. Can not decode value " +
+        encodedValue,
+    );
   }
   return decodedValue;
 };

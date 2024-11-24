@@ -14,7 +14,7 @@ import {
   findAccountTypes,
   searchAccounts,
 } from "@/lib/actions/accounts.action";
-import { AccountType } from "@/types/accounts";
+import { AccountDTO } from "@/types/accounts";
 import { DataTableFilterField } from "@/types/table";
 
 interface AccountsTableProps {
@@ -44,7 +44,7 @@ export function AccountsTable({
    * @prop {React.ReactNode} [icon] - An optional icon to display next to the label.
    * @prop {boolean} [withCount] - An optional boolean to display the count of the filter option.
    */
-  const filterFields: DataTableFilterField<AccountType>[] = [
+  const filterFields: DataTableFilterField<AccountDTO>[] = [
     {
       id: "name",
       label: "Name",

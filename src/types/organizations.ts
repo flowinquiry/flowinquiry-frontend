@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const organizationSchema = z.object({
+export const OrganizationDTOSchema = z.object({
   id: z.number().nullish(),
   name: z.string().min(1),
   logoUrl: z.string().default(""),
@@ -8,4 +8,4 @@ export const organizationSchema = z.object({
   description: z.string().default(""),
 });
 
-export type OrganizationType = z.infer<typeof organizationSchema>;
+export type OrganizationDTO = z.infer<typeof OrganizationDTOSchema>;

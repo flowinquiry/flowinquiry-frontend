@@ -24,12 +24,12 @@ import {
 } from "@/components/ui/form";
 import MultipleSelector from "@/components/ui/multi-select-dynamic";
 import { addUsersToTeam, findUsersNotInTeam } from "@/lib/actions/teams.action";
-import { TeamType } from "@/types/teams";
+import { TeamDTO } from "@/types/teams";
 
 type AddUserToTeamDialogProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  teamEntity: TeamType;
+  teamEntity: TeamDTO;
   onSaveSuccess: () => void;
 };
 

@@ -7,5 +7,4 @@ export const WorkflowDTOSchema = z.object({
   isGlobal: z.boolean(),
 });
 
-// Infer the TypeScript type from the Zod schema
-export type WorkflowType = z.infer<typeof WorkflowDTOSchema>;
+export type WorkflowDTO = z.infer<typeof WorkflowDTOSchema>;

@@ -9,9 +9,9 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DataTableColumnHeader } from "@/components/ui/table/data-table-column-header";
 import { obfuscate } from "@/lib/endecode";
-import { AuthorityType } from "@/types/authorities";
+import { AuthorityDTO } from "@/types/authorities";
 
-export const authorities_columns_def: ColumnDef<AuthorityType>[] = [
+export const authorities_columns_def: ColumnDef<AuthorityDTO>[] = [
   {
     id: "select",
     header: ({ table }) => (

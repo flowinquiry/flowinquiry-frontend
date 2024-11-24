@@ -26,12 +26,12 @@ import {
   addUsersToAuthority,
   findUsersNotInAuthority,
 } from "@/lib/actions/authorities.action";
-import { AuthorityType } from "@/types/authorities";
+import { AuthorityDTO } from "@/types/authorities";
 
 type AddUserToAuthorityDialogProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  authorityEntity: AuthorityType;
+  authorityEntity: AuthorityDTO;
   onSaveSuccess: () => void;
 };
 

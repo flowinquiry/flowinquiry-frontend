@@ -16,24 +16,24 @@ import { searchContacts } from "@/lib/actions/contacts.action";
 import { obfuscate } from "@/lib/endecode";
 import { navigateToRecord } from "@/lib/navigation-record";
 import { cn } from "@/lib/utils";
-import { AccountType } from "@/types/accounts";
+import { AccountDTO } from "@/types/accounts";
 import { PageableResult } from "@/types/commons";
-import { ContactType } from "@/types/contacts";
+import { ConTactDTO } from "@/types/contacts";
 import { PermissionUtils } from "@/types/resources";
 
 import { Button, buttonVariants } from "../ui/button";
 import { Card, CardContent } from "../ui/card";
 import { ViewProps } from "../ui/ext-form";
 
-export const AccountView: React.FC<ViewProps<AccountType>> = ({
+export const AccountView: React.FC<ViewProps<AccountDTO>> = ({
   entity,
-}: ViewProps<AccountType>) => {
+}: ViewProps<AccountDTO>) => {
   const permissionLevel = usePagePermission();
   const router = useRouter();
   const pathname = usePathname();
-  const [account, setAccount] = useState<AccountType>(entity);
+  const [account, setAccount] = useState<AccountDTO>(entity);
   const [contactPromise, setContactPromise] = useState<
-    Promise<PageableResult<ContactType>>
+    Promise<PageableResult<ConTactDTO>>
   >(
     searchContacts([
       { field: "account.id", operator: "eq", value: account.id! },

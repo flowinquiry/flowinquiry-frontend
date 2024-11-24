@@ -31,11 +31,11 @@ import { deleteTeams, searchTeams } from "@/lib/actions/teams.action";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { PermissionUtils } from "@/types/resources";
-import { TeamType } from "@/types/teams";
+import { TeamDTO } from "@/types/teams";
 
 export const TeamList = () => {
   const router = useRouter();
-  const [items, setItems] = useState<Array<TeamType>>([]); // Store the items
+  const [items, setItems] = useState<Array<TeamDTO>>([]); // Store the items
   const [teamSearchTerm, setTeamSearchTerm] = useState<string | undefined>(
     undefined,
   );
@@ -45,7 +45,7 @@ export const TeamList = () => {
   const [loading, setLoading] = useState(false); // Loading state
 
   const [isDialogOpen, setDialogOpen] = useState(false);
-  const [selectedTeam, setSelectedTeam] = useState<TeamType | null>(null);
+  const [selectedTeam, setSelectedTeam] = useState<TeamDTO | null>(null);
 
   const searchParams = useSearchParams();
   const { replace } = useRouter();
@@ -87,7 +87,7 @@ export const TeamList = () => {
 
   if (loading) return <div>Loading...</div>;
 
-  const showDeleteTeamConfirmationDialog = (team: TeamType) => {
+  const showDeleteTeamConfirmationDialog = (team: TeamDTO) => {
     setSelectedTeam(team);
     setDialogOpen(true);
   };

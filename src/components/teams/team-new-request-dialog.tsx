@@ -24,12 +24,12 @@ import {
 import { MinimalTiptapEditor } from "@/components/ui/minimal-tiptap";
 import WorkflowSelectField from "@/components/workflows/workflow-select";
 import { createTeamRequest } from "@/lib/actions/teams-request.action";
-import { TeamRequestDTOSchema, TeamRequestType, TeamType } from "@/types/teams";
+import { TeamRequestDTO, TeamRequestDTOSchema, TeamDTO } from "@/types/teams";
 
 type NewRequestToTeamDialogProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  teamEntity: TeamType;
+  teamEntity: TeamDTO;
   onSaveSuccess: () => void;
 };
 
@@ -49,7 +49,7 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
     },
   });
 
-  const onSubmit = async (data: TeamRequestType) => {
+  const onSubmit = async (data: TeamRequestDTO) => {
     await createTeamRequest(data);
     setOpen(false);
     onSaveSuccess();

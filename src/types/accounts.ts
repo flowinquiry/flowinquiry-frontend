@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-export const accountSchema = z.object({
+export const AccountDTOSchema = z.object({
   id: z.number().nullish(),
   name: z.string().min(1),
   type: z.string().min(1),
@@ -29,7 +29,7 @@ export const accountSchema = z.object({
   notes: z.string().nullish(),
 });
 
-export type AccountType = z.infer<typeof accountSchema>;
+export type AccountDTO = z.infer<typeof AccountDTOSchema>;
 
 export const accountSearchParamsSchema = z.object({
   page: z.coerce.number().default(1), // page number

@@ -5,10 +5,10 @@ import { Download } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { exportTableToCSV } from "@/lib/export";
-import { ContactType } from "@/types/contacts";
+import { ConTactDTO } from "@/types/contacts";
 
 interface ContactsTableToolbarActionsProps {
-  table: Table<ContactType>;
+  table: Table<ConTactDTO>;
 }
 
 export function ContactsTableToolbarActions({

@@ -26,7 +26,7 @@ import { usePagePermission } from "@/hooks/use-page-permission";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { Filter, QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
-import { TeamType } from "@/types/teams";
+import { TeamDTO } from "@/types/teams";
 
 export type Pagination = {
   page: number;
@@ -34,7 +34,7 @@ export type Pagination = {
   sort?: { field: string; direction: "asc" | "desc" }[];
 };
 
-const TeamRequestsView = ({ entity: team }: ViewProps<TeamType>) => {
+const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
   const permissionLevel = usePagePermission();
   const teamRole = useUserTeamRole().role;
 

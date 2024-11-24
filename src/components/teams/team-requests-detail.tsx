@@ -18,14 +18,14 @@ import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { navigateToRecord } from "@/lib/navigation-record";
 import { PermissionUtils } from "@/types/resources";
-import { TeamRequestType } from "@/types/teams";
+import { TeamRequestDTO } from "@/types/teams";
 
-const TeamRequestDetailView = ({ entity }: ViewProps<TeamRequestType>) => {
+const TeamRequestDetailView = ({ entity }: ViewProps<TeamRequestDTO>) => {
   const permissionLevel = usePagePermission();
   const router = useRouter();
   const pathname = usePathname();
 
-  const [teamRequest, setTeamRequest] = useState<TeamRequestType>(entity);
+  const [teamRequest, setTeamRequest] = useState<TeamRequestDTO>(entity);
 
   const navigateToPreviousRecord = async () => {
     const previousTeamRequest = await navigateToRecord(
@@ -64,9 +64,7 @@ const TeamRequestDetailView = ({ entity }: ViewProps<TeamRequestType>) => {
           <Button
             onClick={() =>
               router.push(
-                `/portal/teams/${teamRequest.teamId}/requests/${obfuscate(
-                  teamRequest.id,
-                )}/edit`,
+                `/portal/teams/${obfuscate(teamRequest.teamId)}/requests/${obfuscate(teamRequest.id)}/edit`,
               )
             }
           >

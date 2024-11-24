@@ -2,10 +2,10 @@
 
 import { get, post } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
-import { NotificationType } from "@/types/commons";
+import { NotificationDTO } from "@/types/commons";
 
 export async function getUnReadNotificationsByUserId(userId: number) {
-  return get<Array<NotificationType>>(
+  return get<Array<NotificationDTO>>(
     `${BACKEND_API}/api/notifications/unread?userId=${userId}`,
   );
 }

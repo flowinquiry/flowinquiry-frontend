@@ -11,11 +11,11 @@ import { ViewProps } from "@/components/ui/ext-form";
 import { findTeamsByMemberId } from "@/lib/actions/teams.action";
 import { getDirectReports } from "@/lib/actions/users.action";
 import { obfuscate } from "@/lib/endecode";
-import { TeamType } from "@/types/teams";
+import { TeamDTO } from "@/types/teams";
 import { UserType } from "@/types/users";
 
 export const UserView = ({ entity: user }: ViewProps<UserType>) => {
-  const [teams, setTeams] = useState<TeamType[]>([]);
+  const [teams, setTeams] = useState<TeamDTO[]>([]);
   const [directReports, setDirectReports] = useState<UserType[] | undefined>(
     undefined,
   );

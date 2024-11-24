@@ -19,11 +19,11 @@ import { Separator } from "@/components/ui/separator";
 import { saveOrUpdateContact } from "@/lib/actions/contacts.action";
 import { deobfuscateToNumber } from "@/lib/endecode";
 import { validateForm } from "@/lib/validator";
-import { contactSchema, ContactType } from "@/types/contacts";
+import { ContactDTOSchema, ConTactDTO } from "@/types/contacts";
 
 import { Button } from "../ui/button";
 
-export const ContactForm = ({ initialData }: FormProps<ContactType>) => {
+export const ContactForm = ({ initialData }: FormProps<ConTactDTO>) => {
   const router = useRouter();
 
   let accountId: number | null = null;
@@ -36,8 +36,8 @@ export const ContactForm = ({ initialData }: FormProps<ContactType>) => {
     accountName = searchParams.get("accountName");
   }
 
-  const form = useForm<ContactType>({
-    resolver: zodResolver(contactSchema),
+  const form = useForm<ConTactDTO>({
+    resolver: zodResolver(ContactDTOSchema),
     defaultValues: {
       ...initialData,
       accountId: accountId,
@@ -45,9 +45,9 @@ export const ContactForm = ({ initialData }: FormProps<ContactType>) => {
     },
   });
 
-  async function onSubmit(contact: ContactType) {
+  async function onSubmit(contact: ConTactDTO) {
     // contact.accountId = 1;
-    if (validateForm(contact, contactSchema, form)) {
+    if (validateForm(contact, ContactDTOSchema, form)) {
       await saveOrUpdateContact(isEdit, contact);
     }
   }

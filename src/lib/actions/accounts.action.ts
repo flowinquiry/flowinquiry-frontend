@@ -13,14 +13,14 @@ import {
 import { findEntitiesFilterOptions } from "@/lib/actions/shared.action";
 import { BACKEND_API } from "@/lib/constants";
 import {
-  accountSchema,
+  AccountDTOSchema,
   AccountSearchParams,
-  AccountType,
+  AccountDTO,
 } from "@/types/accounts";
 import { EntityValueDefinition, PageableResult } from "@/types/commons";
 
-export const findAccounts = async (): Promise<PageableResult<AccountType>> => {
-  return get<PageableResult<AccountType>>(`${BACKEND_API}/api/crm/accounts`);
+export const findAccounts = async (): Promise<PageableResult<AccountDTO>> => {
+  return get<PageableResult<AccountDTO>>(`${BACKEND_API}/api/crm/accounts`);
 };
 
 export const findAccountStatuses = async (): Promise<
@@ -61,18 +61,18 @@ export const findAccountIndustriesFilterOptions = async () => {
 
 export const saveOrUpdateAccount = async (
   isEdit: boolean,
-  account: AccountType,
+  account: AccountDTO,
 ): Promise<void> => {
-  const validation = accountSchema.safeParse(account);
+  const validation = AccountDTOSchema.safeParse(account);
 
   if (validation.success) {
     if (isEdit) {
-      await put<AccountType, string>(
+      await put<AccountDTO, string>(
         `${BACKEND_API}/api/crm/accounts/${account.id}`,
         account,
       );
     } else {
-      await post<AccountType, string>(
+      await post<AccountDTO, string>(
         `${BACKEND_API}/api/crm/accounts`,
         account,
       );
@@ -82,22 +82,22 @@ export const saveOrUpdateAccount = async (
 };
 
 export const findAccountById = async (accountId: number) => {
-  return get<AccountType>(`${BACKEND_API}/api/crm/accounts/${accountId}`);
+  return get<AccountDTO>(`${BACKEND_API}/api/crm/accounts/${accountId}`);
 };
 
 export const findPreviousAccount = async (accountId: number) => {
-  return get<AccountType>(
+  return get<AccountDTO>(
     `${BACKEND_API}/api/crm/accounts/${accountId}/previous`,
   );
 };
 
 export const findNextAccount = async (accountId: number) => {
-  return get<AccountType>(`${BACKEND_API}/api/crm/accounts/${accountId}/next`);
+  return get<AccountDTO>(`${BACKEND_API}/api/crm/accounts/${accountId}/next`);
 };
 
 export async function searchAccounts(input: AccountSearchParams) {
   noStore();
-  return doAdvanceSearch<AccountType>(`${BACKEND_API}/api/crm/accounts/search`);
+  return doAdvanceSearch<AccountDTO>(`${BACKEND_API}/api/crm/accounts/search`);
 }
 
 export async function deleteAccounts(ids: number[]) {

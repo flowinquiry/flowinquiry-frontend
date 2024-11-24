@@ -5,24 +5,24 @@ import { unstable_noStore as noStore } from "next/dist/server/web/spec-extension
 import { doAdvanceSearch, get, post, put } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
 import { Filter, Pagination } from "@/types/query";
-import { TeamRequestType } from "@/types/teams";
+import { TeamRequestDTO } from "@/types/teams";
 
-export const createTeamRequest = async (teamRequest: TeamRequestType) => {
-  return post<TeamRequestType, TeamRequestType>(
+export const createTeamRequest = async (teamRequest: TeamRequestDTO) => {
+  return post<TeamRequestDTO, TeamRequestDTO>(
     `${BACKEND_API}/api/team-requests`,
     teamRequest,
   );
 };
 
 export const findRequestById = async (requestId: number) => {
-  return get<TeamRequestType>(`${BACKEND_API}/api/team-requests/${requestId}`);
+  return get<TeamRequestDTO>(`${BACKEND_API}/api/team-requests/${requestId}`);
 };
 
 export const updateTeamRequest = async (
   teamRequestId: number,
-  teamRequest: TeamRequestType,
+  teamRequest: TeamRequestDTO,
 ) => {
-  return put<TeamRequestType, TeamRequestType>(
+  return put<TeamRequestDTO, TeamRequestDTO>(
     `${BACKEND_API}/api/team-requests/${teamRequestId}`,
     teamRequest,
   );
@@ -33,7 +33,7 @@ export async function searchTeamRequests(
   pagination: Pagination,
 ) {
   noStore();
-  return doAdvanceSearch<TeamRequestType>(
+  return doAdvanceSearch<TeamRequestDTO>(
     `${BACKEND_API}/api/team-requests/search`,
     filters,
     pagination,
@@ -41,13 +41,13 @@ export async function searchTeamRequests(
 }
 
 export const findPreviousTeamRequest = async (requestId: number) => {
-  return get<TeamRequestType>(
+  return get<TeamRequestDTO>(
     `${BACKEND_API}/api/team-requests/${requestId}/previous`,
   );
 };
 
 export const findNextTeamRequest = async (requestId: number) => {
-  return get<TeamRequestType>(
+  return get<TeamRequestDTO>(
     `${BACKEND_API}/api/team-requests/${requestId}/next`,
   );
 };

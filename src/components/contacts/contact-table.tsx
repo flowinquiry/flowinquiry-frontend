@@ -13,7 +13,7 @@ import {
   findContactStatuses,
   searchContacts,
 } from "@/lib/actions/contacts.action";
-import { ContactType } from "@/types/contacts";
+import { ConTactDTO } from "@/types/contacts";
 import { DataTableFilterField } from "@/types/table";
 
 interface ContactsTableProps {
@@ -25,7 +25,7 @@ export function ContactsTable({
   contactPromise,
   enableAdvancedFilter = false,
 }: ContactsTableProps) {
-  const [data, setData] = useState<Array<ContactType>>([]);
+  const [data, setData] = useState<Array<ConTactDTO>>([]);
   const [pageCount, setPageCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -62,7 +62,7 @@ export function ContactsTable({
    * @prop {React.ReactNode} [icon] - An optional icon to display next to the label.
    * @prop {boolean} [withCount] - An optional boolean to display the count of the filter option.
    */
-  const filterFields: DataTableFilterField<ContactType>[] = [
+  const filterFields: DataTableFilterField<ConTactDTO>[] = [
     {
       label: "First Name",
       id: "firstName",

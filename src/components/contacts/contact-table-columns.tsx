@@ -15,9 +15,9 @@ import {
 } from "@/components/ui/tooltip";
 import { formatDateTime, formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
-import { ContactType } from "@/types/contacts";
+import { ConTactDTO } from "@/types/contacts";
 
-export const contacts_columns_def: ColumnDef<ContactType>[] = [
+export const contacts_columns_def: ColumnDef<ConTactDTO>[] = [
   {
     id: "select",
     header: ({ table }) => (

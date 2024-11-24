@@ -8,7 +8,7 @@ import { DataTable } from "@/components/ui/table/data-table";
 import { DataTableToolbar } from "@/components/ui/table/data-table-toolbar";
 import { useDataTable } from "@/hooks/use-data-table";
 import { getAuthorities } from "@/lib/actions/authorities.action";
-import { AuthorityType } from "@/types/authorities";
+import { AuthorityDTO } from "@/types/authorities";
 import { DataTableFilterField } from "@/types/table";
 
 interface AuthorityTableProps {
@@ -20,7 +20,7 @@ export function AuthoritiesTable({
   authoritiesPromise,
   enableAdvancedFilter = false,
 }: AuthorityTableProps) {
-  const [data, setData] = useState<Array<AuthorityType>>([]);
+  const [data, setData] = useState<Array<AuthorityDTO>>([]);
   const [pageCount, setPageCount] = useState(0);
   const [loading, setLoading] = useState(true);
 
@@ -53,7 +53,7 @@ export function AuthoritiesTable({
    * @prop {React.ReactNode} [icon] - An optional icon to display next to the label.
    * @prop {boolean} [withCount] - An optional boolean to display the count of the filter option.
    */
-  const filterFields: DataTableFilterField<AuthorityType>[] = [
+  const filterFields: DataTableFilterField<AuthorityDTO>[] = [
     {
       label: "Name",
       id: "name",

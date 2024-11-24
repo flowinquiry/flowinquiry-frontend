@@ -20,18 +20,18 @@ import { Form } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { saveOrUpdateAccount } from "@/lib/actions/accounts.action";
 import { validateForm } from "@/lib/validator";
-import { accountSchema, AccountType } from "@/types/accounts";
+import { AccountDTOSchema, AccountDTO } from "@/types/accounts";
 
-export const AccountForm = ({ initialData }: FormProps<AccountType>) => {
+export const AccountForm = ({ initialData }: FormProps<AccountDTO>) => {
   const router = useRouter();
 
-  const form = useForm<AccountType>({
-    resolver: zodResolver(accountSchema),
+  const form = useForm<AccountDTO>({
+    resolver: zodResolver(AccountDTOSchema),
     defaultValues: initialData,
   });
 
-  async function onSubmit(account: AccountType) {
-    if (validateForm(account, accountSchema, form)) {
+  async function onSubmit(account: AccountDTO) {
+    if (validateForm(account, AccountDTOSchema, form)) {
       await saveOrUpdateAccount(isEdit, account);
     }
   }

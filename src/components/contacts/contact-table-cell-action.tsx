@@ -13,9 +13,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { obfuscate } from "@/lib/endecode";
-import { ContactType } from "@/types/contacts";
+import { ConTactDTO } from "@/types/contacts";
 
-export function DataTableRowActions({ row }: { row: Row<ContactType> }) {
+export function DataTableRowActions({ row }: { row: Row<ConTactDTO> }) {
   const router = useRouter();
 
   return (

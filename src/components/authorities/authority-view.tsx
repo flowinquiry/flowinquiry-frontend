@@ -32,21 +32,21 @@ import {
 } from "@/lib/actions/authorities.action";
 import { obfuscate } from "@/lib/endecode";
 import {
-  AuthorityResourcePermissionType,
-  AuthorityType,
+  AuthorityResourcePermissionDTO,
+  AuthorityDTO,
 } from "@/types/authorities";
 import { PermissionUtils } from "@/types/resources";
 import { UserType } from "@/types/users";
 
-export const AuthorityView: React.FC<ViewProps<AuthorityType>> = ({
+export const AuthorityView: React.FC<ViewProps<AuthorityDTO>> = ({
   entity,
-}: ViewProps<AuthorityType>) => {
+}: ViewProps<AuthorityDTO>) => {
   const permissionLevel = usePagePermission();
   const [open, setOpen] = useState(false);
   const [users, setUsers] = useState<Array<UserType>>();
-  const [authority, setAuthority] = useState<AuthorityType>(entity);
+  const [authority, setAuthority] = useState<AuthorityDTO>(entity);
   const [resourcePermissions, setResourcePermissions] =
-    useState<Array<AuthorityResourcePermissionType>>();
+    useState<Array<AuthorityResourcePermissionDTO>>();
 
   const router = useRouter();
 
