@@ -87,12 +87,12 @@ export const findAccountById = async (accountId: number) => {
 
 export const findPreviousAccount = async (accountId: number) => {
   return get<AccountType>(
-    `${BACKEND_API}/api/crm/accounts/previous/${accountId}`,
+    `${BACKEND_API}/api/crm/accounts/${accountId}/previous`,
   );
 };
 
 export const findNextAccount = async (accountId: number) => {
-  return get<AccountType>(`${BACKEND_API}/api/crm/accounts/next/${accountId}`);
+  return get<AccountType>(`${BACKEND_API}/api/crm/accounts/${accountId}/next`);
 };
 
 export async function searchAccounts(input: AccountSearchParams) {

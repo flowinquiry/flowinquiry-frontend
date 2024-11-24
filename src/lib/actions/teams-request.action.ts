@@ -39,3 +39,15 @@ export async function searchTeamRequests(
     pagination,
   );
 }
+
+export const findPreviousTeamRequest = async (requestId: number) => {
+  return get<TeamRequestType>(
+    `${BACKEND_API}/api/team-requests/${requestId}/previous`,
+  );
+};
+
+export const findNextTeamRequest = async (requestId: number) => {
+  return get<TeamRequestType>(
+    `${BACKEND_API}/api/team-requests/${requestId}/next`,
+  );
+};
