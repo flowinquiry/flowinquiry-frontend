@@ -24,6 +24,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
+import { updateTeamRequest } from "@/lib/actions/teams-request.action";
+import { obfuscate } from "@/lib/endecode";
 import { validateForm } from "@/lib/validator";
 import {
   TeamRequestDTO,
@@ -43,7 +45,10 @@ export const TeamRequestForm = ({
 
   async function onSubmit(teamRequest: TeamRequestDTO) {
     if (validateForm(teamRequest, TeamRequestDTOSchema, form)) {
-      console.log(`Update team request ${JSON.stringify(teamRequest)}`);
+      await updateTeamRequest(teamRequest.id!, teamRequest);
+      router.push(
+        `/portal/teams/${obfuscate(teamRequest.teamId)}/requests/${obfuscate(teamRequest.id)}`,
+      );
     }
   }
 

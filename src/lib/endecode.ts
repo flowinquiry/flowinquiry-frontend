@@ -1,4 +1,4 @@
-export const obfuscate = (value: string | number) => {
+export const obfuscate = (value: string | number | null | undefined) => {
   if (value === undefined || value === null) {
     throw new Error("Invalid input: value cannot be null or undefined");
   }

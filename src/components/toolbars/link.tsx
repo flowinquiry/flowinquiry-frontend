@@ -108,7 +108,7 @@ const LinkToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
                       Remove
                     </Button>
                   )}
-                  <Button size="sm" className="h-8">
+                  <Button type="button" size="sm" className="h-8">
                     {editor?.getAttributes("link").href ? "Update" : "Confirm"}
                   </Button>
                 </div>

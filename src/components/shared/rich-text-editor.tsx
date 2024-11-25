@@ -12,7 +12,6 @@ import { CodeBlockToolbar } from "@/components/toolbars/code-block";
 import { HardBreakToolbar } from "@/components/toolbars/hard-break";
 import { HorizontalRuleToolbar } from "@/components/toolbars/horizontal-rule";
 import { ItalicToolbar } from "@/components/toolbars/italic";
-import { LinkToolbar } from "@/components/toolbars/link";
 import { OrderedListToolbar } from "@/components/toolbars/ordered-list";
 import { RedoToolbar } from "@/components/toolbars/redo";
 import { StrikeThroughToolbar } from "@/components/toolbars/strikethrough";
@@ -96,7 +95,7 @@ const RichTextEditor = ({
             <OrderedListToolbar />
             <CodeToolbar />
             <CodeBlockToolbar />
-            <LinkToolbar />
+            {/*<LinkToolbar />*/}
             <HorizontalRuleToolbar />
             <BlockquoteToolbar />
             <HardBreakToolbar />

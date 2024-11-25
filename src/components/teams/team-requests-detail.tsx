@@ -6,6 +6,7 @@ import React, { useState } from "react";
 
 import { UserAvatar } from "@/components/shared/avatar-display";
 import { PriorityDisplay } from "@/components/teams/team-requests-priority-display";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ViewProps } from "@/components/ui/ext-form";
@@ -19,11 +20,12 @@ import { obfuscate } from "@/lib/endecode";
 import { navigateToRecord } from "@/lib/navigation-record";
 import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/teams";
+import CommentsView from "@/components/shared/comments-view";
+import Link from "next/link";
 
 const TeamRequestDetailView = ({ entity }: ViewProps<TeamRequestDTO>) => {
   const permissionLevel = usePagePermission();
   const router = useRouter();
-  const pathname = usePathname();
 
   const [teamRequest, setTeamRequest] = useState<TeamRequestDTO>(entity);
 
@@ -81,65 +83,79 @@ const TeamRequestDetailView = ({ entity }: ViewProps<TeamRequestDTO>) => {
         </Button>
       </div>
 
-      {/* Card Section */}
       <Card>
-        <CardContent className="p-4 space-y-4">
+        <CardContent className="p-4 space-y-6">
           {/* Request Details Section */}
-          <div>
-            <p>
-              <strong>Description:</strong>{" "}
-              <p
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            {/* Description - Full Width */}
+            <div className="col-span-1 sm:col-span-2">
+              <p className="font-medium">Description</p>
+              <div
                 className="prose"
                 dangerouslySetInnerHTML={{
                   __html: teamRequest.requestDescription!,
                 }}
               />
-            </p>
-            <p>
-              <strong>Priority:</strong>{" "}
-              <PriorityDisplay priority={teamRequest.priority} />
-            </p>
-            <p>
-              <strong>State:</strong> {teamRequest.currentState}
-            </p>
-          </div>
+            </div>
 
-          {/* User Section */}
-          <div>
-            <h2 className="text-lg font-semibold mb-2">Users</h2>
-            <div className="flex items-center gap-4">
+            {/* Priority */}
+            <div>
+              <p className="font-medium">Priority</p>
+              <PriorityDisplay priority={teamRequest.priority} />
+            </div>
+
+            {/* State */}
+            <div>
+              <p className="font-medium">State</p>
+              <p>
+                <Badge>{teamRequest.currentState}</Badge>
+              </p>
+            </div>
+
+            {/* Request User */}
+            <div>
+              <p className="font-medium">Request User</p>
               <div className="flex items-center gap-2">
-                <UserAvatar
-                  imageUrl={teamRequest.requestUserImageUrl}
-                  size="w-10 h-10"
-                />
-                <div>
-                  <p className="font-medium">Request User</p>
-                  <p>{teamRequest.requestUserName || "Unassigned"}</p>
-                </div>
+                <UserAvatar imageUrl={teamRequest.requestUserImageUrl} />
+                {teamRequest.requestUserId != null ? (
+                  <p>
+                    <Button variant="link" className="p-0">
+                      <Link
+                        href={`/portal/users/${obfuscate(teamRequest.requestUserId)}`}
+                      >
+                        {teamRequest.requestUserName}
+                      </Link>
+                    </Button>
+                  </p>
+                ) : (
+                  <p>Unassigned</p>
+                )}
               </div>
-              {teamRequest.assignUserId && (
+            </div>
+
+            {/* Assigned User */}
+            <div>
+              <p className="font-medium">Assigned User</p>
+              {teamRequest.assignUserId != null ? (
                 <div className="flex items-center gap-2">
-                  <UserAvatar
-                    imageUrl={teamRequest.assignUserImageUrl}
-                    size="w-10 h-10"
-                  />
-                  <div>
-                    <p className="font-medium">Assigned User</p>
-                    <p>{teamRequest.assignUserName}</p>
-                  </div>
+                  <UserAvatar imageUrl={teamRequest.assignUserImageUrl} />
+                  <p>{teamRequest.assignUserName}</p>
                 </div>
+              ) : (
+                <p>Unassigned</p>
               )}
             </div>
-          </div>
 
-          {/* Metadata Section */}
-          <div>
-            <p>
-              <strong>Created Date:</strong>{" "}
-              {formatDateTimeDistanceToNow(new Date(teamRequest.createdDate!))}
-            </p>
+            <div>
+              <p className="font-medium">Created Date</p>
+              <p>
+                {formatDateTimeDistanceToNow(
+                  new Date(teamRequest.createdDate!),
+                )}
+              </p>
+            </div>
           </div>
+          <CommentsView entityType="Team_Request" entityId={teamRequest.id!} />
         </CardContent>
       </Card>
     </div>
