@@ -16,7 +16,7 @@ import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { Filter, Pagination, QueryDTO } from "@/types/query";
-import { TeamRequestDTO, TeamDTO } from "@/types/teams";
+import { TeamDTO, TeamRequestDTO } from "@/types/teams";
 
 interface TeamRequestsStatusViewProps extends ViewProps<TeamDTO> {
   query: QueryDTO;

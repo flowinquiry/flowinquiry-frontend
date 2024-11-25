@@ -3,8 +3,8 @@
 import { deleteExec, get, post } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
 import {
-  AuthorityResourcePermissionDTO,
   AuthorityDTO,
+  AuthorityResourcePermissionDTO,
 } from "@/types/authorities";
 import { PageableResult } from "@/types/commons";
 import { UserType } from "@/types/users";

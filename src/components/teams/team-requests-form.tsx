@@ -2,18 +2,128 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
+import React from "react";
 import { useForm } from "react-hook-form";
 
-import { FormProps } from "@/components/ui/ext-form";
-import { TeamRequestDTO, TeamRequestDTOSchema } from "@/types/teams";
+import { Heading } from "@/components/heading";
+import { TeamRequestPrioritySelect } from "@/components/teams/team-requests-priority-select";
+import TeamUserSelectField from "@/components/teams/team-users-select";
+import { Button } from "@/components/ui/button";
+import {
+  ExtInputField,
+  FormProps,
+  SubmitButton,
+} from "@/components/ui/ext-form";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { MinimalTiptapEditor } from "@/components/ui/minimal-tiptap";
+import { Separator } from "@/components/ui/separator";
+import { validateForm } from "@/lib/validator";
+import {
+  TeamRequestDTO,
+  TeamRequestDTOSchema,
+  TeamRequestPriority,
+} from "@/types/teams";
 
-export const TeamRequestForm = ({ initialData }: FormProps<TeamRequestDTO>) => {
+export const TeamRequestForm = ({
+  initialData: teamRequest,
+}: FormProps<TeamRequestDTO>) => {
   const router = useRouter();
 
   const form = useForm<TeamRequestDTO>({
     resolver: zodResolver(TeamRequestDTOSchema),
-    defaultValues: initialData,
+    defaultValues: teamRequest,
   });
 
-  return <div>Team Request form</div>;
+  async function onSubmit(teamRequest: TeamRequestDTO) {
+    if (validateForm(teamRequest, TeamRequestDTOSchema, form)) {
+      console.log(`Update team request ${JSON.stringify(teamRequest)}`);
+    }
+  }
+
+  return (
+    <div className="py-4 grid grid-cols-1 gap-4">
+      <div className="flex items-center justify-between">
+        <Heading title={"Edit request"} description="Edit request" />
+      </div>
+      <Separator />
+      <Form {...form}>
+        <form
+          className="grid grid-cols-1 gap-6 sm:grid-cols-2 max-w-[72rem]"
+          onSubmit={form.handleSubmit(onSubmit)}
+        >
+          <ExtInputField
+            form={form}
+            fieldName="requestTitle"
+            label="Title"
+            required={true}
+          />
+          <FormField
+            control={form.control}
+            name="requestDescription"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Description <span className="text-destructive"> *</span>
+                </FormLabel>
+                <FormControl>
+                  <MinimalTiptapEditor
+                    value={field.value}
+                    onChange={field.onChange}
+                    className="w-full h-[10rem] max-h-[30rem] overflow-y-auto"
+                    editorContentClassName="p-5"
+                    output="html"
+                    placeholder="Type your description here..."
+                    autofocus={true}
+                    editable={true}
+                    editorClassName="focus:outline-none"
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <TeamUserSelectField
+            form={form}
+            fieldName="assignUserId"
+            label="Assignee"
+            teamId={teamRequest?.id!}
+          />
+          <FormField
+            control={form.control}
+            name="priority"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Priority</FormLabel>
+                <FormControl>
+                  <TeamRequestPrioritySelect
+                    value={field.value}
+                    onChange={(value: TeamRequestPriority) =>
+                      field.onChange(value)
+                    }
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <div className="md:col-span-2 flex flex-row gap-4">
+            <SubmitButton
+              label="Save changes"
+              labelWhileLoading="Saving changes..."
+            />
+            <Button variant="secondary" onClick={() => router.back()}>
+              Discard
+            </Button>
+          </div>
+        </form>
+      </Form>
+    </div>
+  );
 };

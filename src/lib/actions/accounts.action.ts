@@ -13,9 +13,9 @@ import {
 import { findEntitiesFilterOptions } from "@/lib/actions/shared.action";
 import { BACKEND_API } from "@/lib/constants";
 import {
+  AccountDTO,
   AccountDTOSchema,
   AccountSearchParams,
-  AccountDTO,
 } from "@/types/accounts";
 import { EntityValueDefinition, PageableResult } from "@/types/commons";
 

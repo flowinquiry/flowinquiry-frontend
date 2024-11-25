@@ -31,10 +31,10 @@ import {
 } from "@/lib/actions/authorities.action";
 import { obfuscate } from "@/lib/endecode";
 import {
-  AuthorityResourcePermissionDTOSchema,
-  AuthorityResourcePermissionDTO,
-  AuthorityDTOSchema,
   AuthorityDTO,
+  AuthorityDTOSchema,
+  AuthorityResourcePermissionDTO,
+  AuthorityResourcePermissionDTOSchema,
 } from "@/types/authorities";
 
 type NewAuthorityFormProps = {

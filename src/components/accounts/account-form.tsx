@@ -20,7 +20,7 @@ import { Form } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { saveOrUpdateAccount } from "@/lib/actions/accounts.action";
 import { validateForm } from "@/lib/validator";
-import { AccountDTOSchema, AccountDTO } from "@/types/accounts";
+import { AccountDTO, AccountDTOSchema } from "@/types/accounts";
 
 export const AccountForm = ({ initialData }: FormProps<AccountDTO>) => {
   const router = useRouter();

@@ -32,8 +32,8 @@ import {
 } from "@/lib/actions/authorities.action";
 import { obfuscate } from "@/lib/endecode";
 import {
-  AuthorityResourcePermissionDTO,
   AuthorityDTO,
+  AuthorityResourcePermissionDTO,
 } from "@/types/authorities";
 import { PermissionUtils } from "@/types/resources";
 import { UserType } from "@/types/users";

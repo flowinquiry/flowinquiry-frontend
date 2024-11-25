@@ -19,7 +19,7 @@ import { Separator } from "@/components/ui/separator";
 import { saveOrUpdateContact } from "@/lib/actions/contacts.action";
 import { deobfuscateToNumber } from "@/lib/endecode";
 import { validateForm } from "@/lib/validator";
-import { ContactDTOSchema, ConTactDTO } from "@/types/contacts";
+import { ConTactDTO, ContactDTOSchema } from "@/types/contacts";
 
 import { Button } from "../ui/button";
 

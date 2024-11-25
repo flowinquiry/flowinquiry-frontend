@@ -24,7 +24,7 @@ import {
 import { MinimalTiptapEditor } from "@/components/ui/minimal-tiptap";
 import WorkflowSelectField from "@/components/workflows/workflow-select";
 import { createTeamRequest } from "@/lib/actions/teams-request.action";
-import { TeamRequestDTO, TeamRequestDTOSchema, TeamDTO } from "@/types/teams";
+import { TeamDTO, TeamRequestDTO, TeamRequestDTOSchema } from "@/types/teams";
 
 type NewRequestToTeamDialogProps = {
   open: boolean;

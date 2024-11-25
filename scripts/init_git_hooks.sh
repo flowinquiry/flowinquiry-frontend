@@ -31,7 +31,7 @@ git add .
 
 echo "Code formatting successful and staged."
 
-npx eslint --fix
+npx eslint --fix --ignore-pattern '.next/**'
 
 if [ $? -ne 0 ]; then
     echo "Eslint failed. Commit aborted."

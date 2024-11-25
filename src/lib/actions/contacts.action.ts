@@ -6,7 +6,7 @@ import { doAdvanceSearch, get, post, put } from "@/lib/actions/commons.action";
 import { findEntitiesFilterOptions } from "@/lib/actions/shared.action";
 import { BACKEND_API } from "@/lib/constants";
 import { EntityValueDefinition, PageableResult } from "@/types/commons";
-import { ContactDTOSchema, ConTactDTO } from "@/types/contacts";
+import { ConTactDTO, ContactDTOSchema } from "@/types/contacts";
 import { Filter } from "@/types/query";
 
 export const findContactById = async (

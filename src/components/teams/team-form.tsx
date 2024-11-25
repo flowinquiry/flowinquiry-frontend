@@ -28,7 +28,7 @@ import {
 import { useImageCropper } from "@/hooks/use-image-cropper";
 import { apiClient } from "@/lib/api-client";
 import { validateForm } from "@/lib/validator";
-import { TeamDTOSchema, TeamDTO } from "@/types/teams";
+import { TeamDTO, TeamDTOSchema } from "@/types/teams";
 
 export const TeamForm = ({ initialData }: FormProps<TeamDTO>) => {
   const router = useRouter();
