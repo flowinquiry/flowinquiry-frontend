@@ -6,6 +6,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 
 import { Heading } from "@/components/heading";
+import RichTextEditor from "@/components/shared/rich-text-editor";
 import { TeamRequestPrioritySelect } from "@/components/teams/team-requests-priority-select";
 import TeamUserSelectField from "@/components/teams/team-users-select";
 import { Button } from "@/components/ui/button";
@@ -22,7 +23,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { MinimalTiptapEditor } from "@/components/ui/minimal-tiptap";
 import { Separator } from "@/components/ui/separator";
 import { validateForm } from "@/lib/validator";
 import {
@@ -73,16 +73,9 @@ export const TeamRequestForm = ({
                   Description <span className="text-destructive"> *</span>
                 </FormLabel>
                 <FormControl>
-                  <MinimalTiptapEditor
+                  <RichTextEditor
                     value={field.value}
                     onChange={field.onChange}
-                    className="w-full h-[10rem] max-h-[30rem] overflow-y-auto"
-                    editorContentClassName="p-5"
-                    output="html"
-                    placeholder="Type your description here..."
-                    autofocus={true}
-                    editable={true}
-                    editorClassName="focus:outline-none"
                   />
                 </FormControl>
                 <FormMessage />

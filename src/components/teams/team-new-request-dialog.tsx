@@ -21,10 +21,10 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { MinimalTiptapEditor } from "@/components/ui/minimal-tiptap";
 import WorkflowSelectField from "@/components/workflows/workflow-select";
 import { createTeamRequest } from "@/lib/actions/teams-request.action";
 import { TeamDTO, TeamRequestDTO, TeamRequestDTOSchema } from "@/types/teams";
+import RichTextEditor from "@/components/shared/rich-text-editor";
 
 type NewRequestToTeamDialogProps = {
   open: boolean;
@@ -92,16 +92,9 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
                       Description <span className="text-destructive"> *</span>
                     </FormLabel>
                     <FormControl>
-                      <MinimalTiptapEditor
+                      <RichTextEditor
                         value={field.value}
                         onChange={field.onChange}
-                        className="w-full h-[10rem] max-h-[30rem] overflow-y-auto"
-                        editorContentClassName="p-5"
-                        output="html"
-                        placeholder="Type your description here..."
-                        autofocus={true}
-                        editable={true}
-                        editorClassName="focus:outline-none"
                       />
                     </FormControl>
                     <FormMessage />
