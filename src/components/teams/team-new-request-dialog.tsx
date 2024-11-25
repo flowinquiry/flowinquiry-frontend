@@ -1,9 +1,13 @@
+"use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "next-auth/react";
 import React from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
+import RichTextEditor from "@/components/shared/rich-text-editor";
+import { TeamRequestPrioritySelect } from "@/components/teams/team-requests-priority-select";
 import TeamUserSelectField from "@/components/teams/team-users-select";
 import {
   Dialog,
@@ -23,8 +27,12 @@ import {
 } from "@/components/ui/form";
 import WorkflowSelectField from "@/components/workflows/workflow-select";
 import { createTeamRequest } from "@/lib/actions/teams-request.action";
-import { TeamDTO, TeamRequestDTO, TeamRequestDTOSchema } from "@/types/teams";
-import RichTextEditor from "@/components/shared/rich-text-editor";
+import {
+  TeamDTO,
+  TeamRequestDTO,
+  TeamRequestDTOSchema,
+  TeamRequestPriority,
+} from "@/types/teams";
 
 type NewRequestToTeamDialogProps = {
   open: boolean;
@@ -58,7 +66,6 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[56rem] max-h-[90vh] p-4 sm:p-6 flex flex-col">
-        {/* Header: Title and Description */}
         <div>
           <DialogHeader>
             <DialogTitle>Create a New Ticket Request</DialogTitle>
@@ -75,7 +82,6 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col flex-1"
           >
-            {/* Scrollable Content */}
             <div className="flex-1 overflow-y-auto space-y-6">
               <ExtInputField
                 form={form}
@@ -101,6 +107,24 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
                   </FormItem>
                 )}
               />
+              <FormField
+                control={form.control}
+                name="priority"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Priority</FormLabel>
+                    <FormControl>
+                      <TeamRequestPrioritySelect
+                        value={field.value}
+                        onChange={(value: TeamRequestPriority) =>
+                          field.onChange(value)
+                        }
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
               <TeamUserSelectField
                 form={form}
                 fieldName="assignUserId"
@@ -115,7 +139,6 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
               />
             </div>
 
-            {/* Footer: Submit Button */}
             <div className="pt-4">
               <SubmitButton label="Save" labelWhileLoading="Saving ..." />
             </div>

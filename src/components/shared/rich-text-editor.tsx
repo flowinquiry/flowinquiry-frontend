@@ -15,8 +15,8 @@ import { OrderedListToolbar } from "@/components/toolbars/ordered-list";
 import { RedoToolbar } from "@/components/toolbars/redo";
 import { StrikeThroughToolbar } from "@/components/toolbars/strikethrough";
 import { ToolbarProvider } from "@/components/toolbars/toolbar-provider";
-import { Separator } from "@/components/ui/separator";
 import { UndoToolbar } from "@/components/toolbars/undo";
+import { Separator } from "@/components/ui/separator";
 
 const extensions = [
   StarterKit.configure({
