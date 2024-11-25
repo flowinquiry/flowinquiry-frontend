@@ -46,8 +46,7 @@ const TeamUserSelectField = ({
 
   useEffect(() => {
     async function fetchUsers() {
-      const usersData = await findMembersByTeamId(teamId);
-      setUsers(usersData);
+      findMembersByTeamId(teamId).then((data) => setUsers(data));
     }
     fetchUsers();
   }, [teamId]);

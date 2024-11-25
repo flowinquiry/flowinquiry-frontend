@@ -1,30 +1,22 @@
-// Function to encode any string to be safe for use in URLs
-export const safeUrlEncode = (value: string): string => {
-  return encodeURIComponent(value);
-};
-
-// Function to decode a URL-safe string back to its original form
-export const safeUrlDecode = (value: string): string => {
-  return decodeURIComponent(value);
-};
-
-// Function to obfuscate/encode the value (handles both string and number)
-export const obfuscate = (
-  value: string | number | undefined | null,
-): string => {
+export const obfuscate = (value: string | number) => {
   if (value === undefined || value === null) {
-    throw new Error("Invalid input: value cannot be undefined");
+    throw new Error("Invalid input: value cannot be null or undefined");
   }
-  const base64 = Buffer.from(value.toString()).toString("base64");
-  return safeUrlEncode(base64);
+  const base64 = Buffer.from(value.toString(), "utf-8").toString("base64");
+  return base64.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
 };
 
-// Function to decode the value (returns the original type: string or number)
-export const deobfuscate = (encodedValue: string): string | number => {
-  const base64 = safeUrlDecode(encodedValue);
+export const deobfuscate = (encodedValue: string | null | undefined) => {
+  if (!encodedValue) {
+    throw new Error("Invalid input: encodedValue cannot be null or empty");
+  }
+  let base64 = encodedValue.replace(/-/g, "+").replace(/_/g, "/");
+  while (base64.length % 4 !== 0) {
+    base64 += "=";
+  }
   const decodedString = Buffer.from(base64, "base64").toString("utf-8");
 
-  // Check if the decoded value is a number
+  // Try to parse as number, else return string
   const parsedNumber = parseFloat(decodedString);
   return isNaN(parsedNumber) ? decodedString : parsedNumber;
 };

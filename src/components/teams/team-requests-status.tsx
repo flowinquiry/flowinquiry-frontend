@@ -105,6 +105,7 @@ const TeamRequestsStatusView = ({
               htmlContent={request.requestDescription!}
               wordLimit={400}
             />
+
             <div className="grid grid-cols-1 sm:grid-cols-2">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">

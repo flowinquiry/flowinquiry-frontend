@@ -15,7 +15,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"; // Adjust to your ShadCN imports
+} from "@/components/ui/select";
 import { TeamRequestPriority } from "@/types/teams";
 
 const priorities: TeamRequestPriority[] = [
@@ -71,7 +71,7 @@ export const TeamRequestPrioritySelect = ({
     value={value}
     onValueChange={(value: TeamRequestPriority) => onChange(value)}
   >
-    <SelectTrigger className="w-full">
+    <SelectTrigger className="w-[16rem]">
       <SelectValue>
         <div className="flex items-center gap-2">
           {getPriorityIcon(value)}

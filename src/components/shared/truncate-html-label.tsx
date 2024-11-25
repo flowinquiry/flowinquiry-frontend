@@ -8,16 +8,22 @@ const TruncatedHtmlLabel = ({
   wordLimit: number;
 }) => {
   if (htmlContent.length <= wordLimit) {
-    return <div dangerouslySetInnerHTML={{ __html: htmlContent }} />;
+    return (
+      <div className="px-4">
+        <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+      </div>
+    );
   }
 
   const truncatedContent = htmlContent.substring(0, wordLimit) + " ...";
 
   return (
-    <div
-      className="prose"
-      dangerouslySetInnerHTML={{ __html: truncatedContent }}
-    />
+    <div className="px-4">
+      <div
+        className="prose"
+        dangerouslySetInnerHTML={{ __html: truncatedContent }}
+      />
+    </div>
   );
 };
 export default TruncatedHtmlLabel;

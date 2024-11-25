@@ -48,46 +48,61 @@ export const TeamRequestForm = ({
   }
 
   return (
-    <div className="py-4 grid grid-cols-1 gap-4">
-      <div className="flex items-center justify-between">
-        <Heading title={"Edit request"} description="Edit request" />
+    <div className="py-4">
+      <div className="flex items-center justify-between mb-4">
+        <Heading
+          title="Edit Request"
+          description="Edit the details of your request"
+        />
       </div>
+
       <Separator />
+
+      {/* Form */}
       <Form {...form}>
         <form
-          className="grid grid-cols-1 gap-6 sm:grid-cols-2 max-w-[72rem]"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-[72rem] mx-auto"
           onSubmit={form.handleSubmit(onSubmit)}
         >
-          <ExtInputField
-            form={form}
-            fieldName="requestTitle"
-            label="Title"
-            required={true}
-          />
-          <FormField
-            control={form.control}
-            name="requestDescription"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>
-                  Description <span className="text-destructive"> *</span>
-                </FormLabel>
-                <FormControl>
-                  <RichTextEditor
-                    value={field.value}
-                    onChange={field.onChange}
-                  />
-                </FormControl>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          {/* Title Field - Spans 2 Columns */}
+          <div className="col-span-1 sm:col-span-2">
+            <ExtInputField
+              form={form}
+              fieldName="requestTitle"
+              label="Title"
+              required={true}
+            />
+          </div>
+
+          <div className="col-span-1 sm:col-span-2">
+            <FormField
+              control={form.control}
+              name="requestDescription"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Description <span className="text-destructive"> *</span>
+                  </FormLabel>
+                  <FormControl>
+                    <RichTextEditor
+                      value={field.value}
+                      onChange={field.onChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
+
           <TeamUserSelectField
             form={form}
             fieldName="assignUserId"
             label="Assignee"
-            teamId={teamRequest?.id!}
+            teamId={teamRequest?.teamId!}
           />
+
+          {/* Priority Field - Single Column */}
           <FormField
             control={form.control}
             name="priority"
@@ -106,7 +121,9 @@ export const TeamRequestForm = ({
               </FormItem>
             )}
           />
-          <div className="md:col-span-2 flex flex-row gap-4">
+
+          {/* Buttons - Spans 2 Columns */}
+          <div className="col-span-1 sm:col-span-2 flex flex-row gap-4">
             <SubmitButton
               label="Save changes"
               labelWhileLoading="Saving changes..."

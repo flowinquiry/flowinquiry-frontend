@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "@tiptap/extension-link";
 import { EditorContent, type Extension, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 
@@ -11,6 +12,7 @@ import { CodeBlockToolbar } from "@/components/toolbars/code-block";
 import { HardBreakToolbar } from "@/components/toolbars/hard-break";
 import { HorizontalRuleToolbar } from "@/components/toolbars/horizontal-rule";
 import { ItalicToolbar } from "@/components/toolbars/italic";
+import { LinkToolbar } from "@/components/toolbars/link";
 import { OrderedListToolbar } from "@/components/toolbars/ordered-list";
 import { RedoToolbar } from "@/components/toolbars/redo";
 import { StrikeThroughToolbar } from "@/components/toolbars/strikethrough";
@@ -52,6 +54,10 @@ const extensions = [
       },
     },
   }),
+  Link.configure({
+    openOnClick: true, // Optional: Opens links on click
+    linkOnPaste: true, // Optional: Automatically convert links on paste
+  }),
 ];
 
 const RichTextEditor = ({
@@ -77,7 +83,6 @@ const RichTextEditor = ({
 
   return (
     <div className="border w-full relative rounded-md overflow-hidden">
-      {/* Toolbar Section */}
       <div className="flex w-full items-center py-2 px-2 justify-between border-b sticky top-0 left-0 bg-background z-20">
         <ToolbarProvider editor={editor}>
           <div className="flex items-center gap-2">
@@ -91,6 +96,7 @@ const RichTextEditor = ({
             <OrderedListToolbar />
             <CodeToolbar />
             <CodeBlockToolbar />
+            <LinkToolbar />
             <HorizontalRuleToolbar />
             <BlockquoteToolbar />
             <HardBreakToolbar />
@@ -103,7 +109,7 @@ const RichTextEditor = ({
         onClick={() => {
           editor?.chain().focus().run();
         }}
-        className="cursor-text bg-background h-[200px] h-full overflow-y-auto"
+        className="cursor-text bg-background min-h-[10rem] max-h-[16rem] h-full overflow-y-auto"
       >
         <EditorContent
           editor={editor}

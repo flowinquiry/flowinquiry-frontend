@@ -103,6 +103,9 @@ importers:
       "@tiptap/core":
         specifier: ^2.10.2
         version: 2.10.2(@tiptap/pm@2.10.2)
+      "@tiptap/extension-link":
+        specifier: ^2.10.2
+        version: 2.10.2(@tiptap/core@2.10.2(@tiptap/pm@2.10.2))(@tiptap/pm@2.10.2)
       "@tiptap/pm":
         specifier: ^2.10.2
         version: 2.10.2
@@ -1681,6 +1684,15 @@ packages:
       }
     peerDependencies:
       "@tiptap/core": ^2.7.0
+
+  "@tiptap/extension-link@2.10.2":
+    resolution:
+      {
+        integrity: sha512-bgsWdinDPGEiMD0NgphpKaxm4l9+PbPwdLDGDFyEX069VAyuSN4y63Sn32clpwlLcibVu3JxVFClJ+o6wKtmdg==,
+      }
+    peerDependencies:
+      "@tiptap/core": ^2.7.0
+      "@tiptap/pm": ^2.7.0
 
   "@tiptap/extension-list-item@2.10.2":
     resolution:
@@ -3769,6 +3781,12 @@ packages:
     resolution:
       {
         integrity: sha512-5aHCbzQRADcdP+ATqnDuhhJ/MRIqDkZX5pyjFHRRysS8vZ5AbqGEoFIb6pYHPZ+L/OC2Lc+xT8uHVVR5CAK/wQ==,
+      }
+
+  linkifyjs@4.1.4:
+    resolution:
+      {
+        integrity: sha512-0/NxkHNpiJ0k9VrYCkAn9OtU1eu8xEr1tCCpDtSsVRm/SF0xAak2Gzv3QimSfgUgqLBCDlfhMbu73XvaEHUTPQ==,
       }
 
   locate-path@6.0.0:
@@ -6372,6 +6390,12 @@ snapshots:
     dependencies:
       "@tiptap/core": 2.10.2(@tiptap/pm@2.10.2)
 
+  "@tiptap/extension-link@2.10.2(@tiptap/core@2.10.2(@tiptap/pm@2.10.2))(@tiptap/pm@2.10.2)":
+    dependencies:
+      "@tiptap/core": 2.10.2(@tiptap/pm@2.10.2)
+      "@tiptap/pm": 2.10.2
+      linkifyjs: 4.1.4
+
   "@tiptap/extension-list-item@2.10.2(@tiptap/core@2.10.2(@tiptap/pm@2.10.2))":
     dependencies:
       "@tiptap/core": 2.10.2(@tiptap/pm@2.10.2)
@@ -7742,6 +7766,8 @@ snapshots:
   linkify-it@5.0.0:
     dependencies:
       uc.micro: 2.1.0
+
+  linkifyjs@4.1.4: {}
 
   locate-path@6.0.0:
     dependencies:
