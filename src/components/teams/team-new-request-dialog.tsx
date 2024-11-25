@@ -65,80 +65,98 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="sm:max-w-[56rem] max-h-[90vh] p-4 sm:p-6 flex flex-col">
-        <div>
-          <DialogHeader>
-            <DialogTitle>Create a New Ticket Request</DialogTitle>
-            <DialogDescription>
-              Submit a request to the team to get assistance or initiate a task.
-              Provide all necessary details to help the team understand and
-              address your request effectively.
-            </DialogDescription>
-          </DialogHeader>
-        </div>
+      <DialogContent className="sm:max-w-[56rem] max-h-[90vh] p-4 sm:p-6 flex flex-col overflow-y-auto">
+        {/* Dialog Header */}
+        <DialogHeader>
+          <DialogTitle>Create a New Ticket Request</DialogTitle>
+          <DialogDescription>
+            Submit a request to the team to get assistance or initiate a task.
+            Provide all necessary details to help the team understand and
+            address your request effectively.
+          </DialogDescription>
+        </DialogHeader>
 
+        {/* Form Section */}
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col flex-1"
           >
+            {/* Scrollable Form Fields */}
             <div className="flex-1 overflow-y-auto space-y-6">
-              <ExtInputField
-                form={form}
-                fieldName="requestTitle"
-                label="Title"
-                required={true}
-              />
-              <FormField
-                control={form.control}
-                name="requestDescription"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Description <span className="text-destructive"> *</span>
-                    </FormLabel>
-                    <FormControl>
-                      <RichTextEditor
-                        value={field.value}
-                        onChange={field.onChange}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="priority"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Priority</FormLabel>
-                    <FormControl>
-                      <TeamRequestPrioritySelect
-                        value={field.value}
-                        onChange={(value: TeamRequestPriority) =>
-                          field.onChange(value)
-                        }
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <TeamUserSelectField
-                form={form}
-                fieldName="assignUserId"
-                label="Assignee"
-                teamId={teamEntity.id!}
-              />
-              <WorkflowSelectField
-                form={form}
-                fieldName="workflowId"
-                label="Workflow"
-                teamId={teamEntity.id!}
-              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                {/* Title Field - Occupies 2 Columns */}
+                <div className="col-span-1 sm:col-span-2">
+                  <ExtInputField
+                    form={form}
+                    fieldName="requestTitle"
+                    label="Title"
+                    required={true}
+                  />
+                </div>
+
+                {/* Description Field - Occupies 2 Columns */}
+                <div className="col-span-1 sm:col-span-2">
+                  <FormField
+                    control={form.control}
+                    name="requestDescription"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Description{" "}
+                          <span className="text-destructive"> *</span>
+                        </FormLabel>
+                        <FormControl>
+                          <RichTextEditor
+                            value={field.value}
+                            onChange={field.onChange}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                {/* Priority Field */}
+                <FormField
+                  control={form.control}
+                  name="priority"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Priority</FormLabel>
+                      <FormControl>
+                        <TeamRequestPrioritySelect
+                          value={field.value}
+                          onChange={(value: TeamRequestPriority) =>
+                            field.onChange(value)
+                          }
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* Assignee Field */}
+                <TeamUserSelectField
+                  form={form}
+                  fieldName="assignUserId"
+                  label="Assignee"
+                  teamId={teamEntity.id!}
+                />
+
+                {/* Workflow Field */}
+                <WorkflowSelectField
+                  form={form}
+                  fieldName="workflowId"
+                  label="Workflow"
+                  teamId={teamEntity.id!}
+                />
+              </div>
             </div>
 
+            {/* Submit Button - Fixed at Bottom */}
             <div className="pt-4">
               <SubmitButton label="Save" labelWhileLoading="Saving ..." />
             </div>

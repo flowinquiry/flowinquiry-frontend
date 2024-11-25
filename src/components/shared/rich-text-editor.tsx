@@ -74,8 +74,10 @@ const RichTextEditor = ({
   if (!editor) {
     return null;
   }
+
   return (
-    <div className="border w-full relative rounded-md overflow-hidden pb-3">
+    <div className="border w-full relative rounded-md overflow-hidden">
+      {/* Toolbar Section */}
       <div className="flex w-full items-center py-2 px-2 justify-between border-b sticky top-0 left-0 bg-background z-20">
         <ToolbarProvider editor={editor}>
           <div className="flex items-center gap-2">
@@ -95,13 +97,18 @@ const RichTextEditor = ({
           </div>
         </ToolbarProvider>
       </div>
+
+      {/* Editor Content Section */}
       <div
         onClick={() => {
           editor?.chain().focus().run();
         }}
-        className="cursor-text min-h-[18rem] bg-background"
+        className="cursor-text bg-background h-[200px] h-full overflow-y-auto"
       >
-        <EditorContent className="outline-none" editor={editor} />
+        <EditorContent
+          editor={editor}
+          className="outline-none p-2 h-full overflow-y-auto"
+        />
       </div>
     </div>
   );

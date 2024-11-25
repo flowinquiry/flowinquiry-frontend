@@ -20,6 +20,7 @@ const UndoToolbar = React.forwardRef<HTMLButtonElement, ButtonProps>(
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
+            type="button"
             variant="ghost"
             size="icon"
             className={cn("h-8 w-8", className)}
