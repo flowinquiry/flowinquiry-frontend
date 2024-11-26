@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useSession } from "next-auth/react";
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -25,7 +25,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import WorkflowSelectField from "@/components/workflows/workflow-select";
 import { createTeamRequest } from "@/lib/actions/teams-request.action";
 import {
   TeamDTO,
@@ -33,11 +32,13 @@ import {
   TeamRequestDTOSchema,
   TeamRequestPriority,
 } from "@/types/teams";
+import { WorkflowDTO } from "@/types/workflows";
 
 type NewRequestToTeamDialogProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   teamEntity: TeamDTO;
+  workflow: WorkflowDTO | null; // Updated to allow null
   onSaveSuccess: () => void;
 };
 
@@ -45,6 +46,7 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
   open,
   setOpen,
   teamEntity,
+  workflow,
   onSaveSuccess,
 }) => {
   const { data: session } = useSession();
@@ -53,9 +55,17 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
     resolver: zodResolver(TeamRequestDTOSchema),
     defaultValues: {
       teamId: teamEntity.id,
+      workflowId: workflow?.id || null,
       requestUserId: Number(session?.user?.id!),
     },
   });
+
+  // Update form values when the workflow prop changes
+  useEffect(() => {
+    if (workflow) {
+      form.setValue("workflowId", workflow.id); // Dynamically update workflowId
+    }
+  }, [workflow, form]);
 
   const onSubmit = async (data: TeamRequestDTO) => {
     await createTeamRequest(data);
@@ -143,14 +153,6 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
                   form={form}
                   fieldName="assignUserId"
                   label="Assignee"
-                  teamId={teamEntity.id!}
-                />
-
-                {/* Workflow Field */}
-                <WorkflowSelectField
-                  form={form}
-                  fieldName="workflowId"
-                  label="Workflow"
                   teamId={teamEntity.id!}
                 />
               </div>

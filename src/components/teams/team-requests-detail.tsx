@@ -1,10 +1,12 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, Edit } from "lucide-react";
-import { usePathname, useRouter } from "next/navigation";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 import { UserAvatar } from "@/components/shared/avatar-display";
+import CommentsView from "@/components/shared/comments-view";
 import { PriorityDisplay } from "@/components/teams/team-requests-priority-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -20,8 +22,6 @@ import { obfuscate } from "@/lib/endecode";
 import { navigateToRecord } from "@/lib/navigation-record";
 import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/teams";
-import CommentsView from "@/components/shared/comments-view";
-import Link from "next/link";
 
 const TeamRequestDetailView = ({ entity }: ViewProps<TeamRequestDTO>) => {
   const permissionLevel = usePagePermission();

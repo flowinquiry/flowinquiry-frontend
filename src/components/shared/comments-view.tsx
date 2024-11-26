@@ -3,7 +3,7 @@
 import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/shared/avatar-display";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -11,7 +11,6 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import DefaultUserLogo from "@/components/users/user-logo";
 import {
   createNewComment,
   getCommentsForEntity,
@@ -19,7 +18,6 @@ import {
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { CommentDTO, EntityType } from "@/types/commons";
-import { UserAvatar } from "@/components/shared/avatar-display";
 
 type CommentsSectionProps = {
   entityType: EntityType;

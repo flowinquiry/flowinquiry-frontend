@@ -106,7 +106,7 @@ const TeamRequestsStatusView = ({
               wordLimit={400}
             />
 
-            <div className="grid grid-cols-1 sm:grid-cols-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex items-center gap-2">
                 <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
                   Created
@@ -168,6 +168,15 @@ const TeamRequestsStatusView = ({
                     No user assigned
                   </span>
                 )}
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
+                  Type
+                </span>
+                <div className="w-2/3 text-left flex items-center">
+                  <Badge variant="outline">{request.workflowRequestName}</Badge>
+                </div>
               </div>
 
               <div className="flex items-center gap-2">

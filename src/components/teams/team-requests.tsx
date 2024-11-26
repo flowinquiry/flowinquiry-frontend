@@ -1,11 +1,11 @@
 "use client";
 
+import { CaretDownIcon } from "@radix-ui/react-icons";
 import {
   ArrowDown,
   ArrowUp,
   CheckCircle,
   Clock,
-  Plus,
   UserCheck,
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
@@ -14,6 +14,12 @@ import { Heading } from "@/components/heading";
 import NewRequestToTeamDialog from "@/components/teams/team-new-request-dialog";
 import TeamRequestsStatusView from "@/components/teams/team-requests-status";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { ViewProps } from "@/components/ui/ext-form";
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
@@ -23,10 +29,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { usePagePermission } from "@/hooks/use-page-permission";
+import { getWorkflowsByTeam } from "@/lib/actions/workflows.action";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { Filter, QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
+import { WorkflowDTO } from "@/types/workflows";
 
 export type Pagination = {
   page: number;
@@ -43,6 +51,10 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
   const [searchText, setSearchText] = useState("");
   const [debouncedSearchText, setDebouncedSearchText] = useState(""); // Debounced text
   const [isAscending, setIsAscending] = useState(false);
+  const [workflows, setWorkflows] = useState<WorkflowDTO[]>([]);
+  const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowDTO | null>(
+    null,
+  );
 
   const [statuses, setStatuses] = useState<string[]>(["New"]);
 
@@ -115,6 +127,13 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
     return () => clearTimeout(handler); // Cleanup the timeout if the input changes again
   }, [searchText]);
 
+  useEffect(() => {
+    const fetchWorkflows = () => {
+      getWorkflowsByTeam(team.id!).then((data) => setWorkflows(data));
+    };
+    fetchWorkflows();
+  }, [team.id]);
+
   const onCreatedTeamRequestSuccess = () => {
     // Increment refresh trigger to reload data
     setRefreshTrigger((prev) => prev + 1);
@@ -131,13 +150,44 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
           teamRole === "Member" ||
           teamRole === "Guest") && (
           <div>
-            <Button onClick={() => setOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" /> New Request
-            </Button>
+            <div className="flex items-center">
+              <Button className={"rounded-r-none"}>New</Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    className={
+                      "rounded-l-none border-l-2 border-l-current px-2"
+                    }
+                  >
+                    <CaretDownIcon />
+                  </Button>
+                </DropdownMenuTrigger>
+                {workflows ? (
+                  <DropdownMenuContent>
+                    {workflows.map((workflow) => (
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => {
+                          setSelectedWorkflow(workflow);
+                          setOpen(true);
+                        }}
+                      >
+                        {workflow.requestName}
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                ) : (
+                  <DropdownMenuContent>
+                    No workflow is available for team
+                  </DropdownMenuContent>
+                )}
+              </DropdownMenu>
+            </div>
             <NewRequestToTeamDialog
               open={open}
               setOpen={setOpen}
               teamEntity={team}
+              workflow={selectedWorkflow!}
               onSaveSuccess={onCreatedTeamRequestSuccess}
             />
           </div>
