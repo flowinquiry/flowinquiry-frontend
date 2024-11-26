@@ -16,7 +16,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { ExtInputField, SubmitButton } from "@/components/ui/ext-form";
+import {
+  DatePickerField,
+  ExtInputField,
+  SubmitButton,
+} from "@/components/ui/ext-form";
 import {
   Form,
   FormControl,
@@ -78,7 +82,9 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
       <DialogContent className="sm:max-w-[56rem] max-h-[90vh] p-4 sm:p-6 flex flex-col overflow-y-auto">
         {/* Dialog Header */}
         <DialogHeader>
-          <DialogTitle>Create a New Ticket Request</DialogTitle>
+          <DialogTitle>
+            [{workflow?.requestName}]: Create a New Ticket Request
+          </DialogTitle>
           <DialogDescription>
             Submit a request to the team to get assistance or initiate a task.
             Provide all necessary details to help the team understand and
@@ -154,6 +160,20 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
                   fieldName="assignUserId"
                   label="Assignee"
                   teamId={teamEntity.id!}
+                />
+
+                <DatePickerField
+                  form={form}
+                  fieldName="estimatedCompletionDate"
+                  label="Target Completion Date"
+                  placeholder="Select a date"
+                />
+
+                <DatePickerField
+                  form={form}
+                  fieldName="actualCompletionDate"
+                  label="Actual Completion Date"
+                  placeholder="Select a date"
                 />
               </div>
             </div>

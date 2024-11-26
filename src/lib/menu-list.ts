@@ -1,4 +1,4 @@
-import { BookLock, Castle, LayoutGrid, LucideIcon, Users } from "lucide-react";
+import { BookLock, Layers, LayoutGrid, LucideIcon, Users } from "lucide-react";
 
 import { Permission } from "@/providers/permissions-provider";
 
@@ -82,7 +82,7 @@ export function getMenuList(
         {
           href: "/portal/teams",
           label: "Teams",
-          icon: Castle,
+          icon: Layers,
         },
       ],
     },

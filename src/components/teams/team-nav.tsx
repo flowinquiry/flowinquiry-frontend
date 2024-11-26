@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRightCircleIcon, Shuffle, Users } from "lucide-react";
+import { Activity, ArrowRightCircleIcon, Shuffle, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -17,6 +17,11 @@ const TeamNavLayout = ({
   const pathname = usePathname();
 
   const teamFeatures = [
+    {
+      href: `/portal/teams/${obfuscate(teamId)}/dashboard`,
+      label: "Dashboard",
+      icon: Activity,
+    },
     {
       href: `/portal/teams/${obfuscate(teamId)}/members`,
       label: "Members",

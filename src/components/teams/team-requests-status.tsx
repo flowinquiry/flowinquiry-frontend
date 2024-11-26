@@ -79,117 +79,185 @@ const TeamRequestsStatusView = ({
   return (
     <div className="grid grid-cols-1 gap-4">
       <div>
-        {requests.map((request, index) => (
-          <div
-            className={cn(
-              "p-4 hover:bg-[hsl(var(--muted))] transition-colors",
-              "odd:bg-[hsl(var(--card))] odd:text-[hsl(var(--card-foreground))]",
-              "even:bg-[hsl(var(--secondary))] even:text-[hsl(var(--secondary-foreground))]",
-              "border-t border-l border-r border-[hsl(var(--border))]",
-              index === requests.length - 1 && "border-b",
-            )}
-            key={request.id}
-          >
-            <Button
-              variant="link"
-              className="px-0 text-xl"
-              onClick={() => openSheet(request)}
-              tabIndex={0}
-              role="button"
-              aria-label={`Open details for ${request.requestTitle}`}
+        {requests.map((request, index) => {
+          const currentDate = new Date();
+          const estimatedCompletionDate = request.estimatedCompletionDate
+            ? new Date(request.estimatedCompletionDate)
+            : null;
+
+          const isOverdue =
+            estimatedCompletionDate && estimatedCompletionDate < currentDate;
+
+          const isCloseToDeadline =
+            estimatedCompletionDate &&
+            estimatedCompletionDate >= currentDate &&
+            (estimatedCompletionDate.getTime() - currentDate.getTime()) /
+              (1000 * 60 * 60 * 24) <=
+              1; // Less than or equal to 1 day left
+
+          return (
+            <div
+              className={cn(
+                "relative p-4 hover:bg-[hsl(var(--muted))] transition-colors",
+                "odd:bg-[hsl(var(--card))] odd:text-[hsl(var(--card-foreground))]",
+                "even:bg-[hsl(var(--secondary))] even:text-[hsl(var(--secondary-foreground))]",
+                "border-t border-l border-r border-[hsl(var(--border))]",
+                index === requests.length - 1 && "border-b",
+              )}
+              key={request.id}
             >
-              {request.requestTitle}
-            </Button>
-
-            <TruncatedHtmlLabel
-              htmlContent={request.requestDescription!}
-              wordLimit={400}
-            />
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
-                  Created
-                </span>
-                <div className="text-sm w-2/3 text-left">
-                  {formatDateTimeDistanceToNow(new Date(request.createdDate!))}
+              {/* Ribbon for Overdue or Close-to-Deadline */}
+              {isOverdue && (
+                <div className="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-bl-md dark:bg-red-800">
+                  Overdue
                 </div>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
-                  Priority
-                </span>
-                <div className="text-sm w-2/3 text-left">
-                  <PriorityDisplay priority={request.priority} />
+              )}
+              {isCloseToDeadline && !isOverdue && (
+                <div className="absolute top-0 right-0 bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded-bl-md dark:bg-yellow-600 dark:text-black">
+                  1 Day Left
                 </div>
-              </div>
+              )}
 
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
-                  Request User
-                </span>
-                <div className="w-2/3 text-left flex items-center gap-2">
-                  <UserAvatar
-                    imageUrl={request.requestUserImageUrl}
-                    size="w-6 h-6"
-                  />
-                  <Button variant="link" className="p-0 h-auto">
-                    <Link
-                      href={`/portal/users/${obfuscate(request.requestUserId)}`}
-                    >
-                      {request.requestUserName}
-                    </Link>
-                  </Button>
+              <Button
+                variant="link"
+                className="px-0 text-xl"
+                onClick={() => openSheet(request)}
+                tabIndex={0}
+                role="button"
+                aria-label={`Open details for ${request.requestTitle}`}
+              >
+                {request.requestTitle}
+              </Button>
+
+              <TruncatedHtmlLabel
+                htmlContent={request.requestDescription!}
+                wordLimit={400}
+              />
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Created */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
+                    Created
+                  </span>
+                  <div className="text-sm w-2/3 text-left">
+                    {formatDateTimeDistanceToNow(
+                      new Date(request.createdDate!),
+                    )}
+                  </div>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right">
-                  Assign User
-                </span>
+                {/* Priority */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
+                    Priority
+                  </span>
+                  <div className="text-sm w-2/3 text-left">
+                    <PriorityDisplay priority={request.priority} />
+                  </div>
+                </div>
 
-                {request.assignUserId ? (
-                  <div className="w-2/3 flex items-center gap-2">
+                {/* Request User */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
+                    Request User
+                  </span>
+                  <div className="w-2/3 text-left flex items-center gap-2">
                     <UserAvatar
-                      imageUrl={request.assignUserImageUrl}
+                      imageUrl={request.requestUserImageUrl}
                       size="w-6 h-6"
                     />
                     <Button variant="link" className="p-0 h-auto">
                       <Link
-                        href={`/portal/users/${obfuscate(request.assignUserId)}`}
+                        href={`/portal/users/${obfuscate(request.requestUserId)}`}
                       >
-                        {request.assignUserName}
+                        {request.requestUserName}
                       </Link>
                     </Button>
                   </div>
-                ) : (
-                  <span className="w-2/3 text-sm text-gray-500">
-                    No user assigned
-                  </span>
-                )}
-              </div>
-
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
-                  Type
-                </span>
-                <div className="w-2/3 text-left flex items-center">
-                  <Badge variant="outline">{request.workflowRequestName}</Badge>
                 </div>
-              </div>
 
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
-                  Current State
-                </span>
-                <div className="w-2/3 text-left flex items-center">
-                  <Badge>{request.currentState}</Badge>
+                {/* Assign User */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right">
+                    Assign User
+                  </span>
+                  {request.assignUserId ? (
+                    <div className="w-2/3 flex items-center gap-2">
+                      <UserAvatar
+                        imageUrl={request.assignUserImageUrl}
+                        size="w-6 h-6"
+                      />
+                      <Button variant="link" className="p-0 h-auto">
+                        <Link
+                          href={`/portal/users/${obfuscate(request.assignUserId)}`}
+                        >
+                          {request.assignUserName}
+                        </Link>
+                      </Button>
+                    </div>
+                  ) : (
+                    <span className="w-2/3 text-sm text-gray-500">
+                      No user assigned
+                    </span>
+                  )}
+                </div>
+
+                {/* Workflow Type */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
+                    Type
+                  </span>
+                  <div className="w-2/3 text-left flex items-center">
+                    <Badge variant="outline">
+                      {request.workflowRequestName}
+                    </Badge>
+                  </div>
+                </div>
+
+                {/* Current State */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
+                    Current State
+                  </span>
+                  <div className="w-2/3 text-left flex items-center">
+                    <Badge>{request.currentState}</Badge>
+                  </div>
+                </div>
+
+                {/* Target Completion Date */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
+                    Target Completion Date
+                  </span>
+                  <div className="w-2/3 text-left flex items-center">
+                    <p>
+                      {request.estimatedCompletionDate
+                        ? new Date(
+                            request.estimatedCompletionDate,
+                          ).toDateString()
+                        : "N/A"}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Actual Completion Date */}
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
+                    Actual Completion Date
+                  </span>
+                  <div className="w-2/3 text-left flex items-center">
+                    <p>
+                      {request.actualCompletionDate
+                        ? new Date(request.actualCompletionDate).toDateString()
+                        : "N/A"}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
 
         {selectedRequest && (
           <TeamRequestDetailSheet

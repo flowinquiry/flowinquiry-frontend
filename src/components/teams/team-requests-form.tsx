@@ -11,6 +11,7 @@ import { TeamRequestPrioritySelect } from "@/components/teams/team-requests-prio
 import TeamUserSelectField from "@/components/teams/team-users-select";
 import { Button } from "@/components/ui/button";
 import {
+  DatePickerField,
   ExtInputField,
   FormProps,
   SubmitButton,
@@ -23,7 +24,6 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Separator } from "@/components/ui/separator";
 import { updateTeamRequest } from "@/lib/actions/teams-request.action";
 import { obfuscate } from "@/lib/endecode";
 import { validateForm } from "@/lib/validator";
@@ -56,12 +56,10 @@ export const TeamRequestForm = ({
     <div className="py-4">
       <div className="flex items-center justify-between mb-4">
         <Heading
-          title="Edit Request"
+          title={`${teamRequest?.workflowRequestName}: Edit Request`}
           description="Edit the details of your request"
         />
       </div>
-
-      <Separator />
 
       {/* Form */}
       <Form {...form}>
@@ -126,8 +124,20 @@ export const TeamRequestForm = ({
               </FormItem>
             )}
           />
+          <DatePickerField
+            form={form}
+            fieldName="estimatedCompletionDate"
+            label="Target Completion Date"
+            placeholder="Select a date"
+          />
 
-          {/* Buttons - Spans 2 Columns */}
+          <DatePickerField
+            form={form}
+            fieldName="actualCompletionDate"
+            label="Actual Completion Date"
+            placeholder="Select a date"
+          />
+
           <div className="col-span-1 sm:col-span-2 flex flex-row gap-4">
             <SubmitButton
               label="Save changes"

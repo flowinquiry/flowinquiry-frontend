@@ -38,6 +38,9 @@ export const TeamRequestDTOSchema = z.object({
   requestTitle: z.string(),
   requestDescription: z.string().min(1),
   createdDate: z.string().optional(),
+  lastUpdatedTime: z.date().nullish(),
+  estimatedCompletionDate: z.string().nullish(),
+  actualCompletionDate: z.string().nullish(),
   currentState: z.string().optional(),
 });
 

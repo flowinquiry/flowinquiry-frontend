@@ -23,6 +23,12 @@ export default async function RootLayout({
 }>) {
   return (
     <html suppressHydrationWarning={true} lang="en">
+      <head>
+        {/* Favicon for modern browsers */}
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+        {/* Fallback favicon for older browsers */}
+        <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+      </head>
       <body className={inter.className}>
         <ThemeProvider attribute="class" defaultTheme="light">
           <ReactQueryProvider>

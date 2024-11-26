@@ -250,7 +250,7 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
           ))}
         </div>
       </div>
-      {/* Pass query, refreshTrigger, and pagination as props */}
+
       <TeamRequestsStatusView
         entity={team}
         query={query}
