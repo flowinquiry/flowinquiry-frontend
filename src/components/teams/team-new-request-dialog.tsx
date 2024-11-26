@@ -8,6 +8,7 @@ import * as z from "zod";
 
 import RichTextEditor from "@/components/shared/rich-text-editor";
 import { TeamRequestPrioritySelect } from "@/components/teams/team-requests-priority-select";
+import TicketChannelSelectField from "@/components/teams/team-ticket-channel-select";
 import TeamUserSelectField from "@/components/teams/team-users-select";
 import {
   Dialog,
@@ -42,7 +43,7 @@ type NewRequestToTeamDialogProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   teamEntity: TeamDTO;
-  workflow: WorkflowDTO | null; // Updated to allow null
+  workflow: WorkflowDTO;
   onSaveSuccess: () => void;
 };
 
@@ -58,8 +59,8 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
   const form = useForm<z.infer<typeof TeamRequestDTOSchema>>({
     resolver: zodResolver(TeamRequestDTOSchema),
     defaultValues: {
-      teamId: teamEntity.id,
-      workflowId: workflow?.id || null,
+      teamId: teamEntity.id!,
+      workflowId: workflow.id!,
       requestUserId: Number(session?.user?.id!),
     },
   });
@@ -67,7 +68,7 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
   // Update form values when the workflow prop changes
   useEffect(() => {
     if (workflow) {
-      form.setValue("workflowId", workflow.id); // Dynamically update workflowId
+      form.setValue("workflowId", workflow.id!); // Dynamically update workflowId
     }
   }, [workflow, form]);
 
@@ -175,6 +176,7 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
                   label="Actual Completion Date"
                   placeholder="Select a date"
                 />
+                <TicketChannelSelectField form={form} />
               </div>
             </div>
 

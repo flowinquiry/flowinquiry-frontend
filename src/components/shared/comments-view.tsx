@@ -19,12 +19,12 @@ import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { CommentDTO, EntityType } from "@/types/commons";
 
-type CommentsSectionProps = {
+type CommentsViewProps = {
   entityType: EntityType;
   entityId: number;
 };
 
-const CommentsView: React.FC<CommentsSectionProps> = ({
+const CommentsView: React.FC<CommentsViewProps> = ({
   entityType,
   entityId,
 }) => {
@@ -39,12 +39,11 @@ const CommentsView: React.FC<CommentsSectionProps> = ({
       setLoading(true);
       getCommentsForEntity(entityType, entityId)
         .then((data) => {
-          console.log(`Data ${JSON.stringify(data)}`);
           setComments(data);
         })
         .finally(() => setLoading(false));
     }
-  }, [entityId]);
+  }, [entityType, entityId]);
 
   const handleAddComment = async () => {
     if (!newComment.trim()) return;
@@ -71,7 +70,7 @@ const CommentsView: React.FC<CommentsSectionProps> = ({
   return (
     <div>
       {/* Add Comment Section */}
-      <div className="border-t pt-4">
+      <div className="pt-4">
         <h3 className="text-lg font-semibold mb-2">Add a Comment</h3>
         <Textarea
           placeholder="Write your comment here..."

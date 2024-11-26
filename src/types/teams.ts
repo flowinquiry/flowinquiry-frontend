@@ -23,25 +23,58 @@ export type TeamRequestPriority =
 
 export const TeamRequestDTOSchema = z.object({
   id: z.number().optional(),
-  teamId: z.number().nullable(),
+  teamId: z.number(),
   teamName: z.string().nullish(),
-  workflowId: z.number().nullable(),
+  workflowId: z.number(),
   workflowName: z.string().nullish(),
   workflowRequestName: z.string().nullish(),
   priority: z.enum(["Critical", "High", "Medium", "Low", "Trivial"]),
-  requestUserId: z.number().nullable(),
+  requestUserId: z.number(),
   requestUserName: z.string().nullish(),
   requestUserImageUrl: z.string().nullish(),
   assignUserId: z.number().nullish(),
   assignUserName: z.string().nullish(),
   assignUserImageUrl: z.string().nullish(),
-  requestTitle: z.string(),
+  requestTitle: z.string().min(1),
   requestDescription: z.string().min(1),
-  createdDate: z.string().optional(),
-  lastUpdatedTime: z.date().nullish(),
-  estimatedCompletionDate: z.string().nullish(),
-  actualCompletionDate: z.string().nullish(),
+  createdDate: z.preprocess((value) => {
+    if (typeof value === "string") {
+      return new Date(value);
+    }
+    return value;
+  }, z.date().nullish()),
+  lastUpdatedTime: z.preprocess((value) => {
+    if (typeof value === "string") {
+      return new Date(value);
+    }
+    return value;
+  }, z.date().nullish()),
+  estimatedCompletionDate: z.preprocess((value) => {
+    if (typeof value === "string") {
+      return new Date(value);
+    }
+    return value;
+  }, z.date().nullish()),
+  actualCompletionDate: z.preprocess((value) => {
+    if (typeof value === "string") {
+      return new Date(value);
+    }
+    return value;
+  }, z.date().nullish()),
   currentState: z.string().optional(),
+  channel: z.string().nullish(),
 });
 
 export type TeamRequestDTO = z.infer<typeof TeamRequestDTOSchema>;
+
+export type TicketChannel =
+  | "Email"
+  | "Phone"
+  | "Web Portal"
+  | "Chat"
+  | "Social Media"
+  | "In-person"
+  | "Mobile App"
+  | "API"
+  | "System-generated"
+  | "Internal";

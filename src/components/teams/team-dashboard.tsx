@@ -5,6 +5,9 @@ import Link from "next/link";
 import React from "react";
 
 import { Heading } from "@/components/heading";
+import TeamDashboardTopSection from "@/components/teams/team-dashboard-kpis";
+import TeamPerformanceMetrics from "@/components/teams/team-dashboard-performance-metrics";
+import DashboardTrendsAndActivity from "@/components/teams/team-dashboard-recent-activity";
 import { buttonVariants } from "@/components/ui/button";
 import { ViewProps } from "@/components/ui/ext-form";
 import { Separator } from "@/components/ui/separator";
@@ -14,11 +17,11 @@ import { cn } from "@/lib/utils";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
 
-const TeamView = ({ entity: team }: ViewProps<TeamDTO>) => {
+const TeamDashboard = ({ entity: team }: ViewProps<TeamDTO>) => {
   const permissionLevel = usePagePermission();
 
   return (
-    <div className="grid grid-cols-1 gap-4 py-4">
+    <div className="grid grid-cols-1 gap-4">
       <div className="flex items-center justify-between">
         <Heading
           title={team.name}
@@ -34,15 +37,13 @@ const TeamView = ({ entity: team }: ViewProps<TeamDTO>) => {
         )}
       </div>
       <Separator />
-      <Link href={`/portal/teams/${obfuscate(team.id)}/members`}>Members</Link>
-      <Link href={`/portal/teams/${obfuscate(team.id)}/requests`}>
-        Requests
-      </Link>
-      <Link href={`/portal/teams/${obfuscate(team.id)}/workflows`}>
-        Workflows
-      </Link>
+      <div className="space-y-8">
+        <TeamDashboardTopSection />
+        <DashboardTrendsAndActivity team={team} />
+        <TeamPerformanceMetrics />
+      </div>
     </div>
   );
 };
 
-export default TeamView;
+export default TeamDashboard;

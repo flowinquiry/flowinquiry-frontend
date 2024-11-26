@@ -20,7 +20,7 @@ const TruncatedHtmlLabel = ({
   return (
     <div className="px-4">
       <div
-        className="prose"
+        className="prose max-w-none"
         dangerouslySetInnerHTML={{ __html: truncatedContent }}
       />
     </div>

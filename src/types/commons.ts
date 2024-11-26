@@ -59,4 +59,4 @@ export const CommentDTOSchema = z.object({
 
 export type CommentDTO = z.infer<typeof CommentDTOSchema>;
 
-export type EntityType = "Team_Request";
+export type EntityType = "Team_Request" | "Team";

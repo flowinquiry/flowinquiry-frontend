@@ -4,6 +4,7 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 import { UserAvatar } from "@/components/shared/avatar-display";
+import { NColumnsGrid } from "@/components/shared/n-columns-grid";
 import PaginationExt from "@/components/shared/pagination-ext";
 import TruncatedHtmlLabel from "@/components/shared/truncate-html-label";
 import TeamRequestDetailSheet from "@/components/teams/team-request-detail-sheet";
@@ -134,127 +135,100 @@ const TeamRequestsStatusView = ({
                 wordLimit={400}
               />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Created */}
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
-                    Created
-                  </span>
-                  <div className="text-sm w-2/3 text-left">
-                    {formatDateTimeDistanceToNow(
+              {/* Grid Content */}
+              <NColumnsGrid
+                columns={2}
+                gap="4"
+                fields={[
+                  {
+                    label: "Created",
+                    value: formatDateTimeDistanceToNow(
                       new Date(request.createdDate!),
-                    )}
-                  </div>
-                </div>
-
-                {/* Priority */}
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
-                    Priority
-                  </span>
-                  <div className="text-sm w-2/3 text-left">
-                    <PriorityDisplay priority={request.priority} />
-                  </div>
-                </div>
-
-                {/* Request User */}
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
-                    Request User
-                  </span>
-                  <div className="w-2/3 text-left flex items-center gap-2">
-                    <UserAvatar
-                      imageUrl={request.requestUserImageUrl}
-                      size="w-6 h-6"
-                    />
-                    <Button variant="link" className="p-0 h-auto">
-                      <Link
-                        href={`/portal/users/${obfuscate(request.requestUserId)}`}
-                      >
-                        {request.requestUserName}
-                      </Link>
-                    </Button>
-                  </div>
-                </div>
-
-                {/* Assign User */}
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right">
-                    Assign User
-                  </span>
-                  {request.assignUserId ? (
-                    <div className="w-2/3 flex items-center gap-2">
-                      <UserAvatar
-                        imageUrl={request.assignUserImageUrl}
-                        size="w-6 h-6"
-                      />
-                      <Button variant="link" className="p-0 h-auto">
-                        <Link
-                          href={`/portal/users/${obfuscate(request.assignUserId)}`}
-                        >
-                          {request.assignUserName}
-                        </Link>
-                      </Button>
-                    </div>
-                  ) : (
-                    <span className="w-2/3 text-sm text-gray-500">
-                      No user assigned
-                    </span>
-                  )}
-                </div>
-
-                {/* Workflow Type */}
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
-                    Type
-                  </span>
-                  <div className="w-2/3 text-left flex items-center">
-                    <Badge variant="outline">
-                      {request.workflowRequestName}
-                    </Badge>
-                  </div>
-                </div>
-
-                {/* Current State */}
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
-                    Current State
-                  </span>
-                  <div className="w-2/3 text-left flex items-center">
-                    <Badge>{request.currentState}</Badge>
-                  </div>
-                </div>
-
-                {/* Target Completion Date */}
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
-                    Target Completion Date
-                  </span>
-                  <div className="w-2/3 text-left flex items-center">
-                    <p>
-                      {request.estimatedCompletionDate
-                        ? new Date(
-                            request.estimatedCompletionDate,
-                          ).toDateString()
-                        : "N/A"}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Actual Completion Date */}
-                <div className="flex items-center gap-2">
-                  <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right leading-6">
-                    Actual Completion Date
-                  </span>
-                  <div className="w-2/3 text-left flex items-center">
-                    <p>
-                      {request.actualCompletionDate
-                        ? new Date(request.actualCompletionDate).toDateString()
-                        : "N/A"}
-                    </p>
-                  </div>
-                </div>
-              </div>
+                    ),
+                    colSpan: 1,
+                  },
+                  {
+                    label: "Priority",
+                    value: <PriorityDisplay priority={request.priority} />,
+                    colSpan: 1,
+                  },
+                  {
+                    label: "Request User",
+                    value: (
+                      <div className="flex items-center gap-2">
+                        <UserAvatar
+                          imageUrl={request.requestUserImageUrl}
+                          size="w-6 h-6"
+                        />
+                        <Button variant="link" className="p-0 h-auto">
+                          <Link
+                            href={`/portal/users/${obfuscate(request.requestUserId)}`}
+                          >
+                            {request.requestUserName}
+                          </Link>
+                        </Button>
+                      </div>
+                    ),
+                    colSpan: 1,
+                  },
+                  {
+                    label: "Assign User",
+                    value: request.assignUserId ? (
+                      <div className="flex items-center gap-2">
+                        <UserAvatar
+                          imageUrl={request.assignUserImageUrl}
+                          size="w-6 h-6"
+                        />
+                        <Button variant="link" className="p-0 h-auto">
+                          <Link
+                            href={`/portal/users/${obfuscate(request.assignUserId)}`}
+                          >
+                            {request.assignUserName}
+                          </Link>
+                        </Button>
+                      </div>
+                    ) : (
+                      <span className="text-gray-500">No user assigned</span>
+                    ),
+                    colSpan: 1,
+                  },
+                  {
+                    label: "Type",
+                    value: (
+                      <Badge variant="outline">
+                        {request.workflowRequestName}
+                      </Badge>
+                    ),
+                    colSpan: 1,
+                  },
+                  {
+                    label: "Current State",
+                    value: <Badge>{request.currentState}</Badge>,
+                    colSpan: 1,
+                  },
+                  {
+                    label: "Target Completion Date",
+                    value: request.estimatedCompletionDate
+                      ? new Date(request.estimatedCompletionDate).toDateString()
+                      : "N/A",
+                    colSpan: 1,
+                  },
+                  {
+                    label: "Actual Completion Date",
+                    value: request.actualCompletionDate
+                      ? new Date(request.actualCompletionDate).toDateString()
+                      : "N/A",
+                    colSpan: 1,
+                  },
+                  {
+                    label: "Channel",
+                    value: request.channel && (
+                      <Badge variant="outline">{request.channel}</Badge>
+                    ),
+                    colSpan: 1,
+                  },
+                ]}
+              />
             </div>
           );
         })}

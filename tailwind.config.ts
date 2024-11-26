@@ -84,6 +84,58 @@ const config = {
         "collapsible-down": "collapsible-down 0.2s ease-out",
         "collapsible-up": "collapsible-up 0.2s ease-out",
       },
+      typography: (theme: (path: string) => string | undefined) => ({
+        DEFAULT: {
+          css: {
+            color: theme("colors.foreground"),
+            a: {
+              color: theme("colors.primary.DEFAULT"),
+              "&:hover": {
+                color: theme("colors.primary.foreground"),
+              },
+            },
+            table: {
+              width: "100%",
+              borderCollapse: "collapse",
+              thead: {
+                borderBottom: `1px solid ${theme("colors.border")}`,
+              },
+              th: {
+                color: theme("colors.foreground"),
+                fontWeight: "600",
+                padding: "0.5rem",
+              },
+              td: {
+                color: theme("colors.foreground"),
+                padding: "0.5rem",
+              },
+            },
+          },
+        },
+        dark: {
+          css: {
+            color: theme("colors.foreground"),
+            a: {
+              color: theme("colors.primary.DEFAULT"),
+              "&:hover": {
+                color: theme("colors.primary.foreground"),
+              },
+            },
+            table: {
+              thead: {
+                borderBottom: `1px solid ${theme("colors.border")}`,
+              },
+              th: {
+                color: theme("colors.foreground"),
+                fontWeight: "600",
+              },
+              td: {
+                color: theme("colors.foreground"),
+              },
+            },
+          },
+        },
+      }),
     },
   },
   corePlugins: {

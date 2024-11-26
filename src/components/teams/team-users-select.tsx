@@ -57,7 +57,7 @@ const TeamUserSelectField = ({
       name={fieldName}
       render={({ field }) => (
         <FormItem className="grid grid-cols-1">
-          <FormLabel>{label}</FormLabel>
+          {label && label.trim() && <FormLabel>{label}</FormLabel>}
           <Popover>
             <PopoverTrigger asChild>
               <FormControl>
