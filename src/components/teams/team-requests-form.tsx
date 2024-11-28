@@ -32,7 +32,7 @@ import {
   TeamRequestDTO,
   TeamRequestDTOSchema,
   TeamRequestPriority,
-} from "@/types/teams";
+} from "@/types/team-requests";
 
 export const TeamRequestForm = ({
   initialData: teamRequest,

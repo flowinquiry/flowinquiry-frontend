@@ -8,6 +8,7 @@ import { Heading } from "@/components/heading";
 import TeamDashboardTopSection from "@/components/teams/team-dashboard-kpis";
 import TeamPerformanceMetrics from "@/components/teams/team-dashboard-performance-metrics";
 import DashboardTrendsAndActivity from "@/components/teams/team-dashboard-recent-activity";
+import RequestDistributionChart from "@/components/teams/team-requests-distribution-chart";
 import { buttonVariants } from "@/components/ui/button";
 import { ViewProps } from "@/components/ui/ext-form";
 import { Separator } from "@/components/ui/separator";
@@ -40,6 +41,7 @@ const TeamDashboard = ({ entity: team }: ViewProps<TeamDTO>) => {
       <div className="space-y-8">
         <TeamDashboardTopSection />
         <DashboardTrendsAndActivity team={team} />
+        <RequestDistributionChart teamId={team.id!} />
         <TeamPerformanceMetrics />
       </div>
     </div>

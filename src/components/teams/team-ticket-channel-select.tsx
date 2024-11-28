@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { TicketChannel } from "@/types/teams";
+import { TicketChannel } from "@/types/team-requests";
 
 type TicketChannelSelectFieldProps = {
   form: any;

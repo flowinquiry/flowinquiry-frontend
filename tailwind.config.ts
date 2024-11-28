@@ -91,7 +91,7 @@ const config = {
             a: {
               color: theme("colors.primary.DEFAULT"),
               "&:hover": {
-                color: theme("colors.primary.foreground"),
+                color: theme("colors.primary.DEFAULT"),
               },
             },
             table: {

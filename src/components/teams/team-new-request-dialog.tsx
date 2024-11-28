@@ -32,11 +32,11 @@ import {
 } from "@/components/ui/form";
 import { createTeamRequest } from "@/lib/actions/teams-request.action";
 import {
-  TeamDTO,
   TeamRequestDTO,
   TeamRequestDTOSchema,
   TeamRequestPriority,
-} from "@/types/teams";
+} from "@/types/team-requests";
+import { TeamDTO } from "@/types/teams";
 import { WorkflowDTO } from "@/types/workflows";
 
 type NewRequestToTeamDialogProps = {
