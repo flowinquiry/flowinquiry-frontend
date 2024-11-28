@@ -32,6 +32,7 @@ import {
   TeamRequestDTOSchema,
   TeamRequestPriority,
 } from "@/types/teams";
+import TicketChannelSelectField from "@/components/teams/team-ticket-channel-select";
 
 export const TeamRequestForm = ({
   initialData: teamRequest,
@@ -137,6 +138,8 @@ export const TeamRequestForm = ({
             label="Actual Completion Date"
             placeholder="Select a date"
           />
+
+          <TicketChannelSelectField form={form} />
 
           <div className="col-span-1 sm:col-span-2 flex flex-row gap-4">
             <SubmitButton

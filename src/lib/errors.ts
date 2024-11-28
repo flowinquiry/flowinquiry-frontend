@@ -42,7 +42,7 @@ export const handleError = async (
     case HttpError.BAD_REQUEST:
       throw new HttpError(
         HttpError.BAD_REQUEST,
-        `Error at ${url}: ${errorMessage || "Bag request"}`,
+        `Error at ${url}: ${errorMessage || "Bad request"}`,
       );
 
     case HttpError.NOT_FOUND:

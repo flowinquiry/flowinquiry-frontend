@@ -43,7 +43,7 @@ type NewRequestToTeamDialogProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   teamEntity: TeamDTO;
-  workflow: WorkflowDTO;
+  workflow: WorkflowDTO | null; // Updated to allow null
   onSaveSuccess: () => void;
 };
 
@@ -60,7 +60,7 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
     resolver: zodResolver(TeamRequestDTOSchema),
     defaultValues: {
       teamId: teamEntity.id!,
-      workflowId: workflow.id!,
+      workflowId: workflow?.id!,
       requestUserId: Number(session?.user?.id!),
     },
   });
