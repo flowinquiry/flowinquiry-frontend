@@ -125,13 +125,16 @@ type DatePickerFieldProps = {
   allowPastDates?: boolean;
 };
 
-export const DatePickerField: React.FC<DatePickerFieldProps> = ({
+export const DatePickerField: React.FC<
+  DatePickerFieldProps & { required?: boolean }
+> = ({
   form,
   fieldName,
   label,
   description,
   placeholder = "Pick a date",
   allowPastDates = false,
+  required = false,
 }) => {
   return (
     <FormField
@@ -139,44 +142,59 @@ export const DatePickerField: React.FC<DatePickerFieldProps> = ({
       name={fieldName}
       render={({ field }) => (
         <FormItem className="flex flex-col">
-          <FormLabel>{label}</FormLabel>
-          <Popover>
-            <PopoverTrigger asChild>
-              <FormControl>
-                <Button
-                  variant={"outline"}
-                  className={cn(
-                    "w-[240px] pl-3 text-left font-normal",
-                    !field.value && "text-muted-foreground",
-                  )}
-                >
-                  {field.value ? (
-                    format(field.value, "PPP")
-                  ) : (
-                    <span>{placeholder}</span>
-                  )}
-                  <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                </Button>
-              </FormControl>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <Calendar
-                mode="single"
-                selected={field.value}
-                onSelect={field.onChange}
-                disabled={(date) => {
-                  const today = new Date();
-                  today.setHours(0, 0, 0, 0);
-                  if (allowPastDates) {
-                    return date > today;
-                  } else {
-                    return date < today;
-                  }
-                }}
-                initialFocus
-              />
-            </PopoverContent>
-          </Popover>
+          <FormLabel>
+            {label}
+            {required && <span className="text-destructive"> *</span>}
+          </FormLabel>
+          <div className="flex items-center space-x-2">
+            <Popover>
+              <PopoverTrigger asChild>
+                <FormControl>
+                  <Button
+                    variant={"outline"}
+                    className={cn(
+                      "w-[240px] pl-3 text-left font-normal",
+                      !field.value && "text-muted-foreground",
+                    )}
+                  >
+                    {field.value ? (
+                      format(field.value, "PPP")
+                    ) : (
+                      <span>{placeholder}</span>
+                    )}
+                    <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                  </Button>
+                </FormControl>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={field.value || undefined}
+                  onSelect={field.onChange}
+                  disabled={(date) => {
+                    const today = new Date();
+                    today.setHours(0, 0, 0, 0);
+                    if (allowPastDates) {
+                      return date > today;
+                    } else {
+                      return date < today;
+                    }
+                  }}
+                  initialFocus
+                />
+              </PopoverContent>
+            </Popover>
+            {/* Clear button is hidden if the field is required */}
+            {!required && field.value && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => field.onChange(undefined)}
+              >
+                Clear
+              </Button>
+            )}
+          </div>
           {description && <FormDescription>{description}</FormDescription>}
           <FormMessage />
         </FormItem>

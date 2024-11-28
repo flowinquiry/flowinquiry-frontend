@@ -15,8 +15,8 @@ export interface User {
   imageUrl?: string | null;
   firstName?: string | null;
   lastName?: string | null;
-  createdDate?: ISODateString | null;
-  lastModifiedDate?: ISODateString | null;
+  createdAt?: ISODateString | null;
+  updatedAt?: ISODateString | null;
   authorities?: string[] | null;
 }
 

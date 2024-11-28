@@ -37,13 +37,13 @@ export const TeamRequestDTOSchema = z.object({
   assignUserImageUrl: z.string().nullish(),
   requestTitle: z.string().min(1),
   requestDescription: z.string().min(1),
-  createdDate: z.preprocess((value) => {
+  createdAt: z.preprocess((value) => {
     if (typeof value === "string") {
       return new Date(value);
     }
     return value;
   }, z.date().nullish()),
-  lastUpdatedTime: z.preprocess((value) => {
+  modifiedAt: z.preprocess((value) => {
     if (typeof value === "string") {
       return new Date(value);
     }

@@ -83,16 +83,18 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
                   {
                     label: "Created",
                     value: formatDateTimeDistanceToNow(
-                      new Date(request.createdDate!),
+                      new Date(request.createdAt!),
                     ),
                     colSpan: 1,
                   },
                   {
-                    label: "Priority",
-                    value: <PriorityDisplay priority={request.priority} />,
+                    label: "Modified",
+                    value: formatDateTimeDistanceToNow(
+                      new Date(request.modifiedAt!),
+                    ),
                     colSpan: 1,
                   },
-                  // Requested User Field
+
                   {
                     label: "Requested User",
                     value:
@@ -119,7 +121,6 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
                     colSpan: 1,
                   },
 
-                  // Assigned User Field
                   {
                     label: "Assigned User",
                     value: (
@@ -139,6 +140,7 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
                     ),
                     colSpan: 1,
                   },
+
                   {
                     label: "Type",
                     value: (
@@ -149,8 +151,20 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
                     colSpan: 1,
                   },
                   {
+                    label: "Priority",
+                    value: <PriorityDisplay priority={request.priority} />,
+                    colSpan: 1,
+                  },
+                  {
                     label: "Current State",
                     value: <Badge>{request.currentState}</Badge>,
+                    colSpan: 1,
+                  },
+                  {
+                    label: "Channel",
+                    value: request.channel && (
+                      <Badge variant="outline">{request.channel}</Badge>
+                    ),
                     colSpan: 1,
                   },
                   {
@@ -165,13 +179,6 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
                     value: request.actualCompletionDate
                       ? new Date(request.actualCompletionDate).toDateString()
                       : "N/A",
-                    colSpan: 1,
-                  },
-                  {
-                    label: "Channel",
-                    value: request.channel && (
-                      <Badge variant="outline">{request.channel}</Badge>
-                    ),
                     colSpan: 1,
                   },
                 ]}

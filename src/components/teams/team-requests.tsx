@@ -66,7 +66,7 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
     size: 10,
     sort: [
       {
-        field: "createdDate",
+        field: "createdAt",
         direction: isAscending ? "asc" : "desc",
       },
     ],
@@ -111,7 +111,7 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
       ...prev,
       sort: [
         {
-          field: "createdDate",
+          field: "createdAt",
           direction: isAscending ? "asc" : "desc",
         },
       ],

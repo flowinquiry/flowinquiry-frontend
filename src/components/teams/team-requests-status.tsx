@@ -143,15 +143,18 @@ const TeamRequestsStatusView = ({
                   {
                     label: "Created",
                     value: formatDateTimeDistanceToNow(
-                      new Date(request.createdDate!),
+                      new Date(request.createdAt!),
                     ),
                     colSpan: 1,
                   },
                   {
-                    label: "Priority",
-                    value: <PriorityDisplay priority={request.priority} />,
+                    label: "Modified",
+                    value: formatDateTimeDistanceToNow(
+                      new Date(request.modifiedAt!),
+                    ),
                     colSpan: 1,
                   },
+
                   {
                     label: "Request User",
                     value: (
@@ -202,8 +205,20 @@ const TeamRequestsStatusView = ({
                     colSpan: 1,
                   },
                   {
+                    label: "Priority",
+                    value: <PriorityDisplay priority={request.priority} />,
+                    colSpan: 1,
+                  },
+                  {
                     label: "Current State",
                     value: <Badge>{request.currentState}</Badge>,
+                    colSpan: 1,
+                  },
+                  {
+                    label: "Channel",
+                    value: request.channel && (
+                      <Badge variant="outline">{request.channel}</Badge>
+                    ),
                     colSpan: 1,
                   },
                   {
@@ -218,13 +233,6 @@ const TeamRequestsStatusView = ({
                     value: request.actualCompletionDate
                       ? new Date(request.actualCompletionDate).toDateString()
                       : "N/A",
-                    colSpan: 1,
-                  },
-                  {
-                    label: "Channel",
-                    value: request.channel && (
-                      <Badge variant="outline">{request.channel}</Badge>
-                    ),
                     colSpan: 1,
                   },
                 ]}

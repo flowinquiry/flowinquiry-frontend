@@ -4,8 +4,8 @@ import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 
 import { UserAvatar } from "@/components/shared/avatar-display";
+import RichTextEditor from "@/components/shared/rich-text-editor";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
   TooltipContent,
@@ -72,11 +72,10 @@ const CommentsView: React.FC<CommentsViewProps> = ({
       {/* Add Comment Section */}
       <div className="pt-4">
         <h3 className="text-lg font-semibold mb-2">Add a Comment</h3>
-        <Textarea
-          placeholder="Write your comment here..."
+
+        <RichTextEditor
           value={newComment}
-          onChange={(e) => setNewComment(e.target.value)}
-          disabled={submitting}
+          onChange={(value) => setNewComment(value)}
         />
         <Button
           className="mt-2"
@@ -87,7 +86,6 @@ const CommentsView: React.FC<CommentsViewProps> = ({
         </Button>
       </div>
 
-      {/* Comments List */}
       <div className="pt-4">
         <h3 className="text-lg font-semibold mb-2">Comments</h3>
         {loading ? (
@@ -126,7 +124,12 @@ const CommentsView: React.FC<CommentsViewProps> = ({
                       </TooltipContent>
                     </Tooltip>
                   </div>
-                  <div className="mt-2">{comment.content}</div>
+                  <div
+                    className="prose max-w-none"
+                    dangerouslySetInnerHTML={{
+                      __html: comment.content!,
+                    }}
+                  />
                 </div>
               </li>
             ))}

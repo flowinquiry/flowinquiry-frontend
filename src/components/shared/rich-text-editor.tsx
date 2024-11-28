@@ -62,9 +62,11 @@ const extensions = [
 const RichTextEditor = ({
   value,
   onChange,
+  disabled = false,
 }: {
   value: string | null;
   onChange: (value: string) => void;
+  disabled?: boolean;
 }) => {
   const editor = useEditor({
     extensions: extensions as Extension[],
@@ -113,6 +115,7 @@ const RichTextEditor = ({
         <EditorContent
           editor={editor}
           className="outline-none p-2 h-full overflow-y-auto"
+          disabled={disabled}
         />
       </div>
     </div>

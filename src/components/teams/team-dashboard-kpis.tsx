@@ -21,36 +21,36 @@ const TeamDashboardTopSection = () => {
 
   const metrics = [
     {
-      title: "Total Requests",
-      description: "All requests received",
+      title: "Total Tickets",
+      description: "All tickets received",
       value: 152,
       color: "text-gray-700 dark:text-gray-300",
       link: "/dashboard/requests/all",
-      tooltip: "View all team requests.",
+      tooltip: "View all team tickets.",
     },
     {
-      title: "Pending Requests",
-      description: "Requests yet to be addressed",
+      title: "Pending Tickets",
+      description: "Tickets yet to be addressed",
       value: 42,
       color: "text-yellow-500",
       link: "/dashboard/requests/pending",
-      tooltip: "View requests that are still pending.",
+      tooltip: "View tickets that are still pending.",
     },
     {
-      title: "Completed Requests",
-      description: "Successfully resolved requests",
+      title: "Completed Tickets",
+      description: "Successfully resolved tickets",
       value: 100,
       color: "text-green-500",
       link: "/dashboard/requests/completed",
-      tooltip: "View requests that have been resolved.",
+      tooltip: "View tickets that have been resolved.",
     },
     {
-      title: "Overdue Requests",
-      description: "Requests past their deadline",
+      title: "Overdue Tickets",
+      description: "Tickets past their deadline",
       value: 10,
       color: "text-red-500",
       link: "/dashboard/requests/overdue",
-      tooltip: "View overdue requests that need attention.",
+      tooltip: "View overdue tickets that need attention.",
     },
   ];
 
