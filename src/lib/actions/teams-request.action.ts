@@ -5,7 +5,11 @@ import { unstable_noStore as noStore } from "next/dist/server/web/spec-extension
 import { doAdvanceSearch, get, post, put } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
 import { Filter, Pagination } from "@/types/query";
-import { TeamRequestDTO, TicketDistributionDTO } from "@/types/team-requests";
+import {
+  PriorityDistributionDTO,
+  TeamRequestDTO,
+  TicketDistributionDTO,
+} from "@/types/team-requests";
 
 export const createTeamRequest = async (teamRequest: TeamRequestDTO) => {
   return post<TeamRequestDTO, TeamRequestDTO>(
@@ -52,8 +56,14 @@ export const findNextTeamRequest = async (requestId: number) => {
   );
 };
 
-export const getTicketsDistribution = async (teamId: number) => {
+export const getTicketsAssignmentDistribution = async (teamId: number) => {
   return get<TicketDistributionDTO[]>(
     `${BACKEND_API}/api/team-requests/${teamId}/ticket-distribution`,
+  );
+};
+
+export const getTicketsPriorityDistribution = async (teamId: number) => {
+  return get<PriorityDistributionDTO[]>(
+    `${BACKEND_API}/api/team-requests/${teamId}/priority-distribution`,
   );
 };

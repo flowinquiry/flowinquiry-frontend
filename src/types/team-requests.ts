@@ -70,3 +70,8 @@ export type TicketDistributionDTO = {
   userName: string | null; // Null for unassigned tickets
   ticketCount: number;
 };
+
+export type PriorityDistributionDTO = {
+  priority: TeamRequestPriority;
+  ticketCount: number;
+};
