@@ -8,6 +8,7 @@ import { useForm } from "react-hook-form";
 import { Heading } from "@/components/heading";
 import RichTextEditor from "@/components/shared/rich-text-editor";
 import { TeamRequestPrioritySelect } from "@/components/teams/team-requests-priority-select";
+import TicketChannelSelectField from "@/components/teams/team-ticket-channel-select";
 import TeamUserSelectField from "@/components/teams/team-users-select";
 import { Button } from "@/components/ui/button";
 import {
@@ -32,7 +33,6 @@ import {
   TeamRequestDTOSchema,
   TeamRequestPriority,
 } from "@/types/teams";
-import TicketChannelSelectField from "@/components/teams/team-ticket-channel-select";
 
 export const TeamRequestForm = ({
   initialData: teamRequest,
