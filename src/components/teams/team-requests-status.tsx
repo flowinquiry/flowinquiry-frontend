@@ -17,7 +17,8 @@ import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { Filter, Pagination, QueryDTO } from "@/types/query";
-import { TeamDTO, TeamRequestDTO } from "@/types/teams";
+import { TeamRequestDTO } from "@/types/team-requests";
+import { TeamDTO } from "@/types/teams";
 
 interface TeamRequestsStatusViewProps extends ViewProps<TeamDTO> {
   query: QueryDTO;
@@ -121,7 +122,7 @@ const TeamRequestsStatusView = ({
 
               <Button
                 variant="link"
-                className="px-0 text-xl"
+                className="px-0 text-xl text-left break-words whitespace-normal pb-4"
                 onClick={() => openSheet(request)}
                 tabIndex={0}
                 role="button"

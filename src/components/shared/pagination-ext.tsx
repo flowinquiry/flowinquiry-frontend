@@ -14,12 +14,14 @@ interface PaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
+  className?: string; // Add className prop for external styling
 }
 
 const PaginationExt: React.FC<PaginationProps> = ({
   currentPage,
   totalPages,
   onPageChange,
+  className,
 }) => {
   // Hide pagination if there is only one page
   if (totalPages <= 1) {
@@ -86,7 +88,7 @@ const PaginationExt: React.FC<PaginationProps> = ({
   };
 
   return (
-    <Pagination>
+    <Pagination className={className}>
       <PaginationContent>
         <PaginationItem>
           <PaginationPrevious

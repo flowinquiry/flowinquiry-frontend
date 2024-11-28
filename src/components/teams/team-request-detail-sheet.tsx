@@ -21,7 +21,7 @@ import {
 import { updateTeamRequest } from "@/lib/actions/teams-request.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
-import { TeamRequestDTO } from "@/types/teams";
+import { TeamRequestDTO } from "@/types/team-requests";
 
 type RequestDetailsProps = {
   open: boolean;
@@ -57,7 +57,10 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
               <SheetTitle>
                 <Button variant="link" className="px-0 text-2xl">
                   <Link
-                    href={`/portal/teams/${obfuscate(teamRequest.teamId)}/requests/${obfuscate(teamRequest.id)}`}
+                    href={`/portal/teams/${obfuscate(teamRequest.teamId)}/requests/${obfuscate(
+                      teamRequest.id,
+                    )}`}
+                    className="break-words whitespace-normal text-left"
                   >
                     {teamRequest.requestTitle}
                   </Link>

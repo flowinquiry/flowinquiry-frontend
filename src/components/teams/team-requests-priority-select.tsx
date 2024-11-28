@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { TeamRequestPriority } from "@/types/teams";
+import { TeamRequestPriority } from "@/types/team-requests";
 
 const priorities: TeamRequestPriority[] = [
   "Critical",

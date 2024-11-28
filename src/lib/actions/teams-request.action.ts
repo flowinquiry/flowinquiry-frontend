@@ -4,6 +4,7 @@ import { unstable_noStore as noStore } from "next/dist/server/web/spec-extension
 
 import { doAdvanceSearch, get, post, put } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
+import { PageableResult } from "@/types/commons";
 import { Filter, Pagination } from "@/types/query";
 import {
   PriorityDistributionDTO,
@@ -68,8 +69,12 @@ export const getTicketsPriorityDistribution = async (teamId: number) => {
   );
 };
 
-export const getUnassignedTickets = async (teamId: number, page: number) => {
-  return get<PriorityDistributionDTO[]>(
-    `${BACKEND_API}/api/team-requests/${teamId}/unassigned-tickets`,
+export const getUnassignedTickets = async (
+  teamId: number,
+  page: number,
+  sort: string,
+) => {
+  return get<PageableResult<TeamRequestDTO>>(
+    `${BACKEND_API}/api/team-requests/${teamId}/unassigned-tickets?page=${page - 1}&&size=5&&sortDirection=${sort}`,
   );
 };

@@ -8,7 +8,7 @@ import {
   Circle,
 } from "lucide-react";
 
-import { TeamRequestPriority } from "@/types/teams";
+import { TeamRequestPriority } from "@/types/team-requests";
 
 const getPriorityIcon = (priority: TeamRequestPriority) => {
   switch (priority) {
