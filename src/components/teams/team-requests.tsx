@@ -11,6 +11,7 @@ import {
 import React, { useEffect, useState } from "react";
 
 import { Heading } from "@/components/heading";
+import { TeamAvatar } from "@/components/shared/avatar-display";
 import NewRequestToTeamDialog from "@/components/teams/team-new-request-dialog";
 import TeamRequestsStatusView from "@/components/teams/team-requests-status";
 import { Button } from "@/components/ui/button";
@@ -35,7 +36,6 @@ import { Filter, QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
 import { WorkflowDTO } from "@/types/workflows";
-import { TeamAvatar } from "@/components/shared/avatar-display";
 
 export type Pagination = {
   page: number;

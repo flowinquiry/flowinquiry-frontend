@@ -5,6 +5,7 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 import { Heading } from "@/components/heading";
+import { TeamAvatar } from "@/components/shared/avatar-display";
 import { buttonVariants } from "@/components/ui/button";
 import { ViewProps } from "@/components/ui/ext-form";
 import { usePagePermission } from "@/hooks/use-page-permission";
@@ -14,7 +15,6 @@ import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
 import { WorkflowDTO } from "@/types/workflows";
-import { TeamAvatar } from "@/components/shared/avatar-display";
 
 const TeamWorkflowsView = ({ entity: team }: ViewProps<TeamDTO>) => {
   const permissionLevel = usePagePermission();

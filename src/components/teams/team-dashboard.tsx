@@ -5,6 +5,7 @@ import Link from "next/link";
 import React from "react";
 
 import { Heading } from "@/components/heading";
+import { TeamAvatar } from "@/components/shared/avatar-display";
 import TeamDashboardTopSection from "@/components/teams/team-dashboard-kpis";
 import TeamPerformanceMetrics from "@/components/teams/team-dashboard-performance-metrics";
 import DashboardTrendsAndActivity from "@/components/teams/team-dashboard-recent-activity";
@@ -18,7 +19,6 @@ import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
-import { TeamAvatar } from "@/components/shared/avatar-display";
 
 const TeamDashboard = ({ entity: team }: ViewProps<TeamDTO>) => {
   const permissionLevel = usePagePermission();

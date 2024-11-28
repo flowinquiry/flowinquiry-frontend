@@ -4,6 +4,8 @@ import { Ellipsis, Plus, Trash } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
+import { Heading } from "@/components/heading";
+import { TeamAvatar } from "@/components/shared/avatar-display";
 import AddUserToTeamDialog from "@/components/teams/team-add-user-dialog";
 import {
   AlertDialog,
@@ -40,8 +42,6 @@ import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
 import { UserWithTeamRoleDTO } from "@/types/users";
-import { TeamAvatar } from "@/components/shared/avatar-display";
-import { Heading } from "@/components/heading";
 
 const TeamUsersView = ({ entity: team }: ViewProps<TeamDTO>) => {
   const permissionLevel = usePagePermission();
