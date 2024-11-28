@@ -67,3 +67,9 @@ export const getTicketsPriorityDistribution = async (teamId: number) => {
     `${BACKEND_API}/api/team-requests/${teamId}/priority-distribution`,
   );
 };
+
+export const getUnassignedTickets = async (teamId: number, page: number) => {
+  return get<PriorityDistributionDTO[]>(
+    `${BACKEND_API}/api/team-requests/${teamId}/unassigned-tickets`,
+  );
+};
