@@ -24,7 +24,7 @@ import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { navigateToRecord } from "@/lib/navigation-record";
 import { PermissionUtils } from "@/types/resources";
-import { TeamRequestDTO } from "@/types/teams";
+import { TeamRequestDTO } from "@/types/team-requests";
 
 const TeamRequestDetailView = ({ entity }: ViewProps<TeamRequestDTO>) => {
   const permissionLevel = usePagePermission();
