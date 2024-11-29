@@ -181,8 +181,12 @@ const TeamRequestDetailView = ({ entity }: ViewProps<TeamRequestDTO>) => {
                   colSpan: 1,
                 },
                 {
-                  label: "Current State",
-                  value: <Badge>{teamRequest.currentStateName}</Badge>,
+                  label: "State",
+                  value: (
+                    <Badge variant="outline">
+                      {teamRequest.currentStateName}
+                    </Badge>
+                  ),
                   colSpan: 1,
                 },
                 {

@@ -10,8 +10,12 @@ export const getWorkflowsByTeam = (teamId: number) => {
   );
 };
 
-export const getWorkflowStatesByWorkflowId = async (workflowId: number) => {
+export const getValidTargetStates = async (
+  workflowId: number,
+  workflowStateId: number,
+  includeSelf: boolean,
+) => {
   return get<Array<WorkflowStateDTO>>(
-    `${BACKEND_API}/api/workflows/${workflowId}/states`,
+    `${BACKEND_API}/api/workflows/${workflowId}/transitions?workflowStateId=${workflowStateId}&&includeSelf=${includeSelf}`,
   );
 };

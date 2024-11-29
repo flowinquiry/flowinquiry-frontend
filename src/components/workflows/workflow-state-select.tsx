@@ -16,7 +16,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getWorkflowStatesByWorkflowId } from "@/lib/actions/workflows.action";
+import { getValidTargetStates } from "@/lib/actions/workflows.action";
 import { cn } from "@/lib/utils";
 import { WorkflowStateDTO } from "@/types/workflows";
 
@@ -25,6 +25,8 @@ type WorkflowStateSelectProps = {
   name: string; // Form field name
   label?: string; // Label for the select
   workflowId: number; // Workflow ID to fetch states for
+  workflowStateId: number; // Workflow state ID to fetch the next states from the current workflowStateId
+  includeSelf?: boolean; // include the self state
   required?: boolean; // Whether the field is required
 };
 
@@ -33,6 +35,8 @@ const WorkflowStateSelect = ({
   name,
   label = "Select Workflow State",
   workflowId,
+  workflowStateId,
+  includeSelf = false,
   required = false,
 }: WorkflowStateSelectProps) => {
   const [workflowStates, setWorkflowStates] = useState<WorkflowStateDTO[]>([]);
@@ -42,7 +46,7 @@ const WorkflowStateSelect = ({
   useEffect(() => {
     const loadWorkflowStates = async () => {
       setIsLoading(true);
-      getWorkflowStatesByWorkflowId(workflowId)
+      getValidTargetStates(workflowId, workflowStateId, includeSelf)
         .then((data) => setWorkflowStates(data))
         .finally(() => setIsLoading(false));
     };
@@ -50,7 +54,7 @@ const WorkflowStateSelect = ({
     if (workflowId) {
       loadWorkflowStates();
     }
-  }, [workflowId]);
+  }, [workflowId, workflowStateId]);
 
   return (
     <FormField

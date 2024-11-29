@@ -151,6 +151,8 @@ export const TeamRequestForm = ({
             label="State"
             required={true}
             workflowId={teamRequest?.workflowId!}
+            workflowStateId={teamRequest?.currentStateId!}
+            includeSelf={true}
           />
 
           <div className="col-span-1 sm:col-span-2 flex flex-row gap-4">
