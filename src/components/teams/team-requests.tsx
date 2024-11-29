@@ -89,13 +89,13 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
     const filters: Filter[] = [];
 
     // Add status filter
-    if (statuses.length > 0) {
-      filters.push({
-        field: "currentState",
-        operator: "in",
-        value: statuses,
-      });
-    }
+    // if (statuses.length > 0) {
+    //   filters.push({
+    //     field: "currentState",
+    //     operator: "in",
+    //     value: statuses,
+    //   });
+    // }
 
     // Add debounced search text filter
     if (debouncedSearchText.trim() !== "") {

@@ -21,6 +21,8 @@ export const TeamRequestDTOSchema = z.object({
   assignUserId: z.number().nullish(),
   assignUserName: z.string().nullish(),
   assignUserImageUrl: z.string().nullish(),
+  currentStateId: z.number().nullish(),
+  currentStateName: z.string().nullish(),
   requestTitle: z.string().min(1),
   requestDescription: z.string().min(1),
   createdAt: z.preprocess((value) => {
@@ -47,7 +49,6 @@ export const TeamRequestDTOSchema = z.object({
     }
     return value;
   }, z.date().nullish()),
-  currentState: z.string().optional(),
   channel: z.string().nullish(),
 });
 

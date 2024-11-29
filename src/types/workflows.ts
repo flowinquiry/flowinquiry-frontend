@@ -9,3 +9,13 @@ export const WorkflowDTOSchema = z.object({
 });
 
 export type WorkflowDTO = z.infer<typeof WorkflowDTOSchema>;
+
+export const WorkflowStateDTOSchema = z.object({
+  id: z.number().optional(),
+  workflowId: z.number(),
+  stateName: z.string(),
+  isInitial: z.boolean(),
+  isFinal: z.boolean(),
+});
+
+export type WorkflowStateDTO = z.infer<typeof WorkflowStateDTOSchema>;

@@ -25,6 +25,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import WorkflowStateSelect from "@/components/workflows/workflow-state-select";
 import { updateTeamRequest } from "@/lib/actions/teams-request.action";
 import { obfuscate } from "@/lib/endecode";
 import { validateForm } from "@/lib/validator";
@@ -53,12 +54,16 @@ export const TeamRequestForm = ({
     }
   }
 
+  const onError = (data: any) => {
+    console.log(`Error ${JSON.stringify(data)}`);
+  };
+
   return (
     <div className="py-4">
       <div className="flex items-center justify-between mb-4">
         <Heading
-          title={`${teamRequest?.workflowRequestName}: Edit Request`}
-          description="Edit the details of your request"
+          title={`${teamRequest?.workflowRequestName}: Edit Ticket`}
+          description="Edit the details of your ticket"
         />
       </div>
 
@@ -66,7 +71,7 @@ export const TeamRequestForm = ({
       <Form {...form}>
         <form
           className="grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-[72rem] mx-auto"
-          onSubmit={form.handleSubmit(onSubmit)}
+          onSubmit={form.handleSubmit(onSubmit, onError)}
         >
           {/* Title Field - Spans 2 Columns */}
           <div className="col-span-1 sm:col-span-2">
@@ -140,6 +145,13 @@ export const TeamRequestForm = ({
           />
 
           <TicketChannelSelectField form={form} />
+          <WorkflowStateSelect
+            form={form}
+            name="currentStateId"
+            label="State"
+            required={true}
+            workflowId={teamRequest?.workflowId!}
+          />
 
           <div className="col-span-1 sm:col-span-2 flex flex-row gap-4">
             <SubmitButton
