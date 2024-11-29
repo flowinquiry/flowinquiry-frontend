@@ -110,6 +110,15 @@ const config = {
                 padding: "0.5rem",
               },
             },
+            ".table-consistent-width table": {
+              tableLayout: "fixed",
+              width: "100%",
+            },
+            ".table-consistent-width th, .table-consistent-width td": {
+              width: "33.33%",
+              textAlign: "left",
+              padding: "8px",
+            },
           },
         },
         dark: {

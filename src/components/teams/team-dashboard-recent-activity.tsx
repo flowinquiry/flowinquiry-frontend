@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 
+import PaginationExt from "@/components/shared/pagination-ext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getActivityLogs } from "@/lib/actions/activity-logs.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
@@ -14,15 +15,18 @@ type DashboardTrendsAndActivityProps = {
 
 const RecentTeamActivities = ({ team }: DashboardTrendsAndActivityProps) => {
   const [activityLogs, setActivityLogs] = useState<ActivityLogDTO[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     async function fetchActivityLogs() {
-      getActivityLogs("Team", team.id!).then((data) => {
+      getActivityLogs("Team", team.id!, currentPage, 7).then((data) => {
         setActivityLogs(data.content);
+        setTotalPages(data.totalPages);
       });
     }
     fetchActivityLogs();
-  }, [team]);
+  }, [team, currentPage]);
 
   return (
     <Card>
@@ -59,6 +63,12 @@ const RecentTeamActivities = ({ team }: DashboardTrendsAndActivityProps) => {
             No activity logs available
           </p>
         )}
+        <PaginationExt
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={(page) => setCurrentPage(page)}
+          className="pt-2"
+        />
       </CardContent>
     </Card>
   );

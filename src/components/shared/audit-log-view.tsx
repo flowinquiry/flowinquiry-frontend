@@ -4,6 +4,7 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 import { UserAvatar } from "@/components/shared/avatar-display";
+import PaginationExt from "@/components/shared/pagination-ext";
 import { Button } from "@/components/ui/button";
 import { getActivityLogs } from "@/lib/actions/activity-logs.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
@@ -23,18 +24,21 @@ const AuditLogView: React.FC<AuditLogViewProps> = ({
 }) => {
   const [logs, setLogs] = useState<ActivityLogDTO[]>([]);
   const [loading, setLoading] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
 
   useEffect(() => {
     const fetchAuditLogs = async () => {
       setLoading(true);
-      getActivityLogs("Team_Request", entityId)
+      getActivityLogs("Team_Request", entityId, currentPage)
         .then((data) => {
+          setTotalPages(data.totalPages);
           setLogs(data.content);
         })
         .finally(() => setLoading(false));
     };
     fetchAuditLogs();
-  }, [entityType, entityId]);
+  }, [entityType, entityId, currentPage]);
 
   if (loading) {
     return <div>Loading history...</div>;
@@ -65,7 +69,7 @@ const AuditLogView: React.FC<AuditLogViewProps> = ({
             <span>made some changes</span>
           </div>
           <div
-            className="prose max-w-none"
+            className="prose max-w-none table-consistent-width"
             dangerouslySetInnerHTML={{
               __html: log.content!,
             }}
@@ -75,6 +79,12 @@ const AuditLogView: React.FC<AuditLogViewProps> = ({
           </small>
         </div>
       ))}
+      <PaginationExt
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={(page) => setCurrentPage(page)}
+        className="pt-2"
+      />
     </div>
   );
 };

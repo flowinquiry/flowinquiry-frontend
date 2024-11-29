@@ -72,9 +72,10 @@ export const getTicketsPriorityDistribution = async (teamId: number) => {
 export const getUnassignedTickets = async (
   teamId: number,
   page: number,
-  sort: string,
+  sortBy: string,
+  sortDirection: string,
 ) => {
   return get<PageableResult<TeamRequestDTO>>(
-    `${BACKEND_API}/api/team-requests/${teamId}/unassigned-tickets?page=${page - 1}&&size=5&&sortDirection=${sort}`,
+    `${BACKEND_API}/api/team-requests/${teamId}/unassigned-tickets?page=${page - 1}&&size=5&&sortBy=${sortBy}&&sortDirection=${sortDirection}`,
   );
 };

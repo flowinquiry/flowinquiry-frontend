@@ -26,17 +26,21 @@ const UnassignedTickets = ({ teamId }: { teamId: number }) => {
   const [tickets, setTickets] = useState<TeamRequestDTO[]>([]);
 
   const [sortBy, setSortBy] = useState("priority");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
   useEffect(() => {
-    const fetchData = () => {
-      getUnassignedTickets(teamId, currentPage, sortDirection).then((data) => {
-        setTickets(data.content);
-        console.log(`Tickets ${JSON.stringify(data.content)}`);
-        setTotalPages(data.totalPages);
-        setTotalTickets(data.totalElements);
-      });
+    const fetchData = async () => {
+      const data = await getUnassignedTickets(
+        teamId,
+        currentPage,
+        sortBy,
+        sortDirection,
+      );
+      setTickets(data.content);
+      setTotalPages(data.totalPages);
+      setTotalTickets(data.totalElements);
     };
+
     fetchData();
   }, [teamId, currentPage, sortBy, sortDirection]);
 
@@ -48,30 +52,30 @@ const UnassignedTickets = ({ teamId }: { teamId: number }) => {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle className="text-xl font-bold">
-            Unassigned Tickets ({totalTickets})
-          </CardTitle>
-          <Tooltip>
-            <TooltipTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleSortDirection}
-                className="p-2"
-              >
-                {sortDirection === "asc" ? (
-                  <ChevronUp className="w-4 h-4" />
-                ) : (
-                  <ChevronDown className="w-4 h-4" />
-                )}
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              {sortDirection === "asc"
-                ? "Sort by priority: Ascending"
-                : "Sort by priority: Descending"}
-            </TooltipContent>
-          </Tooltip>
+          <CardTitle>Unassigned Tickets ({totalTickets})</CardTitle>
+          <div className="flex items-center gap-2">
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  onClick={toggleSortDirection}
+                  className="p-2 flex items-center gap-2"
+                >
+                  {sortDirection === "asc" ? (
+                    <ChevronUp className="w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4" />
+                  )}
+                  <span className="text-sm">Priority</span>
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                {sortDirection === "asc"
+                  ? "Sort by priority: Ascending"
+                  : "Sort by priority: Descending"}
+              </TooltipContent>
+            </Tooltip>
+          </div>
         </div>
       </CardHeader>
       <CardContent>
