@@ -25,6 +25,8 @@ export const TeamRequestDTOSchema = z.object({
   currentStateName: z.string().nullish(),
   requestTitle: z.string().min(1),
   requestDescription: z.string().min(1),
+  isNew: z.oboolean(),
+  isCompleted: z.oboolean(),
   createdAt: z.preprocess((value) => {
     if (typeof value === "string") {
       return new Date(value);

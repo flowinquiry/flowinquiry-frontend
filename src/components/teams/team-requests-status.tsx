@@ -15,7 +15,7 @@ import { ViewProps } from "@/components/ui/ext-form";
 import { searchTeamRequests } from "@/lib/actions/teams-request.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
-import { cn } from "@/lib/utils";
+import { cn, getSpecifiedColor } from "@/lib/utils";
 import { Filter, Pagination, QueryDTO } from "@/types/query";
 import { TeamRequestDTO } from "@/types/team-requests";
 import { TeamDTO } from "@/types/teams";
@@ -83,6 +83,8 @@ const TeamRequestsStatusView = ({
       <div>
         {requests.map((request, index) => {
           const currentDate = new Date();
+          const workflowColor = getSpecifiedColor(request.workflowRequestName!);
+
           const estimatedCompletionDate = request.estimatedCompletionDate
             ? new Date(request.estimatedCompletionDate)
             : null;
@@ -120,16 +122,29 @@ const TeamRequestsStatusView = ({
                 </div>
               )}
 
-              <Button
-                variant="link"
-                className="px-0 text-xl text-left break-words whitespace-normal pb-4"
-                onClick={() => openSheet(request)}
-                tabIndex={0}
-                role="button"
-                aria-label={`Open details for ${request.requestTitle}`}
-              >
-                {request.requestTitle}
-              </Button>
+              <div className="relative flex gap-2">
+                <span
+                  className="absolute top-0 inline-block px-2 py-1 text-xs font-semibold rounded-md"
+                  style={{
+                    backgroundColor: workflowColor.background,
+                    color: workflowColor.text,
+                  }}
+                >
+                  {request.workflowRequestName}
+                </span>
+                <Button
+                  variant="link"
+                  className={`pl-16 text-xl text-left break-words whitespace-normal pb-4 ${
+                    request.isCompleted ? "line-through" : ""
+                  }`}
+                  onClick={() => openSheet(request)}
+                  tabIndex={0}
+                  role="button"
+                  aria-label={`Open details for ${request.requestTitle}`}
+                >
+                  {request.requestTitle}
+                </Button>
+              </div>
 
               <TruncatedHtmlLabel
                 htmlContent={request.requestDescription!}

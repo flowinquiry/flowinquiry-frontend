@@ -55,7 +55,10 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
           <ScrollArea className="h-full">
             <SheetHeader>
               <SheetTitle>
-                <Button variant="link" className="px-0 text-2xl">
+                <Button
+                  variant="link"
+                  className={`px-0 text-2xl ${request.isCompleted ? "line-through" : ""}`}
+                >
                   <Link
                     href={`/portal/teams/${obfuscate(teamRequest.teamId)}/requests/${obfuscate(
                       teamRequest.id,

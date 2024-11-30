@@ -24,6 +24,7 @@ import {
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { navigateToRecord } from "@/lib/navigation-record";
+import { getSpecifiedColor } from "@/lib/utils";
 import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/team-requests";
 
@@ -33,6 +34,8 @@ const TeamRequestDetailView = ({ entity }: ViewProps<TeamRequestDTO>) => {
 
   const [selectedTab, setSelectedTab] = useState("comments");
   const [teamRequest, setTeamRequest] = useState<TeamRequestDTO>(entity);
+
+  const workflowColor = getSpecifiedColor(teamRequest.workflowRequestName!);
 
   const navigateToPreviousRecord = async () => {
     const previousTeamRequest = await navigateToRecord(
@@ -68,9 +71,23 @@ const TeamRequestDetailView = ({ entity }: ViewProps<TeamRequestDTO>) => {
         >
           <ChevronLeft className="text-gray-400" />
         </Button>
-        <div className="text-2xl w-full font-semibold">
-          {teamRequest.requestTitle}
+        <div className="w-full flex gap-2 items-start">
+          <span
+            className="inline-block px-2 py-1 text-xs font-semibold rounded-md"
+            style={{
+              backgroundColor: workflowColor.background,
+              color: workflowColor.text,
+            }}
+          >
+            {teamRequest.workflowRequestName}
+          </span>
+          <div
+            className={`text-2xl w-full font-semibold ${teamRequest.isCompleted ? "line-through" : ""}`}
+          >
+            {teamRequest.requestTitle}
+          </div>
         </div>
+
         {PermissionUtils.canWrite(permissionLevel) && (
           <Button
             onClick={() =>
@@ -94,9 +111,7 @@ const TeamRequestDetailView = ({ entity }: ViewProps<TeamRequestDTO>) => {
 
       <Card>
         <CardContent className="p-4 space-y-6">
-          {/* Request Details Section */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {/* Description - Full Width */}
             <div className="col-span-1 sm:col-span-2">
               <p className="font-medium">Description</p>
               <div
