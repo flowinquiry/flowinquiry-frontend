@@ -1,8 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { TransitionItemCollectionDTO } from "@/types/teams";
-import { getTeamRequestStateChangesHistory } from "@/lib/actions/teams.action";
+
 import {
   Timeline,
   TimelineConnector,
@@ -14,7 +13,9 @@ import {
   TimelineTime,
   TimelineTitle,
 } from "@/components/ui/timeline";
+import { getTeamRequestStateChangesHistory } from "@/lib/actions/teams.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
+import { TransitionItemCollectionDTO } from "@/types/teams";
 
 const TeamRequestsTimelineHistory = ({ teamId }: { teamId: number }) => {
   const [transitionItemCollection, setTransitionItemCollection] =
