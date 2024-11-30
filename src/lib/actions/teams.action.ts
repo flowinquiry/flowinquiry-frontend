@@ -10,7 +10,7 @@ import {
 } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
 import { Filter, Pagination } from "@/types/query";
-import { TeamDTO } from "@/types/teams";
+import { TeamDTO, TransitionItemCollectionDTO } from "@/types/teams";
 import { UserType, UserWithTeamRoleDTO } from "@/types/users";
 
 export const findTeamById = async (teamId: number) => {
@@ -67,5 +67,11 @@ export const deleteUserFromTeam = async (teamId: number, userId: number) => {
 export const getUserRoleInTeam = async (userId: number, teamId: number) => {
   return get<Record<string, string>>(
     `${BACKEND_API}/api/teams/${teamId}/users/${userId}/role`,
+  );
+};
+
+export const getTeamRequestStateChangesHistory = async (ticketId: number) => {
+  return get<TransitionItemCollectionDTO>(
+    `${BACKEND_API}/api/team-requests/${ticketId}/states-history`,
   );
 };
