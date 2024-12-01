@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import {
   Card,
@@ -15,47 +15,54 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getTicketStatisticsByTeamId } from "@/lib/actions/teams-request.action";
 
-const TeamDashboardTopSection = () => {
+const TeamDashboardTopSection = ({ teamId }: { teamId: number }) => {
   const router = useRouter();
+  const [totalTickets, setTotalTickets] = useState(0);
+  const [pendingTickets, setPendingTickets] = useState(0);
+  const [completedTickets, setCompletedTickets] = useState(0);
+
+  useEffect(() => {
+    function fetchStatisticData() {
+      getTicketStatisticsByTeamId(teamId).then((data) => {
+        setTotalTickets(data.totalTickets);
+        setPendingTickets(data.pendingTickets);
+        setCompletedTickets(data.completedTickets);
+      });
+    }
+    fetchStatisticData();
+  }, [teamId]);
 
   const metrics = [
     {
       title: "Total Tickets",
       description: "All tickets received",
-      value: 152,
+      value: totalTickets,
       color: "text-gray-700 dark:text-gray-300",
-      link: "/dashboard/requests/all",
+      link: "#",
       tooltip: "View all team tickets.",
     },
     {
       title: "Pending Tickets",
       description: "Tickets yet to be addressed",
-      value: 42,
+      value: pendingTickets,
       color: "text-yellow-500",
-      link: "/dashboard/requests/pending",
+      link: "#",
       tooltip: "View tickets that are still pending.",
     },
     {
       title: "Completed Tickets",
       description: "Successfully resolved tickets",
-      value: 100,
+      value: completedTickets,
       color: "text-green-500",
-      link: "/dashboard/requests/completed",
+      link: "#",
       tooltip: "View tickets that have been resolved.",
-    },
-    {
-      title: "Overdue Tickets",
-      description: "Tickets past their deadline",
-      value: 10,
-      color: "text-red-500",
-      link: "/dashboard/requests/overdue",
-      tooltip: "View overdue tickets that need attention.",
     },
   ];
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-4">
       {metrics.map((metric, index) => (
         <Tooltip key={index}>
           <TooltipTrigger asChild>

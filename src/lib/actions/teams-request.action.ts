@@ -10,6 +10,7 @@ import {
   PriorityDistributionDTO,
   TeamRequestDTO,
   TicketDistributionDTO,
+  TicketStatisticsDTO,
 } from "@/types/team-requests";
 
 export const createTeamRequest = async (teamRequest: TeamRequestDTO) => {
@@ -78,5 +79,11 @@ export const getUnassignedTickets = async (
 ) => {
   return get<PageableResult<TeamRequestDTO>>(
     `${BACKEND_API}/api/team-requests/${teamId}/unassigned-tickets?page=${page - 1}&&size=5&&sortBy=${sortBy}&&sortDirection=${sortDirection}`,
+  );
+};
+
+export const getTicketStatisticsByTeamId = async (teamId: number) => {
+  return get<TicketStatisticsDTO>(
+    `${BACKEND_API}/api/team-requests/statistics/${teamId}`,
   );
 };

@@ -78,3 +78,9 @@ export type PriorityDistributionDTO = {
   priority: TeamRequestPriority;
   ticketCount: number;
 };
+
+export interface TicketStatisticsDTO {
+  totalTickets: number;
+  pendingTickets: number;
+  completedTickets: number;
+}

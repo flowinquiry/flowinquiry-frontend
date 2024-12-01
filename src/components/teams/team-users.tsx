@@ -50,17 +50,17 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamDTO>) => {
   const [notDeleteOnlyManagerDialogOpen, setNotDeleteOnlyManagerDialogOpen] =
     useState(false);
   const [items, setItems] = useState<Array<UserWithTeamRoleDTO>>([]);
+  const [totalMembers, setTotalMembers] = useState(0);
   const [loading, setLoading] = useState(false);
 
   const fetchUsers = async () => {
     setLoading(true);
-    try {
-      const membersData = await findMembersByTeamId(team.id!);
-
-      setItems(membersData); // Update items
-    } finally {
-      setLoading(false);
-    }
+    findMembersByTeamId(team.id!)
+      .then((data) => {
+        setItems(data);
+        setTotalMembers(data.length);
+      })
+      .finally(() => setLoading(false));
   };
 
   useEffect(() => {
@@ -104,10 +104,22 @@ const TeamUsersView = ({ entity: team }: ViewProps<TeamDTO>) => {
     <div className="grid grid-cols-1 gap-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <TeamAvatar imageUrl={team.logoUrl} size="w-16 h-16" />
+          <Tooltip>
+            <TooltipTrigger>
+              <TeamAvatar imageUrl={team.logoUrl} size="w-16 h-16" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <div className="text-left">
+                <p className="font-bold">{team.name}</p>
+                <p className="text-sm text-gray-500">
+                  {team.slogan ?? "Stronger Together"}
+                </p>
+              </div>
+            </TooltipContent>
+          </Tooltip>
           <Heading
-            title={team.name}
-            description={team.slogan ?? "Stronger Together"}
+            title={`Team Members (${totalMembers})`}
+            description="Browse and manage the members of your team. View roles, contact information, and more"
           />
         </div>
         {(PermissionUtils.canWrite(permissionLevel) ||

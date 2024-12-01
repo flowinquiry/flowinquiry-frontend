@@ -60,6 +60,7 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
     resolver: zodResolver(TeamRequestDTOSchema),
     defaultValues: {
       teamId: teamEntity.id!,
+      priority: "Medium",
       workflowId: workflow?.id!,
       requestUserId: Number(session?.user?.id!),
     },

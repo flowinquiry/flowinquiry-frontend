@@ -7,7 +7,6 @@ import React from "react";
 import { Heading } from "@/components/heading";
 import { TeamAvatar } from "@/components/shared/avatar-display";
 import TeamDashboardTopSection from "@/components/teams/team-dashboard-kpis";
-import TeamPerformanceMetrics from "@/components/teams/team-dashboard-performance-metrics";
 import RecentTeamActivities from "@/components/teams/team-dashboard-recent-activity";
 import TicketDistributionChart from "@/components/teams/team-requests-distribution-chart";
 import TicketPriorityPieChart from "@/components/teams/team-requests-priority-chart";
@@ -20,6 +19,11 @@ import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const TeamDashboard = ({ entity: team }: ViewProps<TeamDTO>) => {
   const permissionLevel = usePagePermission();
@@ -28,10 +32,22 @@ const TeamDashboard = ({ entity: team }: ViewProps<TeamDTO>) => {
     <div className="grid grid-cols-1 gap-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <TeamAvatar imageUrl={team.logoUrl} size="w-16 h-16" />
+          <Tooltip>
+            <TooltipTrigger>
+              <TeamAvatar imageUrl={team.logoUrl} size="w-16 h-16" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <div className="text-left">
+                <p className="font-bold">{team.name}</p>
+                <p className="text-sm text-gray-500">
+                  {team.slogan ?? "Stronger Together"}
+                </p>
+              </div>
+            </TooltipContent>
+          </Tooltip>
           <Heading
-            title={team.name}
-            description={team.slogan ?? "Stronger Together"}
+            title="Team Dashboard"
+            description="Overview of your team's performance and activities. Monitor team requests, progress, and key metrics at a glance"
           />
         </div>
         {PermissionUtils.canWrite(permissionLevel) && (
@@ -45,7 +61,7 @@ const TeamDashboard = ({ entity: team }: ViewProps<TeamDTO>) => {
       </div>
       <Separator />
       <div className="space-y-8">
-        <TeamDashboardTopSection />
+        <TeamDashboardTopSection teamId={team.id!} />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col">
             <UnassignedTickets teamId={team.id!} />
@@ -63,7 +79,6 @@ const TeamDashboard = ({ entity: team }: ViewProps<TeamDTO>) => {
             <TicketPriorityPieChart teamId={team.id!} />
           </div>
         </div>
-        <TeamPerformanceMetrics />
       </div>
     </div>
   );
