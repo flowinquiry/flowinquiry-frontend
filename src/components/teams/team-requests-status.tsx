@@ -1,75 +1,25 @@
 "use client";
 
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 
 import { UserAvatar } from "@/components/shared/avatar-display";
 import { NColumnsGrid } from "@/components/shared/n-columns-grid";
-import PaginationExt from "@/components/shared/pagination-ext";
 import TruncatedHtmlLabel from "@/components/shared/truncate-html-label";
 import TeamRequestDetailSheet from "@/components/teams/team-request-detail-sheet";
 import { PriorityDisplay } from "@/components/teams/team-requests-priority-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { ViewProps } from "@/components/ui/ext-form";
-import { searchTeamRequests } from "@/lib/actions/teams-request.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { cn, getSpecifiedColor } from "@/lib/utils";
-import { Pagination, QueryDTO } from "@/types/query";
 import { TeamRequestDTO } from "@/types/team-requests";
-import { TeamDTO } from "@/types/teams";
 
-interface TeamRequestsStatusViewProps extends ViewProps<TeamDTO> {
-  query: QueryDTO;
-  pagination: Pagination;
-  refreshTrigger: number; // Add refreshTrigger prop
+interface TeamRequestsStatusViewProps {
+  requests: TeamRequestDTO[];
 }
 
-const TeamRequestsStatusView = ({
-  entity: team,
-  query,
-  pagination,
-  refreshTrigger,
-}: TeamRequestsStatusViewProps) => {
-  const [requests, setRequests] = useState<TeamRequestDTO[]>([]);
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalElements, setTotalElements] = useState(0);
-  const [loading, setLoading] = useState(false);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      // Construct a new QueryDTO
-      const combinedQuery: QueryDTO = {
-        groups: [
-          {
-            logicalOperator: "AND",
-            filters: [
-              { field: "team.id", operator: "eq", value: team.id! }, // Add team filter
-            ],
-            groups: query.groups || [], // Include existing query groups
-          },
-        ],
-      };
-
-      // Pass QueryDTO to searchTeamRequests
-      const pageResult = await searchTeamRequests(combinedQuery, {
-        page: currentPage,
-        size: 10,
-        sort: pagination.sort,
-      });
-
-      // Update state with the results
-      setRequests(pageResult.content);
-      setTotalElements(pageResult.totalElements);
-      setTotalPages(pageResult.totalPages);
-    } finally {
-      setLoading(false);
-    }
-  };
-
+const TeamRequestsStatusView = ({ requests }: TeamRequestsStatusViewProps) => {
   const [selectedRequest, setSelectedRequest] = useState<TeamRequestDTO | null>(
     null,
   );
@@ -81,12 +31,6 @@ const TeamRequestsStatusView = ({
   const closeSheet = () => {
     setSelectedRequest(null);
   };
-
-  useEffect(() => {
-    fetchData();
-  }, [currentPage, query, refreshTrigger]);
-
-  if (loading) return <div>Loading...</div>;
 
   return (
     <div className="grid grid-cols-1 gap-4">
@@ -279,14 +223,6 @@ const TeamRequestsStatusView = ({
           />
         )}
       </div>
-
-      <PaginationExt
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={(page) => {
-          setCurrentPage(page);
-        }}
-      />
     </div>
   );
 };
