@@ -29,7 +29,7 @@ const TeamNavLayout = ({
     },
     {
       href: `/portal/teams/${obfuscate(teamId)}/requests`,
-      label: "Requests",
+      label: "Tickets",
       icon: ArrowRightCircleIcon,
     },
     {

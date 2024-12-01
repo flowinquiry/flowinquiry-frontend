@@ -5,17 +5,14 @@ import { redirect } from "next/navigation";
 
 import { doAdvanceSearch, get, post } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
-import { Filter, Pagination } from "@/types/query";
+import { Pagination, QueryDTO } from "@/types/query";
 import { userSchema, UserType } from "@/types/users";
 
-export async function searchUsers(
-  filters: Filter[] = [],
-  pagination: Pagination,
-) {
+export async function searchUsers(query: QueryDTO, pagination: Pagination) {
   noStore();
   return doAdvanceSearch<UserType>(
     `${BACKEND_API}/api/users/search`,
-    filters,
+    query,
     pagination,
   );
 }

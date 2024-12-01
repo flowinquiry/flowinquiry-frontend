@@ -6,8 +6,6 @@ import { auth } from "@/auth";
 import { handleError, HttpError } from "@/lib/errors";
 import { PageableResult } from "@/types/commons";
 import {
-  buildSearchQuery,
-  Filter,
   Pagination,
   paginationSchema,
   QueryDTO,
@@ -95,26 +93,15 @@ const defaultPagination: Pagination = {
 // Function to send a dynamic search query with pagination and URL
 export const doAdvanceSearch = async <R>(
   url: string, // URL is passed as a parameter
-  filters: Filter[] = [], // Filters for the search
+  query: QueryDTO = { filters: [] },
   pagination: Pagination = defaultPagination, // Default pagination with page 1 and size 10
 ) => {
-  // Filter out filters with null values and log warnings
-  const validFilters = filters.filter((filter) => {
-    if (filter.value === null || filter.value === undefined) {
-      console.warn(
-        `Filter with field "${filter.field}" and operator "${filter.operator}" has a null value and will be ignored.`,
-      );
-      return false;
-    }
-    return true;
-  });
-
-  // Validate query
-  const queryValidation = querySchema.safeParse({ filters: validFilters });
+  // Validate QueryDTO
+  const queryValidation = querySchema.safeParse(query);
   if (!queryValidation.success) {
     throw new HttpError(
       HttpError.BAD_REQUEST,
-      `Invalid query ${JSON.stringify(validFilters)}. Root cause is ${JSON.stringify(queryValidation.error.errors)}`,
+      `Invalid query ${JSON.stringify(query)}. Root cause is ${JSON.stringify(queryValidation.error.errors)}`,
     );
   }
 
@@ -123,7 +110,7 @@ export const doAdvanceSearch = async <R>(
   if (!paginationValidation.success) {
     throw new HttpError(
       HttpError.BAD_REQUEST,
-      `Invalid pagination ${paginationValidation.error.errors}`,
+      `Invalid pagination ${JSON.stringify(paginationValidation.error.errors)}`,
     );
   }
 
@@ -143,6 +130,6 @@ export const doAdvanceSearch = async <R>(
   return fetchData<QueryDTO, PageableResult<R>>(
     `${url}?${queryParams.toString()}`,
     "POST",
-    buildSearchQuery(validFilters),
+    query, // Pass the QueryDTO directly in the body
   );
 };

@@ -18,6 +18,7 @@ import { usePagePermission } from "@/hooks/use-page-permission";
 import { searchUsers } from "@/lib/actions/users.action";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
+import { QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { UserType } from "@/types/users";
 
@@ -39,8 +40,8 @@ export const UserList = () => {
   const fetchData = useCallback(async () => {
     setLoading(true);
     try {
-      const pageResult = await searchUsers(
-        userSearchTerm
+      const query: QueryDTO = {
+        filters: userSearchTerm
           ? [
               {
                 field: "firstName,lastName",
@@ -49,8 +50,13 @@ export const UserList = () => {
               },
             ]
           : [],
-        { page: currentPage, size: 10 },
-      );
+      };
+
+      // Fetch data using the QueryDTO
+      const pageResult = await searchUsers(query, {
+        page: currentPage,
+        size: 10,
+      });
       setItems(pageResult.content);
       setTotalElements(pageResult.totalElements);
       setTotalPages(pageResult.totalPages);

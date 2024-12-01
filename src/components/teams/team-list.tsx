@@ -30,6 +30,7 @@ import { usePagePermission } from "@/hooks/use-page-permission";
 import { deleteTeams, searchTeams } from "@/lib/actions/teams.action";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
+import { QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
 
@@ -56,12 +57,23 @@ export const TeamList = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
-      const pageResult = await searchTeams(
-        teamSearchTerm
-          ? [{ field: "name", operator: "lk", value: teamSearchTerm }]
+      const query: QueryDTO = {
+        filters: teamSearchTerm
+          ? [
+              {
+                field: "name",
+                operator: "lk",
+                value: teamSearchTerm,
+              },
+            ]
           : [],
-        { page: currentPage, size: 10 },
-      );
+      };
+
+      // Fetch data using the QueryDTO
+      const pageResult = await searchTeams(query, {
+        page: currentPage,
+        size: 10,
+      });
       setItems(pageResult.content);
       setTotalElements(pageResult.totalElements);
       setTotalPages(pageResult.totalPages);

@@ -5,7 +5,7 @@ import { unstable_noStore as noStore } from "next/dist/server/web/spec-extension
 import { doAdvanceSearch, get, post, put } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
 import { PageableResult } from "@/types/commons";
-import { Filter, Pagination } from "@/types/query";
+import { Pagination, QueryDTO } from "@/types/query";
 import {
   PriorityDistributionDTO,
   TeamRequestDTO,
@@ -34,13 +34,14 @@ export const updateTeamRequest = async (
 };
 
 export async function searchTeamRequests(
-  filters: Filter[] = [],
+  query: QueryDTO,
   pagination: Pagination,
 ) {
   noStore();
+  console.log(`Filters ${JSON.stringify(query)}`);
   return doAdvanceSearch<TeamRequestDTO>(
     `${BACKEND_API}/api/team-requests/search`,
-    filters,
+    query,
     pagination,
   );
 }

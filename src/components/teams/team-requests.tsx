@@ -32,7 +32,7 @@ import {
 import { usePagePermission } from "@/hooks/use-page-permission";
 import { getWorkflowsByTeam } from "@/lib/actions/workflows.action";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
-import { Filter, QueryDTO } from "@/types/query";
+import { Filter, GroupFilter, QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
 import { WorkflowDTO } from "@/types/workflows";
@@ -57,7 +57,7 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
     null,
   );
 
-  const [statuses, setStatuses] = useState<string[]>(["New"]);
+  const [statuses, setStatuses] = useState<string[]>(["New", "Assigned"]);
 
   // Trigger to refresh team requests
   const [refreshTrigger, setRefreshTrigger] = useState(0);
@@ -86,28 +86,72 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
   const [query, setQuery] = useState<QueryDTO>({ filters: [] });
 
   useEffect(() => {
-    const filters: Filter[] = [];
+    const groups: GroupFilter[] = [];
 
-    // Add status filter
-    // if (statuses.length > 0) {
-    //   filters.push({
-    //     field: "currentState",
-    //     operator: "in",
-    //     value: statuses,
-    //   });
-    // }
-
-    // Add debounced search text filter
-    if (debouncedSearchText.trim() !== "") {
-      filters.push({
-        field: "requestTitle",
-        operator: "lk", // 'lk' for 'like'
-        value: `%${debouncedSearchText}%`,
+    // Status filters group
+    const statusFilters: Filter[] = [];
+    if (statuses.includes("New")) {
+      statusFilters.push({
+        field: "isNew",
+        operator: "eq",
+        value: true,
+      });
+    }
+    if (statuses.includes("Completed")) {
+      statusFilters.push({
+        field: "isCompleted",
+        operator: "eq",
+        value: true,
+      });
+    }
+    if (statuses.includes("Assigned")) {
+      groups.push({
+        logicalOperator: "AND", // Logical "AND" for the two conditions
+        filters: [
+          {
+            field: "isCompleted",
+            operator: "eq",
+            value: false,
+          },
+          {
+            field: "isNew",
+            operator: "eq",
+            value: false,
+          },
+        ],
       });
     }
 
+    // If there are any status filters, add them as an OR group
+    if (statusFilters.length > 0) {
+      groups.push({
+        filters: statusFilters,
+        logicalOperator: "OR", // Logical "OR" for statuses
+      });
+    }
+
+    // Search text filter
+    if (debouncedSearchText.trim() !== "") {
+      groups.push({
+        filters: [
+          {
+            field: "requestTitle",
+            operator: "lk", // 'lk' for 'like'
+            value: `%${debouncedSearchText}%`,
+          },
+        ],
+        logicalOperator: "AND", // Logical "AND" with other filters
+      });
+    }
+
+    // Create the final query with groups
+    const query: QueryDTO = {
+      groups,
+    };
+
     // Update the query and pagination sort
-    setQuery({ filters });
+    setQuery(query);
+
     setPagination((prev) => ({
       ...prev,
       sort: [

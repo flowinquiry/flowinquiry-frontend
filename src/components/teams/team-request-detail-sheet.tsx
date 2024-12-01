@@ -21,6 +21,7 @@ import {
 import { updateTeamRequest } from "@/lib/actions/teams-request.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
+import { getSpecifiedColor } from "@/lib/utils";
 import { TeamRequestDTO } from "@/types/team-requests";
 
 type RequestDetailsProps = {
@@ -35,6 +36,7 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
   request,
 }) => {
   const [teamRequest, setTeamRequest] = useState<TeamRequestDTO>(request);
+  const workflowColor = getSpecifiedColor(request.workflowRequestName!);
   const [submitting, setSubmitting] = useState<boolean>(false);
 
   const form = useForm<TeamRequestDTO>({
@@ -55,19 +57,30 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
           <ScrollArea className="h-full">
             <SheetHeader>
               <SheetTitle>
-                <Button
-                  variant="link"
-                  className={`px-0 text-2xl ${request.isCompleted ? "line-through" : ""}`}
-                >
-                  <Link
-                    href={`/portal/teams/${obfuscate(teamRequest.teamId)}/requests/${obfuscate(
-                      teamRequest.id,
-                    )}`}
-                    className="break-words whitespace-normal text-left"
+                <div className="w-full flex gap-2 items-start pt-4">
+                  <span
+                    className=" inline-block px-2 py-1 text-xs font-semibold rounded-md"
+                    style={{
+                      backgroundColor: workflowColor.background,
+                      color: workflowColor.text,
+                    }}
                   >
-                    {teamRequest.requestTitle}
-                  </Link>
-                </Button>
+                    {request.workflowRequestName}
+                  </span>
+                  <Button
+                    variant="link"
+                    className={`px-0 text-2xl ${request.isCompleted ? "line-through" : ""}`}
+                  >
+                    <Link
+                      href={`/portal/teams/${obfuscate(teamRequest.teamId)}/requests/${obfuscate(
+                        teamRequest.id,
+                      )}`}
+                      className="break-words whitespace-normal text-left"
+                    >
+                      {teamRequest.requestTitle}
+                    </Link>
+                  </Button>
+                </div>
               </SheetTitle>
             </SheetHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">

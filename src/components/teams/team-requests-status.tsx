@@ -16,7 +16,7 @@ import { searchTeamRequests } from "@/lib/actions/teams-request.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { cn, getSpecifiedColor } from "@/lib/utils";
-import { Filter, Pagination, QueryDTO } from "@/types/query";
+import { Pagination, QueryDTO } from "@/types/query";
 import { TeamRequestDTO } from "@/types/team-requests";
 import { TeamDTO } from "@/types/teams";
 
@@ -41,17 +41,27 @@ const TeamRequestsStatusView = ({
   const fetchData = async () => {
     setLoading(true);
     try {
-      const combinedFilters: Filter[] = [
-        { field: "team.id", operator: "eq", value: team.id },
-        ...(query.filters || []),
-      ];
+      // Construct a new QueryDTO
+      const combinedQuery: QueryDTO = {
+        groups: [
+          {
+            logicalOperator: "AND",
+            filters: [
+              { field: "team.id", operator: "eq", value: team.id! }, // Add team filter
+            ],
+            groups: query.groups || [], // Include existing query groups
+          },
+        ],
+      };
 
-      const pageResult = await searchTeamRequests(combinedFilters, {
+      // Pass QueryDTO to searchTeamRequests
+      const pageResult = await searchTeamRequests(combinedQuery, {
         page: currentPage,
         size: 10,
         sort: pagination.sort,
       });
 
+      // Update state with the results
       setRequests(pageResult.content);
       setTotalElements(pageResult.totalElements);
       setTotalPages(pageResult.totalPages);

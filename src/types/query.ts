@@ -3,13 +3,20 @@ import { z } from "zod";
 export type Operator = "gt" | "lt" | "eq" | "in" | "lk";
 
 export type Filter = {
-  field: string; // Loosely typed field name
-  operator: Operator; // Specifies the operator (greater than, less than, etc.)
-  value: any; // Loosely typed value, can be a single value or array
+  field: string;
+  operator: Operator;
+  value: string | number | boolean | (string | number | boolean)[];
+};
+
+export type GroupFilter = {
+  filters?: Filter[]; // Simple filters in this group
+  groups?: GroupFilter[]; // Nested groups
+  logicalOperator: "AND" | "OR";
 };
 
 export type QueryDTO = {
-  filters: Filter[]; // Array of Filter objects
+  groups?: GroupFilter[]; // Groups for advanced filtering
+  filters?: Filter[]; // Simple filters for backward compatibility
 };
 
 // Pagination type for handling pagination and sorting
@@ -20,20 +27,28 @@ export type Pagination = {
 };
 
 // Zod schema for filters
-export const filterSchema = z.object({
-  field: z.string().min(1),
-  operator: z.enum(["gt", "lt", "eq", "in", "lk"]),
+
+const filterSchema = z.object({
+  field: z.string(),
+  operator: z.enum(["eq", "gt", "lt", "lk", "in"]),
   value: z.union([
     z.string(),
     z.number(),
-    z.array(z.string()),
-    z.array(z.number()),
+    z.boolean(),
+    z.array(z.union([z.string(), z.number(), z.boolean()])),
   ]),
 });
 
-// Zod schema for query with filters
+const groupFilterSchema: z.ZodType<GroupFilter> = z.lazy(() =>
+  z.object({
+    filters: z.array(filterSchema).optional(),
+    groups: z.array(groupFilterSchema).optional(),
+    logicalOperator: z.enum(["AND", "OR"]),
+  }),
+);
+
 export const querySchema = z.object({
-  filters: z.array(filterSchema),
+  groups: z.array(groupFilterSchema).optional(),
 });
 
 // Zod schema for pagination
@@ -49,10 +64,3 @@ export const paginationSchema = z.object({
     )
     .optional(),
 });
-
-// Function to build a dynamic search query with strong types
-export const buildSearchQuery = (filters: Filter[]): QueryDTO => {
-  return {
-    filters,
-  };
-};
