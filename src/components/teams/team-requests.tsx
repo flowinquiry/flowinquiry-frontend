@@ -231,7 +231,7 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
         <div className="flex items-center gap-4">
           <Tooltip>
             <TooltipTrigger>
-              <TeamAvatar imageUrl={team.logoUrl} size="w-16 h-16" />
+              <TeamAvatar imageUrl={team.logoUrl} size="w-20 h-20" />
             </TooltipTrigger>
             <TooltipContent>
               <div className="text-left">

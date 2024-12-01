@@ -27,3 +27,8 @@ export interface TransitionItemCollectionDTO {
   ticketId: number;
   transitions: TransitionItemDTO[];
 }
+
+export interface TicketActionCountByDateDTO {
+  date: string; // Representing LocalDate as an ISO 8601 date string (e.g., "2024-01-01")
+  ticketCount: number;
+}

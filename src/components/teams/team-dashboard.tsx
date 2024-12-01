@@ -8,6 +8,7 @@ import { Heading } from "@/components/heading";
 import { TeamAvatar } from "@/components/shared/avatar-display";
 import TeamDashboardTopSection from "@/components/teams/team-dashboard-kpis";
 import RecentTeamActivities from "@/components/teams/team-dashboard-recent-activity";
+import TicketCreationByDaySeriesChart from "@/components/teams/team-requests-creation-timeseries-chart";
 import TicketDistributionChart from "@/components/teams/team-requests-distribution-chart";
 import TicketPriorityPieChart from "@/components/teams/team-requests-priority-chart";
 import UnassignedTickets from "@/components/teams/team-requests-unassigned";
@@ -34,7 +35,7 @@ const TeamDashboard = ({ entity: team }: ViewProps<TeamDTO>) => {
         <div className="flex items-center gap-4">
           <Tooltip>
             <TooltipTrigger>
-              <TeamAvatar imageUrl={team.logoUrl} size="w-16 h-16" />
+              <TeamAvatar imageUrl={team.logoUrl} size="w-20 h-20" />
             </TooltipTrigger>
             <TooltipContent>
               <div className="text-left">
@@ -71,6 +72,7 @@ const TeamDashboard = ({ entity: team }: ViewProps<TeamDTO>) => {
             <RecentTeamActivities team={team} />
           </div>
         </div>
+        <TicketCreationByDaySeriesChart teamId={team.id!} days={7} />
         <div className="flex flex-wrap justify-center gap-4">
           <div className="flex-1 min-w-[400px] max-w-[600px]">
             <TicketDistributionChart teamId={team.id!} />
