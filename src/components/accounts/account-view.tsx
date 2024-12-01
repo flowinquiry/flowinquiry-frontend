@@ -35,9 +35,9 @@ export const AccountView: React.FC<ViewProps<AccountDTO>> = ({
   const [contactPromise, setContactPromise] = useState<
     Promise<PageableResult<ConTactDTO>>
   >(
-    searchContacts([
-      { field: "account.id", operator: "eq", value: account.id! },
-    ]),
+    searchContacts({
+      filters: [{ field: "account.id", operator: "eq", value: account.id! }],
+    }),
   );
 
   useEffect(() => {

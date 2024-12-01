@@ -7,7 +7,7 @@ import { findEntitiesFilterOptions } from "@/lib/actions/shared.action";
 import { BACKEND_API } from "@/lib/constants";
 import { EntityValueDefinition, PageableResult } from "@/types/commons";
 import { ConTactDTO, ContactDTOSchema } from "@/types/contacts";
-import { Filter } from "@/types/query";
+import { QueryDTO } from "@/types/query";
 
 export const findContactById = async (
   contactId: number,
@@ -35,10 +35,10 @@ export const findContactStatusesFilterOptions = async () => {
   return findEntitiesFilterOptions(findContactStatuses);
 };
 
-export async function searchContacts(filters: Filter[]) {
+export async function searchContacts(query: QueryDTO) {
   return doAdvanceSearch<ConTactDTO>(
     `${BACKEND_API}/api/crm/contacts/search`,
-    filters,
+    query,
   );
 }
 
