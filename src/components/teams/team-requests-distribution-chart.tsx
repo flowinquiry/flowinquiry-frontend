@@ -14,12 +14,13 @@ import {
 } from "recharts";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner"; // Import your spinner component
 import { getTicketsAssignmentDistribution } from "@/lib/actions/teams-request.action";
 import { obfuscate } from "@/lib/endecode";
 import { TicketDistributionDTO } from "@/types/team-requests";
 
 interface TicketDistributionChartProps {
-  teamId: number; // The ID of the team to fetch data for
+  teamId: number;
 }
 
 // Colors for the bar chart
@@ -30,23 +31,14 @@ const TicketDistributionChart: React.FC<TicketDistributionChartProps> = ({
 }) => {
   const [data, setData] = useState<TicketDistributionDTO[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
 
   // Fetch data from the API
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      setError(null);
-
-      try {
-        const response = await getTicketsAssignmentDistribution(teamId);
-        setData(response);
-      } catch (err) {
-        setError("Failed to load ticket distribution data.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+      getTicketsAssignmentDistribution(teamId)
+        .then((data) => setData(data))
+        .finally(() => setLoading(false));
     };
 
     fetchData();
@@ -104,17 +96,14 @@ const TicketDistributionChart: React.FC<TicketDistributionChartProps> = ({
         <CardTitle>Ticket Distribution</CardTitle>
       </CardHeader>
       <CardContent className="p-4">
-        {loading && (
-          <p className="text-center">Loading ticket distribution...</p>
-        )}
-
-        {error && <p className="text-center text-red-500">{error}</p>}
-
-        {!loading && !error && chartData.length === 0 && (
+        {loading ? (
+          <div className="flex flex-col items-center justify-center h-64">
+            <Spinner className="h-8 w-8 mb-4" />
+            <span>Loading chart data...</span>
+          </div>
+        ) : chartData.length === 0 ? (
           <p className="text-center">No ticket distribution data available.</p>
-        )}
-
-        {!loading && !error && chartData.length > 0 && (
+        ) : (
           <div className="w-full h-64 md:h-96">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart

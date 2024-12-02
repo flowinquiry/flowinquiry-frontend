@@ -11,6 +11,7 @@ import {
 } from "recharts";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner"; // Import your spinner component
 import { getTicketsPriorityDistribution } from "@/lib/actions/teams-request.action";
 import { PriorityDistributionDTO } from "@/types/team-requests";
 import { TeamRequestPriority } from "@/types/team-requests";
@@ -20,22 +21,14 @@ const TicketPriorityPieChart = ({ teamId }: { teamId: number }) => {
     [],
   );
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     // Fetch priority distribution data
     const fetchPriorityData = async () => {
       setLoading(true);
-      setError(null);
-      try {
-        const data = await getTicketsPriorityDistribution(teamId);
-        setPriorityData(data);
-      } catch (err) {
-        setError("Failed to load priority distribution data.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
+      getTicketsPriorityDistribution(teamId)
+        .then((data) => setPriorityData(data))
+        .finally(() => setLoading(false));
     };
 
     fetchPriorityData();
@@ -56,15 +49,15 @@ const TicketPriorityPieChart = ({ teamId }: { teamId: number }) => {
         <CardTitle>Priority Distribution</CardTitle>
       </CardHeader>
       <CardContent className="p-4">
-        {loading && <p className="text-center">Loading...</p>}
-
-        {error && <p className="text-center text-red-500">{error}</p>}
-
-        {!loading && !error && priorityData.length === 0 && (
+        {loading ? (
+          <div className="flex flex-col items-center justify-center h-64">
+            <Spinner className="h-8 w-8 mb-4">
+              <span>Loading chart data...</span>
+            </Spinner>
+          </div>
+        ) : priorityData.length === 0 ? (
           <p className="text-center">No data available.</p>
-        )}
-
-        {!loading && !error && priorityData.length > 0 && (
+        ) : (
           <div className="w-full h-64 md:h-96">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>

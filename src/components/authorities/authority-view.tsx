@@ -57,7 +57,7 @@ export const AuthorityView: React.FC<ViewProps<AuthorityDTO>> = ({
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [entity]);
 
   useEffect(() => {
     async function fetchResourcePermissions() {

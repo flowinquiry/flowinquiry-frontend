@@ -7,6 +7,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
 
 import { Heading } from "@/components/heading";
+import LoadingPlaceholder from "@/components/shared/loading-place-holder";
 import PaginationExt from "@/components/shared/pagination-ext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -39,30 +40,29 @@ export const UserList = () => {
 
   const fetchData = useCallback(async () => {
     setLoading(true);
-    try {
-      const query: QueryDTO = {
-        filters: userSearchTerm
-          ? [
-              {
-                field: "firstName,lastName",
-                operator: "lk",
-                value: userSearchTerm,
-              },
-            ]
-          : [],
-      };
 
-      // Fetch data using the QueryDTO
-      const pageResult = await searchUsers(query, {
-        page: currentPage,
-        size: 10,
-      });
-      setItems(pageResult.content);
-      setTotalElements(pageResult.totalElements);
-      setTotalPages(pageResult.totalPages);
-    } finally {
-      setLoading(false);
-    }
+    const query: QueryDTO = {
+      filters: userSearchTerm
+        ? [
+            {
+              field: "firstName,lastName",
+              operator: "lk",
+              value: userSearchTerm,
+            },
+          ]
+        : [],
+    };
+
+    searchUsers(query, {
+      page: currentPage,
+      size: 10,
+    })
+      .then((pageResult) => {
+        setItems(pageResult.content);
+        setTotalElements(pageResult.totalElements);
+        setTotalPages(pageResult.totalPages);
+      })
+      .finally(() => setLoading(false));
   }, [
     userSearchTerm,
     currentPage,
@@ -86,8 +86,6 @@ export const UserList = () => {
   useEffect(() => {
     fetchData();
   }, [fetchData]);
-
-  if (loading) return <div>Loading...</div>;
 
   return (
     <div className="py-4 grid grid-cols-1 gap-4">
@@ -117,53 +115,61 @@ export const UserList = () => {
         </div>
       </div>
       <Separator />
-      <div className="flex flex-row flex-wrap gap-4 content-around">
-        {items?.map((user) => (
-          <div
-            key={user.id}
-            className="w-[28rem] flex flex-row gap-4 border border-gray-200 px-4 py-4 rounded-2xl"
-          >
-            <div>
-              <Avatar className="size-24 cursor-pointer ">
-                <AvatarImage
-                  src={
-                    user?.imageUrl ? `/api/files/${user.imageUrl}` : undefined
-                  }
-                  alt={`${user.firstName} ${user.lastName}`}
-                />
-                <AvatarFallback>
-                  <DefaultUserLogo />
-                </AvatarFallback>
-              </Avatar>
-            </div>
-            <div className="grid grid-cols-1">
-              <div className="text-2xl">
-                <Button variant="link" className="px-0">
-                  <Link href={`/portal/users/${obfuscate(user.id)}`}>
-                    {user.firstName}, {user.lastName}
-                  </Link>
-                </Button>
-              </div>
+      {loading ? (
+        <LoadingPlaceholder
+          message="Loading user data..."
+          skeletonCount={3}
+          skeletonWidth="28rem"
+        />
+      ) : (
+        <div className="flex flex-row flex-wrap gap-4 content-around">
+          {items?.map((user) => (
+            <div
+              key={user.id}
+              className="w-[28rem] flex flex-row gap-4 border border-gray-200 px-4 py-4 rounded-2xl"
+            >
               <div>
-                Email:{" "}
-                <Button variant="link" className="px-0 py-0 h-0">
-                  <Link href={`mailto:${user.email}`}>{user.email}</Link>
-                </Button>
+                <Avatar className="size-24 cursor-pointer ">
+                  <AvatarImage
+                    src={
+                      user?.imageUrl ? `/api/files/${user.imageUrl}` : undefined
+                    }
+                    alt={`${user.firstName} ${user.lastName}`}
+                  />
+                  <AvatarFallback>
+                    <DefaultUserLogo />
+                  </AvatarFallback>
+                </Avatar>
               </div>
-              <div>Title: {user.title}</div>
-              <div>Timezone: {user.timezone}</div>
-              <div>
-                Last login time:{" "}
-                {user.lastLoginTime
-                  ? formatDistanceToNow(new Date(user.lastLoginTime), {
-                      addSuffix: true,
-                    })
-                  : "No recent login"}
+              <div className="grid grid-cols-1">
+                <div className="text-2xl">
+                  <Button variant="link" className="px-0">
+                    <Link href={`/portal/users/${obfuscate(user.id)}`}>
+                      {user.firstName}, {user.lastName}
+                    </Link>
+                  </Button>
+                </div>
+                <div>
+                  Email:{" "}
+                  <Button variant="link" className="px-0 py-0 h-0">
+                    <Link href={`mailto:${user.email}`}>{user.email}</Link>
+                  </Button>
+                </div>
+                <div>Title: {user.title}</div>
+                <div>Timezone: {user.timezone}</div>
+                <div>
+                  Last login time:{" "}
+                  {user.lastLoginTime
+                    ? formatDistanceToNow(new Date(user.lastLoginTime), {
+                        addSuffix: true,
+                      })
+                    : "No recent login"}
+                </div>
               </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
       <PaginationExt
         currentPage={currentPage}
         totalPages={totalPages}

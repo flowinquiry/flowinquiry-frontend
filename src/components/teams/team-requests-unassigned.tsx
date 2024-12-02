@@ -9,6 +9,7 @@ import TruncatedHtmlLabel from "@/components/shared/truncate-html-label";
 import { PriorityDisplay } from "@/components/teams/team-requests-priority-display";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner"; // Add your spinner component
 import {
   Tooltip,
   TooltipContent,
@@ -24,21 +25,21 @@ const UnassignedTickets = ({ teamId }: { teamId: number }) => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalTickets, setTotalTickets] = useState<number>(0);
   const [tickets, setTickets] = useState<TeamRequestDTO[]>([]);
+  const [loading, setLoading] = useState(false);
 
   const [sortBy, setSortBy] = useState("priority");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getUnassignedTickets(
-        teamId,
-        currentPage,
-        sortBy,
-        sortDirection,
-      );
-      setTickets(data.content);
-      setTotalPages(data.totalPages);
-      setTotalTickets(data.totalElements);
+      setLoading(true);
+      getUnassignedTickets(teamId, currentPage, sortBy, sortDirection)
+        .then((data) => {
+          setTickets(data.content);
+          setTotalPages(data.totalPages);
+          setTotalTickets(data.totalElements);
+        })
+        .finally(() => setLoading(false));
     };
 
     fetchData();
@@ -79,56 +80,66 @@ const UnassignedTickets = ({ teamId }: { teamId: number }) => {
         </div>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          {tickets.length > 0 ? (
-            tickets.map((ticket, index) => (
-              <div
-                key={ticket.id}
-                className={`py-4 px-4 rounded-md shadow-sm ${
-                  index % 2 === 0
-                    ? "bg-gray-50 dark:bg-gray-800"
-                    : "bg-white dark:bg-gray-900"
-                }`}
-              >
-                <div className="flex items-start justify-between">
-                  <Button variant="link" className="px-0 h-auto">
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Link
-                          href={`/portal/teams/${obfuscate(ticket.teamId)}/requests/${obfuscate(
-                            ticket.id,
-                          )}`}
-                          className="truncate max-w-xs"
-                        >
-                          {ticket.requestTitle}
-                        </Link>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <span>{ticket.requestTitle}</span>
-                      </TooltipContent>
-                    </Tooltip>
-                  </Button>
-                  <div className="ml-4 text-sm">
-                    <PriorityDisplay
-                      priority={ticket.priority as TeamRequestPriority}
-                    />
+        {loading ? (
+          // Show a spinner while loading
+          <div className="flex justify-center items-center h-[200px]">
+            <Spinner className="h-8 w-8">
+              <span>Loading data ...</span>
+            </Spinner>
+          </div>
+        ) : (
+          <div className="space-y-4">
+            {tickets.length > 0 ? (
+              tickets.map((ticket, index) => (
+                <div
+                  key={ticket.id}
+                  className={`py-4 px-4 rounded-md shadow-sm ${
+                    index % 2 === 0
+                      ? "bg-gray-50 dark:bg-gray-800"
+                      : "bg-white dark:bg-gray-900"
+                  }`}
+                >
+                  <div className="flex items-start justify-between">
+                    <Button variant="link" className="px-0 h-auto">
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <Link
+                            href={`/portal/teams/${obfuscate(
+                              ticket.teamId,
+                            )}/requests/${obfuscate(ticket.id)}`}
+                            className="truncate max-w-xs"
+                          >
+                            {ticket.requestTitle}
+                          </Link>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <span>{ticket.requestTitle}</span>
+                        </TooltipContent>
+                      </Tooltip>
+                    </Button>
+                    <div className="ml-4 text-sm">
+                      <PriorityDisplay
+                        priority={ticket.priority as TeamRequestPriority}
+                      />
+                    </div>
                   </div>
+                  <TruncatedHtmlLabel
+                    htmlContent={ticket.requestDescription!}
+                    wordLimit={100}
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                    Modified at:{" "}
+                    {formatDateTimeDistanceToNow(ticket.modifiedAt)}
+                  </p>
                 </div>
-                <TruncatedHtmlLabel
-                  htmlContent={ticket.requestDescription!}
-                  wordLimit={100}
-                />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                  Modified at: {formatDateTimeDistanceToNow(ticket.modifiedAt)}
-                </p>
-              </div>
-            ))
-          ) : (
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              No unassigned tickets available
-            </p>
-          )}
-        </div>
+              ))
+            ) : (
+              <p className="text-sm text-gray-500 dark:text-gray-400">
+                No unassigned tickets available
+              </p>
+            )}
+          </div>
+        )}
 
         <PaginationExt
           currentPage={currentPage}
