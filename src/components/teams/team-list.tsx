@@ -1,12 +1,20 @@
 "use client";
 
-import { Ellipsis, Pencil, Plus, Trash } from "lucide-react";
+import {
+  ArrowDownAZ,
+  ArrowUpAZ,
+  Ellipsis,
+  Pencil,
+  Plus,
+  Trash,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 import { Heading } from "@/components/heading";
 import { EntitiesDeleteDialog } from "@/components/shared/entity-delete-dialog";
+import LoadingPlaceHolder from "@/components/shared/loading-place-holder";
 import PaginationExt from "@/components/shared/pagination-ext";
 import DefaultTeamLogo from "@/components/teams/team-logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -36,14 +44,15 @@ import { TeamDTO } from "@/types/teams";
 
 export const TeamList = () => {
   const router = useRouter();
-  const [items, setItems] = useState<Array<TeamDTO>>([]); // Store the items
+  const [items, setItems] = useState<Array<TeamDTO>>([]);
   const [teamSearchTerm, setTeamSearchTerm] = useState<string | undefined>(
     undefined,
   );
-  const [currentPage, setCurrentPage] = useState(1); // Track current page
-  const [totalPages, setTotalPages] = useState(0); // Total pages
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<TeamDTO | null>(null);
@@ -69,10 +78,15 @@ export const TeamList = () => {
           : [],
       };
 
-      // Fetch data using the QueryDTO
       const pageResult = await searchTeams(query, {
         page: currentPage,
         size: 10,
+        sort: [
+          {
+            field: "name",
+            direction: sortDirection,
+          },
+        ],
       });
       setItems(pageResult.content);
       setTotalElements(pageResult.totalElements);
@@ -93,11 +107,13 @@ export const TeamList = () => {
     replace(`${pathname}?${params.toString()}`);
   }, 2000);
 
+  const toggleSortDirection = () => {
+    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+  };
+
   useEffect(() => {
     fetchData();
-  }, [teamSearchTerm, currentPage]);
-
-  if (loading) return <div>Loading...</div>;
+  }, [teamSearchTerm, currentPage, sortDirection]);
 
   const showDeleteTeamConfirmationDialog = (team: TeamDTO) => {
     setSelectedTeam(team);
@@ -111,13 +127,11 @@ export const TeamList = () => {
 
   return (
     <div className="grid grid-cols-1 gap-4">
-      <div className="flex flex-row justify-between">
-        <div className="flex-shrink-0">
-          <Heading
-            title={`Teams (${totalElements})`}
-            description="Manage teams"
-          />
-        </div>
+      <div className="flex flex-row justify-between items-center">
+        <Heading
+          title={`Teams (${totalElements})`}
+          description="Manage teams"
+        />
         <div className="flex space-x-4">
           <Input
             className="w-[18rem]"
@@ -127,6 +141,9 @@ export const TeamList = () => {
             }}
             defaultValue={searchParams.get("name")?.toString()}
           />
+          <Button variant="outline" onClick={toggleSortDirection}>
+            {sortDirection === "asc" ? <ArrowDownAZ /> : <ArrowUpAZ />}
+          </Button>
           {PermissionUtils.canWrite(permissionLevel) && (
             <Link
               href={"/portal/teams/new/edit"}
@@ -138,78 +155,88 @@ export const TeamList = () => {
         </div>
       </div>
       <Separator />
-      <div className="flex flex-row flex-wrap gap-4">
-        {items?.map((team) => (
-          <div
-            key={team.id}
-            className="relative w-[24rem] flex flex-row gap-4 border border-gray-200 rounded-2xl"
-          >
-            <div className="px-4 py-4">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Avatar className="size-24 cursor-pointer">
-                      <AvatarImage
-                        src={
-                          team.logoUrl
-                            ? `/api/files/${team.logoUrl}`
-                            : undefined
+      {loading ? (
+        <div className="flex justify-center py-4">
+          <LoadingPlaceHolder message="Loading teams ..." />
+        </div>
+      ) : (
+        <>
+          <div className="flex flex-row flex-wrap gap-4">
+            {items?.map((team) => (
+              <div
+                key={team.id}
+                className="relative w-[24rem] flex flex-row gap-4 border border-gray-200 rounded-2xl"
+              >
+                <div className="px-4 py-4">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Avatar className="size-24 cursor-pointer">
+                          <AvatarImage
+                            src={
+                              team.logoUrl
+                                ? `/api/files/${team.logoUrl}`
+                                : undefined
+                            }
+                            alt="@flexwork"
+                          />
+                          <AvatarFallback>
+                            <DefaultTeamLogo />
+                          </AvatarFallback>
+                        </Avatar>
+                      </TooltipTrigger>
+                      <TooltipContent>{team.slogan}</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+                <div>
+                  <Button variant="link" asChild className="px-0">
+                    <Link href={`/portal/teams/${obfuscate(team.id)}`}>
+                      {team.name} ({team.usersCount})
+                    </Link>
+                  </Button>
+                  <div>{team.description}</div>
+                </div>
+                {PermissionUtils.canWrite(permissionLevel) && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Ellipsis className="cursor-pointer absolute top-2 right-2 text-gray-400" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-[14rem]">
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() =>
+                          router.push(
+                            `/portal/teams/${obfuscate(team.id)}/edit`,
+                          )
                         }
-                        alt="@flexwork"
-                      />
-                      <AvatarFallback>
-                        <DefaultTeamLogo />
-                      </AvatarFallback>
-                    </Avatar>
-                  </TooltipTrigger>
-                  <TooltipContent>{team.slogan}</TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            <div>
-              <Button variant="link" asChild className="px-0">
-                <Link href={`/portal/teams/${obfuscate(team.id)}`}>
-                  {team.name} ({team.usersCount})
-                </Link>
-              </Button>
-              <div>{team.description}</div>
-            </div>
-            {PermissionUtils.canWrite(permissionLevel) && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Ellipsis className="cursor-pointer absolute top-2 right-2 text-gray-400" />
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-[14rem]">
-                  <DropdownMenuItem
-                    className="cursor-pointer"
-                    onClick={() =>
-                      router.push(`/portal/teams/${obfuscate(team.id)}/edit`)
-                    }
-                  >
-                    <Pencil />
-                    Edit
-                  </DropdownMenuItem>
-                  {PermissionUtils.canAccess(permissionLevel) && (
-                    <DropdownMenuItem
-                      className="cursor-pointer"
-                      onClick={() => showDeleteTeamConfirmationDialog(team)}
-                    >
-                      <Trash /> Delete
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
-            )}
+                      >
+                        <Pencil />
+                        Edit
+                      </DropdownMenuItem>
+                      {PermissionUtils.canAccess(permissionLevel) && (
+                        <DropdownMenuItem
+                          className="cursor-pointer"
+                          onClick={() => showDeleteTeamConfirmationDialog(team)}
+                        >
+                          <Trash /> Delete
+                        </DropdownMenuItem>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
+              </div>
+            ))}
           </div>
-        ))}
-      </div>
-      <PaginationExt
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={(page) => {
-          setCurrentPage(page);
-        }}
-      />
+          <PaginationExt
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => {
+              setCurrentPage(page);
+            }}
+          />
+        </>
+      )}
       {isDialogOpen && selectedTeam && (
         <EntitiesDeleteDialog
           entities={[selectedTeam]}

@@ -12,6 +12,7 @@ import React, { useEffect, useState } from "react";
 
 import { Heading } from "@/components/heading";
 import { TeamAvatar } from "@/components/shared/avatar-display";
+import LoadingPlaceHolder from "@/components/shared/loading-place-holder";
 import PaginationExt from "@/components/shared/pagination-ext";
 import NewRequestToTeamDialog from "@/components/teams/team-new-request-dialog";
 import TeamRequestsStatusView from "@/components/teams/team-requests-status";
@@ -53,7 +54,7 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
   const [open, setOpen] = useState(false);
 
   const [searchText, setSearchText] = useState("");
-  const [debouncedSearchText, setDebouncedSearchText] = useState(""); // Debounced text
+  const [debouncedSearchText, setDebouncedSearchText] = useState("");
   const [isAscending, setIsAscending] = useState(false);
   const [workflows, setWorkflows] = useState<WorkflowDTO[]>([]);
   const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowDTO | null>(
@@ -93,7 +94,6 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
     const groups: GroupFilter[] = [];
     let assignedGroupFilter: GroupFilter | undefined = undefined;
 
-    // Status filters group
     const statusFilters: Filter[] = [];
     if (statuses.includes("New")) {
       statusFilters.push({
@@ -111,52 +111,36 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
     }
     if (statuses.includes("Assigned")) {
       assignedGroupFilter = {
-        logicalOperator: "AND", // Logical "AND" for the two conditions
+        logicalOperator: "AND",
         filters: [
-          {
-            field: "isCompleted",
-            operator: "eq",
-            value: false,
-          },
-          {
-            field: "isNew",
-            operator: "eq",
-            value: false,
-          },
+          { field: "isCompleted", operator: "eq", value: false },
+          { field: "isNew", operator: "eq", value: false },
         ],
       };
     }
 
-    // If there are any status filters, add them as an OR group
     if (statusFilters.length > 0 || assignedGroupFilter) {
       groups.push({
         filters: statusFilters,
         groups: assignedGroupFilter ? [assignedGroupFilter] : [],
-        logicalOperator: "OR", // Logical "OR" for statuses
+        logicalOperator: "OR",
       });
     }
 
-    // Search text filter
     if (debouncedSearchText.trim() !== "") {
       groups.push({
         filters: [
           {
             field: "requestTitle",
-            operator: "lk", // 'lk' for 'like'
+            operator: "lk",
             value: `%${debouncedSearchText}%`,
           },
         ],
-        logicalOperator: "AND", // Logical "AND" with other filters
+        logicalOperator: "AND",
       });
     }
 
-    // Create the final query with groups
-    const query: QueryDTO = {
-      groups,
-    };
-
-    // Update the query and pagination sort
-    setQuery(query);
+    setQuery({ groups });
 
     setPagination((prev) => ({
       ...prev,
@@ -169,13 +153,12 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
     }));
   }, [debouncedSearchText, statuses, isAscending]);
 
-  // Debounce logic to delay updates to `debouncedSearchText`
   useEffect(() => {
     const handler = setTimeout(() => {
-      setDebouncedSearchText(searchText); // Update the debounced text after 3 seconds
+      setDebouncedSearchText(searchText);
     }, 3000);
 
-    return () => clearTimeout(handler); // Cleanup the timeout if the input changes again
+    return () => clearTimeout(handler);
   }, [searchText]);
 
   useEffect(() => {
@@ -187,28 +170,24 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
 
   const fetchTickets = async () => {
     setLoading(true);
+
     try {
-      // Construct a new QueryDTO
       const combinedQuery: QueryDTO = {
         groups: [
           {
             logicalOperator: "AND",
-            filters: [
-              { field: "team.id", operator: "eq", value: team.id! }, // Add team filter
-            ],
-            groups: query.groups || [], // Include existing query groups
+            filters: [{ field: "team.id", operator: "eq", value: team.id! }],
+            groups: query.groups || [],
           },
         ],
       };
 
-      // Pass QueryDTO to searchTeamRequests
       const pageResult = await searchTeamRequests(combinedQuery, {
         page: currentPage,
         size: 10,
         sort: pagination.sort,
       });
 
-      // Update state with the results
       setRequests(pageResult.content);
       setTotalElements(pageResult.totalElements);
       setTotalPages(pageResult.totalPages);
@@ -220,8 +199,6 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
   useEffect(() => {
     fetchTickets();
   }, [currentPage, query]);
-
-  if (loading) return <div>Loading...</div>;
 
   const onCreatedTeamRequestSuccess = () => {
     fetchTickets();
@@ -270,6 +247,7 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
                   <DropdownMenuContent>
                     {workflows.map((workflow) => (
                       <DropdownMenuItem
+                        key={workflow.id}
                         className="cursor-pointer"
                         onClick={() => {
                           setSelectedWorkflow(workflow);
@@ -298,7 +276,6 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
         )}
       </div>
       <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg shadow-md border border-gray-300 dark:border-gray-700">
-        {/* Search Input */}
         <Input
           type="text"
           placeholder="Search tickets"
@@ -306,8 +283,6 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
           onChange={(e) => setSearchText(e.target.value)}
           className="w-full border border-gray-300 dark:border-gray-700"
         />
-
-        {/* Toggle Ascending/Descending */}
         <Tooltip>
           <TooltipTrigger asChild>
             <Toggle
@@ -329,8 +304,6 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
             </p>
           </TooltipContent>
         </Tooltip>
-
-        {/* Status Filter */}
         <div className="flex items-center gap-2">
           {[
             { label: "New", icon: Clock },
@@ -355,14 +328,22 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
         </div>
       </div>
 
-      <TeamRequestsStatusView requests={requests} />
-      <PaginationExt
-        currentPage={currentPage}
-        totalPages={totalPages}
-        onPageChange={(page) => {
-          setCurrentPage(page);
-        }}
-      />
+      {loading ? (
+        <div className="flex justify-center py-4">
+          <LoadingPlaceHolder message="Loading tickets ..." />
+        </div>
+      ) : (
+        <>
+          <TeamRequestsStatusView requests={requests} />
+          <PaginationExt
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => {
+              setCurrentPage(page);
+            }}
+          />
+        </>
+      )}
     </div>
   );
 };

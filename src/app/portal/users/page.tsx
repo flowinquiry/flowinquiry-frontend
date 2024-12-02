@@ -1,5 +1,5 @@
 import { SimpleContentView } from "@/components/admin-panel/simple-content-view";
-import { UserList } from "@/components/users/users-list";
+import { UserList } from "@/components/users/user-list";
 
 const breadcrumbItems = [
   { title: "Dashboard", link: "/portal" },
