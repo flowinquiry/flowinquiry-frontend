@@ -24,7 +24,7 @@ import {
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { navigateToRecord } from "@/lib/navigation-record";
-import { getSpecifiedColor } from "@/lib/utils";
+import { getSpecifiedColor, randomPair } from "@/lib/utils";
 import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/team-requests";
 
@@ -92,7 +92,7 @@ const TeamRequestDetailView = ({ entity }: ViewProps<TeamRequestDTO>) => {
           <Button
             onClick={() =>
               router.push(
-                `/portal/teams/${obfuscate(teamRequest.teamId)}/requests/${obfuscate(teamRequest.id)}/edit`,
+                `/portal/teams/${obfuscate(teamRequest.teamId)}/requests/${obfuscate(teamRequest.id)}/edit?${randomPair()}`,
               )
             }
           >

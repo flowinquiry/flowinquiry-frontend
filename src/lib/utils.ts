@@ -71,3 +71,8 @@ export const getSpecifiedColor = (name: string): Record<string, string> => {
     text: colors[index].text,
   };
 };
+
+export const randomPair = () => {
+  const randomValue = Math.random().toString(36).substring(2, 15);
+  return `random=${randomValue}`;
+};

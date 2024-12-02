@@ -34,6 +34,7 @@ import {
   TeamRequestDTOSchema,
   TeamRequestPriority,
 } from "@/types/team-requests";
+import { randomPair } from "@/lib/utils";
 
 export const TeamRequestForm = ({
   initialData: teamRequest,
@@ -49,14 +50,10 @@ export const TeamRequestForm = ({
     if (validateForm(teamRequest, TeamRequestDTOSchema, form)) {
       await updateTeamRequest(teamRequest.id!, teamRequest);
       router.push(
-        `/portal/teams/${obfuscate(teamRequest.teamId)}/requests/${obfuscate(teamRequest.id)}`,
+        `/portal/teams/${obfuscate(teamRequest.teamId)}/requests/${obfuscate(teamRequest.id)}?${randomPair()}`,
       );
     }
   }
-
-  const onError = (data: any) => {
-    console.log(`Error ${JSON.stringify(data)}`);
-  };
 
   return (
     <div className="py-4">
@@ -71,7 +68,7 @@ export const TeamRequestForm = ({
       <Form {...form}>
         <form
           className="grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-[72rem] mx-auto"
-          onSubmit={form.handleSubmit(onSubmit, onError)}
+          onSubmit={form.handleSubmit(onSubmit)}
         >
           {/* Title Field - Spans 2 Columns */}
           <div className="col-span-1 sm:col-span-2">
