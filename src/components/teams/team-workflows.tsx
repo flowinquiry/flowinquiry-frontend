@@ -42,7 +42,7 @@ const TeamWorkflowsView = ({ entity: team }: ViewProps<TeamDTO>) => {
     <div className="grid grid-cols-1 gap-4">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <TeamAvatar imageUrl={team.logoUrl} size="w-16 h-16" />
+          <TeamAvatar imageUrl={team.logoUrl} size="w-20 h-20" />
           <Heading
             title={team.name}
             description={team.slogan ?? "Stronger Together"}

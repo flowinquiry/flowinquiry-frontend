@@ -28,7 +28,7 @@ const TeamDashboardTopSection = ({ teamId }: { teamId: number }) => {
   const [overDueTickets, setOverdueTickets] = useState(0);
 
   useEffect(() => {
-    function fetchStatisticData() {
+    async function fetchStatisticData() {
       getTicketStatisticsByTeamId(teamId).then((data) => {
         setTotalTickets(data.totalTickets);
         setPendingTickets(data.pendingTickets);
