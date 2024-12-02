@@ -1,9 +1,9 @@
-export async function apiClient(
+export async function apiClient<T>(
   url: string,
   method: "GET" | "POST" | "PUT" | "DELETE",
   body?: FormData | object,
   authToken?: string,
-): Promise<Response> {
+): Promise<T> {
   const headers: HeadersInit = {
     "Access-Control-Allow-Origin": "*",
   };
@@ -36,5 +36,5 @@ export async function apiClient(
   if (!response.ok) {
     throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }
-  return response;
+  return (await response.json()) as T;
 }

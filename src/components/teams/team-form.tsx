@@ -27,6 +27,7 @@ import {
 } from "@/components/ui/tooltip";
 import { useImageCropper } from "@/hooks/use-image-cropper";
 import { apiClient } from "@/lib/api-client";
+import { obfuscate } from "@/lib/endecode";
 import { validateForm } from "@/lib/validator";
 import { TeamDTO, TeamDTOSchema } from "@/types/teams";
 
@@ -60,15 +61,17 @@ export const TeamForm = ({ initialData }: FormProps<TeamDTO>) => {
         formData.append("file", selectedFile);
       }
 
+      let savedTeam: TeamDTO;
+
       if (team.id) {
-        await apiClient(
+        savedTeam = await apiClient<TeamDTO>(
           "/api/teams",
           "PUT",
           formData,
           session?.user?.accessToken,
         );
       } else {
-        await apiClient(
+        savedTeam = await apiClient<TeamDTO>(
           "/api/teams",
           "POST",
           formData,
@@ -76,7 +79,7 @@ export const TeamForm = ({ initialData }: FormProps<TeamDTO>) => {
         );
       }
 
-      router.push("/portal/teams");
+      router.push(`/portal/teams/${obfuscate(savedTeam.id)}/dashboard`);
     }
   }
 

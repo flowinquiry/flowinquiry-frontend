@@ -6,6 +6,7 @@ import { auth } from "@/auth";
 import { handleError, HttpError } from "@/lib/errors";
 import { PageableResult } from "@/types/commons";
 import {
+  createQueryParams,
   Pagination,
   paginationSchema,
   QueryDTO,
@@ -114,18 +115,7 @@ export const doAdvanceSearch = async <R>(
     );
   }
 
-  // Build pagination URL parameters
-  const queryParams = new URLSearchParams({
-    page: pagination.page.toString(),
-    size: pagination.size.toString(),
-    ...pagination.sort?.reduce(
-      (acc, sort) => {
-        acc[`sort`] = `${sort.field},${sort.direction}`;
-        return acc;
-      },
-      {} as { [key: string]: string },
-    ),
-  });
+  const queryParams = createQueryParams(pagination);
 
   return fetchData<QueryDTO, PageableResult<R>>(
     `${url}?${queryParams.toString()}`,

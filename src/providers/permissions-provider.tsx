@@ -47,13 +47,12 @@ const fetchPermissions = async (
   userId: number,
   authToken: string,
 ): Promise<Permission[]> => {
-  const response = await apiClient(
+  return apiClient<Array<Permission>>(
     `/api/users/permissions/${userId}`,
     "GET",
     undefined,
     authToken,
   );
-  return (await response.json()) as Array<Permission>;
 };
 
 // PermissionsProvider component

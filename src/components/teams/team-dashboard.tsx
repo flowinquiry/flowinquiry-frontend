@@ -29,7 +29,6 @@ import { TeamDTO } from "@/types/teams";
 
 const TeamDashboard = ({ entity: team }: ViewProps<TeamDTO>) => {
   const permissionLevel = usePagePermission();
-
   return (
     <div className="grid grid-cols-1 gap-4">
       <div className="flex items-center justify-between">

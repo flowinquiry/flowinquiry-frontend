@@ -7,6 +7,7 @@ import React, { useEffect, useState } from "react";
 
 import AddUserToAuthorityDialog from "@/components/authorities/authority-add-user-dialog";
 import { Heading } from "@/components/heading";
+import PaginationExt from "@/components/shared/pagination-ext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -44,6 +45,9 @@ export const AuthorityView: React.FC<ViewProps<AuthorityDTO>> = ({
   const permissionLevel = usePagePermission();
   const [open, setOpen] = useState(false);
   const [users, setUsers] = useState<Array<UserType>>();
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
   const [authority, setAuthority] = useState<AuthorityDTO>(entity);
   const [resourcePermissions, setResourcePermissions] =
     useState<Array<AuthorityResourcePermissionDTO>>();
@@ -51,13 +55,19 @@ export const AuthorityView: React.FC<ViewProps<AuthorityDTO>> = ({
   const router = useRouter();
 
   async function fetchUsers() {
-    const userData = await getUsersByAuthority(authority.name);
-    setUsers(userData);
+    getUsersByAuthority(authority.name, {
+      page: currentPage,
+      size: 10,
+    }).then((pageableResult) => {
+      setUsers(pageableResult.content);
+      setTotalElements(pageableResult.totalElements);
+      setTotalPages(pageableResult.totalPages);
+    });
   }
 
   useEffect(() => {
     fetchUsers();
-  }, [entity]);
+  }, [entity, currentPage]);
 
   useEffect(() => {
     async function fetchResourcePermissions() {
@@ -78,7 +88,7 @@ export const AuthorityView: React.FC<ViewProps<AuthorityDTO>> = ({
     <div className="grid grid-cols-1 gap-4 py-4">
       <div className="flex flex-row justify-between">
         <Heading
-          title={authority.descriptiveName}
+          title={`${authority.descriptiveName} (${totalElements})`}
           description={authority.description ?? ""}
         />
         {PermissionUtils.canWrite(permissionLevel) && (
@@ -105,67 +115,77 @@ export const AuthorityView: React.FC<ViewProps<AuthorityDTO>> = ({
         )}
       </div>
       <div className="flex flex-col md:flex-row md:space-x-4 items-start">
-        <div className="md:flex-1 flex flex-row flex-wrap gap-4 w-full">
-          {users?.map((user: UserType) => (
-            <div
-              className="w-full md:w-[24rem] flex flex-row gap-4 border border-gray-200 px-4 py-4 rounded-2xl relative"
-              key={user.id}
-            >
-              <div>
-                <Avatar className="size-24 cursor-pointer ">
-                  <AvatarImage
-                    src={
-                      user?.imageUrl ? `/api/files/${user.imageUrl}` : undefined
-                    }
-                    alt={`${user.firstName} ${user.lastName}`}
-                  />
-                  <AvatarFallback>
-                    <DefaultUserLogo />
-                  </AvatarFallback>
-                </Avatar>
-              </div>
-              <div>
-                <div className="text-xl">
-                  <Button variant="link" asChild className="px-0">
-                    <Link href={`/portal/users/${obfuscate(user.id)}`}>
-                      {user.firstName}, {user.lastName}
-                    </Link>
-                  </Button>
+        <div className="md:flex-1 flex flex-row flex-wrap w-full">
+          <div className="md:flex-1 flex flex-row flex-wrap gap-4 w-full">
+            {users?.map((user: UserType) => (
+              <div
+                className="w-full md:w-[24rem] flex flex-row gap-4 border border-gray-200 px-4 py-4 rounded-2xl relative"
+                key={user.id}
+              >
+                <div>
+                  <Avatar className="size-24 cursor-pointer ">
+                    <AvatarImage
+                      src={
+                        user?.imageUrl
+                          ? `/api/files/${user.imageUrl}`
+                          : undefined
+                      }
+                      alt={`${user.firstName} ${user.lastName}`}
+                    />
+                    <AvatarFallback>
+                      <DefaultUserLogo />
+                    </AvatarFallback>
+                  </Avatar>
                 </div>
                 <div>
-                  Email: <Link href={`mailto:${user.email}`}>{user.email}</Link>
+                  <div className="text-xl">
+                    <Button variant="link" asChild className="px-0">
+                      <Link href={`/portal/users/${obfuscate(user.id)}`}>
+                        {user.firstName}, {user.lastName}
+                      </Link>
+                    </Button>
+                  </div>
+                  <div>
+                    Email:{" "}
+                    <Link href={`mailto:${user.email}`}>{user.email}</Link>
+                  </div>
+                  <div>Title: {user.title}</div>
                 </div>
-                <div>Title: {user.title}</div>
+                {PermissionUtils.canWrite(permissionLevel) && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Ellipsis className="cursor-pointer absolute top-2 right-2 text-gray-400" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-[14rem] w-full">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => removeUserOutAuthority(user)}
+                            >
+                              <Trash /> Remove user
+                            </DropdownMenuItem>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>
+                              This action will revoke the selected user’s access
+                              and permissions associated with this authority
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
-              {PermissionUtils.canWrite(permissionLevel) && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Ellipsis className="cursor-pointer absolute top-2 right-2 text-gray-400" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-[14rem] w-full">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <DropdownMenuItem
-                            className="cursor-pointer"
-                            onClick={() => removeUserOutAuthority(user)}
-                          >
-                            <Trash /> Remove user
-                          </DropdownMenuItem>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>
-                            This action will revoke the selected user’s access
-                            and permissions associated with this authority
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
-            </div>
-          ))}
+            ))}
+            <PaginationExt
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={(page) => setCurrentPage(page)}
+            />
+          </div>
         </div>
         <Card className="w-full md:w-[28rem] mt-4 md:mt-0">
           <CardHeader>Resource Permissions</CardHeader>

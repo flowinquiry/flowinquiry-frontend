@@ -1,7 +1,7 @@
 "use client";
 
 import { formatDistanceToNow } from "date-fns";
-import { Plus } from "lucide-react";
+import { ArrowDownAZ, ArrowUpAZ, Plus } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
@@ -13,6 +13,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import DefaultUserLogo from "@/components/users/user-logo";
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { usePagePermission } from "@/hooks/use-page-permission";
@@ -32,6 +37,8 @@ export const UserList = () => {
   const [userSearchTerm, setUserSearchTerm] = useState<string | undefined>(
     undefined,
   );
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+
   const permissionLevel = usePagePermission();
 
   const searchParams = useSearchParams();
@@ -56,6 +63,12 @@ export const UserList = () => {
     searchUsers(query, {
       page: currentPage,
       size: 10,
+      sort: [
+        {
+          field: "firstName,lastName",
+          direction: sortDirection,
+        },
+      ],
     })
       .then((pageResult) => {
         setItems(pageResult.content);
@@ -66,6 +79,7 @@ export const UserList = () => {
   }, [
     userSearchTerm,
     currentPage,
+    sortDirection,
     setLoading,
     setItems,
     setTotalElements,
@@ -87,6 +101,10 @@ export const UserList = () => {
     fetchData();
   }, [fetchData]);
 
+  const toggleSortDirection = () => {
+    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+  };
+
   return (
     <div className="py-4 grid grid-cols-1 gap-4">
       <div className="flex flex-row justify-between">
@@ -104,6 +122,18 @@ export const UserList = () => {
             }}
             defaultValue={searchParams.get("name")?.toString()}
           />
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button variant="ghost" onClick={toggleSortDirection}>
+                {sortDirection === "asc" ? <ArrowDownAZ /> : <ArrowUpAZ />}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              {sortDirection === "asc"
+                ? "Sort names A → Z"
+                : "Sort names Z → A"}
+            </TooltipContent>
+          </Tooltip>
           {PermissionUtils.canWrite(permissionLevel) && (
             <Link
               href={"/portal/users/new/edit"}

@@ -91,6 +91,7 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
 
   useEffect(() => {
     const groups: GroupFilter[] = [];
+    let assignedGroupFilter: GroupFilter | undefined = undefined;
 
     // Status filters group
     const statusFilters: Filter[] = [];
@@ -109,7 +110,7 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
       });
     }
     if (statuses.includes("Assigned")) {
-      groups.push({
+      assignedGroupFilter = {
         logicalOperator: "AND", // Logical "AND" for the two conditions
         filters: [
           {
@@ -123,13 +124,14 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
             value: false,
           },
         ],
-      });
+      };
     }
 
     // If there are any status filters, add them as an OR group
-    if (statusFilters.length > 0) {
+    if (statusFilters.length > 0 || assignedGroupFilter) {
       groups.push({
         filters: statusFilters,
+        groups: assignedGroupFilter ? [assignedGroupFilter] : [],
         logicalOperator: "OR", // Logical "OR" for statuses
       });
     }

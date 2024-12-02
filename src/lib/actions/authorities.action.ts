@@ -7,6 +7,7 @@ import {
   AuthorityResourcePermissionDTO,
 } from "@/types/authorities";
 import { PageableResult } from "@/types/commons";
+import { createQueryParams, Pagination } from "@/types/query";
 import { UserType } from "@/types/users";
 
 export const getAuthorities = async () => {
@@ -39,9 +40,13 @@ export const batchSavePermissions = async (
   >(`${BACKEND_API}/api/authority-permissions/batchSave`, permissions);
 };
 
-export async function getUsersByAuthority(authority: string) {
-  return get<Array<UserType>>(
-    `${BACKEND_API}/api/authorities/${authority}/users`,
+export async function getUsersByAuthority(
+  authority: string,
+  pagination: Pagination,
+) {
+  const queryParams = createQueryParams(pagination);
+  return get<PageableResult<UserType>>(
+    `${BACKEND_API}/api/authorities/${authority}/users?${queryParams.toString()}`,
   );
 }
 

@@ -64,3 +64,17 @@ export const paginationSchema = z.object({
     )
     .optional(),
 });
+
+export const createQueryParams = (pagination: Pagination): URLSearchParams => {
+  return new URLSearchParams({
+    page: pagination.page.toString(),
+    size: pagination.size.toString(),
+    ...pagination.sort?.reduce(
+      (acc, sort) => {
+        acc[`sort`] = `${sort.field},${sort.direction}`;
+        return acc;
+      },
+      {} as { [key: string]: string },
+    ),
+  });
+};
