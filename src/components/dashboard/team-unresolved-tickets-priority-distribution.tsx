@@ -1,63 +1,69 @@
 "use client";
 
-import React from "react";
+import { useSession } from "next-auth/react";
+import React, { useEffect, useState } from "react";
 import {
-  BarChart,
   Bar,
-  XAxis,
-  YAxis,
+  BarChart,
   CartesianGrid,
-  Tooltip,
   Legend,
   ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
 } from "recharts";
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-
-// Priority type
-export type TeamRequestPriority =
-  | "Critical"
-  | "High"
-  | "Medium"
-  | "Low"
-  | "Trivial";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Spinner } from "@/components/ui/spinner";
+import { getTeamTicketPriorityDistributionForUser } from "@/lib/actions/teams-request.action";
+import { TeamRequestPriority } from "@/types/team-requests";
 
 const TeamUnresolvedTicketsPriorityDistributionChart = () => {
-  // Static data for now, will be dynamic later
-  const data = [
-    {
-      teamName: "Team A",
-      Critical: 5,
-      High: 10,
-      Medium: 15,
-      Low: 5,
-      Trivial: 2,
-    },
-    {
-      teamName: "Team B",
-      Critical: 3,
-      High: 20,
-      Medium: 10,
-      Low: 8,
-      Trivial: 4,
-    },
-    {
-      teamName: "Team C",
-      Critical: 2,
-      High: 5,
-      Medium: 7,
-      Low: 2,
-      Trivial: 1,
-    },
-    {
-      teamName: "Team D",
-      Critical: 6,
-      High: 12,
-      Medium: 6,
-      Low: 3,
-      Trivial: 0,
-    },
-  ];
+  const { data: session } = useSession();
+  const userId = Number(session?.user?.id!);
+
+  const [data, setData] = useState<
+    Record<string, Record<TeamRequestPriority, number>>
+  >({});
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await getTeamTicketPriorityDistributionForUser(userId);
+
+        const chartData = result.reduce(
+          (acc, item) => {
+            if (!acc[item.teamName]) {
+              acc[item.teamName] = {
+                Critical: 0,
+                High: 0,
+                Medium: 0,
+                Low: 0,
+                Trivial: 0,
+              };
+            }
+            acc[item.teamName][item.priority] = item.count;
+            return acc;
+          },
+          {} as Record<string, Record<TeamRequestPriority, number>>,
+        );
+
+        setData(chartData);
+      } catch (error) {
+        console.error("Failed to fetch data", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
+  const chartData = Object.entries(data).map(([teamName, priorities]) => ({
+    teamName,
+    ...priorities,
+  }));
 
   return (
     <Card>
@@ -66,47 +72,57 @@ const TeamUnresolvedTicketsPriorityDistributionChart = () => {
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={500}>
-          <BarChart
-            layout="vertical"
-            data={data}
-            margin={{
-              top: 20,
-              right: 30,
-              left: 100,
-              bottom: 5,
-            }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis type="number" />
-            <YAxis type="category" dataKey="teamName" />
-            <Tooltip />
-            <Legend />
-            <Bar
-              dataKey="Critical"
-              stackId="a"
-              fill="#dc2626"
-            /> {/* Red */}
-            <Bar
-              dataKey="High"
-              stackId="a"
-              fill="#ea580c"
-            /> {/* Orange */}
-            <Bar
-              dataKey="Medium"
-              stackId="a"
-              fill="#facc15"
-            /> {/* Yellow */}
-            <Bar
-              dataKey="Low"
-              stackId="a"
-              fill="#22c55e"
-            /> {/* Green */}
-            <Bar
-              dataKey="Trivial"
-              stackId="a"
-              fill="#9ca3af"
-            /> {/* Gray */}
-          </BarChart>
+          {loading ? (
+            <div className="flex justify-center items-center h-[500px]">
+              <Spinner />
+            </div>
+          ) : chartData.length === 0 ? (
+            <div className="flex justify-center items-center h-[500px]">
+              <p className="text-gray-500">No data available to display.</p>
+            </div>
+          ) : (
+            <BarChart
+              layout="vertical"
+              data={chartData}
+              margin={{
+                top: 20,
+                right: 30,
+                left: 150,
+                bottom: 20,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis type="number" />
+              <YAxis type="category" dataKey="teamName" />
+              <Tooltip />
+              <Legend />
+              <Bar
+                dataKey="Critical"
+                stackId="a"
+                fill="#dc2626"
+              /> {/* Red */}
+              <Bar
+                dataKey="High"
+                stackId="a"
+                fill="#ea580c"
+              /> {/* Orange */}
+              <Bar
+                dataKey="Medium"
+                stackId="a"
+                fill="#facc15"
+              /> {/* Yellow */}
+              <Bar
+                dataKey="Low"
+                stackId="a"
+                fill="#22c55e"
+              /> {/* Green */}
+              <Bar
+                dataKey="Trivial"
+                stackId="a"
+                fill="#9ca3af"
+              /> {/* Gray */}
+            </BarChart>
+          )}
         </ResponsiveContainer>
       </CardContent>
     </Card>

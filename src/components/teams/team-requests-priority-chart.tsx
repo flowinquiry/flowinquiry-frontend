@@ -12,7 +12,7 @@ import {
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner"; // Import your spinner component
-import { getTicketsPriorityDistribution } from "@/lib/actions/teams-request.action";
+import { getTicketsPriorityDistributionByTeam } from "@/lib/actions/teams-request.action";
 import { PriorityDistributionDTO } from "@/types/team-requests";
 import { TeamRequestPriority } from "@/types/team-requests";
 
@@ -26,7 +26,7 @@ const TicketPriorityPieChart = ({ teamId }: { teamId: number }) => {
     // Fetch priority distribution data
     const fetchPriorityData = async () => {
       setLoading(true);
-      getTicketsPriorityDistribution(teamId)
+      getTicketsPriorityDistributionByTeam(teamId)
         .then((data) => setPriorityData(data))
         .finally(() => setLoading(false));
     };

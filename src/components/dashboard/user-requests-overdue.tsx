@@ -2,8 +2,10 @@
 
 import { ChevronDown, ChevronUp } from "lucide-react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 
+import { UserAvatar } from "@/components/shared/avatar-display";
 import PaginationExt from "@/components/shared/pagination-ext";
 import TruncatedHtmlLabel from "@/components/shared/truncate-html-label";
 import { PriorityDisplay } from "@/components/teams/team-requests-priority-display";
@@ -15,12 +17,14 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { getOverdueTicketsByTeam } from "@/lib/actions/teams-request.action";
+import { getOverdueTicketsByUser } from "@/lib/actions/teams-request.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { TeamRequestDTO, TeamRequestPriority } from "@/types/team-requests";
 
-const TeamOverdueTickets = ({ teamId }: { teamId: number }) => {
+const UserTeamsOverdueTickets = () => {
+  const { data: session } = useSession();
+  const userId = Number(session?.user?.id!);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalTickets, setTotalTickets] = useState<number>(0);
@@ -33,7 +37,7 @@ const TeamOverdueTickets = ({ teamId }: { teamId: number }) => {
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      getOverdueTicketsByTeam(teamId, currentPage, sortBy, sortDirection)
+      getOverdueTicketsByUser(userId, currentPage, sortBy, sortDirection)
         .then((data) => {
           setTickets(data.content);
           setTotalPages(data.totalPages);
@@ -43,7 +47,7 @@ const TeamOverdueTickets = ({ teamId }: { teamId: number }) => {
     };
 
     fetchData();
-  }, [teamId, currentPage, sortBy, sortDirection]);
+  }, [userId, currentPage, sortBy, sortDirection]);
 
   const toggleSortDirection = () => {
     setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
@@ -126,6 +130,26 @@ const TeamOverdueTickets = ({ teamId }: { teamId: number }) => {
                     htmlContent={ticket.requestDescription!}
                     wordLimit={100}
                   />
+                  <div className="flex items-center space-x-2">
+                    <span>Assignee:</span>
+                    {ticket.assignUserId ? (
+                      <>
+                        <UserAvatar
+                          imageUrl={ticket.assignUserImageUrl}
+                          size="w-6 h-6"
+                        />
+                        <Button variant="link" className="px-0 h-auto">
+                          <Link
+                            href={`/portal/users/${obfuscate(ticket.assignUserId)}`}
+                          >
+                            {ticket.assignUserName}
+                          </Link>
+                        </Button>
+                      </>
+                    ) : (
+                      <span className="text-gray-500">Unassigned</span>
+                    )}
+                  </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                     Modified at:{" "}
                     {formatDateTimeDistanceToNow(ticket.modifiedAt)}
@@ -151,4 +175,4 @@ const TeamOverdueTickets = ({ teamId }: { teamId: number }) => {
   );
 };
 
-export default TeamOverdueTickets;
+export default UserTeamsOverdueTickets;

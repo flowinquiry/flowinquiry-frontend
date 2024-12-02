@@ -38,7 +38,7 @@ import { usePagePermission } from "@/hooks/use-page-permission";
 import { deleteTeams, searchTeams } from "@/lib/actions/teams.action";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
-import { QueryDTO } from "@/types/query";
+import { Filter, QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
 
@@ -53,6 +53,7 @@ export const TeamList = () => {
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(false);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [filterUserTeamsOnly, setFilterUserTeamsOnly] = useState(false);
 
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<TeamDTO | null>(null);
@@ -66,16 +67,24 @@ export const TeamList = () => {
   const fetchData = async () => {
     setLoading(true);
     try {
+      const filters: Filter[] = [];
+      if (teamSearchTerm) {
+        filters.push({
+          field: "name",
+          operator: "lk",
+          value: teamSearchTerm,
+        });
+      }
+      if (filterUserTeamsOnly) {
+        filters.push({
+          field: "userBelongsToTeam",
+          operator: "eq",
+          value: true,
+        });
+      }
+
       const query: QueryDTO = {
-        filters: teamSearchTerm
-          ? [
-              {
-                field: "name",
-                operator: "lk",
-                value: teamSearchTerm,
-              },
-            ]
-          : [],
+        filters,
       };
 
       const pageResult = await searchTeams(query, {
@@ -115,7 +124,7 @@ export const TeamList = () => {
 
   useEffect(() => {
     fetchData();
-  }, [teamSearchTerm, currentPage, sortDirection]);
+  }, [teamSearchTerm, currentPage, sortDirection, filterUserTeamsOnly]);
 
   const showDeleteTeamConfirmationDialog = (team: TeamDTO) => {
     setSelectedTeam(team);
@@ -146,6 +155,16 @@ export const TeamList = () => {
           <Button variant="outline" onClick={toggleSortDirection}>
             {sortDirection === "asc" ? <ArrowDownAZ /> : <ArrowUpAZ />}
           </Button>
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="user-teams-only"
+              className="mr-2"
+              checked={filterUserTeamsOnly}
+              onChange={(e) => setFilterUserTeamsOnly(e.target.checked)}
+            />
+            <label htmlFor="user-teams-only">My Teams Only</label>
+          </div>
           {PermissionUtils.canWrite(permissionLevel) && (
             <Link
               href={"/portal/teams/new/edit"}

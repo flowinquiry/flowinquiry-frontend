@@ -2,6 +2,7 @@ import { ContentLayout } from "@/components/admin-panel/content-layout";
 import RecentUserTeamActivities from "@/components/dashboard/global-dashboard-recent-activities";
 import UserNotifications from "@/components/dashboard/notifications-user";
 import TeamUnresolvedTicketsPriorityDistributionChart from "@/components/dashboard/team-unresolved-tickets-priority-distribution";
+import UserTeamsOverdueTickets from "@/components/dashboard/user-requests-overdue";
 
 export default function Home() {
   return (
@@ -11,6 +12,7 @@ export default function Home() {
         <RecentUserTeamActivities />
         <UserNotifications />
         <TeamUnresolvedTicketsPriorityDistributionChart />
+        <UserTeamsOverdueTickets />
       </div>
     </ContentLayout>
   );

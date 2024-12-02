@@ -12,7 +12,10 @@ import {
   TicketDistributionDTO,
   TicketStatisticsDTO,
 } from "@/types/team-requests";
-import { TicketActionCountByDateDTO } from "@/types/teams";
+import {
+  TeamTicketPriorityDistributionDTO,
+  TicketActionCountByDateDTO,
+} from "@/types/teams";
 
 export const createTeamRequest = async (teamRequest: TeamRequestDTO) => {
   return post<TeamRequestDTO, TeamRequestDTO>(
@@ -60,15 +63,17 @@ export const findNextTeamRequest = async (requestId: number) => {
   );
 };
 
-export const getTicketsAssignmentDistribution = async (teamId: number) => {
+export const getTicketsAssignmentDistributionByTeam = async (
+  teamId: number,
+) => {
   return get<TicketDistributionDTO[]>(
-    `${BACKEND_API}/api/team-requests/${teamId}/ticket-distribution`,
+    `${BACKEND_API}/api/team-requests/teams/${teamId}/ticket-distribution`,
   );
 };
 
-export const getTicketsPriorityDistribution = async (teamId: number) => {
+export const getTicketsPriorityDistributionByTeam = async (teamId: number) => {
   return get<PriorityDistributionDTO[]>(
-    `${BACKEND_API}/api/team-requests/${teamId}/priority-distribution`,
+    `${BACKEND_API}/api/team-requests/teams/${teamId}/priority-distribution`,
   );
 };
 
@@ -79,30 +84,30 @@ export const getUnassignedTickets = async (
   sortDirection: string,
 ) => {
   return get<PageableResult<TeamRequestDTO>>(
-    `${BACKEND_API}/api/team-requests/${teamId}/unassigned-tickets?page=${page}&size=5&sort=${sortBy},${sortDirection}`,
+    `${BACKEND_API}/api/team-requests/teams/${teamId}/unassigned-tickets?page=${page}&size=5&sort=${sortBy},${sortDirection}`,
   );
 };
 
-export const getOverdueTickets = async (
+export const getOverdueTicketsByTeam = async (
   teamId: number,
   page: number,
   sortBy: string,
   sortDirection: string,
 ) => {
   return get<PageableResult<TeamRequestDTO>>(
-    `${BACKEND_API}/api/team-requests/${teamId}/overdue-tickets?page=${page}&size=5&sort=${sortBy},${sortDirection}`,
+    `${BACKEND_API}/api/team-requests/teams/${teamId}/overdue-tickets?page=${page}&size=5&sort=${sortBy},${sortDirection}`,
   );
 };
 
 export const getTicketStatisticsByTeamId = async (teamId: number) => {
   return get<TicketStatisticsDTO>(
-    `${BACKEND_API}/api/team-requests/${teamId}/statistics`,
+    `${BACKEND_API}/api/team-requests/teams/${teamId}/statistics`,
   );
 };
 
 export const getCountOverdueTicketsByTeamId = async (teamId: number) => {
   return get<number>(
-    `${BACKEND_API}/api/team-requests/${teamId}/overdue-tickets/count`,
+    `${BACKEND_API}/api/team-requests/teams/${teamId}/overdue-tickets/count`,
   );
 };
 
@@ -111,6 +116,25 @@ export const getTicketCreationDaySeries = async (
   days: number,
 ) => {
   return get<TicketActionCountByDateDTO[]>(
-    `${BACKEND_API}/api/team-requests/${teamId}/ticket-creations-day-series?days=${days}`,
+    `${BACKEND_API}/api/team-requests/teams/${teamId}/ticket-creations-day-series?days=${days}`,
+  );
+};
+
+export const getOverdueTicketsByUser = async (
+  userId: number,
+  page: number,
+  sortBy: string,
+  sortDirection: string,
+) => {
+  return get<PageableResult<TeamRequestDTO>>(
+    `${BACKEND_API}/api/team-requests/users/${userId}/overdue-tickets?page=${page}&size=5&sort=${sortBy},${sortDirection}`,
+  );
+};
+
+export const getTeamTicketPriorityDistributionForUser = async (
+  userId: number,
+) => {
+  return get<Array<TeamTicketPriorityDistributionDTO>>(
+    `${BACKEND_API}/api/team-requests/users/${userId}/team-tickets-priority-distribution`,
   );
 };

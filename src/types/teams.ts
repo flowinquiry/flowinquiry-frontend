@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { TeamRequestPriority } from "@/types/team-requests";
+
 export const TeamDTOSchema = z.object({
   id: z.number().nullish(),
   name: z.string().min(1),
@@ -32,4 +34,11 @@ export interface TicketActionCountByDateDTO {
   date: string; // LocalDate is represented as an ISO 8601 string in TypeScript
   createdCount: number;
   closedCount: number;
+}
+
+export interface TeamTicketPriorityDistributionDTO {
+  teamId: number;
+  teamName: string;
+  priority: TeamRequestPriority;
+  count: number;
 }

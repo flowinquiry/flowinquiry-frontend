@@ -10,7 +10,7 @@ import TeamDashboardTopSection from "@/components/teams/team-dashboard-kpis";
 import RecentTeamActivities from "@/components/teams/team-dashboard-recent-activities";
 import TicketCreationByDaySeriesChart from "@/components/teams/team-requests-creation-timeseries-chart";
 import TicketDistributionChart from "@/components/teams/team-requests-distribution-chart";
-import OverdueTickets from "@/components/teams/team-requests-overdue";
+import TeamOverdueTickets from "@/components/teams/team-requests-overdue";
 import TicketPriorityPieChart from "@/components/teams/team-requests-priority-chart";
 import UnassignedTickets from "@/components/teams/team-requests-unassigned";
 import { buttonVariants } from "@/components/ui/button";
@@ -77,7 +77,7 @@ const TeamDashboard = ({ entity: team }: ViewProps<TeamDTO>) => {
             <UnassignedTickets teamId={team.id!} />
           </div>
           <div className="flex flex-col">
-            <OverdueTickets teamId={team.id!} />
+            <TeamOverdueTickets teamId={team.id!} />
           </div>
         </div>
         <div className="flex flex-wrap justify-center gap-4">
