@@ -7,7 +7,7 @@ import React from "react";
 import { Heading } from "@/components/heading";
 import { TeamAvatar } from "@/components/shared/avatar-display";
 import TeamDashboardTopSection from "@/components/teams/team-dashboard-kpis";
-import RecentTeamActivities from "@/components/teams/team-dashboard-recent-activity";
+import RecentTeamActivities from "@/components/teams/team-dashboard-recent-activities";
 import TicketCreationByDaySeriesChart from "@/components/teams/team-requests-creation-timeseries-chart";
 import TicketDistributionChart from "@/components/teams/team-requests-distribution-chart";
 import OverdueTickets from "@/components/teams/team-requests-overdue";
@@ -69,7 +69,7 @@ const TeamDashboard = ({ entity: team }: ViewProps<TeamDTO>) => {
           </div>
 
           <div className="flex flex-col">
-            <RecentTeamActivities team={team} />
+            <RecentTeamActivities teamId={team.id!} />
           </div>
         </div>
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">

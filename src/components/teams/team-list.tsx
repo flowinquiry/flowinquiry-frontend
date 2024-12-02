@@ -88,9 +88,11 @@ export const TeamList = () => {
           },
         ],
       });
-      setItems(pageResult.content);
-      setTotalElements(pageResult.totalElements);
-      setTotalPages(pageResult.totalPages);
+      if (pageResult) {
+        setItems(pageResult.content);
+        setTotalElements(pageResult.totalElements);
+        setTotalPages(pageResult.totalPages);
+      }
     } finally {
       setLoading(false);
     }

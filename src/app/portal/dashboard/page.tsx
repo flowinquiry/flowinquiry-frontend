@@ -1,28 +1,16 @@
-import { Folder, Newspaper, User } from "lucide-react";
-
 import { ContentLayout } from "@/components/admin-panel/content-layout";
-import DashboardCard from "@/components/dashboard/dashboard-card";
+import RecentUserTeamActivities from "@/components/dashboard/global-dashboard-recent-activities";
+import UserNotifications from "@/components/dashboard/notifications-user";
+import TeamUnresolvedTicketsPriorityDistributionChart from "@/components/dashboard/team-unresolved-tickets-priority-distribution";
 
 export default function Home() {
   return (
     <ContentLayout title="Dashboard">
       <h1 className="text-2xl mb-4">Dashboard</h1>
-      <div className="flex justify-between gap-5 mb-5">
-        <DashboardCard
-          title="Dashboard"
-          count={60}
-          icon={<Newspaper size={72} className="text-slate-500" />}
-        />
-        <DashboardCard
-          title="Categories"
-          count={10}
-          icon={<Folder size={72} className="text-slate-500" />}
-        />
-        <DashboardCard
-          title="Users"
-          count={750}
-          icon={<User size={72} className="text-slate-500" />}
-        />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <RecentUserTeamActivities />
+        <UserNotifications />
+        <TeamUnresolvedTicketsPriorityDistributionChart />
       </div>
     </ContentLayout>
   );

@@ -8,13 +8,8 @@ import { Spinner } from "@/components/ui/spinner";
 import { getActivityLogs } from "@/lib/actions/activity-logs.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { ActivityLogDTO } from "@/types/activity-logs";
-import { TeamDTO } from "@/types/teams";
 
-type DashboardTrendsAndActivityProps = {
-  team: TeamDTO;
-};
-
-const RecentTeamActivities = ({ team }: DashboardTrendsAndActivityProps) => {
+const RecentTeamActivities = ({ teamId }: { teamId: number }) => {
   const [activityLogs, setActivityLogs] = useState<ActivityLogDTO[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -23,7 +18,7 @@ const RecentTeamActivities = ({ team }: DashboardTrendsAndActivityProps) => {
   useEffect(() => {
     async function fetchActivityLogs() {
       setLoading(true);
-      getActivityLogs("Team", team.id!, currentPage, 5)
+      getActivityLogs("Team", teamId, currentPage, 5)
         .then((data) => {
           setActivityLogs(data.content);
           setTotalPages(data.totalPages);
@@ -31,12 +26,12 @@ const RecentTeamActivities = ({ team }: DashboardTrendsAndActivityProps) => {
         .finally(() => setLoading(false));
     }
     fetchActivityLogs();
-  }, [team, currentPage]);
+  }, [teamId, currentPage]);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Recent Activity</CardTitle>
+        <CardTitle>Recent Activities</CardTitle>
       </CardHeader>
       <CardContent>
         {loading ? (

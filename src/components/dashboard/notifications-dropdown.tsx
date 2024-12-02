@@ -80,22 +80,23 @@ const NotificationsDropdown = () => {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="relative h-8 w-8 rounded-full">
           <BellDot className="animate-tada h-5 w-5" />
-          {notifications.filter((notification) => !notification.isRead).length >
-            0 && (
-            <div
-              className={cn(
-                "absolute top-[2px] right-[2px] translate-x-1/2 translate-y-[-50%]",
-                "w-5 h-5 text-[10px] rounded-full font-semibold flex items-center justify-center",
-                "bg-red-400 text-white",
-                "dark:bg-red-500 dark:text-white",
-              )}
-            >
-              {
-                notifications.filter((notification) => !notification.isRead)
-                  .length
-              }
-            </div>
-          )}
+          {notifications &&
+            notifications.filter((notification) => !notification.isRead)
+              .length > 0 && (
+              <div
+                className={cn(
+                  "absolute top-[2px] right-[2px] translate-x-1/2 translate-y-[-50%]",
+                  "w-5 h-5 text-[10px] rounded-full font-semibold flex items-center justify-center",
+                  "bg-red-400 text-white",
+                  "dark:bg-red-500 dark:text-white",
+                )}
+              >
+                {
+                  notifications.filter((notification) => !notification.isRead)
+                    .length
+                }
+              </div>
+            )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -107,7 +108,7 @@ const NotificationsDropdown = () => {
           "backdrop-blur-md backdrop-brightness-110 dark:backdrop-brightness-75 shadow-lg",
         )}
       >
-        {notifications.length > 0 ? (
+        {notifications && notifications.length > 0 ? (
           <>
             <DropdownMenuLabel>
               <div className="flex justify-between px-2 py-2">

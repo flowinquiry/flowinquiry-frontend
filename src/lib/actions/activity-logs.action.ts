@@ -12,6 +12,16 @@ export const getActivityLogs = async (
   displayNumber = 10,
 ) => {
   return get<PageableResult<ActivityLogDTO>>(
-    `${BACKEND_API}/api/activity-logs?entityType=${entityType}&&entityId=${entityId}&&page=${page - 1}&&size=${displayNumber}&&sortBy=createdAt&&sortDirection=desc`,
+    `${BACKEND_API}/api/activity-logs?entityType=${entityType}&entityId=${entityId}&page=${page}&size=${displayNumber}&sort=createdAt,desc`,
+  );
+};
+
+export const getUserActivities = async (
+  userId: number,
+  page: number,
+  displayNumber = 10,
+) => {
+  return get<PageableResult<ActivityLogDTO>>(
+    `${BACKEND_API}/api/activity-logs/user/${userId}?page=${page}&size=${displayNumber}&sort=createdAt,desc`,
   );
 };
