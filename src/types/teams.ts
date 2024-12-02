@@ -29,6 +29,7 @@ export interface TransitionItemCollectionDTO {
 }
 
 export interface TicketActionCountByDateDTO {
-  date: string; // Representing LocalDate as an ISO 8601 date string (e.g., "2024-01-01")
-  ticketCount: number;
+  date: string; // LocalDate is represented as an ISO 8601 string in TypeScript
+  createdCount: number;
+  closedCount: number;
 }

@@ -10,6 +10,7 @@ import TeamDashboardTopSection from "@/components/teams/team-dashboard-kpis";
 import RecentTeamActivities from "@/components/teams/team-dashboard-recent-activity";
 import TicketCreationByDaySeriesChart from "@/components/teams/team-requests-creation-timeseries-chart";
 import TicketDistributionChart from "@/components/teams/team-requests-distribution-chart";
+import OverdueTickets from "@/components/teams/team-requests-overdue";
 import TicketPriorityPieChart from "@/components/teams/team-requests-priority-chart";
 import UnassignedTickets from "@/components/teams/team-requests-unassigned";
 import { buttonVariants } from "@/components/ui/button";
@@ -65,14 +66,21 @@ const TeamDashboard = ({ entity: team }: ViewProps<TeamDTO>) => {
         <TeamDashboardTopSection teamId={team.id!} />
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="flex flex-col">
-            <UnassignedTickets teamId={team.id!} />
+            <TicketCreationByDaySeriesChart teamId={team.id!} days={7} />
           </div>
 
           <div className="flex flex-col">
             <RecentTeamActivities team={team} />
           </div>
         </div>
-        <TicketCreationByDaySeriesChart teamId={team.id!} days={7} />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+          <div className="flex flex-col">
+            <UnassignedTickets teamId={team.id!} />
+          </div>
+          <div className="flex flex-col">
+            <OverdueTickets teamId={team.id!} />
+          </div>
+        </div>
         <div className="flex flex-wrap justify-center gap-4">
           <div className="flex-1 min-w-[400px] max-w-[600px]">
             <TicketDistributionChart teamId={team.id!} />

@@ -14,23 +14,23 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { getUnassignedTickets } from "@/lib/actions/teams-request.action";
+import { getOverdueTickets } from "@/lib/actions/teams-request.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { TeamRequestDTO, TeamRequestPriority } from "@/types/team-requests";
 
-const UnassignedTickets = ({ teamId }: { teamId: number }) => {
+const OverdueTickets = ({ teamId }: { teamId: number }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalTickets, setTotalTickets] = useState<number>(0);
   const [tickets, setTickets] = useState<TeamRequestDTO[]>([]);
 
   const [sortBy, setSortBy] = useState("priority");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getUnassignedTickets(
+      const data = await getOverdueTickets(
         teamId,
         currentPage,
         sortBy,
@@ -52,7 +52,7 @@ const UnassignedTickets = ({ teamId }: { teamId: number }) => {
     <Card>
       <CardHeader>
         <div className="flex items-center justify-between">
-          <CardTitle>Unassigned Tickets ({totalTickets})</CardTitle>
+          <CardTitle>Overdue Tickets ({totalTickets})</CardTitle>
           <div className="flex items-center gap-2">
             <Tooltip>
               <TooltipTrigger asChild>
@@ -125,7 +125,7 @@ const UnassignedTickets = ({ teamId }: { teamId: number }) => {
             ))
           ) : (
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              No unassigned tickets available
+              No overdue tickets available
             </p>
           )}
         </div>
@@ -141,4 +141,4 @@ const UnassignedTickets = ({ teamId }: { teamId: number }) => {
   );
 };
 
-export default UnassignedTickets;
+export default OverdueTickets;

@@ -20,7 +20,7 @@ const RecentTeamActivities = ({ team }: DashboardTrendsAndActivityProps) => {
 
   useEffect(() => {
     async function fetchActivityLogs() {
-      getActivityLogs("Team", team.id!, currentPage, 7).then((data) => {
+      getActivityLogs("Team", team.id!, currentPage, 5).then((data) => {
         setActivityLogs(data.content);
         setTotalPages(data.totalPages);
       });
