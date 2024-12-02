@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 
 import { Heading } from "@/components/heading";
@@ -19,6 +20,7 @@ import PaginationExt from "@/components/shared/pagination-ext";
 import DefaultTeamLogo from "@/components/teams/team-logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -44,6 +46,7 @@ import { TeamDTO } from "@/types/teams";
 
 export const TeamList = () => {
   const router = useRouter();
+  const { data: session } = useSession();
   const [items, setItems] = useState<Array<TeamDTO>>([]);
   const [teamSearchTerm, setTeamSearchTerm] = useState<string | undefined>(
     undefined,
@@ -53,7 +56,7 @@ export const TeamList = () => {
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(false);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [filterUserTeamsOnly, setFilterUserTeamsOnly] = useState(false);
+  const [filterUserTeamsOnly, setFilterUserTeamsOnly] = useState(true);
 
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<TeamDTO | null>(null);
@@ -77,9 +80,9 @@ export const TeamList = () => {
       }
       if (filterUserTeamsOnly) {
         filters.push({
-          field: "userBelongsToTeam",
+          field: "users.id",
           operator: "eq",
-          value: true,
+          value: Number(session?.user?.id!),
         });
       }
 
@@ -155,15 +158,15 @@ export const TeamList = () => {
           <Button variant="outline" onClick={toggleSortDirection}>
             {sortDirection === "asc" ? <ArrowDownAZ /> : <ArrowUpAZ />}
           </Button>
-          <div className="flex items-center">
-            <input
-              type="checkbox"
+          <div className="flex items-center space-x-2">
+            <Checkbox
               id="user-teams-only"
-              className="mr-2"
               checked={filterUserTeamsOnly}
-              onChange={(e) => setFilterUserTeamsOnly(e.target.checked)}
+              onCheckedChange={(checked) => setFilterUserTeamsOnly(!!checked)}
             />
-            <label htmlFor="user-teams-only">My Teams Only</label>
+            <label htmlFor="user-teams-only" className="text-sm">
+              My Teams Only
+            </label>
           </div>
           {PermissionUtils.canWrite(permissionLevel) && (
             <Link
