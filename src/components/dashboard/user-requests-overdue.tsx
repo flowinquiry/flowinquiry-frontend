@@ -32,7 +32,7 @@ const UserTeamsOverdueTickets = () => {
   const [loading, setLoading] = useState(false);
 
   const [sortBy, setSortBy] = useState("priority");
-  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -66,7 +66,7 @@ const UserTeamsOverdueTickets = () => {
                   onClick={toggleSortDirection}
                   className="p-2 flex items-center gap-2"
                 >
-                  {sortDirection === "asc" ? (
+                  {sortDirection === "desc" ? (
                     <ChevronUp className="w-4 h-4" />
                   ) : (
                     <ChevronDown className="w-4 h-4" />

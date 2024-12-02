@@ -34,13 +34,14 @@ const TicketPriorityPieChart = ({ teamId }: { teamId: number }) => {
     fetchPriorityData();
   }, [teamId]);
 
-  // Define colors for the pie chart based on TeamRequestPriority
+  // Define colors for the pie chart based on TeamRequestPriority, this color should match with color
+  // defines at team-request-priority-display.tsx
   const COLORS: Record<TeamRequestPriority, string> = {
-    Critical: "#FF4500",
-    High: "#FF6384",
-    Medium: "#36A2EB",
-    Low: "#FFCE56",
-    Trivial: "#00FF00",
+    Critical: "#DC2626", // text-red-600
+    High: "#F97316", // text-orange-500
+    Medium: "#F59E0B", // text-yellow-500
+    Low: "#16A34A", // text-green-500
+    Trivial: "#9CA3AF", // text-gray-400
   };
 
   return (

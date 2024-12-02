@@ -22,7 +22,7 @@ const AuditLogView: React.FC<AuditLogViewProps> = ({
   entityType,
   entityId,
 }) => {
-  const [logs, setLogs] = useState<ActivityLogDTO[]>([]);
+  const [activityLogs, setActivityLogs] = useState<ActivityLogDTO[]>([]);
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -33,7 +33,7 @@ const AuditLogView: React.FC<AuditLogViewProps> = ({
       getActivityLogs("Team_Request", entityId, currentPage)
         .then((data) => {
           setTotalPages(data.totalPages);
-          setLogs(data.content);
+          setActivityLogs(data.content);
         })
         .finally(() => setLoading(false));
     };
@@ -44,13 +44,13 @@ const AuditLogView: React.FC<AuditLogViewProps> = ({
     return <div>Loading history...</div>;
   }
 
-  if (logs.length === 0) {
+  if (activityLogs.length === 0) {
     return <div>No history available.</div>;
   }
 
   return (
     <div>
-      {logs.map((log, index) => (
+      {activityLogs.map((activityLog, index) => (
         <div
           key={index}
           className={cn(
@@ -60,10 +60,15 @@ const AuditLogView: React.FC<AuditLogViewProps> = ({
           )}
         >
           <div className="flex items-center gap-2">
-            <UserAvatar imageUrl={log.createdByImageUrl} size="w-6 h-6" />
+            <UserAvatar
+              imageUrl={activityLog.createdByImageUrl}
+              size="w-6 h-6"
+            />
             <Button variant="link" className="px-0">
-              <Link href={`/portal/users/${obfuscate(log.createdById)}`}>
-                {log.createdByName}
+              <Link
+                href={`/portal/users/${obfuscate(activityLog.createdById)}`}
+              >
+                {activityLog.createdByName}
               </Link>
             </Button>
             <span>made some changes</span>
@@ -71,11 +76,12 @@ const AuditLogView: React.FC<AuditLogViewProps> = ({
           <div
             className="prose max-w-none table-consistent-width"
             dangerouslySetInnerHTML={{
-              __html: log.content!,
+              __html: activityLog.content!,
             }}
           />
           <small>
-            Updated: {formatDateTimeDistanceToNow(new Date(log.createdAt))}
+            Updated:{" "}
+            {formatDateTimeDistanceToNow(new Date(activityLog.createdAt))}
           </small>
         </div>
       ))}

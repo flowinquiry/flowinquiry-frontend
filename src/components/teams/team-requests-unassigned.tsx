@@ -62,7 +62,7 @@ const UnassignedTickets = ({ teamId }: { teamId: number }) => {
                   onClick={toggleSortDirection}
                   className="p-2 flex items-center gap-2"
                 >
-                  {sortDirection === "asc" ? (
+                  {sortDirection === "desc" ? (
                     <ChevronUp className="w-4 h-4" />
                   ) : (
                     <ChevronDown className="w-4 h-4" />

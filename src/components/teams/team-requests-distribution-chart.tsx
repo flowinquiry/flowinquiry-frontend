@@ -110,6 +110,7 @@ const TicketDistributionChart: React.FC<TicketDistributionChartProps> = ({
                 data={chartData}
                 layout="vertical"
                 margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+                barSize={40} // Set a fixed bar size
               >
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis type="number" allowDecimals={false} />

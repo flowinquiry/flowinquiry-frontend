@@ -8,11 +8,22 @@ export default function Home() {
   return (
     <ContentLayout title="Dashboard">
       <h1 className="text-2xl mb-4">Dashboard</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-        <RecentUserTeamActivities />
-        <UserNotifications />
-        <TeamUnresolvedTicketsPriorityDistributionChart />
-        <UserTeamsOverdueTickets />
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 pb-4">
+        <div className="flex flex-col">
+          <RecentUserTeamActivities />
+        </div>
+        <div className="flex flex-col">
+          <UserNotifications />
+        </div>
+      </div>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+        <div className="flex flex-col">
+          <TeamUnresolvedTicketsPriorityDistributionChart />
+        </div>
+        <div className="flex flex-col">
+          <UserTeamsOverdueTickets />
+        </div>
       </div>
     </ContentLayout>
   );

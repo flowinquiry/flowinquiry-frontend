@@ -29,32 +29,28 @@ const TeamUnresolvedTicketsPriorityDistributionChart = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const result = await getTeamTicketPriorityDistributionForUser(userId);
+      getTeamTicketPriorityDistributionForUser(userId)
+        .then((result) => {
+          const chartData = result.reduce(
+            (acc, item) => {
+              if (!acc[item.teamName]) {
+                acc[item.teamName] = {
+                  Critical: 0,
+                  High: 0,
+                  Medium: 0,
+                  Low: 0,
+                  Trivial: 0,
+                };
+              }
+              acc[item.teamName][item.priority] = item.count;
+              return acc;
+            },
+            {} as Record<string, Record<TeamRequestPriority, number>>,
+          );
 
-        const chartData = result.reduce(
-          (acc, item) => {
-            if (!acc[item.teamName]) {
-              acc[item.teamName] = {
-                Critical: 0,
-                High: 0,
-                Medium: 0,
-                Low: 0,
-                Trivial: 0,
-              };
-            }
-            acc[item.teamName][item.priority] = item.count;
-            return acc;
-          },
-          {} as Record<string, Record<TeamRequestPriority, number>>,
-        );
-
-        setData(chartData);
-      } catch (error) {
-        console.error("Failed to fetch data", error);
-      } finally {
-        setLoading(false);
-      }
+          setData(chartData);
+        })
+        .finally(() => setLoading(false));
     };
 
     fetchData();
@@ -90,6 +86,7 @@ const TeamUnresolvedTicketsPriorityDistributionChart = () => {
                 left: 150,
                 bottom: 20,
               }}
+              barSize={40} // Set a fixed bar size
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis type="number" />
