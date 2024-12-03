@@ -74,11 +74,6 @@ export function getMenuList(
     {
       groupLabel: "",
       menus: [
-        // {
-        //   href: "/portal/accounts",
-        //   label: "Accounts",
-        //   icon: Building2,
-        // },
         {
           href: "/portal/teams",
           label: "Teams",

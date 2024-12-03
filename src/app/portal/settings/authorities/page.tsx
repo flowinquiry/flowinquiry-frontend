@@ -2,15 +2,14 @@
 
 import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React from "react";
 
 import { SimpleContentView } from "@/components/admin-panel/simple-content-view";
-import { AuthoritiesTable } from "@/components/authorities/authority-table";
+import { AuthoritiesView } from "@/components/authorities/authority-list";
 import { Heading } from "@/components/heading";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { usePagePermission } from "@/hooks/use-page-permission";
-import { getAuthorities } from "@/lib/actions/authorities.action";
 import { PermissionUtils } from "@/types/resources";
 
 const breadcrumbItems = [
@@ -22,7 +21,6 @@ const breadcrumbItems = [
 const AuthoritiesPage = () => {
   const router = useRouter();
   const permissionLevel = usePagePermission();
-  const [authorityPromise, setAuthorityPromise] = useState(getAuthorities);
 
   return (
     <SimpleContentView title="Authorities" breadcrumbItems={breadcrumbItems}>
@@ -38,10 +36,7 @@ const AuthoritiesPage = () => {
         )}
       </div>
       <Separator />
-      <AuthoritiesTable
-        authoritiesPromise={authorityPromise}
-        enableAdvancedFilter={true}
-      />
+      <AuthoritiesView />
     </SimpleContentView>
   );
 };

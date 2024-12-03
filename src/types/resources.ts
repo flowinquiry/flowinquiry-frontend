@@ -1,11 +1,4 @@
-export type ResourceId =
-  | "Users"
-  | "Files"
-  | "Accounts"
-  | "Contacts"
-  | "Teams"
-  | "Organizations"
-  | "Authorities";
+export type ResourceId = "Users" | "Teams" | "Organizations" | "Authorities";
 
 export type PermissionLevel = "NONE" | "READ" | "WRITE" | "ACCESS";
 
