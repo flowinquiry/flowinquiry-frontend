@@ -45,6 +45,5 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: "pnpm"
-      - run: cp .env.local.example .env.local
       - run: pnpm install
       - run: pnpm build
