@@ -6,6 +6,7 @@ export const AuthorityDTOSchema = z
     descriptiveName: z.string().min(1),
     systemRole: z.boolean().default(false),
     description: z.string().optional(),
+    usersCount: z.onumber(),
   })
   .transform((data) => {
     // If `name` is null, set it to `descriptiveName`

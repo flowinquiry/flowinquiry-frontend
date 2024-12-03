@@ -67,13 +67,13 @@ const TeamUnresolvedTicketsPriorityDistributionChart = () => {
         <CardTitle>Unresolved Tickets by Team</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%" height={500}>
+        <ResponsiveContainer width="100%">
           {loading ? (
-            <div className="flex justify-center items-center h-[500px]">
+            <div className="flex justify-center items-center">
               <Spinner />
             </div>
           ) : chartData.length === 0 ? (
-            <div className="flex justify-center items-center h-[500px]">
+            <div className="flex justify-center items-center">
               <p className="text-gray-500">No data available to display.</p>
             </div>
           ) : (

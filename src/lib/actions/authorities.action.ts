@@ -25,6 +25,12 @@ export const createAuthority = async (authority: AuthorityDTO) => {
   );
 };
 
+export const deleteAuthority = async (authority_name: string) => {
+  return deleteExec<string, void>(
+    `${BACKEND_API}/api/authorities/${authority_name}`,
+  );
+};
+
 export const findPermissionsByAuthorityName = async (authorityName: string) => {
   return get<Array<AuthorityResourcePermissionDTO>>(
     `${BACKEND_API}/api/authority-permissions/${authorityName}`,

@@ -1,4 +1,12 @@
-import { BookLock, Layers, LayoutGrid, LucideIcon, Users } from "lucide-react";
+import {
+  BookLock,
+  Layers,
+  LayoutGrid,
+  LucideIcon,
+  ShieldCheck,
+  UserCog,
+  Users,
+} from "lucide-react";
 
 import { Permission } from "@/providers/permissions-provider";
 
@@ -92,7 +100,7 @@ export function getMenuList(
         {
           href: "/portal/settings/authorities",
           label: "Authorities",
-          icon: BookLock,
+          icon: ShieldCheck,
         },
       ],
     },
