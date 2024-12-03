@@ -43,7 +43,6 @@ export async function searchTeamRequests(
   pagination: Pagination,
 ) {
   noStore();
-  console.log(`Filters ${JSON.stringify(query)}`);
   return doAdvanceSearch<TeamRequestDTO>(
     `${BACKEND_API}/api/team-requests/search`,
     query,

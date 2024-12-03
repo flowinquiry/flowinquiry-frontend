@@ -37,14 +37,11 @@ const UserNotifications = () => {
   }, [userId, currentPage]);
 
   const handleMarkAsRead = async (notificationId: number) => {
-    try {
-      await markNotificationsAsRead([notificationId]);
+    markNotificationsAsRead([notificationId]).finally(() => {
       setNotifications((prev) =>
         prev.map((n) => (n.id === notificationId ? { ...n, isRead: true } : n)),
       );
-    } catch (error) {
-      console.error("Failed to mark notification as read", error);
-    }
+    });
   };
 
   return (

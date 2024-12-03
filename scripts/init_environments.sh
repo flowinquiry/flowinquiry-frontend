@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Define file paths
-template_file=".env.local.example"
 output_file=".env.local"
+backup_file=".env.local.backup"
 
 # Check if the output file already exists
 if [ -f "$output_file" ]; then
@@ -12,16 +12,29 @@ if [ -f "$output_file" ]; then
         echo "Aborting. $output_file will not be replaced."
         exit 0
     fi
+
+    # Backup the existing file
+    echo "Backing up $output_file to $backup_file..."
+    cp "$output_file" "$backup_file"
 fi
 
-# Copy content from .env.example to .env
-if [ -f "$template_file" ]; then
-    cp "$template_file" "$output_file"
-    echo "Copied content from $template_file to $output_file."
-else
-    echo "Template file $template_file not found. Exiting."
-    exit 1
-fi
+# Create an empty file
+echo "Creating an empty $output_file..."
+> "$output_file" # Use > to truncate and create an empty file
+
+# Prompt user for backend server URL (with optional port)
+while true; do
+    read -p "Enter the Flexwork back-end server URL address (e.g., http://localhost or http://localhost:8080). This is the server hosting the Flexwork back-end services: " backend_server
+    if [[ $backend_server =~ ^http(s)?://[a-zA-Z0-9.-]+(:[0-9]{1,5})?$ ]]; then
+        break
+    else
+        echo "Invalid input. Please enter a valid URL (e.g., http://localhost or http://localhost:8080)."
+    fi
+done
+
+# Append to the .env.local file
+echo "BACK_END_SERVER=\"$backend_server\"" >> "$output_file"
+
 
 # Run npx auth and append its output to .env
 npx auth secret >> "$output_file"
