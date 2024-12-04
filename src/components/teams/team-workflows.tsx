@@ -6,7 +6,7 @@ import React, { useEffect, useState } from "react";
 
 import { Heading } from "@/components/heading";
 import { TeamAvatar } from "@/components/shared/avatar-display";
-import { buttonVariants } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { ViewProps } from "@/components/ui/ext-form";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import { getWorkflowsByTeam } from "@/lib/actions/workflows.action";
@@ -15,6 +15,7 @@ import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
 import { WorkflowDTO } from "@/types/workflows";
+import { obfuscate } from "@/lib/endecode";
 
 const TeamWorkflowsView = ({ entity: team }: ViewProps<TeamDTO>) => {
   const permissionLevel = usePagePermission();
@@ -62,9 +63,11 @@ const TeamWorkflowsView = ({ entity: team }: ViewProps<TeamDTO>) => {
         {workflows.map((workflow) => (
           <div
             key={workflow.id}
-            className="w-[28rem] grid grid-cols-1 gap-4 border border-gray-200 px-4 py-4 rounded-2xl relative"
+            className="w-[28rem] grid grid-cols-1 gap-4 border border-gray-200 px-4 py-4 rounded-2xl"
           >
-            <div>{workflow.name}</div>
+            <Button variant="link" className="px-0 h-0">
+              <Link href={`/portal/teams/`}> {workflow.name}</Link>
+            </Button>
             <div>{workflow.description}</div>
           </div>
         ))}
