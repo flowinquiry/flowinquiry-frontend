@@ -1,10 +1,8 @@
 import {
-  BookLock,
   Layers,
   LayoutGrid,
   LucideIcon,
   ShieldCheck,
-  UserCog,
   Users,
 } from "lucide-react";
 

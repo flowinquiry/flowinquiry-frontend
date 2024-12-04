@@ -33,7 +33,7 @@ const AuthoritiesSelect = ({
   const [authorities, setAuthorities] = useState<Array<AuthorityDTO>>();
   useEffect(() => {
     const fetchAuthorities = async () => {
-      const data = await getAuthorities();
+      const data = await getAuthorities(0);
       setAuthorities(data.content);
     };
 

@@ -10,8 +10,11 @@ import { PageableResult } from "@/types/commons";
 import { createQueryParams, Pagination } from "@/types/query";
 import { UserType } from "@/types/users";
 
-export const getAuthorities = async () => {
-  return get<PageableResult<AuthorityDTO>>(`${BACKEND_API}/api/authorities`);
+export const getAuthorities = async (page: number) => {
+  // TODO: temporarily disable the paging for the MVP
+  return get<PageableResult<AuthorityDTO>>(
+    `${BACKEND_API}/api/authorities?page=${page}&size=2000&sort=descriptiveName,asc`,
+  );
 };
 
 export const findAuthorityByName = async (name: string) => {

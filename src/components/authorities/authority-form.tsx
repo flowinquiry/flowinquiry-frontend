@@ -92,6 +92,8 @@ const AuthorityForm: React.FC<NewAuthorityFormProps> = ({
     );
   }
 
+  const isSystemRole = authorityEntity?.systemRole;
+
   return (
     <div className="flex flex-col">
       <Form {...form}>
@@ -110,7 +112,11 @@ const AuthorityForm: React.FC<NewAuthorityFormProps> = ({
                   <FormItem>
                     <FormLabel>Authority Name</FormLabel>
                     <FormControl>
-                      <Input placeholder="Enter authority name" {...field} />
+                      <Input
+                        placeholder="Enter authority name"
+                        {...field}
+                        disabled={isSystemRole}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -149,6 +155,7 @@ const AuthorityForm: React.FC<NewAuthorityFormProps> = ({
                                 <Select
                                   onValueChange={field.onChange}
                                   defaultValue={field.value || "NONE"}
+                                  disabled={isSystemRole}
                                 >
                                   <SelectTrigger>
                                     <SelectValue placeholder="Select permission" />

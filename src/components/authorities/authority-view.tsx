@@ -1,6 +1,6 @@
 "use client";
 
-import { Edit, Ellipsis, Plus, Trash } from "lucide-react";
+import { Edit, Ellipsis, Info, Plus, Trash } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -117,74 +117,87 @@ export const AuthorityView: React.FC<ViewProps<AuthorityDTO>> = ({
       <div className="flex flex-col md:flex-row md:space-x-4 items-start">
         <div className="md:flex-1 flex flex-row flex-wrap w-full">
           <div className="md:flex-1 flex flex-row flex-wrap gap-4 w-full">
-            {users?.map((user: UserType) => (
-              <div
-                className="w-full md:w-[24rem] flex flex-row gap-4 border border-gray-200 px-4 py-4 rounded-2xl relative"
-                key={user.id}
-              >
-                <div>
-                  <Avatar className="size-24 cursor-pointer ">
-                    <AvatarImage
-                      src={
-                        user?.imageUrl
-                          ? `/api/files/${user.imageUrl}`
-                          : undefined
-                      }
-                      alt={`${user.firstName} ${user.lastName}`}
-                    />
-                    <AvatarFallback>
-                      <DefaultUserLogo />
-                    </AvatarFallback>
-                  </Avatar>
-                </div>
-                <div>
-                  <div className="text-xl">
-                    <Button variant="link" asChild className="px-0">
-                      <Link href={`/portal/users/${obfuscate(user.id)}`}>
-                        {user.firstName}, {user.lastName}
-                      </Link>
-                    </Button>
+            {users && users.length > 0 ? (
+              users.map((user: UserType) => (
+                <div
+                  className="w-full md:w-[24rem] flex flex-row gap-4 border border-gray-200 px-4 py-4 rounded-2xl relative"
+                  key={user.id}
+                >
+                  <div>
+                    <Avatar className="size-24 cursor-pointer ">
+                      <AvatarImage
+                        src={
+                          user?.imageUrl
+                            ? `/api/files/${user.imageUrl}`
+                            : undefined
+                        }
+                        alt={`${user.firstName} ${user.lastName}`}
+                      />
+                      <AvatarFallback>
+                        <DefaultUserLogo />
+                      </AvatarFallback>
+                    </Avatar>
                   </div>
                   <div>
-                    Email:{" "}
-                    <Link href={`mailto:${user.email}`}>{user.email}</Link>
+                    <div className="text-xl">
+                      <Button variant="link" asChild className="px-0">
+                        <Link href={`/portal/users/${obfuscate(user.id)}`}>
+                          {user.firstName}, {user.lastName}
+                        </Link>
+                      </Button>
+                    </div>
+                    <div>
+                      Email:{" "}
+                      <Link href={`mailto:${user.email}`}>{user.email}</Link>
+                    </div>
+                    <div>Title: {user.title}</div>
                   </div>
-                  <div>Title: {user.title}</div>
+                  {PermissionUtils.canWrite(permissionLevel) && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Ellipsis className="cursor-pointer absolute top-2 right-2 text-gray-400" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-[14rem]">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <DropdownMenuItem
+                                className="cursor-pointer"
+                                onClick={() => removeUserOutAuthority(user)}
+                              >
+                                <Trash /> Remove user
+                              </DropdownMenuItem>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>
+                                This action will revoke the selected user’s
+                                access and permissions associated with this
+                                authority
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
                 </div>
-                {PermissionUtils.canWrite(permissionLevel) && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Ellipsis className="cursor-pointer absolute top-2 right-2 text-gray-400" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-[14rem] w-full">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <DropdownMenuItem
-                              className="cursor-pointer"
-                              onClick={() => removeUserOutAuthority(user)}
-                            >
-                              <Trash /> Remove user
-                            </DropdownMenuItem>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>
-                              This action will revoke the selected user’s access
-                              and permissions associated with this authority
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
+              ))
+            ) : (
+              <div className="w-full text-left py-8 flex items-start gap-2">
+                <Info className="h-6 w-6" />
+                <p className="text-lg">
+                  No users have been assigned to this authority yet. Please add
+                  users to this authority to manage permissions.
+                </p>
               </div>
-            ))}
-            <PaginationExt
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={(page) => setCurrentPage(page)}
-            />
+            )}
+            {users && users.length > 0 && (
+              <PaginationExt
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={(page) => setCurrentPage(page)}
+              />
+            )}
           </div>
         </div>
         <Card className="w-full md:w-[28rem] mt-4 md:mt-0">
