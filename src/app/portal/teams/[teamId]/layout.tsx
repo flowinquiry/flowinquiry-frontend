@@ -1,9 +1,11 @@
 import React from "react";
 
+import { findTeamById } from "@/lib/actions/teams.action";
 import { deobfuscateToNumber } from "@/lib/endecode";
+import { TeamProvider } from "@/providers/team-provider";
 import { UserTeamRoleProvider } from "@/providers/user-team-role-provider";
 
-export default function TeamsLayout({
+export default async function TeamsLayout({
   params,
   children,
 }: {
@@ -13,15 +15,15 @@ export default function TeamsLayout({
   const teamIdNum =
     params.teamId === "new" ? null : deobfuscateToNumber(params.teamId);
 
+  if (teamIdNum == null) {
+    return children;
+  }
+
+  const team = await findTeamById(teamIdNum);
+
   return (
-    <>
-      {teamIdNum === null ? (
-        children
-      ) : (
-        <UserTeamRoleProvider teamId={teamIdNum}>
-          {children}
-        </UserTeamRoleProvider>
-      )}
-    </>
+    <TeamProvider team={team}>
+      <UserTeamRoleProvider teamId={teamIdNum}>{children}</UserTeamRoleProvider>
+    </TeamProvider>
   );
 }

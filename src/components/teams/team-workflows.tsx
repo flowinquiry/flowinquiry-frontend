@@ -8,18 +8,18 @@ import { Heading } from "@/components/heading";
 import { TeamAvatar } from "@/components/shared/avatar-display";
 import TeamNavLayout from "@/components/teams/team-nav";
 import { buttonVariants } from "@/components/ui/button";
-import { ViewProps } from "@/components/ui/ext-form";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import { getWorkflowsByTeam } from "@/lib/actions/workflows.action";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
+import { useTeam } from "@/providers/team-provider";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { PermissionUtils } from "@/types/resources";
-import { TeamDTO } from "@/types/teams";
 import { WorkflowDTO } from "@/types/workflows";
 
-const TeamWorkflowsView = ({ entity: team }: ViewProps<TeamDTO>) => {
+const TeamWorkflowsView = () => {
+  const team = useTeam();
   const breadcrumbItems = [
     { title: "Dashboard", link: "/portal" },
     { title: "Teams", link: "/portal/teams" },

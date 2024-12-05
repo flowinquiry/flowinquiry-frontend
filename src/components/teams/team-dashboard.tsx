@@ -15,7 +15,6 @@ import TeamOverdueTickets from "@/components/teams/team-requests-overdue";
 import TicketPriorityPieChart from "@/components/teams/team-requests-priority-chart";
 import UnassignedTickets from "@/components/teams/team-requests-unassigned";
 import { buttonVariants } from "@/components/ui/button";
-import { ViewProps } from "@/components/ui/ext-form";
 import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
@@ -26,11 +25,13 @@ import { usePagePermission } from "@/hooks/use-page-permission";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
+import { useTeam } from "@/providers/team-provider";
 import { PermissionUtils } from "@/types/resources";
-import { TeamDTO } from "@/types/teams";
 
-const TeamDashboard = ({ entity: team }: ViewProps<TeamDTO>) => {
+const TeamDashboard = () => {
+  const team = useTeam();
   const permissionLevel = usePagePermission();
+
   const breadcrumbItems = [
     { title: "Dashboard", link: "/portal" },
     { title: "Teams", link: "/portal/teams" },

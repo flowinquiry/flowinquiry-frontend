@@ -24,7 +24,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ViewProps } from "@/components/ui/ext-form";
 import { Input } from "@/components/ui/input";
 import { Toggle } from "@/components/ui/toggle";
 import {
@@ -37,11 +36,11 @@ import { searchTeamRequests } from "@/lib/actions/teams-request.action";
 import { getWorkflowsByTeam } from "@/lib/actions/workflows.action";
 import { obfuscate } from "@/lib/endecode";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
+import { useTeam } from "@/providers/team-provider";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { Filter, GroupFilter, QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/team-requests";
-import { TeamDTO } from "@/types/teams";
 import { WorkflowDTO } from "@/types/workflows";
 
 export type Pagination = {
@@ -50,7 +49,8 @@ export type Pagination = {
   sort?: { field: string; direction: "asc" | "desc" }[];
 };
 
-const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
+const TeamRequestsView = () => {
+  const team = useTeam();
   const breadcrumbItems = [
     { title: "Dashboard", link: "/portal" },
     { title: "Teams", link: "/portal/teams" },

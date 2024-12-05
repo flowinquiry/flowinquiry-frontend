@@ -26,7 +26,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ViewProps } from "@/components/ui/ext-form";
 import {
   Tooltip,
   TooltipContent,
@@ -41,12 +40,13 @@ import {
 } from "@/lib/actions/teams.action";
 import { obfuscate } from "@/lib/endecode";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
+import { useTeam } from "@/providers/team-provider";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { PermissionUtils } from "@/types/resources";
-import { TeamDTO } from "@/types/teams";
 import { UserWithTeamRoleDTO } from "@/types/users";
 
-const TeamUsersView = ({ entity: team }: ViewProps<TeamDTO>) => {
+const TeamUsersView = () => {
+  const team = useTeam();
   const breadcrumbItems = [
     { title: "Dashboard", link: "/portal" },
     { title: "Teams", link: "/portal/teams" },
