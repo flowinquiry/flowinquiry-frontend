@@ -18,18 +18,20 @@ import { WorkflowDetailedDTO } from "@/types/workflows"; // Correct import for b
 
 const elk = new ELK();
 
-const getLayoutedElements = async (
+export const getLayoutedElements = async (
   nodes: Node[],
   edges: Edge[],
   direction: "LR" | "TB" | "RL" | "BT" = "TB",
 ): Promise<{ nodes: Node[]; edges: Edge[] }> => {
+  // Define the ELK graph configuration
   const elkGraph = {
     id: "root",
     layoutOptions: {
-      "elk.algorithm": "layered", // Ensure hierarchical layout
-      "elk.direction": direction, // Vertical direction
-      "elk.spacing.nodeNode": "80", // Increased spacing between nodes
-      "elk.spacing.edgeNode": "50", // Increased spacing between edges and nodes
+      "elk.algorithm": "layered",
+      "elk.direction": direction, // Set the layout direction
+      "elk.spacing.nodeNode": "150", // Increase spacing between nodes
+      "elk.spacing.edgeNode": "75", // Increase spacing between edges and nodes
+      "elk.layered.spacing.nodeNodeBetweenLayers": "200", // Vertical spacing between layers
     },
     children: nodes.map((node) => ({
       id: node.id,
@@ -43,7 +45,9 @@ const getLayoutedElements = async (
     })),
   };
 
-  const layout = await new ELK().layout(elkGraph);
+  // Run the ELK layout engine and log the result
+  const layout = await elk.layout(elkGraph);
+  console.log("ELK Layout:", layout); // Debug the layout output
 
   const layoutedNodes = nodes.map((node) => {
     const layoutNode = layout.children?.find((child) => child.id === node.id);
@@ -90,12 +94,12 @@ const WorkflowDiagram: React.FC<{ workflowDetails: WorkflowDetailedDTO }> = ({
       animated: true,
       labelStyle: {
         fontSize: "12px",
-        fontWeight: "bold",
         backgroundColor: "white",
-        padding: "2px",
+        padding: "4px",
         borderRadius: "4px",
         zIndex: 10,
       },
+      labelPosition: 0.5, // Centered along the edge
     }));
 
     return { nodes, edges };
@@ -137,7 +141,7 @@ const WorkflowDiagram: React.FC<{ workflowDetails: WorkflowDetailedDTO }> = ({
       >
         <MiniMap />
         <Controls />
-        <Background variant="cross" gap={12} size={1} />
+        <Background gap={12} size={1} />
       </ReactFlow>
     </div>
   );
