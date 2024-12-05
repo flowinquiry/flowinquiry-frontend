@@ -1,17 +1,19 @@
+import "reactflow/dist/style.css";
+
+import ELK from "elkjs/lib/elk.bundled.js";
 import React, { useEffect } from "react";
 import ReactFlow, {
+  addEdge,
   Background,
+  Connection,
   Controls,
+  Edge,
   MiniMap,
+  Node,
   useEdgesState,
   useNodesState,
-  addEdge,
-  Node,
-  Edge,
-  Connection,
 } from "reactflow";
-import "reactflow/dist/style.css";
-import ELK from "elkjs/lib/elk.bundled.js";
+
 import { WorkflowDetailedDTO } from "@/types/workflows"; // Correct import for bundled ELK
 
 const elk = new ELK();
