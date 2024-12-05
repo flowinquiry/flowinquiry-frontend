@@ -18,7 +18,7 @@ const Page = async ({ params }: { params: { teamId: string } }) => {
     { title: "Dashboard", link: "/portal" },
     { title: "Teams", link: "/portal/teams" },
     { title: team.name, link: `/portal/teams/${obfuscate(team.id)}` },
-    { title: "Requests", link: "#" },
+    { title: "Tickets", link: "#" },
   ];
 
   return (

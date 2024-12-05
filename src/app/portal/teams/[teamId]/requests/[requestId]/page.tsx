@@ -33,7 +33,7 @@ const RequestDetailsPage: React.FC<RequestDetailsProps> = async ({
       link: `/portal/teams/${obfuscate(teamRequest.teamId)}`,
     },
     {
-      title: "Requests",
+      title: "Tickets",
       link: `/portal/teams/${obfuscate(teamRequest.teamId)}/requests`,
     },
     { title: teamRequest.requestTitle!, link: "#" },

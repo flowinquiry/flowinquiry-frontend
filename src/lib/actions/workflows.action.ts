@@ -2,7 +2,11 @@
 
 import { get } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
-import { WorkflowDTO, WorkflowStateDTO } from "@/types/workflows";
+import {
+  WorkflowDetailedDTO,
+  WorkflowDTO,
+  WorkflowStateDTO,
+} from "@/types/workflows";
 
 export const getWorkflowsByTeam = (teamId: number) => {
   return get<Array<WorkflowDTO>>(
@@ -17,5 +21,11 @@ export const getValidTargetStates = async (
 ) => {
   return get<Array<WorkflowStateDTO>>(
     `${BACKEND_API}/api/workflows/${workflowId}/transitions?workflowStateId=${workflowStateId}&&includeSelf=${includeSelf}`,
+  );
+};
+
+export const getWorkflowDetail = async (workflowId: number) => {
+  return get<WorkflowDetailedDTO>(
+    `${BACKEND_API}/api/workflows/${workflowId}/details`,
   );
 };

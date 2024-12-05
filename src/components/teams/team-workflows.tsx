@@ -6,16 +6,16 @@ import React, { useEffect, useState } from "react";
 
 import { Heading } from "@/components/heading";
 import { TeamAvatar } from "@/components/shared/avatar-display";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { ViewProps } from "@/components/ui/ext-form";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import { getWorkflowsByTeam } from "@/lib/actions/workflows.action";
+import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
 import { WorkflowDTO } from "@/types/workflows";
-import { obfuscate } from "@/lib/endecode";
 
 const TeamWorkflowsView = ({ entity: team }: ViewProps<TeamDTO>) => {
   const permissionLevel = usePagePermission();
@@ -36,6 +36,13 @@ const TeamWorkflowsView = ({ entity: team }: ViewProps<TeamDTO>) => {
   useEffect(() => {
     fetchWorkflows();
   }, []);
+
+  const getWorkflowViewRoute = (workflow: WorkflowDTO) => {
+    if (workflow.ownerId === null) {
+      return `/portal/settings/workflows/${obfuscate(workflow.id)}`;
+    }
+    return `/portal/teams/${obfuscate(workflow.ownerId)}/workflows/${obfuscate(workflow.id)}`;
+  };
 
   if (loading) return <div>Loading...</div>;
 
@@ -63,12 +70,25 @@ const TeamWorkflowsView = ({ entity: team }: ViewProps<TeamDTO>) => {
         {workflows.map((workflow) => (
           <div
             key={workflow.id}
-            className="w-[28rem] grid grid-cols-1 gap-4 border border-gray-200 px-4 py-4 rounded-2xl"
+            className="relative w-[28rem] grid grid-cols-1 gap-4 border px-4 py-4 rounded-2xl border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
           >
-            <Button variant="link" className="px-0 h-0">
-              <Link href={`/portal/teams/`}> {workflow.name}</Link>
-            </Button>
-            <div>{workflow.description}</div>
+            {workflow.ownerId === null && (
+              <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-semibold px-2 py-1 rounded-bl-lg">
+                Global
+              </div>
+            )}
+            <Link
+              href={`${getWorkflowViewRoute(workflow)}`}
+              className={cn(
+                buttonVariants({ variant: "link" }),
+                "w-full text-left block px-0",
+              )}
+            >
+              {workflow.name}
+            </Link>
+            <div className="text-sm text-gray-700 dark:text-gray-300">
+              {workflow.description}
+            </div>
           </div>
         ))}
       </div>
