@@ -8,6 +8,7 @@ import { Heading } from "@/components/heading";
 import { TeamAvatar } from "@/components/shared/avatar-display";
 import TeamDashboardTopSection from "@/components/teams/team-dashboard-kpis";
 import RecentTeamActivities from "@/components/teams/team-dashboard-recent-activities";
+import TeamNavLayout from "@/components/teams/team-nav";
 import TicketCreationByDaySeriesChart from "@/components/teams/team-requests-creation-timeseries-chart";
 import TicketDistributionChart from "@/components/teams/team-requests-distribution-chart";
 import TeamOverdueTickets from "@/components/teams/team-requests-overdue";
@@ -24,72 +25,83 @@ import {
 import { usePagePermission } from "@/hooks/use-page-permission";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
+import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
 
 const TeamDashboard = ({ entity: team }: ViewProps<TeamDTO>) => {
   const permissionLevel = usePagePermission();
-  return (
-    <div className="grid grid-cols-1 gap-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Tooltip>
-            <TooltipTrigger>
-              <TeamAvatar imageUrl={team.logoUrl} size="w-20 h-20" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <div className="text-left">
-                <p className="font-bold">{team.name}</p>
-                <p className="text-sm text-gray-500">
-                  {team.slogan ?? "Stronger Together"}
-                </p>
-              </div>
-            </TooltipContent>
-          </Tooltip>
-          <Heading
-            title="Team Dashboard"
-            description="Overview of your team's performance and activities. Monitor team requests, progress, and key metrics at a glance"
-          />
-        </div>
-        {PermissionUtils.canWrite(permissionLevel) && (
-          <Link
-            href={`/portal/teams/${obfuscate(team.id)}/edit`}
-            className={cn(buttonVariants({ variant: "default" }))}
-          >
-            <Plus className="mr-2 h-4 w-4" /> Edit Team
-          </Link>
-        )}
-      </div>
-      <Separator />
-      <div className="space-y-8">
-        <TeamDashboardTopSection teamId={team.id!} />
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="flex flex-col">
-            <TicketCreationByDaySeriesChart teamId={team.id!} days={7} />
-          </div>
+  const breadcrumbItems = [
+    { title: "Dashboard", link: "/portal" },
+    { title: "Teams", link: "/portal/teams" },
+    { title: team.name, link: "#" },
+  ];
 
-          <div className="flex flex-col">
-            <RecentTeamActivities teamId={team.id!} />
+  return (
+    <BreadcrumbProvider items={breadcrumbItems}>
+      <TeamNavLayout teamId={team.id!}>
+        <div className="grid grid-cols-1 gap-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Tooltip>
+                <TooltipTrigger>
+                  <TeamAvatar imageUrl={team.logoUrl} size="w-20 h-20" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div className="text-left">
+                    <p className="font-bold">{team.name}</p>
+                    <p className="text-sm text-gray-500">
+                      {team.slogan ?? "Stronger Together"}
+                    </p>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+              <Heading
+                title="Team Dashboard"
+                description="Overview of your team's performance and activities. Monitor team requests, progress, and key metrics at a glance"
+              />
+            </div>
+            {PermissionUtils.canWrite(permissionLevel) && (
+              <Link
+                href={`/portal/teams/${obfuscate(team.id)}/edit`}
+                className={cn(buttonVariants({ variant: "default" }))}
+              >
+                <Plus className="mr-2 h-4 w-4" /> Edit Team
+              </Link>
+            )}
+          </div>
+          <Separator />
+          <div className="space-y-8">
+            <TeamDashboardTopSection teamId={team.id!} />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="flex flex-col">
+                <TicketCreationByDaySeriesChart teamId={team.id!} days={7} />
+              </div>
+
+              <div className="flex flex-col">
+                <RecentTeamActivities teamId={team.id!} />
+              </div>
+            </div>
+            <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+              <div className="flex flex-col">
+                <UnassignedTickets teamId={team.id!} />
+              </div>
+              <div className="flex flex-col">
+                <TeamOverdueTickets teamId={team.id!} />
+              </div>
+            </div>
+            <div className="flex flex-wrap justify-center gap-4">
+              <div className="flex-1 min-w-[400px] max-w-[600px]">
+                <TicketDistributionChart teamId={team.id!} />
+              </div>
+              <div className="flex-1 min-w-[400px] max-w-[600px]">
+                <TicketPriorityPieChart teamId={team.id!} />
+              </div>
+            </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-          <div className="flex flex-col">
-            <UnassignedTickets teamId={team.id!} />
-          </div>
-          <div className="flex flex-col">
-            <TeamOverdueTickets teamId={team.id!} />
-          </div>
-        </div>
-        <div className="flex flex-wrap justify-center gap-4">
-          <div className="flex-1 min-w-[400px] max-w-[600px]">
-            <TicketDistributionChart teamId={team.id!} />
-          </div>
-          <div className="flex-1 min-w-[400px] max-w-[600px]">
-            <TicketPriorityPieChart teamId={team.id!} />
-          </div>
-        </div>
-      </div>
-    </div>
+      </TeamNavLayout>
+    </BreadcrumbProvider>
   );
 };
 

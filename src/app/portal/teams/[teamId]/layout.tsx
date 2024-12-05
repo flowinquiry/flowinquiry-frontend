@@ -11,11 +11,17 @@ export default function TeamsLayout({
   params: { teamId: string };
 }) {
   const teamIdNum =
-    params.teamId !== "new" ? deobfuscateToNumber(params.teamId) : null;
+    params.teamId === "new" ? null : deobfuscateToNumber(params.teamId);
 
-  return params.teamId === "new" ? (
-    <>{children}</>
-  ) : (
-    <UserTeamRoleProvider teamId={teamIdNum!}>{children}</UserTeamRoleProvider>
+  return (
+    <>
+      {teamIdNum === null ? (
+        children
+      ) : (
+        <UserTeamRoleProvider teamId={teamIdNum}>
+          {children}
+        </UserTeamRoleProvider>
+      )}
+    </>
   );
 }

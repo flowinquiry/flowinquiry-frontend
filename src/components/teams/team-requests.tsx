@@ -14,6 +14,7 @@ import { Heading } from "@/components/heading";
 import { TeamAvatar } from "@/components/shared/avatar-display";
 import LoadingPlaceHolder from "@/components/shared/loading-place-holder";
 import PaginationExt from "@/components/shared/pagination-ext";
+import TeamNavLayout from "@/components/teams/team-nav";
 import NewRequestToTeamDialog from "@/components/teams/team-new-request-dialog";
 import TeamRequestsStatusView from "@/components/teams/team-requests-status";
 import { Button } from "@/components/ui/button";
@@ -34,6 +35,8 @@ import {
 import { usePagePermission } from "@/hooks/use-page-permission";
 import { searchTeamRequests } from "@/lib/actions/teams-request.action";
 import { getWorkflowsByTeam } from "@/lib/actions/workflows.action";
+import { obfuscate } from "@/lib/endecode";
+import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { Filter, GroupFilter, QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
@@ -48,6 +51,13 @@ export type Pagination = {
 };
 
 const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
+  const breadcrumbItems = [
+    { title: "Dashboard", link: "/portal" },
+    { title: "Teams", link: "/portal/teams" },
+    { title: team.name, link: `/portal/teams/${obfuscate(team.id)}` },
+    { title: "Tickets", link: "#" },
+  ];
+
   const permissionLevel = usePagePermission();
   const teamRole = useUserTeamRole().role;
 
@@ -205,146 +215,151 @@ const TeamRequestsView = ({ entity: team }: ViewProps<TeamDTO>) => {
   };
 
   return (
-    <div className="grid grid-cols-1 gap-4">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Tooltip>
-            <TooltipTrigger>
-              <TeamAvatar imageUrl={team.logoUrl} size="w-20 h-20" />
-            </TooltipTrigger>
-            <TooltipContent>
-              <div className="text-left">
-                <p className="font-bold">{team.name}</p>
-                <p className="text-sm text-gray-500">
-                  {team.slogan ?? "Stronger Together"}
-                </p>
-              </div>
-            </TooltipContent>
-          </Tooltip>
-          <Heading
-            title={`Team Tickets (${totalElements})`}
-            description="Monitor and handle your team's tickets. Stay on top of assignments and progress."
-          />
-        </div>
-        {(PermissionUtils.canWrite(permissionLevel) ||
-          teamRole === "Manager" ||
-          teamRole === "Member" ||
-          teamRole === "Guest") && (
-          <div>
-            <div className="flex items-center">
-              <Button className={"rounded-r-none"}>New</Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    className={
-                      "rounded-l-none border-l-2 border-l-current px-2"
-                    }
-                  >
-                    <CaretDownIcon />
-                  </Button>
-                </DropdownMenuTrigger>
-                {workflows ? (
-                  <DropdownMenuContent>
-                    {workflows.map((workflow) => (
-                      <DropdownMenuItem
-                        key={workflow.id}
-                        className="cursor-pointer"
-                        onClick={() => {
-                          setSelectedWorkflow(workflow);
-                          setOpen(true);
-                        }}
-                      >
-                        {workflow.requestName}
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                ) : (
-                  <DropdownMenuContent>
-                    No workflow is available for team
-                  </DropdownMenuContent>
-                )}
-              </DropdownMenu>
+    <BreadcrumbProvider items={breadcrumbItems}>
+      <TeamNavLayout teamId={team.id!}>
+        <div className="grid grid-cols-1 gap-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <Tooltip>
+                <TooltipTrigger>
+                  <TeamAvatar imageUrl={team.logoUrl} size="w-20 h-20" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div className="text-left">
+                    <p className="font-bold">{team.name}</p>
+                    <p className="text-sm text-gray-500">
+                      {team.slogan ?? "Stronger Together"}
+                    </p>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
+              <Heading
+                title={`Team Tickets (${totalElements})`}
+                description="Monitor and handle your team's tickets. Stay on top of assignments and progress."
+              />
             </div>
-            <NewRequestToTeamDialog
-              open={open}
-              setOpen={setOpen}
-              teamEntity={team}
-              workflow={selectedWorkflow!}
-              onSaveSuccess={onCreatedTeamRequestSuccess}
-            />
+            {(PermissionUtils.canWrite(permissionLevel) ||
+              teamRole === "Manager" ||
+              teamRole === "Member" ||
+              teamRole === "Guest") && (
+              <div>
+                <div className="flex items-center">
+                  <Button className={"rounded-r-none"}>New</Button>
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        className={
+                          "rounded-l-none border-l-2 border-l-current px-2"
+                        }
+                      >
+                        <CaretDownIcon />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    {workflows ? (
+                      <DropdownMenuContent>
+                        {workflows.map((workflow) => (
+                          <DropdownMenuItem
+                            key={workflow.id}
+                            className="cursor-pointer"
+                            onClick={() => {
+                              setSelectedWorkflow(workflow);
+                              setOpen(true);
+                            }}
+                          >
+                            {workflow.requestName}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    ) : (
+                      <DropdownMenuContent>
+                        No workflow is available for team
+                      </DropdownMenuContent>
+                    )}
+                  </DropdownMenu>
+                </div>
+                <NewRequestToTeamDialog
+                  open={open}
+                  setOpen={setOpen}
+                  teamEntity={team}
+                  workflow={selectedWorkflow!}
+                  onSaveSuccess={onCreatedTeamRequestSuccess}
+                />
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg shadow-md border border-gray-300 dark:border-gray-700">
-        <Input
-          type="text"
-          placeholder="Search tickets"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          className="w-full border border-gray-300 dark:border-gray-700"
-        />
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Toggle
-              pressed={isAscending}
-              onPressedChange={setIsAscending}
-              className="flex items-center justify-center p-2 border border-gray-300 dark:border-gray-700 rounded-md"
-              aria-label="Sort Order"
-            >
-              {isAscending ? (
-                <ArrowUp className="w-5 h-5" />
-              ) : (
-                <ArrowDown className="w-5 h-5" />
-              )}
-            </Toggle>
-          </TooltipTrigger>
-          <TooltipContent>
-            <p>
-              Sort by Created Date ({isAscending ? "Ascending" : "Descending"})
-            </p>
-          </TooltipContent>
-        </Tooltip>
-        <div className="flex items-center gap-2">
-          {[
-            { label: "New", icon: Clock },
-            { label: "Assigned", icon: UserCheck },
-            { label: "Completed", icon: CheckCircle },
-          ].map(({ label, icon: Icon }) => (
-            <Tooltip key={label}>
+          <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg shadow-md border border-gray-300 dark:border-gray-700">
+            <Input
+              type="text"
+              placeholder="Search tickets"
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
+              className="w-full border border-gray-300 dark:border-gray-700"
+            />
+            <Tooltip>
               <TooltipTrigger asChild>
-                <Button
-                  variant={statuses.includes(label) ? "default" : "outline"}
-                  className="p-2 flex items-center justify-center"
-                  onClick={() => toggleStatus(label)}
+                <Toggle
+                  pressed={isAscending}
+                  onPressedChange={setIsAscending}
+                  className="flex items-center justify-center p-2 border border-gray-300 dark:border-gray-700 rounded-md"
+                  aria-label="Sort Order"
                 >
-                  <Icon className="w-5 h-5" />
-                </Button>
+                  {isAscending ? (
+                    <ArrowUp className="w-5 h-5" />
+                  ) : (
+                    <ArrowDown className="w-5 h-5" />
+                  )}
+                </Toggle>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{`Filter by ${label} status`}</p>
+                <p>
+                  Sort by Created Date (
+                  {isAscending ? "Ascending" : "Descending"})
+                </p>
               </TooltipContent>
             </Tooltip>
-          ))}
-        </div>
-      </div>
+            <div className="flex items-center gap-2">
+              {[
+                { label: "New", icon: Clock },
+                { label: "Assigned", icon: UserCheck },
+                { label: "Completed", icon: CheckCircle },
+              ].map(({ label, icon: Icon }) => (
+                <Tooltip key={label}>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant={statuses.includes(label) ? "default" : "outline"}
+                      className="p-2 flex items-center justify-center"
+                      onClick={() => toggleStatus(label)}
+                    >
+                      <Icon className="w-5 h-5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>{`Filter by ${label} status`}</p>
+                  </TooltipContent>
+                </Tooltip>
+              ))}
+            </div>
+          </div>
 
-      {loading ? (
-        <div className="flex justify-center py-4">
-          <LoadingPlaceHolder message="Loading tickets ..." />
+          {loading ? (
+            <div className="flex justify-center py-4">
+              <LoadingPlaceHolder message="Loading tickets ..." />
+            </div>
+          ) : (
+            <>
+              <TeamRequestsStatusView requests={requests} />
+              <PaginationExt
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={(page) => {
+                  setCurrentPage(page);
+                }}
+              />
+            </>
+          )}
         </div>
-      ) : (
-        <>
-          <TeamRequestsStatusView requests={requests} />
-          <PaginationExt
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={(page) => {
-              setCurrentPage(page);
-            }}
-          />
-        </>
-      )}
-    </div>
+      </TeamNavLayout>
+    </BreadcrumbProvider>
   );
 };
 

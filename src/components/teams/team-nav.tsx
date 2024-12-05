@@ -4,8 +4,10 @@ import { Activity, ArrowRightCircleIcon, Shuffle, Users } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
+import { useBreadcrumb } from "@/providers/breadcrumb-provider";
 
 const TeamNavLayout = ({
   teamId,
@@ -39,32 +41,41 @@ const TeamNavLayout = ({
     },
   ];
 
-  return (
-    <div className="flex h-full pt-4 gap-4">
-      <aside className="w-64 bg-[hsl(var(--card))] text-[hsl(var(--card-foreground))] h-full">
-        <div>
-          <nav className="space-y-2">
-            {teamFeatures.map((feature) => (
-              <Link
-                key={feature.href}
-                href={feature.href}
-                className={cn(
-                  "flex items-center p-2 text-sm font-medium rounded-md",
-                  pathname.startsWith(feature.href)
-                    ? "bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))]"
-                    : "text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]",
-                )}
-              >
-                <feature.icon className="w-5 h-5 mr-2" />
-                {feature.label}
-              </Link>
-            ))}
-          </nav>
-        </div>
-      </aside>
+  const breadcrumbsItems = useBreadcrumb();
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto">{children}</main>
+  return (
+    <div className="h-full flex flex-col">
+      {/* Breadcrumb Bar */}
+      <Breadcrumbs items={breadcrumbsItems} />
+
+      {/* Main Layout with Navigator and Content */}
+      <div className="flex flex-1 gap-4 pt-4">
+        {/* Sidebar Navigation */}
+        <aside className="w-64 bg-[hsl(var(--card))] text-[hsl(var(--card-foreground))] h-full">
+          <div>
+            <nav className="space-y-2">
+              {teamFeatures.map((feature) => (
+                <Link
+                  key={feature.href}
+                  href={feature.href}
+                  className={cn(
+                    "flex items-center p-2 text-sm font-medium rounded-md",
+                    pathname.startsWith(feature.href)
+                      ? "bg-[hsl(var(--secondary))] text-[hsl(var(--secondary-foreground))]"
+                      : "text-[hsl(var(--muted-foreground))] hover:bg-[hsl(var(--muted))]",
+                  )}
+                >
+                  <feature.icon className="w-5 h-5 mr-2" />
+                  {feature.label}
+                </Link>
+              ))}
+            </nav>
+          </div>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 overflow-auto">{children}</main>
+      </div>
     </div>
   );
 };
