@@ -13,7 +13,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import WorkflowDiagram from "@/components/workflows/workflow-diagram-view";
+import { WorkflowDiagram } from "@/components/workflows/workflow-diagram-view";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import { getWorkflowDetail } from "@/lib/actions/workflows.action";
 import { obfuscate } from "@/lib/endecode";
@@ -102,7 +102,7 @@ const WorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
           </div>
           <div>
             {workflowDetail && (
-              <WorkflowDiagram workflowDetails={workflowDetail!} />
+              <WorkflowDiagram workflowDetails={workflowDetail} />
             )}
           </div>
         </div>

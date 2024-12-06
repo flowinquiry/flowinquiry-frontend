@@ -1,208 +1,148 @@
-import "reactflow/dist/style.css";
+import "@xyflow/react/dist/style.css";
 
-import ELK from "elkjs/lib/elk.bundled.js";
-import { ZoomIn, ZoomOut } from "lucide-react";
-import React, { useCallback, useEffect } from "react";
+import dagre from "@dagrejs/dagre";
 import {
   addEdge,
   Background,
   Connection,
+  ConnectionLineType,
   Edge,
   Node,
-  Panel,
   ReactFlow,
   ReactFlowProvider,
   useEdgesState,
   useNodesState,
-  useReactFlow,
-} from "reactflow";
+} from "@xyflow/react";
+import React, { useCallback, useEffect } from "react";
 
-import CustomNode from "@/components/workflows/workflow-custom-node";
 import { WorkflowDetailedDTO } from "@/types/workflows";
 
-const elk = new ELK();
+// Constants for node dimensions
+const nodeWidth = 172;
+const nodeHeight = 36;
 
-const elkOptions = {
-  "elk.algorithm": "layered",
-  "elk.layered.spacing.nodeNodeBetweenLayers": "100",
-  "elk.spacing.nodeNode": "80",
-};
+// Configure Dagre graph
+const dagreGraph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 
-const generateGraphElements = (
-  workflowDetails: WorkflowDetailedDTO,
-): { nodes: Node[]; edges: Edge[] } => {
-  const nodes: Node[] = workflowDetails.states.map((state) => ({
-    id: state.id!.toString(),
-    data: {
-      label: state.stateName,
-      backgroundColor: state.isInitial
-        ? "#4CAF50"
-        : state.isFinal
-          ? "#FF5722"
-          : "#2196F3",
-    },
-    position: { x: 0, y: 0 },
-    type: "custom",
-  }));
-
-  const edges: Edge[] = workflowDetails.transitions.map((transition) => ({
-    id: transition.id!.toString(),
-    source: transition.sourceStateId.toString(),
-    target: transition.targetStateId.toString(),
-    label: transition.eventName,
-    animated: true,
-    type: "smoothstep",
-  }));
-
-  return { nodes, edges };
-};
-
-const getLayoutedElements = async (
+// Function to layout nodes and edges
+const getLayoutedElements = (
   nodes: Node[],
   edges: Edge[],
-  options: { "elk.direction"?: "UP" | "DOWN" | "LEFT" | "RIGHT" } = {},
-): Promise<{ nodes: Node[]; edges: Edge[] }> => {
-  const isHorizontal = options["elk.direction"] === "RIGHT";
+  direction: "TB" | "LR" = "TB",
+): { nodes: Node[]; edges: Edge[] } => {
+  dagreGraph.setGraph({ rankdir: direction });
 
-  const graph = {
-    id: "root",
-    layoutOptions: options,
-    children: nodes.map((node) => ({
-      id: node.id,
-      targetPosition: isHorizontal ? "left" : "top",
-      sourcePosition: isHorizontal ? "right" : "bottom",
-      width: 150,
-      height: 50,
-    })),
-    edges: edges.map((edge) => ({
-      id: edge.id,
-      sources: [edge.source],
-      targets: [edge.target],
-    })),
-  };
+  nodes.forEach((node) => {
+    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+  });
 
-  const layoutedGraph = await elk.layout(graph);
+  edges.forEach((edge) => {
+    dagreGraph.setEdge(edge.source, edge.target);
+  });
 
-  // Centering adjustment
-  const minX = Math.min(
-    ...layoutedGraph.children!.map((child) => child.x || 0),
-  );
-  const maxX = Math.max(
-    ...layoutedGraph.children!.map(
-      (child) => (child.x || 0) + (child.width || 0),
-    ),
-  );
+  dagre.layout(dagreGraph);
 
-  const containerWidth = 800;
-  const offsetX = (containerWidth - (maxX - minX)) / 2;
+  const newNodes = nodes.map((node) => {
+    const nodeWithPosition = dagreGraph.node(node.id);
+    return {
+      ...node,
+      position: {
+        x: nodeWithPosition.x - nodeWidth / 2,
+        y: nodeWithPosition.y - nodeHeight / 2,
+      },
+    };
+  });
 
-  return {
-    nodes: (layoutedGraph.children || []).map((child) => ({
-      id: child.id,
-      position: { x: (child.x || 0) + offsetX, y: child.y || 0 },
-      data: nodes.find((n) => n.id === child.id)?.data || {},
-      type: nodes.find((n) => n.id === child.id)?.type || "default",
-    })),
-    edges: edges,
-  };
+  return { nodes: newNodes, edges };
 };
 
-const LayoutFlow: React.FC<{ workflowDetails: WorkflowDetailedDTO }> = ({
-  workflowDetails,
-}) => {
-  const { nodes: initialNodes, edges: initialEdges } =
-    generateGraphElements(workflowDetails);
+const convertStatesToNodes = (workflowDetails: WorkflowDetailedDTO): Node[] => {
+  return workflowDetails.states.map((state) => ({
+    id: state.id!.toString(), // Convert id to string as Node.id must be a string
+    data: {
+      label: state.stateName, // Label for the node
+      backgroundColor: state.isInitial
+        ? "#4CAF50" // Green for initial states
+        : state.isFinal
+          ? "#FF5722" // Red for final states
+          : "#2196F3", // Blue for intermediate states
+    },
+    position: { x: 0, y: 0 }, // Default position; will be adjusted by layout
+    type: "default", // Set type as default; can be customized further
+  }));
+};
 
-  const [nodes, setNodes, onNodesChange] = useNodesState([]);
-  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
-  const { zoomIn, zoomOut, fitView } = useReactFlow(); // Added fitView to ensure proper scaling
+const convertTransitionsToEdges = (
+  workflowDetails: WorkflowDetailedDTO,
+): Edge[] => {
+  return workflowDetails.transitions.map((transition) => ({
+    id: `e${transition.sourceStateId}-${transition.targetStateId}`, // Create a unique ID for the edge
+    source: transition.sourceStateId.toString(), // Convert sourceStateId to string
+    target: transition.targetStateId.toString(), // Convert targetStateId to string
+    label: transition.eventName, // Use eventName as the label for the edge
+    type: ConnectionLineType.SmoothStep, // Use SmoothStep for a curved line
+    animated: true, // Enable animation for the edge
+  }));
+};
+
+// Main Flow Component
+export const WorkflowDiagram: React.FC<{
+  workflowDetails: WorkflowDetailedDTO;
+}> = ({ workflowDetails }) => {
+  const [nodes, setNodes, onNodesChange] = useNodesState([] as Node[]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
+
+  useEffect(() => {
+    function initNodesAndEdges() {
+      const { nodes: layoutedNodes, edges: layoutedEdges } =
+        getLayoutedElements(
+          convertStatesToNodes(workflowDetails),
+          convertTransitionsToEdges(workflowDetails),
+        );
+      setNodes(layoutedNodes);
+      setEdges(layoutedEdges);
+    }
+    initNodesAndEdges();
+  }, []);
 
   const onConnect = useCallback(
-    (params: Edge<any> | Connection) =>
-      setEdges((eds) => addEdge({ ...params, animated: true }, eds)),
-    [],
+    (params: Connection) =>
+      setEdges((eds) =>
+        addEdge(
+          { ...params, type: ConnectionLineType.SmoothStep, animated: true },
+          eds,
+        ),
+      ),
+    [setEdges],
   );
 
   const onLayout = useCallback(
-    ({ direction }: { direction: "DOWN" | "RIGHT" }) => {
-      const opts = { "elk.direction": direction, ...elkOptions };
+    (direction: "TB" | "LR") => {
+      const { nodes: layoutedNodes, edges: layoutedEdges } =
+        getLayoutedElements(nodes, edges, direction);
 
-      getLayoutedElements(nodes, edges, opts).then(
-        ({ nodes: layoutedNodes, edges: layoutedEdges }) => {
-          setNodes(layoutedNodes);
-          setEdges(layoutedEdges);
-          fitView(); // Automatically fit the view
-        },
-      );
+      setNodes([...layoutedNodes]);
+      setEdges([...layoutedEdges]);
     },
-    [nodes, edges, setNodes, setEdges, fitView],
+    [nodes, edges],
   );
-
-  useEffect(() => {
-    // Apply initial layout and fit view when the workflow loads
-    getLayoutedElements(initialNodes, initialEdges, {
-      "elk.direction": "DOWN",
-      ...elkOptions,
-    }).then(({ nodes: layoutedNodes, edges: layoutedEdges }) => {
-      setNodes(layoutedNodes);
-      setEdges(layoutedEdges);
-      fitView(); // Automatically fit the view
-    });
-  }, [initialNodes, initialEdges, fitView]);
 
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "50rem",
-        position: "relative",
-      }}
-    >
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onConnect={onConnect}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        nodeTypes={{ custom: CustomNode }}
-        style={{ backgroundColor: "#F7F9FB" }}
-      >
-        <Panel position="bottom-left">
-          <button
-            onClick={() => zoomIn()}
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              margin: "0 5px",
-            }}
-          >
-            <ZoomIn />
-          </button>
-          <button
-            onClick={() => zoomOut()}
-            style={{
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              margin: "0 5px",
-            }}
-          >
-            <ZoomOut />
-          </button>
-        </Panel>
-        <Background />
-      </ReactFlow>
-    </div>
+    <ReactFlowProvider>
+      <div style={{ width: "100%", height: "50rem" }}>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          connectionLineType={ConnectionLineType.SmoothStep}
+          fitView
+          style={{ backgroundColor: "#F7F9FB" }}
+        >
+          <Background />
+        </ReactFlow>
+      </div>
+    </ReactFlowProvider>
   );
 };
-
-export default ({
-  workflowDetails,
-}: {
-  workflowDetails: WorkflowDetailedDTO;
-}) => (
-  <ReactFlowProvider>
-    <LayoutFlow workflowDetails={workflowDetails} />
-  </ReactFlowProvider>
-);
