@@ -36,7 +36,7 @@ const TicketCreationByDaySeriesChart = ({
         .then((data) => {
           const formattedData = data.map((item, index) => ({
             ...item,
-            displayDay: `Day ${index + 1}`, // Use "Day 1", "Day 2", etc., as the X-Axis label
+            displayDay: `Day ${index + 1}`,
           }));
           setData(formattedData);
         })
@@ -58,7 +58,6 @@ const TicketCreationByDaySeriesChart = ({
             </Spinner>
           </div>
         ) : (
-          // Render the chart if not loading
           <ResponsiveContainer width="100%" height="100%">
             <LineChart
               data={data}
@@ -67,15 +66,15 @@ const TicketCreationByDaySeriesChart = ({
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis
                 dataKey="displayDay" // Use "Day 1", "Day 2", etc., for better readability
-                tick={{ fontSize: 12 }} // Adjust tick size for clarity
+                tick={{ fontSize: 12 }}
               />
               <YAxis />
               <Tooltip
                 formatter={(value: number, name: string) => [
                   `${value}`,
-                  name === "createdCount"
-                    ? "Created Tickets"
-                    : "Closed Tickets",
+                  name === "Created Tickets"
+                    ? `Created Tickets`
+                    : `Closed Tickets`,
                 ]}
                 labelFormatter={(label: string) => {
                   const date = data.find((d) => d.displayDay === label)?.date;

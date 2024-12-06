@@ -58,17 +58,17 @@ const getLayoutedElements = (
 
 const convertStatesToNodes = (workflowDetails: WorkflowDetailedDTO): Node[] => {
   return workflowDetails.states.map((state) => ({
-    id: state.id!.toString(), // Convert id to string as Node.id must be a string
+    id: state.id!.toString(), // Ensure id is a string
     data: {
-      label: state.stateName, // Label for the node
+      label: state.stateName,
       backgroundColor: state.isInitial
         ? "#4CAF50" // Green for initial states
         : state.isFinal
           ? "#FF5722" // Red for final states
           : "#2196F3", // Blue for intermediate states
     },
-    position: { x: 0, y: 0 }, // Default position; will be adjusted by layout
-    type: "default", // Set type as default; can be customized further
+    position: { x: 0, y: 0 }, // Default position
+    type: "default", // Specify the custom node type
   }));
 };
 
@@ -129,7 +129,7 @@ export const WorkflowDiagram: React.FC<{
 
   return (
     <ReactFlowProvider>
-      <div style={{ width: "100%", height: "50rem" }}>
+      <div style={{ width: "100%", height: "60rem" }}>
         <ReactFlow
           nodes={nodes}
           edges={edges}
