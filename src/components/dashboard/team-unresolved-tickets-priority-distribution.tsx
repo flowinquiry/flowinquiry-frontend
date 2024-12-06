@@ -18,6 +18,14 @@ import { Spinner } from "@/components/ui/spinner";
 import { getTeamTicketPriorityDistributionForUser } from "@/lib/actions/teams-request.action";
 import { TeamRequestPriority } from "@/types/team-requests";
 
+const PRIORITY_COLORS: Record<TeamRequestPriority, string> = {
+  Critical: "#dc2626", // Red
+  High: "#ea580c", // Orange
+  Medium: "#facc15", // Yellow
+  Low: "#22c55e", // Green
+  Trivial: "#9ca3af", // Gray
+};
+
 const TeamUnresolvedTicketsPriorityDistributionChart = () => {
   const { data: session } = useSession();
   const userId = Number(session?.user?.id!);
@@ -29,32 +37,34 @@ const TeamUnresolvedTicketsPriorityDistributionChart = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      getTeamTicketPriorityDistributionForUser(userId)
-        .then((result) => {
-          const chartData = result.reduce(
-            (acc, item) => {
-              if (!acc[item.teamName]) {
-                acc[item.teamName] = {
-                  Critical: 0,
-                  High: 0,
-                  Medium: 0,
-                  Low: 0,
-                  Trivial: 0,
-                };
-              }
-              acc[item.teamName][item.priority] = item.count;
-              return acc;
-            },
-            {} as Record<string, Record<TeamRequestPriority, number>>,
-          );
-
-          setData(chartData);
-        })
-        .finally(() => setLoading(false));
+      try {
+        const result = await getTeamTicketPriorityDistributionForUser(userId);
+        const chartData = result.reduce(
+          (acc, item) => {
+            if (!acc[item.teamName]) {
+              acc[item.teamName] = {
+                Critical: 0,
+                High: 0,
+                Medium: 0,
+                Low: 0,
+                Trivial: 0,
+              };
+            }
+            acc[item.teamName][item.priority] = item.count;
+            return acc;
+          },
+          {} as Record<string, Record<TeamRequestPriority, number>>,
+        );
+        setData(chartData);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchData();
-  }, []);
+  }, [userId]);
 
   const chartData = Object.entries(data).map(([teamName, priorities]) => ({
     teamName,
@@ -67,7 +77,7 @@ const TeamUnresolvedTicketsPriorityDistributionChart = () => {
         <CardTitle>Unresolved Tickets by Team</CardTitle>
       </CardHeader>
       <CardContent>
-        <ResponsiveContainer width="100%">
+        <ResponsiveContainer width="100%" height={400}>
           {loading ? (
             <div className="flex justify-center items-center">
               <Spinner />
@@ -86,38 +96,21 @@ const TeamUnresolvedTicketsPriorityDistributionChart = () => {
                 left: 150,
                 bottom: 20,
               }}
-              barSize={40} // Set a fixed bar size
+              barSize={40}
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis type="number" />
               <YAxis type="category" dataKey="teamName" />
               <Tooltip />
               <Legend />
-              <Bar
-                dataKey="Critical"
-                stackId="a"
-                fill="#dc2626"
-              /> {/* Red */}
-              <Bar
-                dataKey="High"
-                stackId="a"
-                fill="#ea580c"
-              /> {/* Orange */}
-              <Bar
-                dataKey="Medium"
-                stackId="a"
-                fill="#facc15"
-              /> {/* Yellow */}
-              <Bar
-                dataKey="Low"
-                stackId="a"
-                fill="#22c55e"
-              /> {/* Green */}
-              <Bar
-                dataKey="Trivial"
-                stackId="a"
-                fill="#9ca3af"
-              /> {/* Gray */}
+              {Object.keys(PRIORITY_COLORS).map((priority) => (
+                <Bar
+                  key={`bar-${priority}`} // Unique key for each bar
+                  dataKey={priority}
+                  stackId="a"
+                  fill={PRIORITY_COLORS[priority as TeamRequestPriority]}
+                />
+              ))}
             </BarChart>
           )}
         </ResponsiveContainer>
