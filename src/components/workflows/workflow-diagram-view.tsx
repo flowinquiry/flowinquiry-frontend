@@ -1,6 +1,7 @@
 import "reactflow/dist/style.css";
 
 import ELK from "elkjs/lib/elk.bundled.js";
+import { ZoomIn, ZoomOut } from "lucide-react";
 import React, { useCallback, useLayoutEffect } from "react";
 import {
   addEdge,
@@ -15,10 +16,9 @@ import {
   useNodesState,
   useReactFlow,
 } from "reactflow";
-import { ZoomIn, ZoomOut } from "lucide-react";
 
-import { WorkflowDetailedDTO } from "@/types/workflows";
 import CustomNode from "@/components/workflows/workflow-custom-node";
+import { WorkflowDetailedDTO } from "@/types/workflows";
 
 const elk = new ELK();
 

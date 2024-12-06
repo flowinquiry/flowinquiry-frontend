@@ -17,12 +17,21 @@ import { obfuscate } from "@/lib/endecode";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
 import { useTeam } from "@/providers/team-provider";
 import { WorkflowDetailedDTO } from "@/types/workflows";
+import { PermissionUtils } from "@/types/resources";
+import { Button } from "@/components/ui/button";
+import { Edit, Plus } from "lucide-react";
+import AddUserToTeamDialog from "@/components/teams/team-add-user-dialog";
+import { usePagePermission } from "@/hooks/use-page-permission";
+import { useUserTeamRole } from "@/providers/user-team-role-provider";
 
 const WorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
   const team = useTeam();
   const [workflowDetail, setWorkflowDetail] =
     useState<WorkflowDetailedDTO | null>(null);
   const [loading, setLoading] = useState(true);
+
+  const permissionLevel = usePagePermission();
+  const teamRole = useUserTeamRole().role;
 
   useEffect(() => {
     async function fetchWorkflowDetail() {
@@ -83,6 +92,14 @@ const WorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
               </Tooltip>
               <Heading title={`Workflow`} description="View Workflow Detail" />
             </div>
+            {(PermissionUtils.canWrite(permissionLevel) ||
+              teamRole === "Manager") && (
+              <div>
+                <Button>
+                  <Edit /> Customize Workflow
+                </Button>
+              </div>
+            )}
           </div>
           <div>
             {workflowDetail && (
