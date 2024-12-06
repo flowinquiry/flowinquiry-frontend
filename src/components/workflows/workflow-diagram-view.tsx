@@ -2,7 +2,7 @@ import "reactflow/dist/style.css";
 
 import ELK from "elkjs/lib/elk.bundled.js";
 import { ZoomIn, ZoomOut } from "lucide-react";
-import React, { useCallback, useLayoutEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import {
   addEdge,
   Background,
@@ -83,7 +83,7 @@ const getLayoutedElements = async (
 
   const layoutedGraph = await elk.layout(graph);
 
-  // Get the bounding box of the layout
+  // Centering adjustment
   const minX = Math.min(
     ...layoutedGraph.children!.map((child) => child.x || 0),
   );
@@ -93,8 +93,7 @@ const getLayoutedElements = async (
     ),
   );
 
-  // Calculate the center offset to align the graph to the top-center
-  const containerWidth = 800; // Assume a fixed width for the container or pass it dynamically
+  const containerWidth = 800;
   const offsetX = (containerWidth - (maxX - minX)) / 2;
 
   return {
@@ -114,12 +113,13 @@ const LayoutFlow: React.FC<{ workflowDetails: WorkflowDetailedDTO }> = ({
   const { nodes: initialNodes, edges: initialEdges } =
     generateGraphElements(workflowDetails);
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
-  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
-  const { zoomIn, zoomOut } = useReactFlow();
+  const [nodes, setNodes, onNodesChange] = useNodesState([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState([]);
+  const { zoomIn, zoomOut, fitView } = useReactFlow(); // Added fitView to ensure proper scaling
 
   const onConnect = useCallback(
-    (params: Edge<any> | Connection) => setEdges((eds) => addEdge(params, eds)),
+    (params: Edge<any> | Connection) =>
+      setEdges((eds) => addEdge({ ...params, animated: true }, eds)),
     [],
   );
 
@@ -131,22 +131,31 @@ const LayoutFlow: React.FC<{ workflowDetails: WorkflowDetailedDTO }> = ({
         ({ nodes: layoutedNodes, edges: layoutedEdges }) => {
           setNodes(layoutedNodes);
           setEdges(layoutedEdges);
+          fitView(); // Automatically fit the view
         },
       );
     },
-    [nodes, edges, setNodes, setEdges],
+    [nodes, edges, setNodes, setEdges, fitView],
   );
 
-  useLayoutEffect(() => {
-    onLayout({ direction: "DOWN" });
-  }, [onLayout]);
+  useEffect(() => {
+    // Apply initial layout and fit view when the workflow loads
+    getLayoutedElements(initialNodes, initialEdges, {
+      "elk.direction": "DOWN",
+      ...elkOptions,
+    }).then(({ nodes: layoutedNodes, edges: layoutedEdges }) => {
+      setNodes(layoutedNodes);
+      setEdges(layoutedEdges);
+      fitView(); // Automatically fit the view
+    });
+  }, [initialNodes, initialEdges, fitView]);
 
   return (
     <div
       style={{
         width: "100%",
         height: "50rem",
-        position: "sticky",
+        position: "relative",
       }}
     >
       <ReactFlow

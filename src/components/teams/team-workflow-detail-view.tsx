@@ -1,10 +1,12 @@
 "use client";
 
+import { Edit } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 import { Heading } from "@/components/heading";
 import { TeamAvatar } from "@/components/shared/avatar-display";
 import TeamNavLayout from "@/components/teams/team-nav";
+import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import {
   Tooltip,
@@ -12,17 +14,14 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import WorkflowDiagram from "@/components/workflows/workflow-diagram-view";
+import { usePagePermission } from "@/hooks/use-page-permission";
 import { getWorkflowDetail } from "@/lib/actions/workflows.action";
 import { obfuscate } from "@/lib/endecode";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
 import { useTeam } from "@/providers/team-provider";
-import { WorkflowDetailedDTO } from "@/types/workflows";
-import { PermissionUtils } from "@/types/resources";
-import { Button } from "@/components/ui/button";
-import { Edit, Plus } from "lucide-react";
-import AddUserToTeamDialog from "@/components/teams/team-add-user-dialog";
-import { usePagePermission } from "@/hooks/use-page-permission";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
+import { PermissionUtils } from "@/types/resources";
+import { WorkflowDetailedDTO } from "@/types/workflows";
 
 const WorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
   const team = useTeam();
