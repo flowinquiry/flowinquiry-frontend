@@ -46,6 +46,7 @@
     "@tiptap/react": "^2.10.3",
     "@tiptap/starter-kit": "^2.10.3",
     "@types/qs": "^6.9.17",
+    "@xyflow/react": "^12.3.5",
     "auth": "^1.2.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

@@ -20,7 +20,8 @@ import { WorkflowDetailedDTO } from "@/types/workflows";
 
 const WorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
   const team = useTeam();
-  const [workflowDetail, setWorkflowDetail] = useState<any>(null);
+  const [workflowDetail, setWorkflowDetail] =
+    useState<WorkflowDetailedDTO | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -61,57 +62,6 @@ const WorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
     { title: workflowDetail.name, link: "#" },
   ];
 
-  const workflowDetails: WorkflowDetailedDTO = {
-    id: 1,
-    requestName: "ABC",
-    name: "Sample Workflow",
-    description: "This is a sample workflow",
-    ownerName: "John Doe",
-    states: [
-      {
-        id: 1,
-        workflowId: 1,
-        stateName: "Start",
-        isInitial: true,
-        isFinal: false,
-      },
-      {
-        id: 2,
-        workflowId: 1,
-        stateName: "In Progress",
-        isInitial: false,
-        isFinal: false,
-      },
-      {
-        id: 3,
-        workflowId: 1,
-        stateName: "Completed",
-        isInitial: false,
-        isFinal: true,
-      },
-    ],
-    transitions: [
-      {
-        id: 1,
-        workflowId: 1,
-        sourceStateId: 1,
-        targetStateId: 2,
-        eventName: "Begin",
-        slaDuration: 3600,
-        escalateOnViolation: false,
-      },
-      {
-        id: 2,
-        workflowId: 1,
-        sourceStateId: 2,
-        targetStateId: 3,
-        eventName: "Finish",
-        slaDuration: 7200,
-        escalateOnViolation: true,
-      },
-    ],
-  };
-
   return (
     <BreadcrumbProvider items={breadcrumbItems}>
       <TeamNavLayout teamId={workflowDetail.ownerId!}>
@@ -131,14 +81,13 @@ const WorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
                   </div>
                 </TooltipContent>
               </Tooltip>
-              <Heading
-                title={`Workflow`}
-                description="Monitor and handle your team's tickets. Stay on top of assignments and progress."
-              />
+              <Heading title={`Workflow`} description="View Workflow Detail" />
             </div>
           </div>
           <div>
-            <WorkflowDiagram workflowDetails={workflowDetail} />;
+            {workflowDetail && (
+              <WorkflowDiagram workflowDetails={workflowDetail!} />
+            )}
           </div>
         </div>
       </TeamNavLayout>
