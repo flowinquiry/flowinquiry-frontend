@@ -34,8 +34,28 @@ export const WorkflowTransitionSchema = z.object({
 
 export type WorkflowTransitionDTO = z.infer<typeof WorkflowTransitionSchema>;
 
-export interface WorkflowDetailedDTO extends WorkflowDTO {
-  ownerName: string;
-  states: WorkflowStateDTO[];
-  transitions: WorkflowTransitionDTO[];
-}
+export const WorkflowDetailSchema = z.object({
+  name: z.string().min(1, { message: "Workflow name is required" }),
+  requestName: z.string().min(1, { message: "Request name is required" }),
+  description: z.string().nullable(),
+  states: z.array(
+    z.object({
+      id: z.number().optional(),
+      stateName: z.string().min(1, { message: "State name is required" }),
+      isInitial: z.boolean(),
+      isFinal: z.boolean(),
+    }),
+  ),
+  transitions: z.array(
+    z.object({
+      id: z.number().optional(),
+      sourceStateId: z.number().nullable(),
+      targetStateId: z.number().nullable(),
+      eventName: z.string().min(1, { message: "Event name is required" }),
+      slaDuration: z.number().nullable(),
+      escalateOnViolation: z.boolean(),
+    }),
+  ),
+});
+
+export type WorkflowDetailDTO = z.infer<typeof WorkflowDetailSchema>;

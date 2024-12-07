@@ -14,6 +14,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { WorkflowDiagram } from "@/components/workflows/workflow-diagram-view";
+import WorkflowEditForm from "@/components/workflows/workflow-editor-form";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import { getWorkflowDetail } from "@/lib/actions/workflows.action";
 import { obfuscate } from "@/lib/endecode";
@@ -21,13 +22,14 @@ import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
 import { useTeam } from "@/providers/team-provider";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { PermissionUtils } from "@/types/resources";
-import { WorkflowDetailedDTO } from "@/types/workflows";
+import { WorkflowDetailDTO } from "@/types/workflows";
 
 const WorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
   const team = useTeam();
   const [workflowDetail, setWorkflowDetail] =
-    useState<WorkflowDetailedDTO | null>(null);
+    useState<WorkflowDetailDTO | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false); // State for edit mode
 
   const permissionLevel = usePagePermission();
   const teamRole = useUserTeamRole().role;
@@ -41,6 +43,9 @@ const WorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
 
     fetchWorkflowDetail();
   }, [workflowId]);
+
+  const handleEditClick = () => setIsEditing(true); // Enable edit mode
+  const handleCancelEdit = () => setIsEditing(false); // Disable edit mode
 
   if (loading) {
     return (
@@ -94,16 +99,25 @@ const WorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
             {(PermissionUtils.canWrite(permissionLevel) ||
               teamRole === "Manager") && (
               <div>
-                <Button>
+                <Button onClick={handleEditClick}>
                   <Edit /> Customize Workflow
                 </Button>
               </div>
             )}
           </div>
+          {isEditing && (
+            <WorkflowEditForm
+              workflowDetail={workflowDetail}
+              onCancel={handleCancelEdit}
+              onSave={(values) => {
+                console.log("Saved values:", values);
+                // Call API to save workflow changes
+                setIsEditing(false);
+              }}
+            />
+          )}
           <div>
-            {workflowDetail && (
-              <WorkflowDiagram workflowDetails={workflowDetail} />
-            )}
+            <WorkflowDiagram workflowDetails={workflowDetail} />
           </div>
         </div>
       </TeamNavLayout>

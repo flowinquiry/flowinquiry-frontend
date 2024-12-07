@@ -1,9 +1,9 @@
 "use server";
 
-import { get } from "@/lib/actions/commons.action";
+import { get, post } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
 import {
-  WorkflowDetailedDTO,
+  WorkflowDetailDTO,
   WorkflowDTO,
   WorkflowStateDTO,
 } from "@/types/workflows";
@@ -25,7 +25,14 @@ export const getValidTargetStates = async (
 };
 
 export const getWorkflowDetail = async (workflowId: number) => {
-  return get<WorkflowDetailedDTO>(
+  return get<WorkflowDetailDTO>(
     `${BACKEND_API}/api/workflows/${workflowId}/details`,
+  );
+};
+
+export const saveWorkflowDetail = async (workflowDetail: WorkflowDetailDTO) => {
+  return post<WorkflowDetailDTO, WorkflowDetailDTO>(
+    `${BACKEND_API}/api/workflows/details`,
+    workflowDetail,
   );
 };

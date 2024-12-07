@@ -3,7 +3,6 @@
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import React from "react";
-import { useFormStatus } from "react-dom";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -31,6 +30,7 @@ export interface ExtInputProps {
   label: string;
   placeholder?: string;
   type?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 export interface FormProps<Entity> {
@@ -48,6 +48,8 @@ export const ExtInputField = ({
   placeholder,
   required = false,
   type = undefined,
+  onChange,
+  ...props
 }: ExtInputProps & UiAttributes) => {
   return (
     <FormField
@@ -107,13 +109,7 @@ export const SubmitButton = ({
   label,
   labelWhileLoading,
 }: SubmitButtonProps) => {
-  const { pending } = useFormStatus();
-
-  return (
-    <Button type="submit" disabled={pending}>
-      {!pending ? label : labelWhileLoading}
-    </Button>
-  );
+  return <Button type="submit">{label}</Button>;
 };
 
 type DatePickerFieldProps = {
@@ -184,7 +180,6 @@ export const DatePickerField: React.FC<
                 />
               </PopoverContent>
             </Popover>
-            {/* Clear button is hidden if the field is required */}
             {!required && field.value && (
               <Button
                 variant="ghost"

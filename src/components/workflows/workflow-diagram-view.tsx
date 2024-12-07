@@ -15,7 +15,7 @@ import {
 } from "@xyflow/react";
 import React, { useCallback, useEffect } from "react";
 
-import { WorkflowDetailedDTO } from "@/types/workflows";
+import { WorkflowDetailDTO } from "@/types/workflows";
 
 // Constants for node dimensions
 const nodeWidth = 172;
@@ -56,7 +56,7 @@ const getLayoutedElements = (
   return { nodes: newNodes, edges };
 };
 
-const convertStatesToNodes = (workflowDetails: WorkflowDetailedDTO): Node[] => {
+const convertStatesToNodes = (workflowDetails: WorkflowDetailDTO): Node[] => {
   return workflowDetails.states.map((state) => ({
     id: state.id!.toString(), // Ensure id is a string
     data: {
@@ -73,7 +73,7 @@ const convertStatesToNodes = (workflowDetails: WorkflowDetailedDTO): Node[] => {
 };
 
 const convertTransitionsToEdges = (
-  workflowDetails: WorkflowDetailedDTO,
+  workflowDetails: WorkflowDetailDTO,
 ): Edge[] => {
   return workflowDetails.transitions.map((transition) => ({
     id: `e${transition.sourceStateId}-${transition.targetStateId}`, // Create a unique ID for the edge
@@ -87,7 +87,7 @@ const convertTransitionsToEdges = (
 
 // Main Flow Component
 export const WorkflowDiagram: React.FC<{
-  workflowDetails: WorkflowDetailedDTO;
+  workflowDetails: WorkflowDetailDTO;
 }> = ({ workflowDetails }) => {
   const [nodes, setNodes, onNodesChange] = useNodesState([] as Node[]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([] as Edge[]);

@@ -19,11 +19,11 @@ import { getTeamTicketPriorityDistributionForUser } from "@/lib/actions/teams-re
 import { TeamRequestPriority } from "@/types/team-requests";
 
 const PRIORITY_COLORS: Record<TeamRequestPriority, string> = {
-  Critical: "#dc2626", // Red
-  High: "#ea580c", // Orange
-  Medium: "#facc15", // Yellow
-  Low: "#22c55e", // Green
-  Trivial: "#9ca3af", // Gray
+  Critical: "#dc2626",
+  High: "#ea580c",
+  Medium: "#facc15",
+  Low: "#22c55e",
+  Trivial: "#9ca3af",
 };
 
 const TeamUnresolvedTicketsPriorityDistributionChart = () => {
@@ -105,7 +105,7 @@ const TeamUnresolvedTicketsPriorityDistributionChart = () => {
               <Legend />
               {Object.keys(PRIORITY_COLORS).map((priority) => (
                 <Bar
-                  key={`bar-${priority}`} // Unique key for each bar
+                  key={`bar-${priority}`}
                   dataKey={priority}
                   stackId="a"
                   fill={PRIORITY_COLORS[priority as TeamRequestPriority]}
