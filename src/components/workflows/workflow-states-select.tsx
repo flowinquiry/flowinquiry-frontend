@@ -26,16 +26,11 @@ const WorkflowStatesSelect = ({
   placeholder = "Select a state",
   required = false,
 }: WorkflowStatesSelectProps) => {
-  console.log(`OPTIONS PASS TO FORM ${JSON.stringify(options)}`);
   return (
     <FormField
       control={form.control}
       name={fieldName}
       render={({ field }) => {
-        // Find the selected option based on the field value
-        console.log(
-          `Options ${JSON.stringify(options)} and field value ${field.value}`,
-        );
         const selectedOption = options.find(
           (option) => option.value === field.value,
         );

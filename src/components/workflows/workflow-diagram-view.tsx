@@ -77,8 +77,8 @@ const convertTransitionsToEdges = (
 ): Edge[] => {
   return workflowDetails.transitions.map((transition) => ({
     id: `e${transition.sourceStateId}-${transition.targetStateId}`, // Create a unique ID for the edge
-    source: transition.sourceStateId.toString(), // Convert sourceStateId to string
-    target: transition.targetStateId.toString(), // Convert targetStateId to string
+    source: transition.sourceStateId?.toString() ?? "", // Convert sourceStateId to string
+    target: transition.targetStateId?.toString() ?? "", // Convert targetStateId to string
     label: transition.eventName, // Use eventName as the label for the edge
     type: ConnectionLineType.SmoothStep, // Use SmoothStep for a curved line
     animated: true, // Enable animation for the edge
@@ -114,17 +114,6 @@ export const WorkflowDiagram: React.FC<{
         ),
       ),
     [setEdges],
-  );
-
-  const onLayout = useCallback(
-    (direction: "TB" | "LR") => {
-      const { nodes: layoutedNodes, edges: layoutedEdges } =
-        getLayoutedElements(nodes, edges, direction);
-
-      setNodes([...layoutedNodes]);
-      setEdges([...layoutedEdges]);
-    },
-    [nodes, edges],
   );
 
   return (

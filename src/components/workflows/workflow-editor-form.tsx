@@ -9,23 +9,14 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ExtInputField, ExtTextAreaField } from "@/components/ui/ext-form";
 import { Form } from "@/components/ui/form";
 import WorkflowStatesSelect from "@/components/workflows/workflow-states-select";
-import {
-  WorkflowDetailDTO,
-  WorkflowDetailSchema,
-  WorkflowDTO,
-  WorkflowStateDTO,
-  WorkflowTransitionDTO,
-} from "@/types/workflows";
+import { WorkflowDetailDTO, WorkflowDetailSchema } from "@/types/workflows";
 
 const WorkflowEditForm = ({
   workflowDetail,
   onCancel,
   onSave,
 }: {
-  workflowDetail: WorkflowDTO & {
-    states: WorkflowStateDTO[];
-    transitions: WorkflowTransitionDTO[];
-  };
+  workflowDetail: WorkflowDetailDTO;
   onCancel: () => void;
   onSave: (values: WorkflowDetailDTO) => void;
 }) => {
@@ -39,7 +30,6 @@ const WorkflowEditForm = ({
       })),
     },
   });
-  console.log(`Workflow detail ${JSON.stringify(workflowDetail)}`);
   const {
     fields: stateFields,
     append: appendState,
@@ -74,11 +64,6 @@ const WorkflowEditForm = ({
       })),
     );
   }, [stateFields]);
-
-  // Update workflowStates on stateName change
-  const handleStateNameChange = (index: number, value: string) => {
-    updateState(index, { ...stateFields[index], stateName: value });
-  };
 
   const handleSubmit = (values: WorkflowDetailDTO) => {
     console.log(`Save workflow detail ${JSON.stringify(values)}`);
@@ -117,7 +102,7 @@ const WorkflowEditForm = ({
             <h3 className="text-md font-semibold mb-4">States</h3>
             {stateFields.map((state, index) => (
               <div
-                key={state.id || index}
+                key={state.trackingId || index} // Use `trackingId` as a unique key
                 className="flex items-center gap-4 mb-4"
               >
                 <div className="flex-1">
@@ -127,15 +112,12 @@ const WorkflowEditForm = ({
                     label="State Name"
                     placeholder="Enter state name"
                     required={true}
-                    onChange={(e) =>
-                      handleStateNameChange(index, e.target.value)
-                    }
                   />
                 </div>
                 <div className="flex items-center gap-2">
                   <label className="text-sm">Initial</label>
                   <Checkbox
-                    checked={form.getValues(`states.${index}.isInitial`)}
+                    checked={form.watch(`states.${index}.isInitial`)} // Watch for default and updated values
                     onCheckedChange={(value) =>
                       form.setValue(`states.${index}.isInitial`, Boolean(value))
                     }
@@ -144,7 +126,7 @@ const WorkflowEditForm = ({
                 <div className="flex items-center gap-2">
                   <label className="text-sm">Final</label>
                   <Checkbox
-                    checked={form.getValues(`states.${index}.isFinal`)}
+                    checked={form.watch(`states.${index}.isFinal`)} // Watch for default and updated values
                     onCheckedChange={(value) =>
                       form.setValue(`states.${index}.isFinal`, Boolean(value))
                     }
@@ -179,7 +161,7 @@ const WorkflowEditForm = ({
             <h3 className="text-md font-semibold mb-4">Transitions</h3>
             {transitionFields.map((transition, index) => (
               <div
-                key={transition.id || index}
+                key={transition.id || index} // Use the transition `id` as a unique key
                 className="flex items-center gap-4 mb-4"
               >
                 <div className="flex-1">
@@ -223,9 +205,9 @@ const WorkflowEditForm = ({
                 <div className="flex items-center gap-2">
                   <label className="text-sm">Escalate</label>
                   <Checkbox
-                    checked={form.getValues(
+                    checked={form.watch(
                       `transitions.${index}.escalateOnViolation`,
-                    )}
+                    )} // Watch for default and updated values
                     onCheckedChange={(value) =>
                       form.setValue(
                         `transitions.${index}.escalateOnViolation`,

@@ -65,7 +65,7 @@ const WorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
     { title: "Dashboard", link: "/portal" },
     { title: "Teams", link: "/portal/teams" },
     {
-      title: workflowDetail.ownerName,
+      title: workflowDetail.ownerName!,
       link: `/portal/teams/${obfuscate(workflowDetail.ownerId)}`,
     },
     {
