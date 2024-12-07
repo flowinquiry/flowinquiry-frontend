@@ -147,6 +147,7 @@ const WorkflowEditForm = ({
                   stateName: "",
                   isInitial: false,
                   isFinal: false,
+                  workflowId: workflowDetail.id!,
                 };
                 appendState(newState);
               }}
@@ -233,6 +234,7 @@ const WorkflowEditForm = ({
                   eventName: "",
                   slaDuration: null,
                   escalateOnViolation: false,
+                  workflowId: workflowDetail.id!,
                 })
               }
               variant="secondary"

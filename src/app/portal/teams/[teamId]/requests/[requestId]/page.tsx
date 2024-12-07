@@ -10,9 +10,7 @@ interface RequestDetailsProps {
   params: { teamId: string; requestId: string };
 }
 
-const RequestDetailsPage: React.FC<RequestDetailsProps> = async ({
-  params,
-}) => {
+const RequestDetailsPage = async ({ params }: RequestDetailsProps) => {
   const teamRequest = await findRequestById(
     deobfuscateToNumber(params.requestId),
   );

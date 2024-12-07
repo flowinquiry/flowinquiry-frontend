@@ -6,13 +6,7 @@ const breadcrumbItems = [
   { title: "Users", link: "/portal/users" },
 ];
 
-type paramsProps = {
-  searchParams: {
-    [key: string]: string | string[] | undefined;
-  };
-};
-
-const Users = async ({ searchParams }: paramsProps) => {
+const UsersPage = async () => {
   return (
     <SimpleContentView title="Users" breadcrumbItems={breadcrumbItems}>
       <UserList />
@@ -20,4 +14,4 @@ const Users = async ({ searchParams }: paramsProps) => {
   );
 };
 
-export default Users;
+export default UsersPage;

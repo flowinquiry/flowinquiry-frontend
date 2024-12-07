@@ -49,30 +49,32 @@ export function EntitiesDeleteDialog<TEntity extends Record<string, any>>({
   const isDesktop = useMediaQuery("(min-width: 640px)");
 
   function onDelete() {
-    startDeleteTransition(async () => {
-      // Perform a runtime check to ensure each entity has an "id" field
-      const ids = entities.map((entity) => {
-        if ("id" in entity && typeof entity.id === "number") {
-          return entity.id; // Return the ID if it exists and is a string
-        } else {
-          throw new Error(`Entity does not have a valid "id" field`);
+    startDeleteTransition(() => {
+      (async () => {
+        // Perform a runtime check to ensure each entity has an "id" field
+        const ids = entities.map((entity) => {
+          if ("id" in entity && typeof entity.id === "number") {
+            return entity.id; // Return the ID if it exists and is a string
+          } else {
+            throw new Error(`Entity does not have a valid "id" field`);
+          }
+        });
+
+        try {
+          await deleteEntitiesFn(ids);
+        } catch (error) {
+          toast.error(
+            `Cannot delete ${entityName}${entities.length > 1 ? "s" : ""}`,
+          );
+          return;
         }
-      });
 
-      try {
-        await deleteEntitiesFn(ids);
-      } catch (error) {
-        toast.error(
-          `Cannot delete ${entityName}${entities.length > 1 ? "s" : ""}`,
+        toast.success(
+          `${entityName}${entities.length > 1 ? "s are" : " is"} deleted`,
         );
-        return;
-      }
-
-      toast.success(
-        `${entityName}${entities.length > 1 ? "s are" : " is"} deleted`,
-      );
-      onSuccess?.();
-      onOpenChange?.(false);
+        onSuccess?.();
+        onOpenChange?.(false);
+      })();
     });
   }
 

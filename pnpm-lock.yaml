@@ -151,9 +151,6 @@ importers:
       install:
         specifier: ^0.13.0
         version: 0.13.0
-      jotai:
-        specifier: ^2.10.3
-        version: 2.10.3(@types/react@18.3.14)(react@18.3.1)
       lowlight:
         specifier: ^3.2.0
         version: 3.2.0
@@ -3774,21 +3771,6 @@ packages:
       {
         integrity: sha512-AMlnetc9+CV9asI19zHmrgS/WYsWUwCn2R7RzlbJWD7F9eWYUTGyBmU9o6PxngtLGOiDGPRu+Uc4fhKzbpteZQ==,
       }
-
-  jotai@2.10.3:
-    resolution:
-      {
-        integrity: sha512-Nnf4IwrLhNfuz2JOQLI0V/AgwcpxvVy8Ec8PidIIDeRi4KCFpwTFIpHAAcU+yCgnw/oASYElq9UY0YdUUegsSA==,
-      }
-    engines: { node: ">=12.20.0" }
-    peerDependencies:
-      "@types/react": ">=17.0.0"
-      react: ">=17.0.0"
-    peerDependenciesMeta:
-      "@types/react":
-        optional: true
-      react:
-        optional: true
 
   js-tokens@4.0.0:
     resolution:
@@ -7946,11 +7928,6 @@ snapshots:
   jiti@1.21.6: {}
 
   jose@5.9.6: {}
-
-  jotai@2.10.3(@types/react@18.3.14)(react@18.3.1):
-    optionalDependencies:
-      "@types/react": 18.3.14
-      react: 18.3.1
 
   js-tokens@4.0.0: {}
 

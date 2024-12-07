@@ -26,8 +26,8 @@ export type WorkflowStateDTO = z.infer<typeof WorkflowStateDTOSchema>;
 export const WorkflowTransitionSchema = z.object({
   id: z.number().optional(),
   workflowId: z.number(),
-  sourceStateId: z.number(),
-  targetStateId: z.number(),
+  sourceStateId: z.number().nullish(),
+  targetStateId: z.number().nullish(),
   eventName: z.string().min(1),
   slaDuration: z.number().nullish(),
   escalateOnViolation: z.boolean(),
