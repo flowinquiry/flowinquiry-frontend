@@ -3,7 +3,7 @@ import { z } from "zod";
 export type WorkflowVisibility = "PUBLIC" | "PRIVATE" | "TEAM";
 
 export const WorkflowDTOSchema = z.object({
-  id: z.number().nullable(),
+  id: z.number().optional(),
   name: z.string().min(1),
   requestName: z.string().min(1),
   description: z.string().nullable(),
@@ -24,12 +24,12 @@ export const WorkflowStateDTOSchema = z.object({
 export type WorkflowStateDTO = z.infer<typeof WorkflowStateDTOSchema>;
 
 export const WorkflowTransitionSchema = z.object({
-  id: z.number().int().positive().optional(),
-  workflowId: z.number().int().positive(),
-  sourceStateId: z.number().int().positive(),
-  targetStateId: z.number().int().positive(),
+  id: z.number().optional(),
+  workflowId: z.number(),
+  sourceStateId: z.number(),
+  targetStateId: z.number(),
   eventName: z.string().min(1),
-  slaDuration: z.number().nullable(),
+  slaDuration: z.number().nullish(),
   escalateOnViolation: z.boolean(),
 });
 
@@ -37,24 +37,8 @@ export type WorkflowTransitionDTO = z.infer<typeof WorkflowTransitionSchema>;
 
 export const WorkflowDetailSchema = WorkflowDTOSchema.merge(
   z.object({
-    states: z.array(
-      z.object({
-        id: z.number().optional(),
-        stateName: z.string().min(1, { message: "State name is required" }),
-        isInitial: z.boolean(),
-        isFinal: z.boolean(),
-      }),
-    ),
-    transitions: z.array(
-      z.object({
-        id: z.number().optional(),
-        sourceStateId: z.number().nullable(),
-        targetStateId: z.number().nullable(),
-        eventName: z.string().min(1, { message: "Event name is required" }),
-        slaDuration: z.number().nullable(),
-        escalateOnViolation: z.boolean(),
-      }),
-    ),
+    states: z.array(WorkflowStateDTOSchema),
+    transitions: z.array(WorkflowTransitionSchema),
   }),
 );
 
