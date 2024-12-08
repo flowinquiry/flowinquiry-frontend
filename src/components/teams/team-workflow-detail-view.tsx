@@ -85,7 +85,10 @@ const TeamWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
                   </div>
                 </TooltipContent>
               </Tooltip>
-              <Heading title={`Workflow`} description="View Workflow Detail" />
+              <Heading
+                title={workflowDetail.name}
+                description={workflowDetail.description ?? ""}
+              />
             </div>
             {(PermissionUtils.canWrite(permissionLevel) ||
               teamRole === "Manager") && (

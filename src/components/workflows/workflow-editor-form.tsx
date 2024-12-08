@@ -71,7 +71,7 @@ const WorkflowEditForm = ({
   };
 
   return (
-    <div className="p-4 border rounded bg-gray-50 mb-4">
+    <div className="p-4 border rounded mb-4">
       <h2 className="text-lg font-bold mb-4">Edit Workflow</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">

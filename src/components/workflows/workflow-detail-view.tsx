@@ -1,17 +1,17 @@
 "use client";
 
-import { Edit, Plus } from "lucide-react";
+import { Edit } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Heading } from "@/components/heading";
 import { Button } from "@/components/ui/button";
+import { Spinner } from "@/components/ui/spinner";
+import { WorkflowDiagram } from "@/components/workflows/workflow-diagram-view";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import { getWorkflowDetail } from "@/lib/actions/workflows.action";
 import { PermissionUtils } from "@/types/resources";
 import { WorkflowDetailDTO } from "@/types/workflows";
-import { Spinner } from "@/components/ui/spinner";
-import { WorkflowDiagram } from "@/components/workflows/workflow-diagram-view";
 
 const WorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
   const [workflowDetail, setWorkflowDetail] =

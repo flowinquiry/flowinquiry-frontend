@@ -13,19 +13,16 @@ import {
   useEdgesState,
   useNodesState,
 } from "@xyflow/react";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { WorkflowDetailDTO } from "@/types/workflows";
 
-// Constants for node dimensions
 const nodeWidth = 172;
 const nodeHeight = 36;
 
-// Configure Dagre graph
 const dagreGraph = new dagre.graphlib.Graph().setDefaultEdgeLabel(() => ({}));
 
-// Function to layout nodes and edges
-const getLayoutedElements = (
+const getLayoutElements = (
   nodes: Node[],
   edges: Edge[],
   direction: "TB" | "LR" = "TB",
@@ -58,17 +55,20 @@ const getLayoutedElements = (
 
 const convertStatesToNodes = (workflowDetails: WorkflowDetailDTO): Node[] => {
   return workflowDetails.states.map((state) => ({
-    id: state.id!.toString(), // Ensure id is a string
-    data: {
-      label: state.stateName,
+    id: state.id!.toString(),
+    data: { label: state.stateName },
+    style: {
       backgroundColor: state.isInitial
-        ? "#4CAF50" // Green for initial states
+        ? "var(--initial-node-bg)" // Initial node background
         : state.isFinal
-          ? "#FF5722" // Red for final states
-          : "#2196F3", // Blue for intermediate states
+          ? "var(--final-node-bg)" // Final node background
+          : "var(--intermediate-node-bg)", // Intermediate node background
+      color: "var(--node-text-color)", // Text color
+      border: "1px solid var(--node-border-color)", // Border color
+      borderRadius: "6px",
     },
-    position: { x: 0, y: 0 }, // Default position
-    type: "default", // Specify the custom node type
+    position: { x: 0, y: 0 },
+    type: "default",
   }));
 };
 
@@ -76,12 +76,15 @@ const convertTransitionsToEdges = (
   workflowDetails: WorkflowDetailDTO,
 ): Edge[] => {
   return workflowDetails.transitions.map((transition) => ({
-    id: `e${transition.sourceStateId}-${transition.targetStateId}`, // Create a unique ID for the edge
-    source: transition.sourceStateId?.toString() ?? "", // Convert sourceStateId to string
-    target: transition.targetStateId?.toString() ?? "", // Convert targetStateId to string
-    label: transition.eventName, // Use eventName as the label for the edge
-    type: ConnectionLineType.SmoothStep, // Use SmoothStep for a curved line
-    animated: true, // Enable animation for the edge
+    id: `e${transition.sourceStateId}-${transition.targetStateId}`,
+    source: transition.sourceStateId?.toString() ?? "",
+    target: transition.targetStateId?.toString() ?? "",
+    label: transition.eventName,
+    type: ConnectionLineType.SmoothStep,
+    animated: true,
+    style: {
+      stroke: "var(--edge-color)", // Edge color
+    },
   }));
 };
 
@@ -89,21 +92,39 @@ const convertTransitionsToEdges = (
 export const WorkflowDiagram: React.FC<{
   workflowDetails: WorkflowDetailDTO;
 }> = ({ workflowDetails }) => {
+  const [theme, setTheme] = useState(
+    document.documentElement.classList.contains("dark") ? "dark" : "light",
+  );
   const [nodes, setNodes, onNodesChange] = useNodesState([] as Node[]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
 
   useEffect(() => {
+    // Observe changes in the dark class
+    const observer = new MutationObserver(() => {
+      setTheme(
+        document.documentElement.classList.contains("dark") ? "dark" : "light",
+      );
+    });
+
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
     function initNodesAndEdges() {
-      const { nodes: layoutedNodes, edges: layoutedEdges } =
-        getLayoutedElements(
-          convertStatesToNodes(workflowDetails),
-          convertTransitionsToEdges(workflowDetails),
-        );
+      const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutElements(
+        convertStatesToNodes(workflowDetails),
+        convertTransitionsToEdges(workflowDetails),
+      );
       setNodes(layoutedNodes);
       setEdges(layoutedEdges);
     }
     initNodesAndEdges();
-  }, []);
+  }, [workflowDetails]);
 
   const onConnect = useCallback(
     (params: Connection) =>
@@ -116,9 +137,35 @@ export const WorkflowDiagram: React.FC<{
     [setEdges],
   );
 
+  const styles =
+    theme === "dark"
+      ? {
+          "--initial-node-bg": "#81C784",
+          "--final-node-bg": "#FF8A65",
+          "--intermediate-node-bg": "#64B5F6",
+          "--node-text-color": "#F9FAFB",
+          "--node-border-color": "#4B5563",
+          "--edge-color": "#FFFFFF",
+          "--background-color": "#1E293B",
+          "--grid-color": "#374151",
+        }
+      : {
+          "--initial-node-bg": "#4CAF50",
+          "--final-node-bg": "#FF5722",
+          "--intermediate-node-bg": "#2196F3",
+          "--node-text-color": "#000000",
+          "--node-border-color": "#D1D5DB",
+          "--edge-color": "#9CA3AF",
+          "--background-color": "#F7F9FB",
+          "--grid-color": "#E5E7EB",
+        };
+
   return (
     <ReactFlowProvider>
-      <div style={{ width: "100%", height: "60rem" }}>
+      <div
+        className="workflow-container w-full h-[50rem]"
+        style={{ ...styles, backgroundColor: "var(--background-color)" }}
+      >
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -127,9 +174,12 @@ export const WorkflowDiagram: React.FC<{
           onConnect={onConnect}
           connectionLineType={ConnectionLineType.SmoothStep}
           fitView
-          style={{ backgroundColor: "#F7F9FB" }}
         >
-          <Background />
+          <Background
+            gap={16}
+            size={1}
+            color="var(--grid-color)" // Grid color
+          />
         </ReactFlow>
       </div>
     </ReactFlowProvider>
