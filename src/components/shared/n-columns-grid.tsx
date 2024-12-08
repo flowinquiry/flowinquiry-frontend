@@ -1,7 +1,14 @@
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+
 type Field = {
   label: string; // Label for the field
   value: React.ReactNode; // Value of the field, can be any JSX
   colSpan?: number; // Number of columns to span (default: 1)
+  tooltip?: string; // Tooltip text to display when hovering over the field
 };
 
 type NColumnsGridProps = {
@@ -32,8 +39,19 @@ export const NColumnsGrid: React.FC<NColumnsGridProps> = ({
           <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right">
             {field.label}
           </span>
-          {/* Value */}
-          <div className="text-sm w-2/3 text-left">{field.value}</div>
+          {/* Value with optional tooltip */}
+          <div className="text-sm w-2/3 text-left">
+            {field.tooltip ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className="cursor-pointer">{field.value}</span>
+                </TooltipTrigger>
+                <TooltipContent>{field.tooltip}</TooltipContent>
+              </Tooltip>
+            ) : (
+              field.value
+            )}
+          </div>
         </div>
       ))}
     </div>

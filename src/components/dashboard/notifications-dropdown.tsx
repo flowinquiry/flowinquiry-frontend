@@ -127,7 +127,7 @@ const NotificationsDropdown = () => {
             <div className="max-h-[16rem] xl:max-h-[20rem] overflow-auto">
               <ScrollArea className="h-full">
                 <AnimatePresence>
-                  {notifications.map((item: NotificationDTO, index: number) => (
+                  {notifications.map((item: NotificationDTO) => (
                     <motion.div
                       key={item.id}
                       initial={{ opacity: 1, y: 0 }}

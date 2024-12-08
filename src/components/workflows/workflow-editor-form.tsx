@@ -1,15 +1,17 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ExtInputField, ExtTextAreaField } from "@/components/ui/ext-form";
+import { ExtInputField } from "@/components/ui/ext-form";
 import { Form } from "@/components/ui/form";
 import WorkflowStatesSelect from "@/components/workflows/workflow-states-select";
 import { WorkflowDetailDTO, WorkflowDetailSchema } from "@/types/workflows";
+
+let temporaryIdCounter = -1; // Temporary counter for new states
 
 const WorkflowEditForm = ({
   workflowDetail,
@@ -22,23 +24,17 @@ const WorkflowEditForm = ({
 }) => {
   const form = useForm<WorkflowDetailDTO>({
     resolver: zodResolver(WorkflowDetailSchema),
-    defaultValues: {
-      ...workflowDetail,
-      states: workflowDetail.states.map((state) => ({
-        ...state,
-        trackingId: state.id, // Use the original `id` for tracking
-      })),
-    },
+    defaultValues: workflowDetail,
+    mode: "onChange", // Validate on change
   });
+
   const {
     fields: stateFields,
     append: appendState,
     remove: removeState,
-    update: updateState,
   } = useFieldArray({
     control: form.control,
     name: "states",
-    keyName: "trackingId", // Use `trackingId` as the unique key
   });
 
   const {
@@ -48,26 +44,31 @@ const WorkflowEditForm = ({
   } = useFieldArray({
     control: form.control,
     name: "transitions",
-    keyName: "id", // Use the original `id` from the array
   });
 
-  const [workflowStates, setWorkflowStates] = useState<
-    { label: string; value: number | string }[]
-  >([]);
+  const watchedValues = form.watch();
 
-  // Synchronize `workflowStates` with `stateFields`
+  // Debounce state update logic
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
   useEffect(() => {
-    setWorkflowStates(
-      stateFields.map((state, index) => ({
-        label: state.stateName || `State ${index + 1}`, // Reflect user input or default placeholder
-        value: state.id ?? index,
-      })),
-    );
-  }, [stateFields]);
+    if (debounceRef.current) {
+      clearTimeout(debounceRef.current); // Clear the previous timeout
+    }
+
+    debounceRef.current = setTimeout(() => {
+      onSave(watchedValues); // Trigger onSave with the latest values
+    }, 300); // Delay of 300ms
+
+    return () => {
+      if (debounceRef.current) {
+        clearTimeout(debounceRef.current); // Cleanup on unmount or rerender
+      }
+    };
+  }, [watchedValues, onSave]);
 
   const handleSubmit = (values: WorkflowDetailDTO) => {
-    console.log(`Save workflow detail ${JSON.stringify(values)}`);
-    onSave(values);
+    onSave(values); // Final save call on form submission
   };
 
   return (
@@ -75,34 +76,12 @@ const WorkflowEditForm = ({
       <h2 className="text-lg font-bold mb-4">Edit Workflow</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-          {/* Workflow Details */}
-          <ExtInputField
-            form={form}
-            fieldName="name"
-            label="Name"
-            placeholder="Workflow Name"
-            required={true}
-          />
-          <ExtInputField
-            form={form}
-            fieldName="requestName"
-            label="Request Name"
-            placeholder="Request Name"
-            required={true}
-          />
-          <ExtTextAreaField
-            form={form}
-            fieldName="description"
-            label="Description"
-            placeholder="Description"
-          />
-
           {/* States Section */}
           <div>
             <h3 className="text-md font-semibold mb-4">States</h3>
             {stateFields.map((state, index) => (
               <div
-                key={state.trackingId || index} // Use `trackingId` as a unique key
+                key={state.id || index}
                 className="flex items-center gap-4 mb-4"
               >
                 <div className="flex-1">
@@ -111,13 +90,13 @@ const WorkflowEditForm = ({
                     fieldName={`states.${index}.stateName`}
                     label="State Name"
                     placeholder="Enter state name"
-                    required={true}
+                    required
                   />
                 </div>
                 <div className="flex items-center gap-2">
                   <label className="text-sm">Initial</label>
                   <Checkbox
-                    checked={form.watch(`states.${index}.isInitial`)} // Watch for default and updated values
+                    checked={form.watch(`states.${index}.isInitial`)}
                     onCheckedChange={(value) =>
                       form.setValue(`states.${index}.isInitial`, Boolean(value))
                     }
@@ -126,7 +105,7 @@ const WorkflowEditForm = ({
                 <div className="flex items-center gap-2">
                   <label className="text-sm">Final</label>
                   <Checkbox
-                    checked={form.watch(`states.${index}.isFinal`)} // Watch for default and updated values
+                    checked={form.watch(`states.${index}.isFinal`)}
                     onCheckedChange={(value) =>
                       form.setValue(`states.${index}.isFinal`, Boolean(value))
                     }
@@ -142,15 +121,16 @@ const WorkflowEditForm = ({
               </div>
             ))}
             <Button
-              onClick={() => {
-                const newState = {
+              type="button"
+              onClick={() =>
+                appendState({
                   stateName: "",
                   isInitial: false,
                   isFinal: false,
+                  id: temporaryIdCounter--, // Assign a temporary numeric ID
                   workflowId: workflowDetail.id!,
-                };
-                appendState(newState);
-              }}
+                })
+              }
               variant="secondary"
             >
               Add State
@@ -162,7 +142,7 @@ const WorkflowEditForm = ({
             <h3 className="text-md font-semibold mb-4">Transitions</h3>
             {transitionFields.map((transition, index) => (
               <div
-                key={transition.id || index} // Use the transition `id` as a unique key
+                key={transition.id || index}
                 className="flex items-center gap-4 mb-4"
               >
                 <div className="flex-1">
@@ -171,8 +151,11 @@ const WorkflowEditForm = ({
                     form={form}
                     label="Source State"
                     placeholder="Select source state"
-                    options={workflowStates}
-                    required={true}
+                    options={watchedValues.states.map((state) => ({
+                      label: state.stateName, // Display state name
+                      value: state.id ?? temporaryIdCounter--, // Use actual state ID or temporary ID
+                    }))}
+                    required
                   />
                 </div>
                 <div className="flex-1">
@@ -181,8 +164,11 @@ const WorkflowEditForm = ({
                     form={form}
                     label="Target State"
                     placeholder="Select target state"
-                    options={workflowStates}
-                    required={true}
+                    options={watchedValues.states.map((state) => ({
+                      label: state.stateName, // Display state name
+                      value: state.id ?? temporaryIdCounter--, // Use actual state ID or temporary ID
+                    }))}
+                    required
                   />
                 </div>
                 <div className="flex-1">
@@ -191,7 +177,7 @@ const WorkflowEditForm = ({
                     fieldName={`transitions.${index}.eventName`}
                     label="Event Name"
                     placeholder="Enter event name"
-                    required={true}
+                    required
                   />
                 </div>
                 <div className="flex-1">
@@ -208,7 +194,7 @@ const WorkflowEditForm = ({
                   <Checkbox
                     checked={form.watch(
                       `transitions.${index}.escalateOnViolation`,
-                    )} // Watch for default and updated values
+                    )}
                     onCheckedChange={(value) =>
                       form.setValue(
                         `transitions.${index}.escalateOnViolation`,
@@ -227,6 +213,7 @@ const WorkflowEditForm = ({
               </div>
             ))}
             <Button
+              type="button"
               onClick={() =>
                 appendTransition({
                   sourceStateId: null,
@@ -244,7 +231,7 @@ const WorkflowEditForm = ({
           </div>
 
           {/* Save and Cancel Buttons */}
-          <div className="flex justify-end space-x-4">
+          <div className="flex justify-start space-x-4">
             <Button type="submit">Save</Button>
             <Button type="button" variant="secondary" onClick={onCancel}>
               Discard

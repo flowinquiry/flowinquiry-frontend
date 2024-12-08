@@ -8,6 +8,7 @@ import { Heading } from "@/components/heading";
 import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { WorkflowDiagram } from "@/components/workflows/workflow-diagram-view";
+import WorkflowEditForm from "@/components/workflows/workflow-editor-form";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import { getWorkflowDetail } from "@/lib/actions/workflows.action";
 import { PermissionUtils } from "@/types/resources";
@@ -18,7 +19,7 @@ const WorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
     useState<WorkflowDetailDTO | null>(null);
   const permissionLevel = usePagePermission();
   const [loading, setLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false); // State for edit mode
+  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     async function fetchWorkflowDetail() {
@@ -30,13 +31,21 @@ const WorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
     fetchWorkflowDetail();
   }, [workflowId]);
 
+  const handleSave = async (updatedWorkflow: WorkflowDetailDTO) => {
+    setLoading(true);
+    try {
+      // await updateWorkflowDetail(workflowId, updatedWorkflow);
+      setWorkflowDetail(updatedWorkflow);
+    } finally {
+      setLoading(false);
+      setIsEditing(false); // Ensure form stays open until save completes
+    }
+  };
+
   const breadcrumbItems = [
     { title: "Dashboard", link: "/portal" },
     { title: "Settings", link: "/portal/settings" },
-    {
-      title: "Workflows",
-      link: `/portal/settings/workflows`,
-    },
+    { title: "Workflows", link: `/portal/settings/workflows` },
     { title: workflowDetail?.name ?? "", link: "#" },
   ];
 
@@ -54,13 +63,15 @@ const WorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
         />
         {PermissionUtils.canWrite(permissionLevel) && (
           <div className="flex space-x-4">
-            <Button>
-              <Edit /> Customize Workflow
-            </Button>
+            {!isEditing && (
+              <Button onClick={() => setIsEditing(true)}>
+                <Edit /> Customize Workflow
+              </Button>
+            )}
           </div>
         )}
       </div>
-      {/* Spinner When Loading */}
+
       {loading && (
         <div className="flex items-center justify-center py-4">
           <Spinner>
@@ -69,12 +80,17 @@ const WorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
         </div>
       )}
 
-      {!isEditing && !loading && (
-        <div>
-          <WorkflowDiagram workflowDetails={workflowDetail} />
-        </div>
+      {isEditing ? (
+        <WorkflowEditForm
+          workflowDetail={workflowDetail}
+          onCancel={() => setIsEditing(false)}
+          onSave={handleSave}
+        />
+      ) : (
+        <WorkflowDiagram workflowDetails={workflowDetail} />
       )}
     </div>
   );
 };
+
 export default WorkflowDetailView;

@@ -6,6 +6,11 @@ import React, { useEffect, useState } from "react";
 import { UserAvatar } from "@/components/shared/avatar-display";
 import PaginationExt from "@/components/shared/pagination-ext";
 import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { getActivityLogs } from "@/lib/actions/activity-logs.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
@@ -81,7 +86,16 @@ const AuditLogView: React.FC<AuditLogViewProps> = ({
           />
           <small>
             Updated:{" "}
-            {formatDateTimeDistanceToNow(new Date(activityLog.createdAt))}
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <span className="cursor-pointer">
+                  {formatDateTimeDistanceToNow(new Date(activityLog.createdAt))}
+                </span>
+              </TooltipTrigger>
+              <TooltipContent>
+                {new Date(activityLog.createdAt).toLocaleString()}{" "}
+              </TooltipContent>
+            </Tooltip>
           </small>
         </div>
       ))}

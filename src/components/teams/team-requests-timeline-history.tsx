@@ -12,6 +12,11 @@ import {
   TimelineItem,
   TimelineTitle,
 } from "@/components/ui/timeline";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { getTeamRequestStateChangesHistory } from "@/lib/actions/teams.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { TransitionItemCollectionDTO } from "@/types/teams";
@@ -63,16 +68,23 @@ const TeamRequestsTimelineHistory = ({ teamId }: { teamId: number }) => {
               <TimelineIcon />
               <TimelineTitle>
                 {transition.eventName}
-                <span
-                  className="text-sm ml-2"
-                  title={transition.transitionDate}
-                >
-                  (
-                  {formatDateTimeDistanceToNow(
-                    new Date(transition.transitionDate),
-                  )}
-                  )
-                </span>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <span
+                      className="text-sm ml-2 cursor-pointer"
+                      title={transition.transitionDate}
+                    >
+                      (
+                      {formatDateTimeDistanceToNow(
+                        new Date(transition.transitionDate),
+                      )}
+                      )
+                    </span>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    {new Date(transition.transitionDate).toLocaleString()}{" "}
+                  </TooltipContent>
+                </Tooltip>
               </TimelineTitle>
             </TimelineHeader>
             <TimelineContent>

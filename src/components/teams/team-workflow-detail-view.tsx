@@ -29,13 +29,14 @@ const TeamWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
   const [workflowDetail, setWorkflowDetail] =
     useState<WorkflowDetailDTO | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false); // State for edit mode
+  const [isEditing, setIsEditing] = useState(false);
 
   const permissionLevel = usePagePermission();
   const teamRole = useUserTeamRole().role;
 
   useEffect(() => {
     async function fetchWorkflowDetail() {
+      setLoading(true);
       getWorkflowDetail(workflowId)
         .then((data) => setWorkflowDetail(data))
         .finally(() => setLoading(false));
@@ -44,11 +45,12 @@ const TeamWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
     fetchWorkflowDetail();
   }, [workflowId]);
 
-  const handleEditClick = () => setIsEditing(true); // Enable edit mode
-  const handleCancelEdit = () => setIsEditing(false); // Disable edit mode
+  const handleFormChange = (updatedWorkflow: WorkflowDetailDTO) => {
+    setWorkflowDetail(updatedWorkflow); // Update workflowDetail dynamically
+  };
 
   if (!workflowDetail) {
-    return <div>Error loading workflow detail.</div>; // Optional error state
+    return <div>Error loading workflow detail.</div>;
   }
 
   const breadcrumbItems = [
@@ -93,8 +95,8 @@ const TeamWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
             {(PermissionUtils.canWrite(permissionLevel) ||
               teamRole === "Manager") && (
               <div>
-                <Button onClick={handleEditClick}>
-                  <Edit /> Customize Workflow
+                <Button onClick={() => setIsEditing(!isEditing)}>
+                  {isEditing ? "Cancel Edit" : <Edit />} Customize Workflow
                 </Button>
               </div>
             )}
@@ -110,23 +112,17 @@ const TeamWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
           )}
 
           {/* Workflow Editor Form */}
-          {isEditing && !loading && (
+          {isEditing && workflowDetail && !loading && (
             <WorkflowEditForm
               workflowDetail={workflowDetail}
-              onCancel={handleCancelEdit}
-              onSave={(values) => {
-                console.log("Saved values:", values);
-                // Call API to save workflow changes
-                setIsEditing(false);
-              }}
+              onCancel={() => setIsEditing(false)}
+              onSave={handleFormChange}
             />
           )}
 
           {/* Workflow Diagram */}
-          {!isEditing && !loading && (
-            <div>
-              <WorkflowDiagram workflowDetails={workflowDetail} />
-            </div>
+          {workflowDetail && !loading && (
+            <WorkflowDiagram workflowDetails={workflowDetail} />
           )}
         </div>
       </TeamNavLayout>

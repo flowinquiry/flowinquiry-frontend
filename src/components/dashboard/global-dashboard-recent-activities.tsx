@@ -8,6 +8,11 @@ import PaginationExt from "@/components/shared/pagination-ext";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { getUserActivities } from "@/lib/actions/activity-logs.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
@@ -73,7 +78,18 @@ const RecentUserTeamActivities = () => {
                 />
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                   Modified at:{" "}
-                  {formatDateTimeDistanceToNow(new Date(activityLog.createdAt))}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-pointer">
+                        {formatDateTimeDistanceToNow(
+                          new Date(activityLog.createdAt),
+                        )}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      {new Date(activityLog.createdAt).toLocaleString()}
+                    </TooltipContent>
+                  </Tooltip>
                 </p>
               </div>
             ))}

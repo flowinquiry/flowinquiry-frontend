@@ -30,7 +30,10 @@ export const WorkflowTransitionSchema = z.object({
   sourceStateId: z.number().nullish(),
   targetStateId: z.number().nullish(),
   eventName: z.string().min(1),
-  slaDuration: z.number().nullish(),
+  slaDuration: z.preprocess(
+    (value) => (value === "" || value === null ? null : Number(value)), // Convert empty string or null to null, otherwise convert to number
+    z.number().nullable(), // Validate as nullable number
+  ),
   escalateOnViolation: z.boolean(),
 });
 
@@ -38,7 +41,15 @@ export type WorkflowTransitionDTO = z.infer<typeof WorkflowTransitionSchema>;
 
 export const WorkflowDetailSchema = WorkflowDTOSchema.merge(
   z.object({
-    states: z.array(WorkflowStateDTOSchema),
+    states: z
+      .array(WorkflowStateDTOSchema)
+      .refine(
+        (states) => states.filter((state) => state.isInitial).length <= 1,
+        {
+          message: "Only one state can be marked as initial.",
+          path: ["states"], // Indicate the error relates to the `states` array
+        },
+      ),
     transitions: z.array(WorkflowTransitionSchema),
   }),
 );

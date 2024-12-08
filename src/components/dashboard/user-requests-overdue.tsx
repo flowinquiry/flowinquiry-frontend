@@ -152,7 +152,16 @@ const UserTeamsOverdueTickets = () => {
                   </div>
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                     Modified at:{" "}
-                    {formatDateTimeDistanceToNow(ticket.modifiedAt)}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="cursor-pointer">
+                          {formatDateTimeDistanceToNow(ticket.modifiedAt)}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {new Date(ticket.modifiedAt!).toLocaleString()}{" "}
+                      </TooltipContent>
+                    </Tooltip>
                   </p>
                 </div>
               ))

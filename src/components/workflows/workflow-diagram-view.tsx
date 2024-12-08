@@ -1,3 +1,5 @@
+"use client";
+
 import "@xyflow/react/dist/style.css";
 
 import dagre from "@dagrejs/dagre";
@@ -75,17 +77,29 @@ const convertStatesToNodes = (workflowDetails: WorkflowDetailDTO): Node[] => {
 const convertTransitionsToEdges = (
   workflowDetails: WorkflowDetailDTO,
 ): Edge[] => {
-  return workflowDetails.transitions.map((transition) => ({
-    id: `e${transition.sourceStateId}-${transition.targetStateId}`,
-    source: transition.sourceStateId?.toString() ?? "",
-    target: transition.targetStateId?.toString() ?? "",
-    label: transition.eventName,
-    type: ConnectionLineType.SmoothStep,
-    animated: true,
-    style: {
-      stroke: "var(--edge-color)", // Edge color
-    },
-  }));
+  return workflowDetails.transitions
+    .filter(
+      (transition) =>
+        transition.sourceStateId !== null &&
+        transition.targetStateId !== null &&
+        workflowDetails.states.some(
+          (state) => state.id === transition.sourceStateId,
+        ) &&
+        workflowDetails.states.some(
+          (state) => state.id === transition.targetStateId,
+        ),
+    ) // Ensure source and target states exist
+    .map((transition, index) => ({
+      id: `e${transition.sourceStateId}-${transition.targetStateId}-${index}`, // Add index to ensure uniqueness
+      source: transition.sourceStateId!.toString(),
+      target: transition.targetStateId!.toString(),
+      label: transition.eventName,
+      type: ConnectionLineType.SmoothStep,
+      animated: true,
+      style: {
+        stroke: "var(--edge-color)", // Edge color
+      },
+    }));
 };
 
 // Main Flow Component
