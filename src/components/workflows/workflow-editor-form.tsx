@@ -11,64 +11,55 @@ import { Form } from "@/components/ui/form";
 import WorkflowStatesSelect from "@/components/workflows/workflow-states-select";
 import { WorkflowDetailDTO, WorkflowDetailSchema } from "@/types/workflows";
 
-let temporaryIdCounter = -1; // Temporary counter for new states
+let temporaryIdCounter = -1;
 
 const WorkflowEditForm = ({
   workflowDetail,
   onCancel,
   onSave,
+  onPreviewChange,
 }: {
   workflowDetail: WorkflowDetailDTO;
   onCancel: () => void;
   onSave: (values: WorkflowDetailDTO) => void;
+  onPreviewChange: (values: WorkflowDetailDTO) => void; // New prop for live preview
 }) => {
   const form = useForm<WorkflowDetailDTO>({
     resolver: zodResolver(WorkflowDetailSchema),
     defaultValues: workflowDetail,
-    mode: "onChange", // Validate on change
+    mode: "onChange",
   });
 
   const {
     fields: stateFields,
     append: appendState,
     remove: removeState,
-  } = useFieldArray({
-    control: form.control,
-    name: "states",
-  });
+  } = useFieldArray({ control: form.control, name: "states" });
 
   const {
     fields: transitionFields,
     append: appendTransition,
     remove: removeTransition,
-  } = useFieldArray({
-    control: form.control,
-    name: "transitions",
-  });
+  } = useFieldArray({ control: form.control, name: "transitions" });
 
   const watchedValues = form.watch();
 
-  // Debounce state update logic
+  // Debounce preview updates
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (debounceRef.current) {
-      clearTimeout(debounceRef.current); // Clear the previous timeout
+      clearTimeout(debounceRef.current);
     }
-
     debounceRef.current = setTimeout(() => {
-      onSave(watchedValues); // Trigger onSave with the latest values
-    }, 300); // Delay of 300ms
-
+      onPreviewChange(watchedValues); // Update the preview with debounced values
+    }, 300);
     return () => {
-      if (debounceRef.current) {
-        clearTimeout(debounceRef.current); // Cleanup on unmount or rerender
-      }
+      if (debounceRef.current) clearTimeout(debounceRef.current);
     };
-  }, [watchedValues, onSave]);
+  }, [watchedValues, onPreviewChange]);
 
   const handleSubmit = (values: WorkflowDetailDTO) => {
-    console.log(`Save value ${JSON.stringify(values)}`);
     onSave(values);
   };
 
@@ -77,6 +68,7 @@ const WorkflowEditForm = ({
       <h2 className="text-lg font-bold mb-4">Edit Workflow</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+          {/* States Section */}
           <div>
             <h3 className="text-md font-semibold mb-4">States</h3>
             {stateFields.map((state, index) => (
@@ -127,7 +119,7 @@ const WorkflowEditForm = ({
                   stateName: "",
                   isInitial: false,
                   isFinal: false,
-                  id: temporaryIdCounter--, // Assign a temporary numeric ID
+                  id: temporaryIdCounter--,
                   workflowId: workflowDetail.id!,
                 })
               }
@@ -137,6 +129,7 @@ const WorkflowEditForm = ({
             </Button>
           </div>
 
+          {/* Transitions Section */}
           <div>
             <h3 className="text-md font-semibold mb-4">Transitions</h3>
             {transitionFields.map((transition, index) => (
@@ -152,7 +145,7 @@ const WorkflowEditForm = ({
                     placeholder="Select source state"
                     options={watchedValues.states.map((state) => ({
                       label: state.stateName,
-                      value: state.id ?? temporaryIdCounter--, // Use actual state ID or temporary ID
+                      value: state.id!,
                     }))}
                     required
                   />
@@ -165,7 +158,7 @@ const WorkflowEditForm = ({
                     placeholder="Select target state"
                     options={watchedValues.states.map((state) => ({
                       label: state.stateName,
-                      value: state.id ?? temporaryIdCounter--, // Use actual state ID or temporary ID
+                      value: state.id!,
                     }))}
                     required
                   />
