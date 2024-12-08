@@ -2,7 +2,7 @@
 
 import { unstable_noStore as noStore } from "next/dist/server/web/spec-extension/unstable-no-store";
 
-import { doAdvanceSearch, get, post } from "@/lib/actions/commons.action";
+import { doAdvanceSearch, get, post, put } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
 import { Pagination, QueryDTO } from "@/types/query";
 import {
@@ -38,13 +38,23 @@ export async function searchWorkflows(query: QueryDTO, pagination: Pagination) {
 
 export const getWorkflowDetail = async (workflowId: number) => {
   return get<WorkflowDetailDTO>(
-    `${BACKEND_API}/api/workflows/${workflowId}/details`,
+    `${BACKEND_API}/api/workflows/details/${workflowId}`,
   );
 };
 
 export const saveWorkflowDetail = async (workflowDetail: WorkflowDetailDTO) => {
   return post<WorkflowDetailDTO, WorkflowDetailDTO>(
     `${BACKEND_API}/api/workflows/details`,
+    workflowDetail,
+  );
+};
+
+export const updateWorkflowDetail = async (
+  workflowId: number,
+  workflowDetail: WorkflowDetailDTO,
+) => {
+  return put<WorkflowDetailDTO, WorkflowDetailDTO>(
+    `${BACKEND_API}/api/workflows/details/${workflowId}`,
     workflowDetail,
   );
 };

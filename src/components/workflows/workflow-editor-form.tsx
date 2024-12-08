@@ -68,7 +68,8 @@ const WorkflowEditForm = ({
   }, [watchedValues, onSave]);
 
   const handleSubmit = (values: WorkflowDetailDTO) => {
-    onSave(values); // Final save call on form submission
+    console.log(`Save value ${JSON.stringify(values)}`);
+    onSave(values);
   };
 
   return (

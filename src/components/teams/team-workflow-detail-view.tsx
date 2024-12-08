@@ -16,7 +16,11 @@ import {
 import { WorkflowDiagram } from "@/components/workflows/workflow-diagram-view";
 import WorkflowEditForm from "@/components/workflows/workflow-editor-form";
 import { usePagePermission } from "@/hooks/use-page-permission";
-import { getWorkflowDetail } from "@/lib/actions/workflows.action";
+import {
+  getWorkflowDetail,
+  saveWorkflowDetail,
+  updateWorkflowDetail,
+} from "@/lib/actions/workflows.action";
 import { obfuscate } from "@/lib/endecode";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
 import { useTeam } from "@/providers/team-provider";
@@ -46,7 +50,10 @@ const TeamWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
   }, [workflowId]);
 
   const handleFormChange = (updatedWorkflow: WorkflowDetailDTO) => {
-    setWorkflowDetail(updatedWorkflow);
+    // setWorkflowDetail(updatedWorkflow);
+    updateWorkflowDetail(updatedWorkflow.id!, updatedWorkflow).then((data) =>
+      setWorkflowDetail(data),
+    );
   };
 
   if (!workflowDetail) {
