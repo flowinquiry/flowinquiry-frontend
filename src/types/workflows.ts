@@ -7,6 +7,7 @@ export const WorkflowDTOSchema = z.object({
   name: z.string().min(1),
   requestName: z.string().min(1),
   description: z.string().nullable(),
+  visibility: z.enum(["PUBLIC", "PRIVATE", "TEAM"]),
   ownerId: z.number().nullish(),
   ownerName: z.string().nullish(),
 });

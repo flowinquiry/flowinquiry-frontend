@@ -3,6 +3,7 @@ import {
   LayoutGrid,
   LucideIcon,
   ShieldCheck,
+  Shuffle,
   Users,
 } from "lucide-react";
 
@@ -99,6 +100,11 @@ export function getMenuList(
           href: "/portal/settings/authorities",
           label: "Authorities",
           icon: ShieldCheck,
+        },
+        {
+          href: "/portal/settings/workflows",
+          label: "Workflows",
+          icon: Shuffle,
         },
       ],
     },

@@ -1,4 +1,9 @@
-export type ResourceId = "Users" | "Teams" | "Organizations" | "Authorities";
+export type ResourceId =
+  | "Users"
+  | "Teams"
+  | "Organizations"
+  | "Authorities"
+  | "Workflows";
 
 export type PermissionLevel = "NONE" | "READ" | "WRITE" | "ACCESS";
 

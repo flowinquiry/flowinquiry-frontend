@@ -1,7 +1,10 @@
 "use server";
 
-import { get, post } from "@/lib/actions/commons.action";
+import { unstable_noStore as noStore } from "next/dist/server/web/spec-extension/unstable-no-store";
+
+import { doAdvanceSearch, get, post } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
+import { Pagination, QueryDTO } from "@/types/query";
 import {
   WorkflowDetailDTO,
   WorkflowDTO,
@@ -23,6 +26,15 @@ export const getValidTargetStates = async (
     `${BACKEND_API}/api/workflows/${workflowId}/transitions?workflowStateId=${workflowStateId}&&includeSelf=${includeSelf}`,
   );
 };
+
+export async function searchWorkflows(query: QueryDTO, pagination: Pagination) {
+  noStore();
+  return doAdvanceSearch<WorkflowDTO>(
+    `${BACKEND_API}/api/workflows/search`,
+    query,
+    pagination,
+  );
+}
 
 export const getWorkflowDetail = async (workflowId: number) => {
   return get<WorkflowDetailDTO>(
