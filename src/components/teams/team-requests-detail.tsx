@@ -79,7 +79,6 @@ const TeamRequestDetailView = ({ entity }: ViewProps<TeamRequestDTO>) => {
     <BreadcrumbProvider items={breadcrumbItems}>
       <TeamNavLayout teamId={teamRequest.teamId!}>
         <div className="grid grid-cols-1 gap-4">
-          {/* Header Section */}
           <div className="flex flex-row justify-between gap-4 items-center">
             <Button
               variant="outline"

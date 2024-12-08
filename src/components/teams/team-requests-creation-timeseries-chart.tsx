@@ -27,7 +27,7 @@ const TicketCreationByDaySeriesChart = ({
   const [data, setData] = useState<
     (TicketActionCountByDateDTO & { displayDay: string })[]
   >([]);
-  const [loading, setLoading] = useState(true); // Loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchData() {

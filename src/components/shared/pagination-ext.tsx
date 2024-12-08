@@ -23,7 +23,6 @@ const PaginationExt: React.FC<PaginationProps> = ({
   onPageChange,
   className,
 }) => {
-  // Hide pagination if there is only one page
   if (totalPages <= 1) {
     return null;
   }
@@ -47,7 +46,7 @@ const PaginationExt: React.FC<PaginationProps> = ({
       );
 
       if (currentPage > 4) {
-        pages.push(<span key="left-ellipsis">...</span>); // Left ellipsis
+        pages.push(<span key="left-ellipsis">...</span>);
       }
     }
 
@@ -73,7 +72,7 @@ const PaginationExt: React.FC<PaginationProps> = ({
     // Show the last page
     if (currentPage < totalPages - 2) {
       if (currentPage < totalPages - 3) {
-        pages.push(<span key="right-ellipsis">...</span>); // Right ellipsis
+        pages.push(<span key="right-ellipsis">...</span>);
       }
       pages.push(
         <PaginationItem key={totalPages}>

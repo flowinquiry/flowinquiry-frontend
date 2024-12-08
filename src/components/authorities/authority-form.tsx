@@ -76,7 +76,7 @@ const AuthorityForm: React.FC<NewAuthorityFormProps> = ({
           authority: authorityEntity,
           permissions: data.map((perm) => ({
             ...perm,
-            permission: perm.permission || "NONE", // Default permission to "NONE" if not defined
+            permission: perm.permission || "NONE",
           })),
         });
       }

@@ -26,7 +26,7 @@ type FormValues = {
 };
 
 const TeamRoleSelectField = () => {
-  const form = useFormContext<FormValues>(); // Ensure this is used inside a `FormProvider`
+  const form = useFormContext<FormValues>();
 
   return (
     <FormField

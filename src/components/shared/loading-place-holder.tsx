@@ -2,8 +2,8 @@
 
 import React from "react";
 
-import { Skeleton } from "@/components/ui/skeleton"; // Assuming you have a skeleton component
-import { Spinner } from "@/components/ui/spinner"; // Assuming you have a spinner component
+import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 
 interface LoadingPlaceholderProps {
   message?: string; // Optional message to display

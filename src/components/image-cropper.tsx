@@ -163,7 +163,6 @@ export function ImageCropper({
   );
 }
 
-// Helper function to center the crop
 export function centerAspectCrop(
   mediaWidth: number,
   mediaHeight: number,

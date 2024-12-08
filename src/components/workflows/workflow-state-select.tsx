@@ -21,13 +21,13 @@ import { cn } from "@/lib/utils";
 import { WorkflowStateDTO } from "@/types/workflows";
 
 type WorkflowStateSelectProps = {
-  form: UseFormReturn<any>; // React Hook Form instance passed as prop
-  name: string; // Form field name
-  label?: string; // Label for the select
-  workflowId: number; // Workflow ID to fetch states for
-  workflowStateId: number; // Workflow state ID to fetch the next states from the current workflowStateId
-  includeSelf?: boolean; // include the self state
-  required?: boolean; // Whether the field is required
+  form: UseFormReturn<any>;
+  name: string;
+  label?: string;
+  workflowId: number;
+  workflowStateId: number;
+  includeSelf?: boolean;
+  required?: boolean;
 };
 
 const WorkflowStateSelect = ({
@@ -42,7 +42,6 @@ const WorkflowStateSelect = ({
   const [workflowStates, setWorkflowStates] = useState<WorkflowStateDTO[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Fetch workflow states
   useEffect(() => {
     const loadWorkflowStates = async () => {
       setIsLoading(true);

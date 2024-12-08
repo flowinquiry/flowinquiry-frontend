@@ -69,7 +69,6 @@ const CommentsView: React.FC<CommentsViewProps> = ({
 
   return (
     <div>
-      {/* Add Comment Section */}
       <div className="pt-4">
         <h3 className="text-lg font-semibold mb-2">Add a Comment</h3>
 

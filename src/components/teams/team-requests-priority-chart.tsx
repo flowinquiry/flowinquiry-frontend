@@ -23,7 +23,6 @@ const TicketPriorityPieChart = ({ teamId }: { teamId: number }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Fetch priority distribution data
     const fetchPriorityData = async () => {
       setLoading(true);
       getTicketsPriorityDistributionByTeam(teamId)

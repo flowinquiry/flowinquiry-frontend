@@ -105,7 +105,6 @@ const TeamRequestsStatusView = ({ requests }: TeamRequestsStatusViewProps) => {
                 wordLimit={400}
               />
 
-              {/* Grid Content */}
               <NColumnsGrid
                 columns={2}
                 gap="4"

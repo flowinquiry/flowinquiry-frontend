@@ -18,7 +18,7 @@ const RecentTeamActivities = ({ teamId }: { teamId: number }) => {
   const [activityLogs, setActivityLogs] = useState<ActivityLogDTO[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
-  const [loading, setLoading] = useState(false); // Loading state
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     async function fetchActivityLogs() {
@@ -74,7 +74,6 @@ const RecentTeamActivities = ({ teamId }: { teamId: number }) => {
                     </TooltipTrigger>
                     <TooltipContent>
                       {new Date(activityLog.createdAt).toLocaleString()}{" "}
-                      {/* Adjust format as needed */}
                     </TooltipContent>
                   </Tooltip>
                 </p>

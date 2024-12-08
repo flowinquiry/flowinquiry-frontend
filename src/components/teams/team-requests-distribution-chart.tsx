@@ -32,7 +32,6 @@ const TicketDistributionChart: React.FC<TicketDistributionChartProps> = ({
   const [data, setData] = useState<TicketDistributionDTO[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
-  // Fetch data from the API
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);

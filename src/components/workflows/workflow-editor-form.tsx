@@ -76,7 +76,6 @@ const WorkflowEditForm = ({
       <h2 className="text-lg font-bold mb-4">Edit Workflow</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
-          {/* States Section */}
           <div>
             <h3 className="text-md font-semibold mb-4">States</h3>
             {stateFields.map((state, index) => (
@@ -137,7 +136,6 @@ const WorkflowEditForm = ({
             </Button>
           </div>
 
-          {/* Transitions Section */}
           <div>
             <h3 className="text-md font-semibold mb-4">Transitions</h3>
             {transitionFields.map((transition, index) => (
@@ -152,7 +150,7 @@ const WorkflowEditForm = ({
                     label="Source State"
                     placeholder="Select source state"
                     options={watchedValues.states.map((state) => ({
-                      label: state.stateName, // Display state name
+                      label: state.stateName,
                       value: state.id ?? temporaryIdCounter--, // Use actual state ID or temporary ID
                     }))}
                     required
@@ -165,7 +163,7 @@ const WorkflowEditForm = ({
                     label="Target State"
                     placeholder="Select target state"
                     options={watchedValues.states.map((state) => ({
-                      label: state.stateName, // Display state name
+                      label: state.stateName,
                       value: state.id ?? temporaryIdCounter--, // Use actual state ID or temporary ID
                     }))}
                     required
@@ -230,7 +228,6 @@ const WorkflowEditForm = ({
             </Button>
           </div>
 
-          {/* Save and Cancel Buttons */}
           <div className="flex justify-start space-x-4">
             <Button type="submit">Save</Button>
             <Button type="button" variant="secondary" onClick={onCancel}>

@@ -45,12 +45,9 @@ const TeamNavLayout = ({
 
   return (
     <div className="h-full flex flex-col">
-      {/* Breadcrumb Bar */}
       <Breadcrumbs items={breadcrumbsItems} />
 
-      {/* Main Layout with Navigator and Content */}
       <div className="flex flex-1 gap-4 pt-4">
-        {/* Sidebar Navigation */}
         <aside className="w-64 bg-[hsl(var(--card))] text-[hsl(var(--card-foreground))] h-full">
           <div>
             <nav className="space-y-2">
@@ -73,7 +70,6 @@ const TeamNavLayout = ({
           </div>
         </aside>
 
-        {/* Main Content */}
         <main className="flex-1 overflow-auto">{children}</main>
       </div>
     </div>

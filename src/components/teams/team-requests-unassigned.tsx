@@ -81,7 +81,6 @@ const UnassignedTickets = ({ teamId }: { teamId: number }) => {
       </CardHeader>
       <CardContent>
         {loading ? (
-          // Show a spinner while loading
           <div className="flex justify-center items-center h-[200px]">
             <Spinner className="h-8 w-8">
               <span>Loading data ...</span>

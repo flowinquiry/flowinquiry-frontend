@@ -51,7 +51,7 @@ const WorkflowStatesSelect = ({
                 {options.map((option) => (
                   <DropdownMenuItem
                     key={option.value}
-                    onClick={() => field.onChange(option.value)} // Update the field value
+                    onClick={() => field.onChange(option.value)}
                   >
                     {option.label}
                   </DropdownMenuItem>

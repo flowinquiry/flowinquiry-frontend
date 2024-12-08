@@ -36,7 +36,6 @@ const COLORS = requestStatusData.map((entry) => entry.color);
 const TeamDashboardRequestBreakdown = () => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {/* Request Status Pie Chart */}
       <Card>
         <CardHeader>
           <CardTitle>Requests by Status</CardTitle>
@@ -62,7 +61,6 @@ const TeamDashboardRequestBreakdown = () => {
         </CardContent>
       </Card>
 
-      {/* Priority Breakdown Bar Chart */}
       <Card>
         <CardHeader>
           <CardTitle>Requests by Priority</CardTitle>

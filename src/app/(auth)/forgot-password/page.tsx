@@ -38,8 +38,8 @@ const ForgotPasswordPage = () => {
 
   const handleSubmit = async (data: FormData) => {
     await forgotPassword(data.email);
-    setSubmittedEmail(data.email); // Save the submitted email for display
-    setIsSubmitted(true); // Switch to success message view
+    setSubmittedEmail(data.email);
+    setIsSubmitted(true);
   };
 
   if (isSubmitted) {

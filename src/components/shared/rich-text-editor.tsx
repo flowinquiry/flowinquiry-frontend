@@ -97,7 +97,6 @@ const RichTextEditor = ({
             <OrderedListToolbar />
             <CodeToolbar />
             <CodeBlockToolbar />
-            {/*<LinkToolbar />*/}
             <HorizontalRuleToolbar />
             <BlockquoteToolbar />
             <HardBreakToolbar />
@@ -105,7 +104,6 @@ const RichTextEditor = ({
         </ToolbarProvider>
       </div>
 
-      {/* Editor Content Section */}
       <div
         onClick={() => {
           editor?.chain().focus().run();

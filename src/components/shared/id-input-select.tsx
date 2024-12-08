@@ -51,7 +51,6 @@ const IdInputSelect: React.FC<IdInputSelectProps> = ({
               />
             </FormControl>
 
-            {/* Button with customizable label */}
             <button
               type="button"
               onClick={onButtonClick}

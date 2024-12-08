@@ -64,13 +64,11 @@ export const TeamRequestForm = ({
         />
       </div>
 
-      {/* Form */}
       <Form {...form}>
         <form
           className="grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-[72rem] mx-auto"
           onSubmit={form.handleSubmit(onSubmit)}
         >
-          {/* Title Field - Spans 2 Columns */}
           <div className="col-span-1 sm:col-span-2">
             <ExtInputField
               form={form}
@@ -108,7 +106,6 @@ export const TeamRequestForm = ({
             teamId={teamRequest?.teamId!}
           />
 
-          {/* Priority Field - Single Column */}
           <FormField
             control={form.control}
             name="priority"

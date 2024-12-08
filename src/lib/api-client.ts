@@ -8,12 +8,10 @@ export async function apiClient<T>(
     "Access-Control-Allow-Origin": "*",
   };
 
-  // Add the Authorization header if authToken is provided
   if (authToken) {
     headers["Authorization"] = `Bearer ${authToken}`;
   }
 
-  // Configure the request options
   const options: RequestInit = {
     method,
     headers,
@@ -29,10 +27,8 @@ export async function apiClient<T>(
     }
   }
 
-  // Make the fetch request
   const response = await fetch(url, options);
 
-  // Handle responses, optionally parse JSON if needed
   if (!response.ok) {
     throw new Error(`Error: ${response.status} - ${response.statusText}`);
   }

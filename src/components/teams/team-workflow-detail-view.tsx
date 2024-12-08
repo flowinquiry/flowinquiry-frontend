@@ -46,7 +46,7 @@ const TeamWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
   }, [workflowId]);
 
   const handleFormChange = (updatedWorkflow: WorkflowDetailDTO) => {
-    setWorkflowDetail(updatedWorkflow); // Update workflowDetail dynamically
+    setWorkflowDetail(updatedWorkflow);
   };
 
   if (!workflowDetail) {
@@ -71,7 +71,6 @@ const TeamWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
     <BreadcrumbProvider items={breadcrumbItems}>
       <TeamNavLayout teamId={workflowDetail.ownerId!}>
         <div className="grid grid-cols-1 gap-4">
-          {/* Header Section */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Tooltip>
@@ -102,7 +101,6 @@ const TeamWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
             )}
           </div>
 
-          {/* Spinner When Loading */}
           {loading && (
             <div className="flex items-center justify-center py-4">
               <Spinner>
@@ -111,7 +109,6 @@ const TeamWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
             </div>
           )}
 
-          {/* Workflow Editor Form */}
           {isEditing && workflowDetail && !loading && (
             <WorkflowEditForm
               workflowDetail={workflowDetail}
@@ -120,7 +117,6 @@ const TeamWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
             />
           )}
 
-          {/* Workflow Diagram */}
           {workflowDetail && !loading && (
             <WorkflowDiagram workflowDetails={workflowDetail} />
           )}

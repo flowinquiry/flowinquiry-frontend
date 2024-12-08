@@ -136,7 +136,6 @@ const TeamOverdueTickets = ({ teamId }: { teamId: number }) => {
                       </TooltipTrigger>
                       <TooltipContent>
                         {new Date(ticket.modifiedAt!).toLocaleString()}{" "}
-                        {/* Adjust format as needed */}
                       </TooltipContent>
                     </Tooltip>
                   </p>
