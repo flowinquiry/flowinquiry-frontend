@@ -8,6 +8,11 @@ import { TeamAvatar, UserAvatar } from "@/components/shared/avatar-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ViewProps } from "@/components/ui/ext-form";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { findTeamsByMemberId } from "@/lib/actions/teams.action";
 import { getDirectReports } from "@/lib/actions/users.action";
 import { obfuscate } from "@/lib/endecode";
@@ -50,11 +55,22 @@ export const UserView = ({ entity: user }: ViewProps<UserType>) => {
           <div>Title: {user.title}</div>
           <div>
             Last login time:{" "}
-            {user.lastLoginTime
-              ? formatDistanceToNow(new Date(user.lastLoginTime), {
-                  addSuffix: true,
-                })
-              : "No recent login"}
+            {user.lastLoginTime ? (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span>
+                    {formatDistanceToNow(new Date(user.lastLoginTime), {
+                      addSuffix: true,
+                    })}
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent>
+                  {new Date(user.lastLoginTime).toLocaleString()}
+                </TooltipContent>
+              </Tooltip>
+            ) : (
+              "No recent login"
+            )}
           </div>
           <div>About: {user.about}</div>
         </div>

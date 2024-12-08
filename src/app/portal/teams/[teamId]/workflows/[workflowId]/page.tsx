@@ -1,7 +1,7 @@
 import React from "react";
 
 import { ContentLayout } from "@/components/admin-panel/content-layout";
-import WorkflowDetailView from "@/components/teams/team-workflow-detail-view";
+import TeamWorkflowDetailView from "@/components/teams/team-workflow-detail-view";
 import { deobfuscateToNumber } from "@/lib/endecode";
 
 const Page = async ({
@@ -11,7 +11,9 @@ const Page = async ({
 }) => {
   return (
     <ContentLayout title="Teams">
-      <WorkflowDetailView workflowId={deobfuscateToNumber(params.workflowId)} />
+      <TeamWorkflowDetailView
+        workflowId={deobfuscateToNumber(params.workflowId)}
+      />
     </ContentLayout>
   );
 };

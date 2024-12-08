@@ -83,7 +83,7 @@ export function AuthoritiesView() {
       <div className="flex flex-row justify-between">
         <Heading
           title={`Authorities (${totalElements})`}
-          description="Manage authorities"
+          description="Manage permissions for groups and users to control access to resources."
         />
         {PermissionUtils.canWrite(permissionLevel) && (
           <Button

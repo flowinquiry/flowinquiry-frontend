@@ -24,7 +24,7 @@ import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { PermissionUtils } from "@/types/resources";
 import { WorkflowDetailDTO } from "@/types/workflows";
 
-const WorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
+const TeamWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
   const team = useTeam();
   const [workflowDetail, setWorkflowDetail] =
     useState<WorkflowDetailDTO | null>(null);
@@ -46,16 +46,6 @@ const WorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
 
   const handleEditClick = () => setIsEditing(true); // Enable edit mode
   const handleCancelEdit = () => setIsEditing(false); // Disable edit mode
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <Spinner className="mb-4">
-          <span>Loading workflow detail...</span>
-        </Spinner>
-      </div>
-    );
-  }
 
   if (!workflowDetail) {
     return <div>Error loading workflow detail.</div>; // Optional error state
@@ -79,6 +69,7 @@ const WorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
     <BreadcrumbProvider items={breadcrumbItems}>
       <TeamNavLayout teamId={workflowDetail.ownerId!}>
         <div className="grid grid-cols-1 gap-4">
+          {/* Header Section */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Tooltip>
@@ -105,7 +96,18 @@ const WorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
               </div>
             )}
           </div>
-          {isEditing && (
+
+          {/* Spinner When Loading */}
+          {loading && (
+            <div className="flex items-center justify-center py-4">
+              <Spinner>
+                <span>Loading workflow detail...</span>
+              </Spinner>
+            </div>
+          )}
+
+          {/* Workflow Editor Form */}
+          {isEditing && !loading && (
             <WorkflowEditForm
               workflowDetail={workflowDetail}
               onCancel={handleCancelEdit}
@@ -116,13 +118,17 @@ const WorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
               }}
             />
           )}
-          <div>
-            <WorkflowDiagram workflowDetails={workflowDetail} />
-          </div>
+
+          {/* Workflow Diagram */}
+          {!isEditing && !loading && (
+            <div>
+              <WorkflowDiagram workflowDetails={workflowDetail} />
+            </div>
+          )}
         </div>
       </TeamNavLayout>
     </BreadcrumbProvider>
   );
 };
 
-export default WorkflowDetailView;
+export default TeamWorkflowDetailView;

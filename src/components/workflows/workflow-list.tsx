@@ -20,6 +20,7 @@ import {
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import { searchWorkflows } from "@/lib/actions/workflows.action";
+import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
@@ -102,12 +103,19 @@ export function WorkflowsView() {
     setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
   };
 
+  const getWorkflowViewRoute = (workflow: WorkflowDTO) => {
+    if (workflow.ownerId === null) {
+      return `/portal/settings/workflows/${obfuscate(workflow.id)}`;
+    }
+    return `/portal/teams/${obfuscate(workflow.ownerId)}/workflows/${obfuscate(workflow.id)}`;
+  };
+
   return (
     <div className="py-4 grid grid-cols-1 gap-4">
       <div className="flex flex-row justify-between">
         <Heading
           title={`Workflows (${totalElements})`}
-          description="Manage workflows"
+          description="Centralize and manage all workflows effortlessly with clear visibility, ticket types, and descriptions at a glance."
         />
 
         <div className="flex space-x-4">
@@ -172,7 +180,17 @@ export function WorkflowsView() {
                 </div>
               )}
 
-              <div>{workflow.name}</div>
+              <div>
+                <Link
+                  href={`${getWorkflowViewRoute(workflow)}`}
+                  className={cn(
+                    buttonVariants({ variant: "link" }),
+                    "w-full text-left block px-0",
+                  )}
+                >
+                  {workflow.name}
+                </Link>
+              </div>
               <div className="text-sm">
                 Ticket type:{" "}
                 <Badge variant="secondary">{workflow.requestName}</Badge>
