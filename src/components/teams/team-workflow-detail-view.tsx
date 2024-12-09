@@ -55,9 +55,9 @@ const TeamWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
 
   const handleSave = (updatedWorkflow: WorkflowDetailDTO) => {
     updateWorkflowDetail(updatedWorkflow.id!, updatedWorkflow).then((data) => {
-      setWorkflowDetail(data); // Update the main workflow detail
-      setPreviewWorkflowDetail(data); // Sync preview with saved workflow
-      setIsEditing(false); // Exit editing mode
+      setWorkflowDetail(data);
+      setPreviewWorkflowDetail(data);
+      setIsEditing(false);
     });
   };
 
@@ -114,7 +114,6 @@ const TeamWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
             )}
           </div>
 
-          {/* Spinner When Loading */}
           {loading && (
             <div className="flex items-center justify-center py-4">
               <Spinner>
@@ -123,17 +122,15 @@ const TeamWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
             </div>
           )}
 
-          {/* Workflow Editor Form */}
           {isEditing && workflowDetail && !loading && (
             <WorkflowEditForm
               workflowDetail={workflowDetail}
               onCancel={() => setIsEditing(false)}
-              onSave={handleSave} // Save to backend
+              onSave={handleSave}
               onPreviewChange={setPreviewWorkflowDetail} // Update preview in real-time
             />
           )}
 
-          {/* Workflow Diagram */}
           {previewWorkflowDetail && !loading && (
             <WorkflowDiagram workflowDetails={previewWorkflowDetail} />
           )}

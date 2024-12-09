@@ -45,6 +45,9 @@ export const fetchData = async <TData, TResponse>(
   } else {
     // Unauthorized access
     if (response.status === 401 && isAuthorized) {
+      console.log(
+        `Try to access ${url} that return 401. Redirect to the login page`,
+      );
       redirect("/login");
     }
     await handleError(response, url);
