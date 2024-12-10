@@ -1,21 +1,21 @@
 "use client";
 
+import { Edit } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Heading } from "@/components/heading";
+import { Button } from "@/components/ui/button";
 import { Spinner } from "@/components/ui/spinner";
 import { WorkflowDiagram } from "@/components/workflows/workflow-diagram-view";
 import WorkflowEditForm from "@/components/workflows/workflow-editor-form";
+import { usePagePermission } from "@/hooks/use-page-permission";
 import {
   getWorkflowDetail,
   updateWorkflowDetail,
 } from "@/lib/actions/workflows.action";
-import { WorkflowDetailDTO } from "@/types/workflows";
-import { usePagePermission } from "@/hooks/use-page-permission";
 import { PermissionUtils } from "@/types/resources";
-import { Button } from "@/components/ui/button";
-import { Edit } from "lucide-react";
+import { WorkflowDetailDTO } from "@/types/workflows";
 
 const GlobalWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
   const permissionLevel = usePagePermission();

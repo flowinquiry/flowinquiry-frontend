@@ -13,6 +13,9 @@ export const WorkflowDTOSchema = z.object({
   level1EscalationTimeout: z.number().nullish(),
   level2EscalationTimeout: z.number().nullish(),
   level3EscalationTimeout: z.number().nullish(),
+  parentWorkflowId: z.number().nullish(),
+  clonedFromGlobal: z.boolean().nullish(),
+  tags: z.string().nullish(),
 });
 
 export type WorkflowDTO = z.infer<typeof WorkflowDTOSchema>;

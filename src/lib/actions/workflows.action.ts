@@ -17,6 +17,12 @@ export const getWorkflowsByTeam = (teamId: number) => {
   );
 };
 
+export const getGlobalWorkflowHasNotLinkedWithTeam = (teamId: number) => {
+  return get<Array<WorkflowDTO>>(
+    `${BACKEND_API}/api/workflows/teams/${teamId}/global-workflows-not-linked-yet`,
+  );
+};
+
 export const getValidTargetStates = async (
   workflowId: number,
   workflowStateId: number,

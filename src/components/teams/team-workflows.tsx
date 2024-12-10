@@ -70,7 +70,7 @@ const TeamWorkflowsView = () => {
             {(PermissionUtils.canWrite(permissionLevel) ||
               teamRole === "Manager") && (
               <Link
-                href={"/portal/teams/new/edit"}
+                href={`/portal/teams/${obfuscate(team.id)}/workflows/new`}
                 className={cn(buttonVariants({ variant: "default" }))}
               >
                 <Plus className="mr-2 h-4 w-4" /> New Workflow
