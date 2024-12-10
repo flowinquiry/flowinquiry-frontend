@@ -10,6 +10,9 @@ export const WorkflowDTOSchema = z.object({
   visibility: z.enum(["PUBLIC", "PRIVATE", "TEAM"]),
   ownerId: z.number().nullish(),
   ownerName: z.string().nullish(),
+  level1EscalationTimeout: z.number().nullish(),
+  level2EscalationTimeout: z.number().nullish(),
+  level3EscalationTimeout: z.number().nullish(),
 });
 
 export type WorkflowDTO = z.infer<typeof WorkflowDTOSchema>;

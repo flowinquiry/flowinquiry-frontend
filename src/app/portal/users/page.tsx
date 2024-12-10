@@ -6,7 +6,7 @@ const breadcrumbItems = [
   { title: "Users", link: "/portal/users" },
 ];
 
-const UsersPage = async () => {
+const Page = async () => {
   return (
     <SimpleContentView title="Users" breadcrumbItems={breadcrumbItems}>
       <UserList />
@@ -14,4 +14,4 @@ const UsersPage = async () => {
   );
 };
 
-export default UsersPage;
+export default Page;

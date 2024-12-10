@@ -106,7 +106,7 @@ export const UserList = () => {
   };
 
   return (
-    <div className="py-4 grid grid-cols-1 gap-4">
+    <div className="grid grid-cols-1 gap-4">
       <div className="flex flex-row justify-between">
         <Heading
           title={`Users (${totalElements})`}

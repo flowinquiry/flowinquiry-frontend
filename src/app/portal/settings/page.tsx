@@ -19,7 +19,7 @@ const breadcrumbItems = [
   { title: "Settings", link: "/portal/settings" },
 ];
 
-const SettingsPage = () => {
+const Page = () => {
   return (
     <ContentLayout title="Settings">
       <Breadcrumbs items={breadcrumbItems} />
@@ -66,4 +66,4 @@ const SettingsPage = () => {
   );
 };
 
-export default SettingsPage;
+export default Page;
