@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Heading } from "@/components/heading";
 import { Spinner } from "@/components/ui/spinner";
 import { WorkflowDiagram } from "@/components/workflows/workflow-diagram-view";
@@ -11,9 +12,13 @@ import {
   updateWorkflowDetail,
 } from "@/lib/actions/workflows.action";
 import { WorkflowDetailDTO } from "@/types/workflows";
-import { Breadcrumbs } from "@/components/breadcrumbs";
+import { usePagePermission } from "@/hooks/use-page-permission";
+import { PermissionUtils } from "@/types/resources";
+import { Button } from "@/components/ui/button";
+import { Edit } from "lucide-react";
 
 const GlobalWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
+  const permissionLevel = usePagePermission();
   const [workflowDetail, setWorkflowDetail] =
     useState<WorkflowDetailDTO | null>(null);
   const [previewWorkflowDetail, setPreviewWorkflowDetail] =
@@ -67,6 +72,13 @@ const GlobalWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
             description={workflowDetail.description ?? ""}
           />
         </div>
+        {PermissionUtils.canWrite(permissionLevel) && (
+          <div className="flex space-x-4">
+            <Button onClick={() => setIsEditing(!isEditing)}>
+              {isEditing ? "Cancel Edit" : <Edit />} Customize Workflow
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Spinner When Loading */}
