@@ -1,21 +1,22 @@
 "use client";
 
 import React, { useState } from "react";
+
 import { Heading } from "@/components/heading";
 import { TeamAvatar } from "@/components/shared/avatar-display";
 import TeamNavLayout from "@/components/teams/team-nav";
+import NewTeamWorkflowClone from "@/components/teams/team-workflow-new-clone";
+import NewTeamWorkflowReference from "@/components/teams/team-workflow-new-reference";
+import NewTeamWorkflowFromScratch from "@/components/teams/team-workflow-new-scratch";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { useTeam } from "@/providers/team-provider";
-import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
 import { obfuscate } from "@/lib/endecode";
-import { Button } from "@/components/ui/button";
-import NewTeamWorkflowFromScratch from "@/components/teams/team-workflow-new-scratch";
-import NewTeamWorkflowReference from "@/components/teams/team-workflow-new-reference";
-import NewTeamWorkflowClone from "@/components/teams/team-workflow-new-clone";
+import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
+import { useTeam } from "@/providers/team-provider";
 
 const TeamWorkflowNew = () => {
   const team = useTeam();
@@ -42,7 +43,7 @@ const TeamWorkflowNew = () => {
       case "scratch":
         return <NewTeamWorkflowFromScratch />;
       case "reference":
-        return <NewTeamWorkflowReference />;
+        return <NewTeamWorkflowReference teamId={team.id!} />;
       case "clone":
         return <NewTeamWorkflowClone />;
       default:

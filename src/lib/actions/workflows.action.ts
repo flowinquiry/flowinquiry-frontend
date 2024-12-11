@@ -64,3 +64,14 @@ export const updateWorkflowDetail = async (
     workflowDetail,
   );
 };
+
+export const createWorkflowFromReference = async (
+  teamId: number,
+  referenceWorkflowId: number,
+  workflowDto: WorkflowDTO,
+) => {
+  return post<WorkflowDetailDTO, WorkflowDetailDTO>(
+    `${BACKEND_API}/api/workflows/${referenceWorkflowId}/teams/${teamId}/create-workflow-reference`,
+    workflowDto,
+  );
+};
