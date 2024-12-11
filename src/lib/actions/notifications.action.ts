@@ -1,4 +1,4 @@
-"use server";
+"use client";
 
 import { get, post } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";

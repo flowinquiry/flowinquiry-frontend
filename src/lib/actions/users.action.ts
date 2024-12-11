@@ -1,4 +1,4 @@
-"use server";
+"use client";
 
 import { unstable_noStore as noStore } from "next/dist/server/web/spec-extension/unstable-no-store";
 import { redirect } from "next/navigation";
