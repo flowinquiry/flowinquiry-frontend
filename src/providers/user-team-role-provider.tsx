@@ -22,18 +22,17 @@ export const UserTeamRoleProvider: React.FC<{
   const [role, setRole] = useState<TeamRole>("Guest");
 
   const { data: session, status } = useSession();
+
+  const userId = session?.user?.id ? Number(session.user.id) : null;
   useEffect(() => {
     async function fetchTeamRole() {
-      if (status === "authenticated" && session) {
-        const roleName = await getUserRoleInTeam(
-          Number(session?.user?.id!),
-          teamId,
-        );
+      if (status === "authenticated" && userId && !role) {
+        const roleName = await getUserRoleInTeam(userId, teamId);
         setRole(roleName.role as TeamRole);
       }
     }
     fetchTeamRole();
-  }, [teamId, session, status]);
+  }, [teamId, userId, status, role]);
   return (
     <UserTeamRoleContext.Provider value={{ role, setRole }}>
       {children}

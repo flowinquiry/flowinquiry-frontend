@@ -62,14 +62,19 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({
   const { data: session, status } = useSession();
   const [permissions, setPermissions] = useState<Permission[]>([]);
 
+  const userId = session?.user?.id ? Number(session.user.id) : null;
+  const token = session?.user?.accessToken;
+
   useEffect(() => {
-    // Fetch permissions only if the user is authenticated and session data is available
-    if (status === "authenticated" && session) {
-      fetchPermissions(Number(session?.user?.id), session?.user?.accessToken!)
-        .then(setPermissions)
-        .catch(console.error);
+    if (
+      status === "authenticated" &&
+      userId &&
+      token &&
+      permissions.length === 0
+    ) {
+      fetchPermissions(userId, token).then(setPermissions).catch(console.error);
     }
-  }, [status, session]);
+  }, [status, userId, token, permissions]);
 
   // Render null until the session is fully loaded to avoid potential issues
   if (status === "loading") return null;
