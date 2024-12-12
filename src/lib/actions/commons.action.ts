@@ -1,8 +1,5 @@
-"use client";
-
 import { redirect } from "next/navigation";
 
-import { auth } from "@/auth";
 import { handleError, HttpError } from "@/lib/errors";
 import { PageableResult } from "@/types/commons";
 import {
@@ -16,18 +13,17 @@ import {
 export const fetchData = async <TData, TResponse>(
   url: string,
   method: "GET" | "POST" | "PUT" | "DELETE",
+  authToken?: string,
   data?: TData,
-  isAuthorized: boolean = true,
 ): Promise<TResponse> => {
-  const session = isAuthorized ? await auth() : null;
   const headers: Record<string, string> = {
     Accept: "application/json",
     "Content-Type": "application/json",
-    "Access-Control-Allow-Origin": "*",
   };
-  // Conditionally add Authorization header if isAuthorized is true
-  if (isAuthorized && session?.user?.accessToken) {
-    headers.Authorization = `Bearer ${session.user.accessToken}`;
+
+  // Conditionally add Authorization header if authToken is presented
+  if (authToken) {
+    headers.Authorization = `Bearer ${authToken}`;
   }
 
   const response = await fetch(url, {
@@ -35,6 +31,7 @@ export const fetchData = async <TData, TResponse>(
     headers: headers,
     ...(data && { body: JSON.stringify(data) }),
   });
+
   if (response.ok) {
     const contentType = response.headers.get("content-type");
     if (contentType && contentType.includes("application/json")) {
@@ -44,9 +41,9 @@ export const fetchData = async <TData, TResponse>(
     }
   } else {
     // Unauthorized access
-    if (response.status === 401 && isAuthorized) {
+    if (response.status === 401 && authToken) {
       console.log(
-        `Try to access ${url} that return 401. Redirect to the login page`,
+        `Try to access ${url} that returned 401. Redirecting to the login page.`,
       );
       redirect("/login");
     }
@@ -59,33 +56,33 @@ export const fetchData = async <TData, TResponse>(
 
 export const get = async <TResponse>(
   url: string,
-  isAuthorized: boolean = true,
+  authToken?: string,
 ): Promise<TResponse> => {
-  return fetchData(url, "GET", undefined, isAuthorized);
+  return fetchData(url, "GET", authToken, undefined);
 };
 
 export const post = async <TData, TResponse>(
   url: string,
+  authToken?: string,
   data?: TData,
-  isAuthorized: boolean = true,
 ): Promise<TResponse> => {
-  return fetchData(url, "POST", data, isAuthorized);
+  return fetchData(url, "POST", authToken, data);
 };
 
 export const put = async <TData, TResponse>(
   url: string,
+  authToken?: string,
   data?: TData,
-  isAuthorized: boolean = true,
 ): Promise<TResponse> => {
-  return fetchData(url, "PUT", data, isAuthorized);
+  return fetchData(url, "PUT", authToken, data);
 };
 
 export const deleteExec = async <TData, TResponse>(
   url: string,
+  authToken?: string,
   data?: TData,
-  isAuthorized: boolean = true,
 ): Promise<TResponse> => {
-  return fetchData(url, "DELETE", data, isAuthorized);
+  return fetchData(url, "DELETE", authToken, data);
 };
 
 // Default pagination object
@@ -97,6 +94,7 @@ const defaultPagination: Pagination = {
 // Function to send a dynamic search query with pagination and URL
 export const doAdvanceSearch = async <R>(
   url: string, // URL is passed as a parameter
+  authToken?: string,
   query: QueryDTO = { filters: [] },
   pagination: Pagination = defaultPagination, // Default pagination with page 1 and size 10
 ) => {
@@ -123,6 +121,7 @@ export const doAdvanceSearch = async <R>(
   return fetchData<QueryDTO, PageableResult<R>>(
     `${url}?${queryParams.toString()}`,
     "POST",
+    authToken,
     query, // Pass the QueryDTO directly in the body
   );
 };

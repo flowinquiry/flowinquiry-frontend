@@ -1,5 +1,3 @@
-"use server";
-
 import { get, post } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
 import { CommentDTO, EntityType } from "@/types/commons";

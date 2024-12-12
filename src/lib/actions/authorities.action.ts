@@ -1,5 +1,3 @@
-"use server";
-
 import { deleteExec, get, post } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
 import {

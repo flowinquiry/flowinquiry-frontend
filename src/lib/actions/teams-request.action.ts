@@ -1,5 +1,3 @@
-"use server";
-
 import { unstable_noStore as noStore } from "next/dist/server/web/spec-extension/unstable-no-store";
 
 import { doAdvanceSearch, get, post, put } from "@/lib/actions/commons.action";
