@@ -11,8 +11,8 @@ import { Pagination, QueryDTO } from "@/types/query";
 import { TeamDTO, TransitionItemCollectionDTO } from "@/types/teams";
 import { UserType, UserWithTeamRoleDTO } from "@/types/users";
 
-export const findTeamById = async (teamId: number) => {
-  return get<TeamDTO>(`${BACKEND_API}/api/teams/${teamId}`);
+export const findTeamById = async (teamId: number, isClient = true) => {
+  return get<TeamDTO>(`${BACKEND_API}/api/teams/${teamId}`, isClient);
 };
 
 export async function searchTeams(query: QueryDTO, pagination: Pagination) {

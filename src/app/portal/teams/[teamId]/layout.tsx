@@ -19,7 +19,7 @@ export default async function TeamsLayout({
     return children;
   }
 
-  const team = await findTeamById(teamIdNum);
+  const team = await findTeamById(teamIdNum, false);
 
   return (
     <TeamProvider team={team}>

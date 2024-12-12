@@ -1,5 +1,6 @@
-import { redirect } from "next/navigation";
+import { getSession } from "next-auth/react";
 
+import { auth } from "@/auth";
 import { handleError, HttpError } from "@/lib/errors";
 import { PageableResult } from "@/types/commons";
 import {
@@ -13,22 +14,24 @@ import {
 export const fetchData = async <TData, TResponse>(
   url: string,
   method: "GET" | "POST" | "PUT" | "DELETE",
-  authToken?: string,
   data?: TData,
+  getToken?: () => Promise<string | undefined>,
 ): Promise<TResponse> => {
   const headers: Record<string, string> = {
     Accept: "application/json",
     "Content-Type": "application/json",
   };
 
-  // Conditionally add Authorization header if authToken is presented
-  if (authToken) {
-    headers.Authorization = `Bearer ${authToken}`;
+  if (getToken) {
+    const token = await getToken();
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
   }
 
   const response = await fetch(url, {
-    method: method,
-    headers: headers,
+    method,
+    headers,
     ...(data && { body: JSON.stringify(data) }),
   });
 
@@ -40,13 +43,6 @@ export const fetchData = async <TData, TResponse>(
       return undefined as unknown as TResponse;
     }
   } else {
-    // Unauthorized access
-    if (response.status === 401 && authToken) {
-      console.log(
-        `Try to access ${url} that returned 401. Redirecting to the login page.`,
-      );
-      redirect("/login");
-    }
     await handleError(response, url);
 
     // Add unreachable return statement for TypeScript type safety
@@ -54,35 +50,49 @@ export const fetchData = async <TData, TResponse>(
   }
 };
 
+export const getClientToken = async (): Promise<string | undefined> => {
+  const session = await getSession();
+  return session?.user?.accessToken;
+};
+
+export const getServerToken = async (): Promise<string | undefined> => {
+  const session = await auth();
+  return session?.user?.accessToken;
+};
+
 export const get = async <TResponse>(
   url: string,
-  authToken?: string,
+  isClient: boolean = true,
 ): Promise<TResponse> => {
-  return fetchData(url, "GET", authToken, undefined);
+  const tokenProvider = isClient ? getClientToken : getServerToken;
+  return fetchData(url, "GET", undefined, tokenProvider);
 };
 
 export const post = async <TData, TResponse>(
   url: string,
-  authToken?: string,
   data?: TData,
+  isClient: boolean = true,
 ): Promise<TResponse> => {
-  return fetchData(url, "POST", authToken, data);
+  const tokenProvider = isClient ? getClientToken : getServerToken;
+  return fetchData(url, "POST", data, tokenProvider);
 };
 
 export const put = async <TData, TResponse>(
   url: string,
-  authToken?: string,
   data?: TData,
+  isClient: boolean = true,
 ): Promise<TResponse> => {
-  return fetchData(url, "PUT", authToken, data);
+  const tokenProvider = isClient ? getClientToken : getServerToken;
+  return fetchData(url, "PUT", data, tokenProvider);
 };
 
 export const deleteExec = async <TData, TResponse>(
   url: string,
-  authToken?: string,
   data?: TData,
+  isClient: boolean = true,
 ): Promise<TResponse> => {
-  return fetchData(url, "DELETE", authToken, data);
+  const tokenProvider = isClient ? getClientToken : getServerToken;
+  return fetchData(url, "DELETE", data, tokenProvider);
 };
 
 // Default pagination object
@@ -94,9 +104,9 @@ const defaultPagination: Pagination = {
 // Function to send a dynamic search query with pagination and URL
 export const doAdvanceSearch = async <R>(
   url: string, // URL is passed as a parameter
-  authToken?: string,
   query: QueryDTO = { filters: [] },
   pagination: Pagination = defaultPagination, // Default pagination with page 1 and size 10
+  isClient: boolean = true,
 ) => {
   // Validate QueryDTO
   const queryValidation = querySchema.safeParse(query);
@@ -118,10 +128,11 @@ export const doAdvanceSearch = async <R>(
 
   const queryParams = createQueryParams(pagination);
 
+  const tokenProvider = isClient ? getClientToken : getServerToken;
   return fetchData<QueryDTO, PageableResult<R>>(
     `${url}?${queryParams.toString()}`,
     "POST",
-    authToken,
-    query, // Pass the QueryDTO directly in the body
+    query,
+    tokenProvider,
   );
 };

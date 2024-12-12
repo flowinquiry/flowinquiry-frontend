@@ -17,7 +17,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { ViewProps } from "@/components/ui/ext-form";
 import {
   Tooltip,
   TooltipContent,
@@ -28,6 +27,7 @@ import DefaultUserLogo from "@/components/users/user-logo";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import {
   deleteUserFromAuthority,
+  findAuthorityByName,
   findPermissionsByAuthorityName,
   getUsersByAuthority,
 } from "@/lib/actions/authorities.action";
@@ -38,60 +38,89 @@ import {
 } from "@/types/authorities";
 import { PermissionUtils } from "@/types/resources";
 import { UserType } from "@/types/users";
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { Spinner } from "@/components/ui/spinner";
 
-export const AuthorityView: React.FC<ViewProps<AuthorityDTO>> = ({
-  entity,
-}: ViewProps<AuthorityDTO>) => {
+export const AuthorityView = ({ authorityId }: { authorityId: string }) => {
   const permissionLevel = usePagePermission();
   const [open, setOpen] = useState(false);
   const [users, setUsers] = useState<Array<UserType>>();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  const [authority, setAuthority] = useState<AuthorityDTO>(entity);
+  const [authority, setAuthority] = useState<AuthorityDTO | undefined>(
+    undefined,
+  );
   const [resourcePermissions, setResourcePermissions] =
     useState<Array<AuthorityResourcePermissionDTO>>();
+  const [loadingAuthority, setLoadingAuthority] = useState(false);
+  const [loadingUsers, setLoadingUsers] = useState(false);
 
   const router = useRouter();
 
   async function fetchUsers() {
-    getUsersByAuthority(authority.name, {
-      page: currentPage,
-      size: 10,
-    }).then((pageableResult) => {
+    setLoadingUsers(true);
+    try {
+      const pageableResult = await getUsersByAuthority(authority!.name, {
+        page: currentPage,
+        size: 10,
+      });
       setUsers(pageableResult.content);
       setTotalElements(pageableResult.totalElements);
       setTotalPages(pageableResult.totalPages);
-    });
+    } finally {
+      setLoadingUsers(false);
+    }
   }
 
   useEffect(() => {
-    fetchUsers();
-  }, [entity, currentPage]);
+    const fetchData = async () => {
+      setLoadingAuthority(true);
+      try {
+        const authorityData = await findAuthorityByName(authorityId);
+        setAuthority(authorityData);
+
+        const resourcePermissionsResult = await findPermissionsByAuthorityName(
+          authorityData.name,
+        );
+        setResourcePermissions(resourcePermissionsResult);
+      } finally {
+        setLoadingAuthority(false);
+      }
+    };
+    fetchData();
+  }, [authorityId]);
 
   useEffect(() => {
-    async function fetchResourcePermissions() {
-      const resourcePermissionsResult = await findPermissionsByAuthorityName(
-        authority.name,
-      );
-      setResourcePermissions(resourcePermissionsResult);
+    if (authority) {
+      fetchUsers();
     }
-    fetchResourcePermissions();
-  }, []);
+  }, [currentPage, authority]);
 
   async function removeUserOutAuthority(user: UserType) {
-    await deleteUserFromAuthority(authority.name, user.id!);
+    await deleteUserFromAuthority(authority!.name, user.id!);
     await fetchUsers();
   }
 
+  const breadcrumbItems = [
+    { title: "Dashboard", link: "/portal" },
+    { title: "Authorities", link: "/portal/settings/authorities" },
+    { title: `${authority?.descriptiveName ?? ""}`, link: "#" },
+  ];
+
   return (
     <div className="grid grid-cols-1 gap-4 py-4">
+      <Breadcrumbs items={breadcrumbItems} />
       <div className="flex flex-row justify-between">
-        <Heading
-          title={`${authority.descriptiveName} (${totalElements})`}
-          description={authority.description ?? ""}
-        />
-        {PermissionUtils.canWrite(permissionLevel) && (
+        {loadingAuthority ? (
+          <Spinner>Loading data...</Spinner>
+        ) : (
+          <Heading
+            title={`${authority?.descriptiveName ?? ""} (${totalElements})`}
+            description={authority?.description ?? ""}
+          />
+        )}
+        {PermissionUtils.canWrite(permissionLevel) && authority && (
           <div className="flex space-x-4">
             <Button onClick={() => setOpen(true)}>
               <Plus /> Add User
@@ -117,7 +146,9 @@ export const AuthorityView: React.FC<ViewProps<AuthorityDTO>> = ({
       <div className="flex flex-col md:flex-row md:space-x-4 items-start">
         <div className="md:flex-1 flex flex-row flex-wrap w-full">
           <div className="md:flex-1 flex flex-row flex-wrap gap-4 w-full">
-            {users && users.length > 0 ? (
+            {loadingUsers ? (
+              <Spinner size="large" />
+            ) : users && users.length > 0 ? (
               users.map((user: UserType) => (
                 <div
                   className="w-full md:w-[24rem] flex flex-row gap-4 border border-gray-200 px-4 py-4 rounded-2xl relative"
@@ -204,7 +235,9 @@ export const AuthorityView: React.FC<ViewProps<AuthorityDTO>> = ({
           <CardHeader>Resource Permissions</CardHeader>
           <CardContent>
             <div>
-              {resourcePermissions ? (
+              {loadingAuthority ? (
+                <Spinner size="large" />
+              ) : resourcePermissions ? (
                 resourcePermissions.map((perm, index) => (
                   <div key={index} className="p-4 rounded shadow">
                     <p>
