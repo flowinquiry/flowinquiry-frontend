@@ -1,11 +1,13 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Heading } from "@/components/heading";
 import { ImageCropper } from "@/components/image-cropper";
 import DefaultTeamLogo from "@/components/teams/team-logo";
@@ -14,7 +16,6 @@ import { Button } from "@/components/ui/button";
 import {
   ExtInputField,
   ExtTextAreaField,
-  FormProps,
   SubmitButton,
 } from "@/components/ui/ext-form";
 import { Form } from "@/components/ui/form";
@@ -26,12 +27,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useImageCropper } from "@/hooks/use-image-cropper";
+import { findTeamById } from "@/lib/actions/teams.action";
 import { apiClient } from "@/lib/api-client";
 import { obfuscate } from "@/lib/endecode";
 import { validateForm } from "@/lib/validator";
 import { TeamDTO, TeamDTOSchema } from "@/types/teams";
 
-export const TeamForm = ({ initialData }: FormProps<TeamDTO>) => {
+export const TeamForm = ({ teamId }: { teamId: number | undefined }) => {
   const router = useRouter();
   const { data: session } = useSession();
 
@@ -44,10 +46,49 @@ export const TeamForm = ({ initialData }: FormProps<TeamDTO>) => {
     getInputProps,
   } = useImageCropper();
 
+  const [team, setTeam] = useState<TeamDTO | undefined>(undefined);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   const form = useForm<TeamDTO>({
     resolver: zodResolver(TeamDTOSchema),
-    defaultValues: initialData,
+    defaultValues: {}, // start with empty defaults
   });
+
+  useEffect(() => {
+    const fetchTeam = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        if (teamId) {
+          const data = await findTeamById(teamId);
+          if (!data) {
+            throw new Error("Team not found.");
+          }
+          setTeam(data);
+        } else {
+          setTeam(undefined);
+        }
+      } catch (err: any) {
+        setError(err.message || "An error occurred while fetching the team.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTeam();
+  }, [teamId]);
+
+  // Reset form values when team data is loaded
+  useEffect(() => {
+    if (team !== undefined) {
+      form.reset(team);
+    } else {
+      form.reset({});
+    }
+    // Note: Do not include `form` in the dependencies
+    // or it might cause unnecessary re-renders.
+  }, [team]);
 
   async function onSubmit(team: TeamDTO) {
     if (validateForm(team, TeamDTOSchema, form)) {
@@ -83,14 +124,54 @@ export const TeamForm = ({ initialData }: FormProps<TeamDTO>) => {
     }
   }
 
-  const isEdit = !!initialData;
-  const title = isEdit ? `Edit team ${initialData?.name}` : "Create team";
+  const isEdit = !!team;
+  const title = isEdit ? `Edit team ${team?.name}` : "Create team";
   const description = isEdit ? "Edit team" : "Add a new team";
   const submitText = isEdit ? "Save changes" : "Create";
   const submitTextWhileLoading = isEdit ? "Saving changes ..." : "Creating ...";
 
+  const breadcrumbItems = [
+    { title: "Dashboard", link: "/portal" },
+    { title: "Teams", link: "/portal/teams" },
+    ...(team
+      ? [
+          {
+            title: `${team.name}`,
+            link: `/portal/teams/${obfuscate(team.id)}`,
+          },
+          { title: "Edit", link: "#" },
+        ]
+      : [{ title: "Add", link: "#" }]),
+  ];
+
+  if (loading) {
+    return (
+      <div className="py-4 flex justify-center items-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="py-4">
+        <Heading
+          title="Error"
+          description="We encountered an issue loading the team."
+        />
+        <p className="text-red-500 mt-4">{error}</p>
+        <div className="mt-4">
+          <Button variant="secondary" onClick={() => router.back()}>
+            Go Back
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 gap-4">
+      <Breadcrumbs items={breadcrumbItems} />
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
       </div>
@@ -115,9 +196,7 @@ export const TeamForm = ({ initialData }: FormProps<TeamDTO>) => {
                     <input {...getInputProps()} />
                     <AvatarImage
                       src={
-                        initialData?.logoUrl
-                          ? `/api/files/${initialData.logoUrl}`
-                          : undefined
+                        team?.logoUrl ? `/api/files/${team.logoUrl}` : undefined
                       }
                       alt="@flexwork"
                     />
@@ -140,7 +219,7 @@ export const TeamForm = ({ initialData }: FormProps<TeamDTO>) => {
           >
             <ExtInputField
               form={form}
-              required={true}
+              required
               fieldName="name"
               label="Name"
               placeholder="Team Name"

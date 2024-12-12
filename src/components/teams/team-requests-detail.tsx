@@ -1,9 +1,9 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Edit } from "lucide-react";
+import { ChevronLeft, ChevronRight, Edit, Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import AuditLogView from "@/components/shared/audit-log-view";
 import { UserAvatar } from "@/components/shared/avatar-display";
@@ -15,12 +15,12 @@ import TeamRequestsTimelineHistory from "@/components/teams/team-requests-timeli
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { ViewProps } from "@/components/ui/ext-form";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import {
   findNextTeamRequest,
   findPreviousTeamRequest,
+  findRequestById,
 } from "@/lib/actions/teams-request.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
@@ -30,12 +30,89 @@ import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
 import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/team-requests";
 
-const TeamRequestDetailView = ({ entity }: ViewProps<TeamRequestDTO>) => {
+const TeamRequestDetailView = ({
+  teamRequestId,
+}: {
+  teamRequestId: number;
+}) => {
   const permissionLevel = usePagePermission();
   const router = useRouter();
 
   const [selectedTab, setSelectedTab] = useState("comments");
-  const [teamRequest, setTeamRequest] = useState<TeamRequestDTO>(entity);
+  const [teamRequest, setTeamRequest] = useState<TeamRequestDTO | undefined>(
+    undefined,
+  );
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchRequest = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await findRequestById(teamRequestId);
+        if (!data) {
+          throw new Error("Could not find the specified team request.");
+        }
+        setTeamRequest(data);
+      } catch (err: any) {
+        setError(
+          err.message || "An error occurred while fetching the team request.",
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchRequest();
+  }, [teamRequestId]);
+
+  const handleTabChange = (value: string) => {
+    setSelectedTab(value);
+  };
+
+  const navigateToPreviousRecord = async () => {
+    if (!teamRequest) return;
+    const previousTeamRequest = await navigateToRecord(
+      findPreviousTeamRequest,
+      "You reach the first record",
+      teamRequest.id!,
+    );
+    setTeamRequest(previousTeamRequest);
+  };
+
+  const navigateToNextRecord = async () => {
+    if (!teamRequest) return;
+    const nextTeamRequest = await navigateToRecord(
+      findNextTeamRequest,
+      "You reach the last record",
+      teamRequest.id!,
+    );
+    setTeamRequest(nextTeamRequest);
+  };
+
+  if (loading) {
+    return (
+      <div className="py-4 flex justify-center items-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error || !teamRequest) {
+    return (
+      <div className="py-4">
+        <h1 className="text-2xl font-bold">Error</h1>
+        <p className="text-red-500 mt-4">
+          {error || "Team request not found."}
+        </p>
+        <div className="mt-4">
+          <Button variant="secondary" onClick={() => router.back()}>
+            Go Back
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   const breadcrumbItems = [
     { title: "Dashboard", link: "/portal" },
@@ -52,28 +129,6 @@ const TeamRequestDetailView = ({ entity }: ViewProps<TeamRequestDTO>) => {
   ];
 
   const workflowColor = getSpecifiedColor(teamRequest.workflowRequestName!);
-
-  const navigateToPreviousRecord = async () => {
-    const previousTeamRequest = await navigateToRecord(
-      findPreviousTeamRequest,
-      "You reach the first record",
-      teamRequest.id!,
-    );
-    setTeamRequest(previousTeamRequest);
-  };
-
-  const navigateToNextRecord = async () => {
-    const nextAccount = await navigateToRecord(
-      findNextTeamRequest,
-      "You reach the last record",
-      teamRequest.id!,
-    );
-    setTeamRequest(nextAccount);
-  };
-
-  const handleTabChange = (value: string) => {
-    setSelectedTab(value);
-  };
 
   return (
     <BreadcrumbProvider items={breadcrumbItems}>
@@ -99,7 +154,9 @@ const TeamRequestDetailView = ({ entity }: ViewProps<TeamRequestDTO>) => {
                 {teamRequest.workflowRequestName}
               </span>
               <div
-                className={`text-2xl w-full font-semibold ${teamRequest.isCompleted ? "line-through" : ""}`}
+                className={`text-2xl w-full font-semibold ${
+                  teamRequest.isCompleted ? "line-through" : ""
+                }`}
               >
                 {teamRequest.requestTitle}
               </div>
@@ -164,7 +221,6 @@ const TeamRequestDetailView = ({ entity }: ViewProps<TeamRequestDTO>) => {
                       ).toLocaleString(),
                       colSpan: 1,
                     },
-
                     {
                       label: "Request User",
                       value: (

@@ -1,10 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Heading } from "@/components/heading";
 import RichTextEditor from "@/components/shared/rich-text-editor";
 import { TeamRequestPrioritySelect } from "@/components/teams/team-requests-priority-select";
@@ -14,7 +16,6 @@ import { Button } from "@/components/ui/button";
 import {
   DatePickerField,
   ExtInputField,
-  FormProps,
   SubmitButton,
 } from "@/components/ui/ext-form";
 import {
@@ -26,7 +27,10 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import WorkflowStateSelect from "@/components/workflows/workflow-state-select";
-import { updateTeamRequest } from "@/lib/actions/teams-request.action";
+import {
+  findRequestById,
+  updateTeamRequest,
+} from "@/lib/actions/teams-request.action";
 import { obfuscate } from "@/lib/endecode";
 import { randomPair } from "@/lib/utils";
 import { validateForm } from "@/lib/validator";
@@ -37,26 +41,102 @@ import {
 } from "@/types/team-requests";
 
 export const TeamRequestForm = ({
-  initialData: teamRequest,
-}: FormProps<TeamRequestDTO>) => {
+  teamRequestId,
+}: {
+  teamRequestId: number;
+}) => {
   const router = useRouter();
+
+  const [teamRequest, setTeamRequest] = useState<TeamRequestDTO | undefined>(
+    undefined,
+  );
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchTeamRequest = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const data = await findRequestById(teamRequestId);
+        if (!data) {
+          throw new Error("Could not find the specified team request.");
+        }
+        setTeamRequest(data);
+      } catch (err: any) {
+        setError(
+          err.message || "An error occurred while fetching the team request.",
+        );
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchTeamRequest();
+  }, [teamRequestId]);
 
   const form = useForm<TeamRequestDTO>({
     resolver: zodResolver(TeamRequestDTOSchema),
     defaultValues: teamRequest,
+    mode: "onChange",
   });
 
-  async function onSubmit(teamRequest: TeamRequestDTO) {
-    if (validateForm(teamRequest, TeamRequestDTOSchema, form)) {
-      await updateTeamRequest(teamRequest.id!, teamRequest);
+  async function onSubmit(formValues: TeamRequestDTO) {
+    if (validateForm(formValues, TeamRequestDTOSchema, form)) {
+      await updateTeamRequest(formValues.id!, formValues);
       router.push(
-        `/portal/teams/${obfuscate(teamRequest.teamId)}/requests/${obfuscate(teamRequest.id)}?${randomPair()}`,
+        `/portal/teams/${obfuscate(formValues.teamId)}/requests/${obfuscate(formValues.id)}?${randomPair()}`,
       );
     }
   }
 
+  if (loading) {
+    return (
+      <div className="py-4 flex justify-center items-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
+  }
+
+  if (error || !teamRequest) {
+    return (
+      <div className="py-4">
+        <Heading
+          title="Error"
+          description="We encountered an issue loading the team request."
+        />
+        <p className="text-red-500 mt-4">
+          {error || "Team request not found."}
+        </p>
+        <div className="mt-4">
+          <Button variant="secondary" onClick={() => router.back()}>
+            Go Back
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  const breadcrumbItems = [
+    { title: "Dashboard", link: "/portal" },
+    { title: "Teams", link: "/portal/teams" },
+    {
+      title: teamRequest.teamName!,
+      link: `/portal/teams/${obfuscate(teamRequest.teamId)}`,
+    },
+    {
+      title: "Requests",
+      link: `/portal/teams/${obfuscate(teamRequest.teamId)}/requests`,
+    },
+    {
+      title: teamRequest.requestTitle!,
+      link: `/portal/teams/${obfuscate(teamRequest.teamId)}/requests/${obfuscate(teamRequest.id)}`,
+    },
+    { title: "Edit", link: "#" },
+  ];
+
   return (
     <div className="py-4">
+      <Breadcrumbs items={breadcrumbItems} />
       <div className="flex items-center justify-between mb-4">
         <Heading
           title={`${teamRequest?.workflowRequestName}: Edit Ticket`}
@@ -74,7 +154,7 @@ export const TeamRequestForm = ({
               form={form}
               fieldName="requestTitle"
               label="Title"
-              required={true}
+              required
             />
           </div>
 
@@ -103,7 +183,7 @@ export const TeamRequestForm = ({
             form={form}
             fieldName="assignUserId"
             label="Assignee"
-            teamId={teamRequest?.teamId!}
+            teamId={teamRequest.teamId!}
           />
 
           <FormField
@@ -143,10 +223,10 @@ export const TeamRequestForm = ({
             form={form}
             name="currentStateId"
             label="State"
-            required={true}
-            workflowId={teamRequest?.workflowId!}
-            workflowStateId={teamRequest?.currentStateId!}
-            includeSelf={true}
+            required
+            workflowId={teamRequest.workflowId!}
+            workflowStateId={teamRequest.currentStateId!}
+            includeSelf
           />
 
           <div className="col-span-1 sm:col-span-2 flex flex-row gap-4">

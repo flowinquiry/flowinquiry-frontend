@@ -1,5 +1,4 @@
 import { unstable_noStore as noStore } from "next/dist/server/web/spec-extension/unstable-no-store";
-import { redirect } from "next/navigation";
 
 import { doAdvanceSearch, get, post } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
@@ -29,7 +28,6 @@ export const createUser = async (user: UserType) => {
   const validation = userSchema.safeParse(user);
   if (validation.success) {
     await post(`${BACKEND_API}/api/admin/users`, user);
-    redirect("/portal/users");
   }
 };
 

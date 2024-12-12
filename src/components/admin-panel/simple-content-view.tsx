@@ -5,7 +5,7 @@ import { BreadcrumbItemProps, Breadcrumbs } from "@/components/breadcrumbs";
 
 interface ISimpleContentViewProps {
   title: string;
-  breadcrumbItems: BreadcrumbItemProps[];
+  breadcrumbItems?: BreadcrumbItemProps[];
   children: React.ReactNode;
 }
 
@@ -16,7 +16,7 @@ export const SimpleContentView: React.FC<ISimpleContentViewProps> = ({
 }) => {
   return (
     <ContentLayout title={title}>
-      <Breadcrumbs items={breadcrumbItems} />
+      {breadcrumbItems && <Breadcrumbs items={breadcrumbItems} />}
       <div className="grid grid-cols-1 py-2 gap-2">{children}</div>
     </ContentLayout>
   );

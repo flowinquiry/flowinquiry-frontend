@@ -29,7 +29,6 @@ export const UserForm: React.FC<UserFormProps> = ({ initialData }) => {
   const isEdit = !!initialData;
   const title = isEdit ? "Edit User" : "Create User";
   const description = isEdit ? "Edit user" : "Add a new user";
-  const action = isEdit ? "Save changes" : "Create";
 
   const form = useForm<UserFormValues>({
     resolver: zodResolver(userSchema),
@@ -38,6 +37,7 @@ export const UserForm: React.FC<UserFormProps> = ({ initialData }) => {
 
   async function onSubmit(data: UserType) {
     await createUser(data);
+    router.push("/portal/users");
   }
 
   return (
