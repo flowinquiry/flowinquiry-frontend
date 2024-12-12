@@ -2,13 +2,13 @@
 
 import { formatDistanceToNow } from "date-fns";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
 import { notFound, useRouter } from "next/navigation";
+import React, { useEffect, useState } from "react";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { TeamAvatar, UserAvatar } from "@/components/shared/avatar-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Spinner } from "@/components/ui/spinner";
 import {
   Tooltip,

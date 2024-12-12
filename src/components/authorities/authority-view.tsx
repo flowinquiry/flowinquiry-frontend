@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 import AddUserToAuthorityDialog from "@/components/authorities/authority-add-user-dialog";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Heading } from "@/components/heading";
 import PaginationExt from "@/components/shared/pagination-ext";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -17,6 +18,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Spinner } from "@/components/ui/spinner";
 import {
   Tooltip,
   TooltipContent,
@@ -38,8 +40,6 @@ import {
 } from "@/types/authorities";
 import { PermissionUtils } from "@/types/resources";
 import { UserType } from "@/types/users";
-import { Breadcrumbs } from "@/components/breadcrumbs";
-import { Spinner } from "@/components/ui/spinner";
 
 export const AuthorityView = ({ authorityId }: { authorityId: string }) => {
   const permissionLevel = usePagePermission();
