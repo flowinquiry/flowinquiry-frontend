@@ -19,7 +19,6 @@ export const fetchData = async <TData, TResponse>(
 ): Promise<TResponse> => {
   const headers: Record<string, string> = {
     Accept: "application/json",
-    "Content-Type": "application/json",
   };
 
   if (getToken) {
@@ -29,11 +28,21 @@ export const fetchData = async <TData, TResponse>(
     }
   }
 
-  const response = await fetch(url, {
+  // Prepare the body and headers based on data type
+  const options: RequestInit = {
     method,
     headers,
-    ...(data && { body: JSON.stringify(data) }),
-  });
+  };
+
+  if (data instanceof FormData) {
+    options.body = data;
+    // Do not set Content-Type header; fetch automatically handles it for FormData
+  } else if (data !== undefined) {
+    headers["Content-Type"] = "application/json";
+    options.body = JSON.stringify(data);
+  }
+
+  const response = await fetch(url, options);
 
   if (response.ok) {
     const contentType = response.headers.get("content-type");

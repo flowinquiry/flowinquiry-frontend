@@ -27,7 +27,11 @@ export const findUserById = async (userId: number) => {
 export const createUser = async (user: UserType) => {
   const validation = UserTypeSchema.safeParse(user);
   if (validation.success) {
-    await post(`${BACKEND_API}/api/admin/users`, user);
+    if (user.id) {
+      console.log("Update");
+    } else {
+      await post(`${BACKEND_API}/api/admin/users`, user);
+    }
   }
 };
 

@@ -28,10 +28,11 @@ import {
 } from "@/components/ui/tooltip";
 import { useImageCropper } from "@/hooks/use-image-cropper";
 import { findTeamById } from "@/lib/actions/teams.action";
-import { apiClient } from "@/lib/api-client";
 import { obfuscate } from "@/lib/endecode";
 import { validateForm } from "@/lib/validator";
 import { TeamDTO, TeamDTOSchema } from "@/types/teams";
+import { post, put } from "@/lib/actions/commons.action";
+import { BACKEND_API } from "@/lib/constants";
 
 export const TeamForm = ({ teamId }: { teamId: number | undefined }) => {
   const router = useRouter();
@@ -103,26 +104,20 @@ export const TeamForm = ({ teamId }: { teamId: number | undefined }) => {
         formData.append("file", selectedFile);
       }
 
-      let savedTeam: TeamDTO;
+      let redirectTeamId;
       if (formValues.id) {
         // Edit mode
-        savedTeam = await apiClient<TeamDTO>(
-          "/api/teams",
-          "PUT",
-          formData,
-          session?.user?.accessToken,
-        );
+        redirectTeamId = formValues.id;
+        await put(`${BACKEND_API}/api/teams`, formData);
       } else {
         // Create mode
-        savedTeam = await apiClient<TeamDTO>(
-          "/api/teams",
-          "POST",
+        await post<FormData, TeamDTO>(
+          `${BACKEND_API}/api/teams`,
           formData,
-          session?.user?.accessToken,
-        );
+        ).then((data) => (redirectTeamId = data.id));
       }
 
-      router.push(`/portal/teams/${obfuscate(savedTeam.id)}/dashboard`);
+      router.push(`/portal/teams/${obfuscate(redirectTeamId)}/dashboard`);
     }
   }
 

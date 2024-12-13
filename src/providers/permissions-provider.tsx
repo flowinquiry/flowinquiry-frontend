@@ -9,8 +9,9 @@ import React, {
   useState,
 } from "react";
 
-import { apiClient } from "@/lib/api-client";
 import { PermissionLevel, ResourceId } from "@/types/resources";
+import { get } from "@/lib/actions/commons.action";
+import { BACKEND_API } from "@/lib/constants";
 
 export type Permission = {
   resourceName: ResourceId;
@@ -43,15 +44,9 @@ interface PermissionsProviderProps {
 }
 
 // Fetch permissions
-const fetchPermissions = async (
-  userId: number,
-  authToken: string,
-): Promise<Permission[]> => {
-  return apiClient<Array<Permission>>(
-    `/api/users/permissions/${userId}`,
-    "GET",
-    undefined,
-    authToken,
+const fetchPermissions = async (userId: number): Promise<Permission[]> => {
+  return get<Array<Permission>>(
+    `${BACKEND_API}/api/users/permissions/${userId}`,
   );
 };
 
@@ -63,18 +58,12 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({
   const [permissions, setPermissions] = useState<Permission[]>([]);
 
   const userId = session?.user?.id ? Number(session.user.id) : null;
-  const token = session?.user?.accessToken;
 
   useEffect(() => {
-    if (
-      status === "authenticated" &&
-      userId &&
-      token &&
-      permissions.length === 0
-    ) {
-      fetchPermissions(userId, token).then(setPermissions).catch(console.error);
+    if (status === "authenticated" && userId && permissions.length === 0) {
+      fetchPermissions(userId).then(setPermissions).catch(console.error);
     }
-  }, [status, userId, token, permissions]);
+  }, [status, userId, permissions]);
 
   // Render null until the session is fully loaded to avoid potential issues
   if (status === "loading") return null;

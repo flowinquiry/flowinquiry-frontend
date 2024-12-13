@@ -132,8 +132,8 @@ export const UserForm = ({ userId }: { userId?: number }) => {
 
           <div className="md:col-span-2 flex flex-row gap-4">
             <SubmitButton
-              label="Invite user"
-              labelWhileLoading="Creating ..."
+              label={isEdit ? "Update" : "Invite"}
+              labelWhileLoading={isEdit ? "Updating..." : "Inviting..."}
             />
             <Button variant="secondary" onClick={() => router.back()}>
               Discard
