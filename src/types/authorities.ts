@@ -2,16 +2,17 @@ import { z } from "zod";
 
 export const AuthorityDTOSchema = z
   .object({
-    name: z.string().nullish(),
+    name: z.string().default(""),
     descriptiveName: z
       .string()
       .min(1)
       .regex(/^[a-zA-Z0-9]+$/, {
         message:
           "Descriptive name must only contain letters (a-z, A-Z) and numbers (0-9), without spaces or special characters.",
-      }),
+      })
+      .default("authority"),
     systemRole: z.boolean().default(false),
-    description: z.string().optional(),
+    description: z.string().default("").optional(),
     usersCount: z.onumber(),
   })
   .transform((data) => {

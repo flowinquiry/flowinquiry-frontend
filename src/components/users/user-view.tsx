@@ -155,7 +155,7 @@ export const UserView = ({ userId }: { userId: number }) => {
           <div className="grid grid-cols-1 gap-4">
             <div>Member of Teams</div>
             <div className="flex flex-row flex-wrap gap-4">
-              {teams.map((team) => (
+              {(teams ?? []).map((team) => (
                 <Badge key={team.id} variant="outline" className="gap-2">
                   <TeamAvatar imageUrl={team.logoUrl} size="w-5 h-5" />
                   <Link href={`/portal/teams/${obfuscate(team.id)}`}>

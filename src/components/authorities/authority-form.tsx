@@ -1,10 +1,12 @@
 "use client";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/ui/ext-form";
 import {
@@ -24,9 +26,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Spinner } from "@/components/ui/spinner";
 import {
   batchSavePermissions,
   createAuthority,
+  findAuthorityByName,
   findPermissionsByAuthorityName,
 } from "@/lib/actions/authorities.action";
 import { obfuscate } from "@/lib/endecode";
@@ -37,10 +41,6 @@ import {
   AuthorityResourcePermissionDTOSchema,
 } from "@/types/authorities";
 
-type NewAuthorityFormProps = {
-  authorityEntity?: AuthorityDTO | undefined;
-};
-
 const formSchema = z.object({
   authority: AuthorityDTOSchema,
   permissions: z.array(AuthorityResourcePermissionDTOSchema),
@@ -50,17 +50,23 @@ type FormData = z.infer<typeof formSchema>;
 
 const permissionOptions = ["NONE", "READ", "WRITE", "ACCESS"];
 
-const AuthorityForm: React.FC<NewAuthorityFormProps> = ({
-  authorityEntity,
-}) => {
+const AuthorityForm = ({ authorityId }: { authorityId: string }) => {
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [authorityResourcePermissions, setAuthorityResourcePermissions] =
-    useState<Array<AuthorityResourcePermissionDTO>>();
+    useState<Array<AuthorityResourcePermissionDTO>>([]);
+  const [authority, setAuthority] = useState<AuthorityDTO | undefined>();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      authority: authorityEntity,
+      authority: {
+        name: "",
+        descriptiveName: "",
+        description: "",
+        systemRole: false,
+      },
       permissions: [],
     },
   });
@@ -68,34 +74,93 @@ const AuthorityForm: React.FC<NewAuthorityFormProps> = ({
   const { reset } = form;
 
   useEffect(() => {
-    async function fetchAuthorityResourcePermissions() {
-      if (authorityEntity) {
-        const data = await findPermissionsByAuthorityName(authorityEntity.name);
-        setAuthorityResourcePermissions(data);
-        reset({
-          authority: authorityEntity,
-          permissions: data.map((perm) => ({
-            ...perm,
-            permission: perm.permission || "NONE",
-          })),
-        });
+    async function fetchAuthorityAndPermissions() {
+      try {
+        const fetchedAuthority = await findAuthorityByName(authorityId);
+
+        if (fetchedAuthority) {
+          setAuthority(fetchedAuthority);
+
+          const fetchedPermissions = await findPermissionsByAuthorityName(
+            fetchedAuthority.name,
+          );
+
+          setAuthorityResourcePermissions(
+            fetchedPermissions.map((perm) => ({
+              ...perm,
+              permission: perm.permission || "NONE",
+            })),
+          );
+
+          // Reset form values to reflect the fetched authority and permissions
+          reset({
+            authority: fetchedAuthority,
+            permissions: fetchedPermissions.map((perm) => ({
+              ...perm,
+              permission: perm.permission || "NONE",
+            })),
+          });
+        }
+      } catch (err) {
+        setError("Failed to fetch authority. Please try again later.");
+      } finally {
+        setLoading(false);
       }
     }
-    fetchAuthorityResourcePermissions();
-  }, []);
+
+    fetchAuthorityAndPermissions();
+  }, [authorityId, reset]);
 
   async function onSubmit(formData: FormData) {
-    await createAuthority(formData.authority);
-    await batchSavePermissions(formData.permissions);
-    router.push(
-      `/portal/settings/authorities/${obfuscate(formData.authority.name)}`,
+    try {
+      await createAuthority(formData.authority);
+      await batchSavePermissions(formData.permissions);
+      router.push(
+        `/portal/settings/authorities/${obfuscate(formData.authority.name)}`,
+      );
+    } catch (err) {
+      setError("Failed to save changes. Please try again.");
+    }
+  }
+
+  const isSystemRole = authority?.systemRole;
+
+  const breadcrumbItems = [
+    { title: "Dashboard", link: "/portal" },
+    { title: "Authorities", link: "/portal/settings/authorities" },
+    ...(authority
+      ? [
+          {
+            title: `${authority.descriptiveName}`,
+            link: `/portal/settings/authorities/${obfuscate(authority.name)}`,
+          },
+          { title: "Edit", link: "#" },
+        ]
+      : [{ title: "Add", link: "#" }]),
+  ];
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <Spinner /> {/* Display a spinner while loading */}
+      </div>
     );
   }
 
-  const isSystemRole = authorityEntity?.systemRole;
+  if (error) {
+    return (
+      <div className="flex flex-col items-center">
+        <p className="text-red-500">{error}</p>
+        <Button variant="secondary" onClick={() => router.back()}>
+          Go Back
+        </Button>
+      </div>
+    );
+  }
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col gap-4">
+      <Breadcrumbs items={breadcrumbItems} />
       <Form {...form}>
         <div>
           <form
@@ -129,7 +194,11 @@ const AuthorityForm: React.FC<NewAuthorityFormProps> = ({
                   <FormItem>
                     <FormLabel>Description</FormLabel>
                     <FormControl>
-                      <Textarea placeholder="Enter description" {...field} />
+                      <Textarea
+                        placeholder="Enter description"
+                        {...field}
+                        value={field.value ?? ""}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -137,47 +206,45 @@ const AuthorityForm: React.FC<NewAuthorityFormProps> = ({
               />
             </div>
 
-            {authorityResourcePermissions &&
-              authorityResourcePermissions.length > 0 && (
-                <div className="space-y-4 mt-6">
-                  <h2 className="text-xl font-bold">Resource Permissions</h2>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {authorityResourcePermissions.map((perm, index) => {
-                      return (
-                        <FormField
-                          key={perm.resourceName}
-                          control={form.control}
-                          name={`permissions.${index}.permission`}
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>{perm.resourceName}</FormLabel>
-                              <FormControl>
-                                <Select
-                                  onValueChange={field.onChange}
-                                  defaultValue={field.value || "NONE"}
-                                  disabled={isSystemRole}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue placeholder="Select permission" />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    {permissionOptions.map((option) => (
-                                      <SelectItem key={option} value={option}>
-                                        {option}
-                                      </SelectItem>
-                                    ))}
-                                  </SelectContent>
-                                </Select>
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      );
-                    })}
-                  </div>
+            {authorityResourcePermissions.length > 0 && (
+              <div className="space-y-4 mt-6">
+                <h2 className="text-xl font-bold">Resource Permissions</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {authorityResourcePermissions.map((perm, index) => (
+                    <FormField
+                      key={perm.resourceName}
+                      control={form.control}
+                      name={`permissions.${index}.permission`}
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>{perm.resourceName}</FormLabel>
+                          <FormControl>
+                            <Select
+                              onValueChange={field.onChange}
+                              defaultValue={field.value || "NONE"}
+                              disabled={isSystemRole}
+                            >
+                              <SelectTrigger>
+                                <SelectValue placeholder="Select permission" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {permissionOptions.map((option) => (
+                                  <SelectItem key={option} value={option}>
+                                    {option}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  ))}
                 </div>
-              )}
+              </div>
+            )}
+
             <div className="flex items-center gap-4 pt-4">
               <SubmitButton
                 label="Save changes"

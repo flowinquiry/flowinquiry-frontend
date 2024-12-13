@@ -26,6 +26,7 @@ type UserFormValues = z.infer<typeof userSchema>;
 export const UserForm: React.FC<UserFormProps> = ({ initialData }) => {
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null); // State for error handling
   const isEdit = !!initialData;
   const title = isEdit ? "Edit User" : "Create User";
   const description = isEdit ? "Edit user" : "Add a new user";
@@ -36,8 +37,15 @@ export const UserForm: React.FC<UserFormProps> = ({ initialData }) => {
   });
 
   async function onSubmit(data: UserType) {
-    await createUser(data);
-    router.push("/portal/users");
+    setSubmitError(null); // Reset error before submission
+    try {
+      await createUser(data);
+      router.push("/portal/users");
+    } catch (error: any) {
+      setSubmitError(
+        error?.message || "An error occurred while creating the user.",
+      );
+    }
   }
 
   return (
@@ -78,6 +86,12 @@ export const UserForm: React.FC<UserFormProps> = ({ initialData }) => {
             label="Last Name"
             placeholder="Last Name"
           />
+          <ExtInputField
+            form={form}
+            fieldName="title"
+            label="Title"
+            placeholder="Title"
+          />
           <TimezoneSelect
             form={form}
             fieldName="timezone"
@@ -85,6 +99,14 @@ export const UserForm: React.FC<UserFormProps> = ({ initialData }) => {
             placeholder="Timezone"
             required={true}
           />
+
+          {/* Display error message */}
+          {submitError && (
+            <div className="col-span-1 sm:col-span-2 text-red-600">
+              {submitError}
+            </div>
+          )}
+
           <div className="md:col-span-2 flex flex-row gap-4">
             <SubmitButton
               label="Invite user"
