@@ -4,7 +4,7 @@ import { TeamRequestPriority } from "@/types/team-requests";
 
 export const TeamDTOSchema = z.object({
   id: z.number().nullish(),
-  name: z.string().min(1),
+  name: z.string().default(""),
   logoUrl: z.string().nullish(),
   slogan: z.string().nullish(),
   description: z.string().nullish(),

@@ -2,7 +2,8 @@ import { ContentLayout } from "@/components/admin-panel/content-layout";
 import WorkflowDetailView from "@/components/workflows/workflow-detail-view";
 import { deobfuscateToNumber } from "@/lib/endecode";
 
-const Page = ({ params }: { params: { workflowId: string } }) => {
+const Page = async (props: { params: Promise<{ workflowId: string }> }) => {
+  const params = await props.params;
   const workflowId = deobfuscateToNumber(params.workflowId);
 
   return (

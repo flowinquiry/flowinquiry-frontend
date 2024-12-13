@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
-const Page = async ({ params }: { params: { teamId: string } }) => {
+const Page = async (props: { params: Promise<{ teamId: string }> }) => {
+  const params = await props.params;
   redirect(`/portal/teams/${params.teamId}/dashboard`);
 };
 

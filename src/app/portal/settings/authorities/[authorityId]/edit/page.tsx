@@ -3,11 +3,10 @@ import AuthorityForm from "@/components/authorities/authority-form";
 import { findAuthorityByName } from "@/lib/actions/authorities.action";
 import { deobfuscateToString, obfuscate } from "@/lib/endecode";
 
-export default async function Page({
-  params,
-}: {
-  params: { authorityId: string | "new" };
+export default async function Page(props: {
+  params: Promise<{ authorityId: string | "new" }>;
 }) {
+  const params = await props.params;
   const authority =
     params.authorityId !== "new"
       ? await findAuthorityByName(deobfuscateToString(params.authorityId))

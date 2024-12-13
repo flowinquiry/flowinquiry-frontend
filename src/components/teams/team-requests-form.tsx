@@ -53,6 +53,15 @@ export const TeamRequestForm = ({
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Parse empty object to get schema defaults
+  const defaultValues = TeamRequestDTOSchema.parse({});
+
+  const form = useForm<TeamRequestDTO>({
+    resolver: zodResolver(TeamRequestDTOSchema),
+    defaultValues,
+    mode: "onChange",
+  });
+
   useEffect(() => {
     const fetchTeamRequest = async () => {
       setLoading(true);
@@ -74,17 +83,21 @@ export const TeamRequestForm = ({
     fetchTeamRequest();
   }, [teamRequestId]);
 
-  const form = useForm<TeamRequestDTO>({
-    resolver: zodResolver(TeamRequestDTOSchema),
-    defaultValues: teamRequest,
-    mode: "onChange",
-  });
+  useEffect(() => {
+    if (teamRequest) {
+      form.reset(teamRequest);
+    } else {
+      form.reset(defaultValues);
+    }
+  }, [teamRequest]);
 
   async function onSubmit(formValues: TeamRequestDTO) {
     if (validateForm(formValues, TeamRequestDTOSchema, form)) {
       await updateTeamRequest(formValues.id!, formValues);
       router.push(
-        `/portal/teams/${obfuscate(formValues.teamId)}/requests/${obfuscate(formValues.id)}?${randomPair()}`,
+        `/portal/teams/${obfuscate(formValues.teamId)}/requests/${obfuscate(
+          formValues.id,
+        )}?${randomPair()}`,
       );
     }
   }
@@ -121,15 +134,15 @@ export const TeamRequestForm = ({
     { title: "Teams", link: "/portal/teams" },
     {
       title: teamRequest.teamName!,
-      link: `/portal/teams/${obfuscate(teamRequest.teamId)}`,
+      link: `/portal/teams/${obfuscate(teamRequest.teamId!)}`,
     },
     {
       title: "Requests",
-      link: `/portal/teams/${obfuscate(teamRequest.teamId)}/requests`,
+      link: `/portal/teams/${obfuscate(teamRequest.teamId!)}/requests`,
     },
     {
       title: teamRequest.requestTitle!,
-      link: `/portal/teams/${obfuscate(teamRequest.teamId)}/requests/${obfuscate(teamRequest.id)}`,
+      link: `/portal/teams/${obfuscate(teamRequest.teamId!)}/requests/${obfuscate(teamRequest.id!)}`,
     },
     { title: "Edit", link: "#" },
   ];
@@ -204,6 +217,7 @@ export const TeamRequestForm = ({
               </FormItem>
             )}
           />
+
           <DatePickerField
             form={form}
             fieldName="estimatedCompletionDate"

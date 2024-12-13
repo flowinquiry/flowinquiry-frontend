@@ -9,13 +9,15 @@ export type TeamRequestPriority =
 
 export const TeamRequestDTOSchema = z.object({
   id: z.number().optional(),
-  teamId: z.number(),
-  teamName: z.string().nullish(),
-  workflowId: z.number(),
+  teamId: z.number().optional(),
+  teamName: z.string().optional(),
+  workflowId: z.number().optional(),
   workflowName: z.string().nullish(),
   workflowRequestName: z.string().nullish(),
-  priority: z.enum(["Critical", "High", "Medium", "Low", "Trivial"]),
-  requestUserId: z.number(),
+  priority: z
+    .enum(["Critical", "High", "Medium", "Low", "Trivial"])
+    .default("Medium"),
+  requestUserId: z.number().optional(),
   requestUserName: z.string().nullish(),
   requestUserImageUrl: z.string().nullish(),
   assignUserId: z.number().nullish(),
@@ -23,8 +25,8 @@ export const TeamRequestDTOSchema = z.object({
   assignUserImageUrl: z.string().nullish(),
   currentStateId: z.number().nullish(),
   currentStateName: z.string().nullish(),
-  requestTitle: z.string().min(1),
-  requestDescription: z.string().min(1),
+  requestTitle: z.string().default(""),
+  requestDescription: z.string().default(""),
   isNew: z.oboolean(),
   isCompleted: z.oboolean(),
   createdAt: z.preprocess((value) => {

@@ -5,10 +5,11 @@ import TeamRequestDetailView from "@/components/teams/team-requests-detail";
 import { deobfuscateToNumber } from "@/lib/endecode";
 
 interface RequestDetailsProps {
-  params: { teamId: string; requestId: string };
+  params: Promise<{ teamId: string; requestId: string }>;
 }
 
-const RequestDetailsPage = async ({ params }: RequestDetailsProps) => {
+const RequestDetailsPage = async (props: RequestDetailsProps) => {
+  const params = await props.params;
   const teamRequestId = deobfuscateToNumber(params.requestId);
 
   return (

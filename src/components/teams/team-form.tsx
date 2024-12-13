@@ -50,9 +50,11 @@ export const TeamForm = ({ teamId }: { teamId: number | undefined }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const defaultValues = TeamDTOSchema.parse({});
+
   const form = useForm<TeamDTO>({
     resolver: zodResolver(TeamDTOSchema),
-    defaultValues: {}, // start with empty defaults
+    defaultValues,
   });
 
   useEffect(() => {
@@ -79,32 +81,31 @@ export const TeamForm = ({ teamId }: { teamId: number | undefined }) => {
     fetchTeam();
   }, [teamId]);
 
-  // Reset form values when team data is loaded
+  // When team data is loaded, reset form with fetched data
   useEffect(() => {
-    if (team !== undefined) {
+    if (team) {
       form.reset(team);
     } else {
-      form.reset({});
+      // If no team is fetched (e.g. creation mode), reset with defaults
+      form.reset(defaultValues);
     }
-    // Note: Do not include `form` in the dependencies
-    // or it might cause unnecessary re-renders.
   }, [team]);
 
-  async function onSubmit(team: TeamDTO) {
-    if (validateForm(team, TeamDTOSchema, form)) {
+  async function onSubmit(formValues: TeamDTO) {
+    if (validateForm(formValues, TeamDTOSchema, form)) {
       const formData = new FormData();
-
-      const teamJsonBlob = new Blob([JSON.stringify(team)], {
+      const teamJsonBlob = new Blob([JSON.stringify(formValues)], {
         type: "application/json",
       });
       formData.append("teamDTO", teamJsonBlob);
+
       if (selectedFile) {
         formData.append("file", selectedFile);
       }
 
       let savedTeam: TeamDTO;
-
-      if (team.id) {
+      if (formValues.id) {
+        // Edit mode
         savedTeam = await apiClient<TeamDTO>(
           "/api/teams",
           "PUT",
@@ -112,6 +113,7 @@ export const TeamForm = ({ teamId }: { teamId: number | undefined }) => {
           session?.user?.accessToken,
         );
       } else {
+        // Create mode
         savedTeam = await apiClient<TeamDTO>(
           "/api/teams",
           "POST",
