@@ -3,7 +3,7 @@ import { unstable_noStore as noStore } from "next/dist/server/web/spec-extension
 import { doAdvanceSearch, get, post } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
 import { Pagination, QueryDTO } from "@/types/query";
-import { userSchema, UserType } from "@/types/users";
+import { UserType, UserTypeSchema } from "@/types/users";
 
 export async function searchUsers(query: QueryDTO, pagination: Pagination) {
   noStore();
@@ -25,7 +25,7 @@ export const findUserById = async (userId: number) => {
 };
 
 export const createUser = async (user: UserType) => {
-  const validation = userSchema.safeParse(user);
+  const validation = UserTypeSchema.safeParse(user);
   if (validation.success) {
     await post(`${BACKEND_API}/api/admin/users`, user);
   }

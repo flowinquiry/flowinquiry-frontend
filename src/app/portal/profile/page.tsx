@@ -6,7 +6,7 @@ const breadcrumbItems = [
   { title: "Profile", link: "/portal/profile" },
 ];
 
-const ProfilePage = () => {
+const Page = () => {
   return (
     <SimpleContentView title="Profile" breadcrumbItems={breadcrumbItems}>
       <ProfileForm />
@@ -14,4 +14,4 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default Page;

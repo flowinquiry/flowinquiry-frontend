@@ -4,7 +4,7 @@ import UserNotifications from "@/components/dashboard/notifications-user";
 import TeamUnresolvedTicketsPriorityDistributionChart from "@/components/dashboard/team-unresolved-tickets-priority-distribution";
 import UserTeamsOverdueTickets from "@/components/dashboard/user-requests-overdue";
 
-export default function Home() {
+const Page = () => {
   return (
     <ContentLayout title="Dashboard">
       <h1 className="text-2xl mb-4">Dashboard</h1>
@@ -27,4 +27,6 @@ export default function Home() {
       </div>
     </ContentLayout>
   );
-}
+};
+
+export default Page;

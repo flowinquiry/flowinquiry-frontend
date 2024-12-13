@@ -1,9 +1,8 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -14,27 +13,43 @@ import { ExtInputField, SubmitButton } from "@/components/ui/ext-form";
 import { Form } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import AuthoritiesSelect from "@/components/users/authorities-select";
-import { createUser } from "@/lib/actions/users.action";
-import { userSchema, UserType } from "@/types/users";
+import { createUser, findUserById } from "@/lib/actions/users.action";
+import { UserType, UserTypeSchema } from "@/types/users";
 
-interface UserFormProps {
-  initialData: any | null;
-}
+type UserFormValues = z.infer<typeof UserTypeSchema>;
 
-type UserFormValues = z.infer<typeof userSchema>;
-
-export const UserForm: React.FC<UserFormProps> = ({ initialData }) => {
+export const UserForm = ({ userId }: { userId?: number }) => {
   const router = useRouter();
-  const [open, setOpen] = useState(false);
+  const [user, setUser] = useState<UserType | undefined>();
+  const [loading, setLoading] = useState(!!userId); // Only show loading if userId is defined
   const [submitError, setSubmitError] = useState<string | null>(null); // State for error handling
-  const isEdit = !!initialData;
-  const title = isEdit ? "Edit User" : "Create User";
-  const description = isEdit ? "Edit user" : "Add a new user";
 
   const form = useForm<UserFormValues>({
-    resolver: zodResolver(userSchema),
-    defaultValues: initialData,
+    resolver: zodResolver(UserTypeSchema),
+    defaultValues: {},
   });
+
+  const { reset } = form;
+
+  useEffect(() => {
+    async function fetchUser() {
+      if (!userId) return; // Skip fetching if userId is undefined
+
+      try {
+        const userData = await findUserById(userId);
+        if (userData) {
+          setUser(userData);
+          reset(userData);
+        }
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchUser();
+  }, [userId, reset]);
 
   async function onSubmit(data: UserType) {
     setSubmitError(null); // Reset error before submission
@@ -48,15 +63,24 @@ export const UserForm: React.FC<UserFormProps> = ({ initialData }) => {
     }
   }
 
+  const isEdit = !!user;
+  const title = isEdit
+    ? `Edit User ${user?.firstName} ${user?.lastName}`
+    : "Create User";
+  const description = isEdit ? `Edit user` : "Add a new user";
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-full">
+        <p>Loading user data...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="grid grid-cols-1 gap-4">
       <div className="flex items-center justify-between">
         <Heading title={title} description={description} />
-        {initialData && (
-          <Button variant="destructive" size="sm" onClick={() => setOpen(true)}>
-            <Trash className="h-4 w-4" />
-          </Button>
-        )}
       </div>
       <Separator />
       <Form {...form}>
@@ -100,7 +124,6 @@ export const UserForm: React.FC<UserFormProps> = ({ initialData }) => {
             required={true}
           />
 
-          {/* Display error message */}
           {submitError && (
             <div className="col-span-1 sm:col-span-2 text-red-600">
               {submitError}

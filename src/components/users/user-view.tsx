@@ -1,6 +1,7 @@
 "use client";
 
 import { formatDistanceToNow } from "date-fns";
+import { Edit } from "lucide-react";
 import Link from "next/link";
 import { notFound, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -9,6 +10,12 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { TeamAvatar, UserAvatar } from "@/components/shared/avatar-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import {
   Tooltip,
@@ -77,21 +84,23 @@ export const UserView = ({ userId }: { userId: number }) => {
     <div>
       <Breadcrumbs items={breadcrumbItems} />
       <div className="flex flex-col md:flex-row items-start py-4 gap-4">
-        <div className="grid grid-cols-1 w-full md:w-[18rem] space-x-4 space-y-4 justify-items-start rounded-lg border border-gray-300">
-          <div className="flex justify-center w-full pt-4">
+        {/* Left Panel */}
+        <Card className="w-full md:w-[18rem]">
+          <CardHeader className="flex flex-col items-center">
             <UserAvatar imageUrl={user.imageUrl} size="w-32 h-32" />
-          </div>
-
-          <div className="text-sm py-2 pr-2">
+          </CardHeader>
+          <CardContent className="text-sm space-y-2">
             <div>
-              Email:{" "}
+              <strong>Email:</strong>{" "}
               <Button variant="link" className="px-0 py-0 h-0">
                 <Link href={`mailto: ${user.email}`}>{user.email}</Link>
               </Button>
             </div>
-            <div>Title: {user.title}</div>
             <div>
-              Last login time:{" "}
+              <strong>Title:</strong> {user.title}
+            </div>
+            <div>
+              <strong>Last login time:</strong>{" "}
               {user.lastLoginTime ? (
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -109,63 +118,97 @@ export const UserView = ({ userId }: { userId: number }) => {
                 "No recent login"
               )}
             </div>
-            <div>About: {user.about}</div>
-          </div>
-        </div>
-        <div className="grid grid-cols-1 w-full md:w-[56rem] rounded-lg border border-gray-300 px-4 py-4">
-          <div className="text-xl relative">
-            <span>
-              {user.firstName} {user.lastName}
-            </span>
-            <span className="text-sm absolute px-2 top-0">{user.timezone}</span>
-          </div>
-          <div className="grid grid-cols-1 px-4 py-4 gap-4 text-sm">
-            <div>About: {user.about}</div>
-            <div>Address: {user.address}</div>
-            <div>City: {user.city}</div>
-            <div>State: {user.state}</div>
-            <div>Country: {user.country}</div>
-          </div>
-          {user.managerId && (
             <div>
-              Report to:{" "}
-              <Badge variant="outline" className="gap-2">
-                <UserAvatar imageUrl={user.managerImageUrl} size="w-5 h-5" />
-                <Link href={`/portal/users/${obfuscate(user.managerId)}`}>
-                  {user.managerName}
-                </Link>
-              </Badge>
+              <strong>About:</strong> {user.about}
             </div>
-          )}
-          {directReports && directReports.length > 0 && (
-            <div className="py-4">
-              <div>Direct Reports</div>
-              <div className="flex flex-row flex-wrap gap-4 pt-4">
-                {directReports.map((report) => (
-                  <Badge key={report.id} variant="outline" className="gap-2">
-                    <UserAvatar imageUrl={report.imageUrl} size="w-5 h-5" />
-                    <Link href={`/portal/users/${obfuscate(report.id)}`}>
-                      {report.firstName} {report.lastName}
+          </CardContent>
+        </Card>
+
+        {/* Right Panel */}
+        <Card className="w-full md:w-[56rem]">
+          <CardHeader>
+            <div className="flex justify-between items-center">
+              <div>
+                <div className="text-xl">
+                  {user.firstName} {user.lastName}
+                </div>
+                <div className="text-sm text-gray-500">{user.timezone}</div>
+              </div>
+              <Button
+                onClick={() =>
+                  router.push(`/portal/users/${obfuscate(user.id)}/edit`)
+                }
+              >
+                <Edit />
+                Edit
+              </Button>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 px-4 py-4 gap-4 text-sm">
+              <div>
+                <strong>About:</strong> {user.about}
+              </div>
+              <div>
+                <strong>Address:</strong> {user.address}
+              </div>
+              <div>
+                <strong>City:</strong> {user.city}
+              </div>
+              <div>
+                <strong>State:</strong> {user.state}
+              </div>
+              <div>
+                <strong>Country:</strong> {user.country}
+              </div>
+            </div>
+            {user.managerId && (
+              <div>
+                <strong>Report to:</strong>{" "}
+                <Badge variant="outline" className="gap-2">
+                  <UserAvatar imageUrl={user.managerImageUrl} size="w-5 h-5" />
+                  <Link href={`/portal/users/${obfuscate(user.managerId)}`}>
+                    {user.managerName}
+                  </Link>
+                </Badge>
+              </div>
+            )}
+            {directReports && directReports.length > 0 && (
+              <div className="py-4">
+                <div>
+                  <strong>Direct Reports:</strong>
+                </div>
+                <div className="flex flex-row flex-wrap gap-4 pt-4">
+                  {directReports.map((report) => (
+                    <Badge key={report.id} variant="outline" className="gap-2">
+                      <UserAvatar imageUrl={report.imageUrl} size="w-5 h-5" />
+                      <Link href={`/portal/users/${obfuscate(report.id)}`}>
+                        {report.firstName} {report.lastName}
+                      </Link>
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+          </CardContent>
+          <CardFooter>
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <strong>Member of Teams:</strong>
+              </div>
+              <div className="flex flex-row flex-wrap gap-4">
+                {(teams ?? []).map((team) => (
+                  <Badge key={team.id} variant="outline" className="gap-2">
+                    <TeamAvatar imageUrl={team.logoUrl} size="w-5 h-5" />
+                    <Link href={`/portal/teams/${obfuscate(team.id)}`}>
+                      {team.name}
                     </Link>
                   </Badge>
                 ))}
               </div>
             </div>
-          )}
-          <div className="grid grid-cols-1 gap-4">
-            <div>Member of Teams</div>
-            <div className="flex flex-row flex-wrap gap-4">
-              {(teams ?? []).map((team) => (
-                <Badge key={team.id} variant="outline" className="gap-2">
-                  <TeamAvatar imageUrl={team.logoUrl} size="w-5 h-5" />
-                  <Link href={`/portal/teams/${obfuscate(team.id)}`}>
-                    {team.name}
-                  </Link>
-                </Badge>
-              ))}
-            </div>
-          </div>
-        </div>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );

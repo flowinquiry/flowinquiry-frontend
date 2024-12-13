@@ -5,7 +5,7 @@ import { auth } from "@/auth";
 import AdminPanelLayout from "@/components/admin-panel/admin-panel-layout";
 import { PermissionsProvider } from "@/providers/permissions-provider";
 
-const MainLayout = async ({ children }: { children: React.ReactNode }) => {
+const Layout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
   if (!session) {
     console.log("No session is detected. Redirect to login page");
@@ -21,4 +21,4 @@ const MainLayout = async ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default MainLayout;
+export default Layout;

@@ -29,9 +29,9 @@ import { useImageCropper } from "@/hooks/use-image-cropper";
 import { findUserById } from "@/lib/actions/users.action";
 import { apiClient } from "@/lib/api-client";
 import { obfuscate } from "@/lib/endecode";
-import { userSchema } from "@/types/users";
+import { UserTypeSchema } from "@/types/users";
 
-const userSchemaWithFile = userSchema.extend({
+const userSchemaWithFile = UserTypeSchema.extend({
   file: z.any().optional(), // Add file as an optional field of any type
 });
 

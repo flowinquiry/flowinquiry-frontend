@@ -195,10 +195,12 @@ function ActivationContent() {
   );
 }
 
-export default function Page() {
+const Page = () => {
   return (
     <Suspense fallback={<p>Loading...</p>}>
       <ActivationContent />
     </Suspense>
   );
-}
+};
+
+export default Page;

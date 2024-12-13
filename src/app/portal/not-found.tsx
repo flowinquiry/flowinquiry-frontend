@@ -6,8 +6,9 @@ import React from "react";
 
 import { Button } from "@/components/ui/button";
 
-export default function NotFound() {
+const NotFound = () => {
   const router = useRouter();
+
   return (
     <main className="flex h-full flex-col items-center justify-center gap-2">
       <FrownIcon className="w-10 text-gray-400" />
@@ -21,4 +22,6 @@ export default function NotFound() {
       </Button>
     </main>
   );
-}
+};
+
+export default NotFound;

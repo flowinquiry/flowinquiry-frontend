@@ -5,16 +5,19 @@ import { deobfuscateToNumber } from "@/lib/endecode";
 import { TeamProvider } from "@/providers/team-provider";
 import { UserTeamRoleProvider } from "@/providers/user-team-role-provider";
 
-export default async function TeamsLayout(props: {
+const Layout = async ({
+  children,
+  params,
+}: {
   children: React.ReactNode;
   params: Promise<{ teamId: string }>;
-}) {
-  const params = await props.params;
-
-  const { children } = props;
+}) => {
+  const resolvedParams = await params;
 
   const teamIdNum =
-    params.teamId === "new" ? null : deobfuscateToNumber(params.teamId);
+    resolvedParams.teamId === "new"
+      ? null
+      : deobfuscateToNumber(resolvedParams.teamId);
 
   if (teamIdNum == null) {
     return children;
@@ -27,4 +30,6 @@ export default async function TeamsLayout(props: {
       <UserTeamRoleProvider teamId={teamIdNum}>{children}</UserTeamRoleProvider>
     </TeamProvider>
   );
-}
+};
+
+export default Layout;

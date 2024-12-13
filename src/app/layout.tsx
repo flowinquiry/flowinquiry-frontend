@@ -16,11 +16,11 @@ export const metadata: Metadata = {
   description: "Flexwork dashboard",
 };
 
-export default async function RootLayout({
+const RootLayout = async ({
   children,
 }: Readonly<{
   children: React.ReactNode;
-}>) {
+}>) => {
   return (
     <html suppressHydrationWarning={true} lang="en">
       <head>
@@ -40,4 +40,6 @@ export default async function RootLayout({
       </body>
     </html>
   );
-}
+};
+
+export default RootLayout;

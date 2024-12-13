@@ -25,8 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Spinner } from "@/components/ui/spinner";
+import { Textarea } from "@/components/ui/textarea";
 import {
   batchSavePermissions,
   createAuthority,
@@ -50,9 +50,13 @@ type FormData = z.infer<typeof formSchema>;
 
 const permissionOptions = ["NONE", "READ", "WRITE", "ACCESS"];
 
-const AuthorityForm = ({ authorityId }: { authorityId: string }) => {
+const AuthorityForm = ({
+  authorityId,
+}: {
+  authorityId: string | undefined;
+}) => {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!authorityId); // Only show loading if authorityId is present
   const [error, setError] = useState<string | null>(null);
   const [authorityResourcePermissions, setAuthorityResourcePermissions] =
     useState<Array<AuthorityResourcePermissionDTO>>([]);
@@ -75,6 +79,8 @@ const AuthorityForm = ({ authorityId }: { authorityId: string }) => {
 
   useEffect(() => {
     async function fetchAuthorityAndPermissions() {
+      if (!authorityId) return; // Skip fetching if authorityId is undefined
+
       try {
         const fetchedAuthority = await findAuthorityByName(authorityId);
 
@@ -142,7 +148,7 @@ const AuthorityForm = ({ authorityId }: { authorityId: string }) => {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-full">
-        <Spinner /> {/* Display a spinner while loading */}
+        <Spinner>Loading data...</Spinner>
       </div>
     );
   }
@@ -221,7 +227,7 @@ const AuthorityForm = ({ authorityId }: { authorityId: string }) => {
                           <FormControl>
                             <Select
                               onValueChange={field.onChange}
-                              defaultValue={field.value || "NONE"}
+                              value={field.value ?? "NONE"}
                               disabled={isSystemRole}
                             >
                               <SelectTrigger>
