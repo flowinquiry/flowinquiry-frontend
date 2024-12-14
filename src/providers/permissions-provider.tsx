@@ -9,6 +9,7 @@ import React, {
   useState,
 } from "react";
 
+import { useAccessTokenManager } from "@/lib/access-token-manager";
 import { get } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
 import { PermissionLevel, ResourceId } from "@/types/resources";
@@ -58,6 +59,9 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({
   const [permissions, setPermissions] = useState<Permission[]>([]);
 
   const userId = session?.user?.id ? Number(session.user.id) : null;
+
+  // Make sure session access token is cached
+  useAccessTokenManager();
 
   useEffect(() => {
     if (status === "authenticated" && userId && permissions.length === 0) {

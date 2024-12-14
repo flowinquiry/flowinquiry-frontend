@@ -41,9 +41,6 @@ export const UserView = ({ userId }: { userId: number }) => {
     async function fetchData() {
       try {
         const userData = await findUserById(userId);
-        if (!userData) {
-          notFound();
-        }
         setUser(userData);
 
         const teamData = await findTeamsByMemberId(userId);
@@ -51,9 +48,6 @@ export const UserView = ({ userId }: { userId: number }) => {
 
         const reportData = await getDirectReports(userId);
         setDirectReports(reportData);
-      } catch (error) {
-        console.error("Failed to fetch user data:", error);
-        notFound();
       } finally {
         setLoading(false);
       }

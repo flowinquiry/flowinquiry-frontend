@@ -1,8 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -26,6 +25,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Spinner } from "@/components/ui/spinner";
 import WorkflowStateSelect from "@/components/workflows/workflow-state-select";
 import {
   findRequestById,
@@ -68,14 +68,7 @@ export const TeamRequestForm = ({
       setError(null);
       try {
         const data = await findRequestById(teamRequestId);
-        if (!data) {
-          throw new Error("Could not find the specified team request.");
-        }
         setTeamRequest(data);
-      } catch (err: any) {
-        setError(
-          err.message || "An error occurred while fetching the team request.",
-        );
       } finally {
         setLoading(false);
       }
@@ -105,28 +98,13 @@ export const TeamRequestForm = ({
   if (loading) {
     return (
       <div className="py-4 flex justify-center items-center">
-        <Loader2 className="h-8 w-8 animate-spin" />
+        <Spinner>Loading data...</Spinner>
       </div>
     );
   }
 
   if (error || !teamRequest) {
-    return (
-      <div className="py-4">
-        <Heading
-          title="Error"
-          description="We encountered an issue loading the team request."
-        />
-        <p className="text-red-500 mt-4">
-          {error || "Team request not found."}
-        </p>
-        <div className="mt-4">
-          <Button variant="secondary" onClick={() => router.back()}>
-            Go Back
-          </Button>
-        </div>
-      </div>
-    );
+    notFound();
   }
 
   const breadcrumbItems = [

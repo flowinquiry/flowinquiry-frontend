@@ -14,8 +14,8 @@ import { Form } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import AuthoritiesSelect from "@/components/users/authorities-select";
 import { createUser, findUserById } from "@/lib/actions/users.action";
-import { UserDTO, UserDTOSchema } from "@/types/users";
 import { obfuscate } from "@/lib/endecode";
+import { UserDTO, UserDTOSchema } from "@/types/users";
 
 type UserFormValues = z.infer<typeof UserDTOSchema>;
 
@@ -34,7 +34,7 @@ export const UserForm = ({ userId }: { userId?: number }) => {
 
   useEffect(() => {
     async function fetchUser() {
-      if (!userId) return; // Skip fetching if userId is undefined
+      if (!userId) return;
 
       try {
         const userData = await findUserById(userId);
@@ -42,8 +42,6 @@ export const UserForm = ({ userId }: { userId?: number }) => {
           setUser(userData);
           reset(userData);
         }
-      } catch (error) {
-        console.error("Failed to fetch user data:", error);
       } finally {
         setLoading(false);
       }
@@ -53,15 +51,8 @@ export const UserForm = ({ userId }: { userId?: number }) => {
   }, [userId, reset]);
 
   async function onSubmit(data: UserDTO) {
-    setSubmitError(null); // Reset error before submission
-    try {
-      const savedUser = await createUser(data);
-      router.push(`/portal/users/${obfuscate(savedUser.id)}`);
-    } catch (error: any) {
-      setSubmitError(
-        error?.message || "An error occurred while creating the user.",
-      );
-    }
+    const savedUser = await createUser(data);
+    router.push(`/portal/users/${obfuscate(savedUser.id)}`);
   }
 
   const isEdit = !!user;

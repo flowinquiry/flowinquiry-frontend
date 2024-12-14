@@ -56,8 +56,6 @@ const TeamUnresolvedTicketsPriorityDistributionChart = () => {
           {} as Record<string, Record<TeamRequestPriority, number>>,
         );
         setData(chartData);
-      } catch (error) {
-        console.error("Error fetching data:", error);
       } finally {
         setLoading(false);
       }

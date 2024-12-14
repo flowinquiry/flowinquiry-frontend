@@ -95,7 +95,7 @@ const GlobalWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
         <WorkflowEditForm
           workflowDetail={workflowDetail}
           onCancel={() => setIsEditing(false)}
-          onSave={handleSave} // Save to backend
+          onSave={handleSave}
           onPreviewChange={setPreviewWorkflowDetail} // Update preview in real-time
         />
       )}

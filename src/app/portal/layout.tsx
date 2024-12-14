@@ -8,7 +8,6 @@ import { PermissionsProvider } from "@/providers/permissions-provider";
 const Layout = async ({ children }: { children: React.ReactNode }) => {
   const session = await auth();
   if (!session) {
-    console.log("No session is detected. Redirect to login page");
     redirect("/login");
   }
 

@@ -1,6 +1,5 @@
-import { getSession } from "next-auth/react";
-
 import { auth } from "@/auth";
+import { getAccessToken } from "@/lib/access-token-manager";
 import { handleError, HttpError } from "@/lib/errors";
 import { PageableResult } from "@/types/commons";
 import {
@@ -60,8 +59,7 @@ export const fetchData = async <TData, TResponse>(
 };
 
 export const getClientToken = async (): Promise<string | undefined> => {
-  const session = await getSession();
-  return session?.user?.accessToken;
+  return getAccessToken();
 };
 
 export const getServerToken = async (): Promise<string | undefined> => {
