@@ -35,12 +35,7 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({
 
   useEffect(() => {
     const fetchTeam = async () => {
-      try {
-        const fetchedTeam = await findTeamById(teamId);
-        setTeam(fetchedTeam);
-      } catch (error) {
-        console.error("Failed to fetch team", error);
-      }
+      findTeamById(teamId).then((data) => setTeam(data));
     };
 
     fetchTeam();
