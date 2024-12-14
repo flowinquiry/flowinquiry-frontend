@@ -26,12 +26,12 @@ import { findTeamsByMemberId } from "@/lib/actions/teams.action";
 import { findUserById, getDirectReports } from "@/lib/actions/users.action";
 import { obfuscate } from "@/lib/endecode";
 import { TeamDTO } from "@/types/teams";
-import { UserType } from "@/types/users";
+import { UserDTO } from "@/types/users";
 
 export const UserView = ({ userId }: { userId: number }) => {
-  const [user, setUser] = useState<UserType | undefined | null>(undefined);
+  const [user, setUser] = useState<UserDTO | undefined | null>(undefined);
   const [teams, setTeams] = useState<TeamDTO[]>([]);
-  const [directReports, setDirectReports] = useState<UserType[] | undefined>(
+  const [directReports, setDirectReports] = useState<UserDTO[] | undefined>(
     undefined,
   );
   const [loading, setLoading] = useState(true);

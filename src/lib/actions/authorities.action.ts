@@ -6,7 +6,7 @@ import {
 } from "@/types/authorities";
 import { PageableResult } from "@/types/commons";
 import { createQueryParams, Pagination } from "@/types/query";
-import { UserType } from "@/types/users";
+import { UserDTO } from "@/types/users";
 
 export const getAuthorities = async (page: number) => {
   // TODO: temporarily disable the paging for the MVP
@@ -52,7 +52,7 @@ export async function getUsersByAuthority(
   pagination: Pagination,
 ) {
   const queryParams = createQueryParams(pagination);
-  return get<PageableResult<UserType>>(
+  return get<PageableResult<UserDTO>>(
     `${BACKEND_API}/api/authorities/${authority}/users?${queryParams.toString()}`,
   );
 }
@@ -61,7 +61,7 @@ export async function findUsersNotInAuthority(
   userTerm: string,
   authorityName: string,
 ) {
-  return get<Array<UserType>>(
+  return get<Array<UserDTO>>(
     `${BACKEND_API}/api/authorities/searchUsersNotInAuthority?userTerm=${userTerm}&&authorityName=${authorityName}`,
   );
 }

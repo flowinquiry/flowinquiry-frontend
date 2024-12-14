@@ -14,18 +14,19 @@ import { Form } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import AuthoritiesSelect from "@/components/users/authorities-select";
 import { createUser, findUserById } from "@/lib/actions/users.action";
-import { UserType, UserTypeSchema } from "@/types/users";
+import { UserDTO, UserDTOSchema } from "@/types/users";
+import { obfuscate } from "@/lib/endecode";
 
-type UserFormValues = z.infer<typeof UserTypeSchema>;
+type UserFormValues = z.infer<typeof UserDTOSchema>;
 
 export const UserForm = ({ userId }: { userId?: number }) => {
   const router = useRouter();
-  const [user, setUser] = useState<UserType | undefined>();
+  const [user, setUser] = useState<UserDTO | undefined>();
   const [loading, setLoading] = useState(!!userId); // Only show loading if userId is defined
   const [submitError, setSubmitError] = useState<string | null>(null); // State for error handling
 
   const form = useForm<UserFormValues>({
-    resolver: zodResolver(UserTypeSchema),
+    resolver: zodResolver(UserDTOSchema),
     defaultValues: {},
   });
 
@@ -51,11 +52,11 @@ export const UserForm = ({ userId }: { userId?: number }) => {
     fetchUser();
   }, [userId, reset]);
 
-  async function onSubmit(data: UserType) {
+  async function onSubmit(data: UserDTO) {
     setSubmitError(null); // Reset error before submission
     try {
-      await createUser(data);
-      router.push("/portal/users");
+      const savedUser = await createUser(data);
+      router.push(`/portal/users/${obfuscate(savedUser.id)}`);
     } catch (error: any) {
       setSubmitError(
         error?.message || "An error occurred while creating the user.",

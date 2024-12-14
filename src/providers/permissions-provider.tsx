@@ -9,9 +9,9 @@ import React, {
   useState,
 } from "react";
 
-import { PermissionLevel, ResourceId } from "@/types/resources";
 import { get } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
+import { PermissionLevel, ResourceId } from "@/types/resources";
 
 export type Permission = {
   resourceName: ResourceId;

@@ -39,12 +39,12 @@ import {
   AuthorityResourcePermissionDTO,
 } from "@/types/authorities";
 import { PermissionUtils } from "@/types/resources";
-import { UserType } from "@/types/users";
+import { UserDTO } from "@/types/users";
 
 export const AuthorityView = ({ authorityId }: { authorityId: string }) => {
   const permissionLevel = usePagePermission();
   const [open, setOpen] = useState(false);
-  const [users, setUsers] = useState<Array<UserType>>();
+  const [users, setUsers] = useState<Array<UserDTO>>();
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
@@ -97,7 +97,7 @@ export const AuthorityView = ({ authorityId }: { authorityId: string }) => {
     }
   }, [currentPage, authority]);
 
-  async function removeUserOutAuthority(user: UserType) {
+  async function removeUserOutAuthority(user: UserDTO) {
     await deleteUserFromAuthority(authority!.name, user.id!);
     await fetchUsers();
   }
@@ -149,7 +149,7 @@ export const AuthorityView = ({ authorityId }: { authorityId: string }) => {
             {loadingUsers ? (
               <Spinner size="large" />
             ) : users && users.length > 0 ? (
-              users.map((user: UserType) => (
+              users.map((user: UserDTO) => (
                 <div
                   className="w-full md:w-[24rem] flex flex-row gap-4 border border-gray-200 px-4 py-4 rounded-2xl relative"
                   key={user.id}

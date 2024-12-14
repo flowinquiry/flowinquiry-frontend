@@ -2,7 +2,7 @@ import { z } from "zod";
 
 import { AuthorityDTOSchema } from "@/types/authorities";
 
-export const UserTypeSchema = z.object({
+export const UserDTOSchema = z.object({
   id: z.number().nullish(),
   email: z.string().email(),
   firstName: z.string().min(1),
@@ -31,9 +31,9 @@ export const UserTypeSchema = z.object({
     ),
 });
 
-export type UserType = z.infer<typeof UserTypeSchema>;
+export type UserDTO = z.infer<typeof UserDTOSchema>;
 
-export const UserWithTeamRoleSchema = z.object({
+export const UserWithTeamRoleDTOSchema = z.object({
   id: z.number().nullable().optional(),
   email: z.string().email().nullable().optional(),
   firstName: z.string().nullable().optional(),
@@ -45,4 +45,4 @@ export const UserWithTeamRoleSchema = z.object({
   teamRole: z.string().nullable().optional(),
 });
 
-export type UserWithTeamRoleDTO = z.infer<typeof UserWithTeamRoleSchema>;
+export type UserWithTeamRoleDTO = z.infer<typeof UserWithTeamRoleDTOSchema>;

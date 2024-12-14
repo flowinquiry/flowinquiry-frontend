@@ -9,7 +9,7 @@ import {
 import { BACKEND_API } from "@/lib/constants";
 import { Pagination, QueryDTO } from "@/types/query";
 import { TeamDTO, TransitionItemCollectionDTO } from "@/types/teams";
-import { UserType, UserWithTeamRoleDTO } from "@/types/users";
+import { UserDTO, UserWithTeamRoleDTO } from "@/types/users";
 
 export const findTeamById = async (teamId: number, isClient = true) => {
   return get<TeamDTO>(`${BACKEND_API}/api/teams/${teamId}`, isClient);
@@ -39,7 +39,7 @@ export async function findTeamsByMemberId(userId: number) {
 }
 
 export async function findUsersNotInTeam(userTerm: string, teamId: number) {
-  return get<Array<UserType>>(
+  return get<Array<UserDTO>>(
     `${BACKEND_API}/api/teams/searchUsersNotInTeam?userTerm=${userTerm}&&teamId=${teamId}`,
   );
 }

@@ -26,10 +26,10 @@ import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
-import { UserType } from "@/types/users";
+import { UserDTO } from "@/types/users";
 
 export const UserList = () => {
-  const [items, setItems] = useState<Array<UserType>>([]);
+  const [items, setItems] = useState<Array<UserDTO>>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);

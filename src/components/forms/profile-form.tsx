@@ -26,13 +26,13 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import DefaultUserLogo from "@/components/users/user-logo";
 import { useImageCropper } from "@/hooks/use-image-cropper";
-import { findUserById } from "@/lib/actions/users.action";
-import { obfuscate } from "@/lib/endecode";
-import { UserTypeSchema } from "@/types/users";
 import { put } from "@/lib/actions/commons.action";
+import { findUserById } from "@/lib/actions/users.action";
 import { BACKEND_API } from "@/lib/constants";
+import { obfuscate } from "@/lib/endecode";
+import { UserDTOSchema } from "@/types/users";
 
-const userSchemaWithFile = UserTypeSchema.extend({
+const userSchemaWithFile = UserDTOSchema.extend({
   file: z.any().optional(), // Add file as an optional field of any type
 });
 
