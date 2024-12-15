@@ -72,6 +72,7 @@ export const ProfileForm = () => {
   useEffect(() => {
     async function loadUserInfo() {
       const userData = await findUserById(Number(session?.user?.id));
+      console.log(`User data ${JSON.stringify(userData)}`);
       setUser({ ...userData, file: undefined });
 
       if (userData) {
@@ -112,7 +113,10 @@ export const ProfileForm = () => {
                 className="size-36 cursor-pointer ring-offset-2 ring-2 ring-slate-200"
               >
                 <input {...getInputProps()} />
-                <AvatarImage src={undefined} alt="@flexwork" />
+                <AvatarImage
+                  src={session?.user?.imageUrl ?? ""}
+                  alt="@flexwork"
+                />
                 <AvatarFallback>
                   <DefaultUserLogo />
                 </AvatarFallback>

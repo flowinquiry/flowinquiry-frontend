@@ -1,16 +1,37 @@
 "use client";
 
 import { formatDistanceToNow } from "date-fns";
-import { ArrowDownAZ, ArrowUpAZ, Plus } from "lucide-react";
+import {
+  ArrowDownAZ,
+  ArrowUpAZ,
+  Ellipsis,
+  Plus,
+  RotateCw,
+  Trash,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import React, { useCallback, useEffect, useState } from "react";
+import { toast } from "sonner";
 
 import { Heading } from "@/components/heading";
+import { UserAvatar } from "@/components/shared/avatar-display";
 import LoadingPlaceholder from "@/components/shared/loading-place-holder";
 import PaginationExt from "@/components/shared/pagination-ext";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -18,10 +39,13 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import DefaultUserLogo from "@/components/users/user-logo";
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { usePagePermission } from "@/hooks/use-page-permission";
-import { searchUsers } from "@/lib/actions/users.action";
+import {
+  deleteUser,
+  resendActivationEmail,
+  searchUsers,
+} from "@/lib/actions/users.action";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { QueryDTO } from "@/types/query";
@@ -34,6 +58,8 @@ export const UserList = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserDTO | null>(null);
   const [userSearchTerm, setUserSearchTerm] = useState<string | undefined>(
     undefined,
   );
@@ -45,7 +71,7 @@ export const UserList = () => {
   const { replace } = useRouter();
   const pathname = usePathname();
 
-  const fetchData = useCallback(async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
 
     const query: QueryDTO = {
@@ -98,12 +124,33 @@ export const UserList = () => {
   }, 2000);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchUsers();
+  }, [fetchUsers]);
 
   const toggleSortDirection = () => {
     setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
   };
+
+  function onDeleteUser(user: UserDTO) {
+    setSelectedUser(user);
+    setIsDialogOpen(true);
+  }
+
+  async function confirmDeleteUser() {
+    if (selectedUser) {
+      await deleteUser(selectedUser.id!);
+      setSelectedUser(null);
+      await fetchUsers();
+    }
+    setIsDialogOpen(false);
+    setSelectedUser(null);
+  }
+
+  function onResendActivationEmail(user: UserDTO) {
+    resendActivationEmail(user.email).then(() => {
+      toast.success(`An activation email has been sent to ${user.email}`);
+    });
+  }
 
   return (
     <div className="grid grid-cols-1 gap-4">
@@ -156,21 +203,48 @@ export const UserList = () => {
           {items?.map((user) => (
             <div
               key={user.id}
-              className="w-[28rem] flex flex-row gap-4 border border-gray-200 px-4 py-4 rounded-2xl"
+              className="relative w-[28rem] flex flex-row gap-4 border px-4 py-4 rounded-2xl border-gray-200 bg-white dark:bg-gray-800"
             >
-              <div>
-                <Avatar className="size-24 cursor-pointer ">
-                  <AvatarImage
-                    src={
-                      user?.imageUrl ? `/api/files/${user.imageUrl}` : undefined
-                    }
-                    alt={`${user.firstName} ${user.lastName}`}
-                  />
-                  <AvatarFallback>
-                    <DefaultUserLogo />
-                  </AvatarFallback>
-                </Avatar>
+              {PermissionUtils.canAccess(permissionLevel) && (
+                <div className="absolute top-2 right-2">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Ellipsis className="cursor-pointer text-gray-400" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-56">
+                      {user.status == "PENDING" && (
+                        <DropdownMenuItem
+                          className="cursor-pointer"
+                          onClick={() => onResendActivationEmail(user)}
+                        >
+                          <RotateCw />
+                          Resend Activation Email
+                        </DropdownMenuItem>
+                      )}
+                      <DropdownMenuItem
+                        className="cursor-pointer"
+                        onClick={() => onDeleteUser(user)}
+                      >
+                        <Trash />
+                        Delete User
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              )}
+
+              <div className="relative w-24 h-24">
+                <UserAvatar imageUrl={user.imageUrl} size="w-24 h-24" />
+                {user.status !== "ACTIVE" && (
+                  <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">
+                      Not Activated
+                    </span>
+                  </div>
+                )}
               </div>
+
+              {/* User Info */}
               <div className="grid grid-cols-1">
                 <div className="text-2xl">
                   <Button variant="link" className="px-0">
@@ -205,6 +279,29 @@ export const UserList = () => {
         totalPages={totalPages}
         onPageChange={(page) => setCurrentPage(page)}
       />
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+          </DialogHeader>
+          <p>
+            Are you sure you want to delete{" "}
+            <strong>
+              {selectedUser?.firstName} {selectedUser?.lastName}
+            </strong>
+            ? This action cannot be undone.
+          </p>
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setIsDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteUser}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -75,7 +75,7 @@ function ActivationContent() {
 
   useEffect(() => {
     if (status === "submitted" && keyParam) {
-      const userActivate = async (key: string) => {
+      const activateUser = async (key: string) => {
         try {
           await passwordReset(key, form.getValues("password"));
           setStatus("success");
@@ -86,7 +86,7 @@ function ActivationContent() {
           setStatus("error");
         }
       };
-      userActivate(keyParam);
+      activateUser(keyParam);
     } else if (!keyParam) {
       setErrorMessage("Activation key is missing.");
       setStatus("error");
