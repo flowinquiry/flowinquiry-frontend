@@ -19,7 +19,6 @@ export const fetchData = async <TData, TResponse>(
   const headers: Record<string, string> = {
     Accept: "application/json",
   };
-  const token = getToken ? await getToken() : undefined;
   if (getToken) {
     const token = await getToken();
     if (token) {
