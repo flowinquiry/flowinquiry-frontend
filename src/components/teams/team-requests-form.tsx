@@ -68,6 +68,7 @@ export const TeamRequestForm = ({
       setError(null);
       try {
         const data = await findRequestById(teamRequestId);
+        console.log(`Team request ${JSON.stringify(data)}`);
         setTeamRequest(data);
       } finally {
         setLoading(false);

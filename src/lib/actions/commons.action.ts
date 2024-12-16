@@ -20,11 +20,9 @@ export const fetchData = async <TData, TResponse>(
     Accept: "application/json",
   };
   const token = getToken ? await getToken() : undefined;
-  console.log(`Token ${token}`);
   if (getToken) {
     const token = await getToken();
     if (token) {
-      console.log(`Token ${token}`);
       headers.Authorization = `Bearer ${token}`;
     }
   }

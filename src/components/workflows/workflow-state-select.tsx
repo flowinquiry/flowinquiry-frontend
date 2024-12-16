@@ -46,14 +46,26 @@ const WorkflowStateSelect = ({
     const loadWorkflowStates = async () => {
       setIsLoading(true);
       getValidTargetStates(workflowId, workflowStateId, includeSelf)
-        .then((data) => setWorkflowStates(data))
+        .then((data) => {
+          setWorkflowStates(data);
+
+          // Set initial value if field value matches one of the loaded states
+          if (!form.getValues(name) && data.length > 0) {
+            const initialState = data.find(
+              (state) => state.id === workflowStateId,
+            );
+            if (initialState) {
+              form.setValue(name, initialState.id); // Set the field value in the form
+            }
+          }
+        })
         .finally(() => setIsLoading(false));
     };
 
     if (workflowId) {
       loadWorkflowStates();
     }
-  }, [workflowId, workflowStateId]);
+  }, [workflowId, workflowStateId, includeSelf, form, name]);
 
   return (
     <FormField
