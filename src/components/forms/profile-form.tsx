@@ -13,13 +13,6 @@ import { CountrySelectField } from "@/components/shared/countries-select";
 import TimezoneSelect from "@/components/shared/timezones-select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import { ExtInputField, ExtTextAreaField } from "@/components/ui/ext-form";
 import {
   Form,
@@ -31,10 +24,17 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import DefaultUserLogo from "@/components/users/user-logo";
 import { useImageCropper } from "@/hooks/use-image-cropper";
-import { post, put } from "@/lib/actions/commons.action";
-import { findUserById } from "@/lib/actions/users.action";
+import { put, post } from "@/lib/actions/commons.action";
+import { changePassword, findUserById } from "@/lib/actions/users.action";
 import { BACKEND_API } from "@/lib/constants";
 import { obfuscate } from "@/lib/endecode";
 import { UserDTOSchema } from "@/types/users";
@@ -46,8 +46,8 @@ const userSchemaWithFile = UserDTOSchema.extend({
 const passwordSchema = z.object({
   currentPassword: z
     .string()
-    .min(6, "Current Password must be at least 6 characters"),
-  newPassword: z.string().min(6, "New Password must be at least 6 characters"),
+    .min(1, "Current Password must be at least 1 characters"),
+  newPassword: z.string().min(8, "New Password must be at least 6 characters"),
 });
 
 type UserTypeWithFile = z.infer<typeof userSchemaWithFile>;
@@ -86,15 +86,11 @@ export const ProfileForm = () => {
     }
 
     await put(`${BACKEND_API}/api/users`, formData);
-    router.push(`/portal/users/${obfuscate(user?.id)}`);
+    // Profile form submission should not redirect.
   };
 
   const handleChangePassword = async (data: z.infer<typeof passwordSchema>) => {
-    await post(`${BACKEND_API}/api/users/change-password`, {
-      id: user?.id,
-      currentPassword: data.currentPassword,
-      newPassword: data.newPassword,
-    });
+    await changePassword(data.currentPassword, data.newPassword);
     setPasswordDialogOpen(false);
     setConfirmationOpen(true);
   };
@@ -102,7 +98,6 @@ export const ProfileForm = () => {
   useEffect(() => {
     async function loadUserInfo() {
       const userData = await findUserById(Number(session?.user?.id));
-      console.log(`User data ${JSON.stringify(userData)}`);
       setUser({ ...userData, file: undefined });
 
       if (userData) {
@@ -147,10 +142,7 @@ export const ProfileForm = () => {
                 className="size-36 cursor-pointer ring-offset-2 ring-2 ring-slate-200"
               >
                 <input {...getInputProps()} />
-                <AvatarImage
-                  src={session?.user?.imageUrl ?? ""}
-                  alt="@flexwork"
-                />
+                <AvatarImage src={undefined} alt="@flexwork" />
                 <AvatarFallback>
                   <DefaultUserLogo />
                 </AvatarFallback>
@@ -174,48 +166,80 @@ export const ProfileForm = () => {
                     onSubmit={passwordForm.handleSubmit(handleChangePassword)}
                     className="grid grid-cols-1 gap-4"
                   >
-                    <ExtInputField
-                      form={passwordForm}
-                      fieldName="currentPassword"
-                      label="Current Password"
-                      type={showPasswords.currentPassword ? "text" : "password"}
-                      required={true}
-                    >
-                      <Button
-                        variant="ghost"
-                        className="absolute right-2 top-2"
-                        type="button"
-                        onClick={() =>
-                          setShowPasswords((prev) => ({
-                            ...prev,
-                            currentPassword: !prev.currentPassword,
-                          }))
-                        }
-                      >
-                        {showPasswords.currentPassword ? "Hide" : "Show"}
-                      </Button>
-                    </ExtInputField>
-                    <ExtInputField
-                      form={passwordForm}
-                      fieldName="newPassword"
-                      label="New Password"
-                      type={showPasswords.newPassword ? "text" : "password"}
-                      required={true}
-                    >
-                      <Button
-                        variant="ghost"
-                        className="absolute right-2 top-2"
-                        type="button"
-                        onClick={() =>
-                          setShowPasswords((prev) => ({
-                            ...prev,
-                            newPassword: !prev.newPassword,
-                          }))
-                        }
-                      >
-                        {showPasswords.newPassword ? "Hide" : "Show"}
-                      </Button>
-                    </ExtInputField>
+                    <FormField
+                      control={passwordForm.control}
+                      name="currentPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Current Password</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                {...field}
+                                type={
+                                  showPasswords.currentPassword
+                                    ? "text"
+                                    : "password"
+                                }
+                                placeholder="Enter current password"
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                className="absolute right-2 top-1/2 -translate-y-1/2"
+                                onClick={() =>
+                                  setShowPasswords((prev) => ({
+                                    ...prev,
+                                    currentPassword: !prev.currentPassword,
+                                  }))
+                                }
+                              >
+                                {showPasswords.currentPassword
+                                  ? "Hide"
+                                  : "Show"}
+                              </Button>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={passwordForm.control}
+                      name="newPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>New Password</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                {...field}
+                                type={
+                                  showPasswords.newPassword
+                                    ? "text"
+                                    : "password"
+                                }
+                                placeholder="Enter new password"
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                className="absolute right-2 top-1/2 -translate-y-1/2"
+                                onClick={() =>
+                                  setShowPasswords((prev) => ({
+                                    ...prev,
+                                    newPassword: !prev.newPassword,
+                                  }))
+                                }
+                              >
+                                {showPasswords.newPassword ? "Hide" : "Show"}
+                              </Button>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                     <div className="flex flex-row gap-4">
                       <Button type="submit">Save</Button>
                       <Button
