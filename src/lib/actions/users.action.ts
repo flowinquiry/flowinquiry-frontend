@@ -66,3 +66,13 @@ export const forgotPassword = async (email: string) => {
     SecurityMode.NOT_SECURE,
   );
 };
+
+export const changePassword = async (
+  currentPassword: string,
+  newPassword: string,
+) => {
+  await post(`${BACKEND_API}/api/account/change-password`, {
+    currentPassword: currentPassword,
+    newPassword: newPassword,
+  });
+};

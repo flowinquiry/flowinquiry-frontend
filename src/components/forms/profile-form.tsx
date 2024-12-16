@@ -24,16 +24,30 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import DefaultUserLogo from "@/components/users/user-logo";
 import { useImageCropper } from "@/hooks/use-image-cropper";
-import { put } from "@/lib/actions/commons.action";
-import { findUserById } from "@/lib/actions/users.action";
+import { put, post } from "@/lib/actions/commons.action";
+import { changePassword, findUserById } from "@/lib/actions/users.action";
 import { BACKEND_API } from "@/lib/constants";
 import { obfuscate } from "@/lib/endecode";
 import { UserDTOSchema } from "@/types/users";
 
 const userSchemaWithFile = UserDTOSchema.extend({
-  file: z.any().optional(), // Add file as an optional field of any type
+  file: z.any().optional(),
+});
+
+const passwordSchema = z.object({
+  currentPassword: z
+    .string()
+    .min(1, "Current Password must be at least 1 characters"),
+  newPassword: z.string().min(8, "New Password must be at least 6 characters"),
 });
 
 type UserTypeWithFile = z.infer<typeof userSchemaWithFile>;
@@ -52,6 +66,12 @@ export const ProfileForm = () => {
   } = useImageCropper();
 
   const [user, setUser] = useState<UserTypeWithFile | undefined>(undefined);
+  const [isConfirmationOpen, setConfirmationOpen] = useState(false);
+  const [isPasswordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [showPasswords, setShowPasswords] = useState({
+    currentPassword: false,
+    newPassword: false,
+  });
 
   const handleSubmit = async (data: UserTypeWithFile) => {
     const formData = new FormData();
@@ -66,7 +86,13 @@ export const ProfileForm = () => {
     }
 
     await put(`${BACKEND_API}/api/users`, formData);
-    router.push(`/portal/users/${obfuscate(user?.id)}`);
+    // Profile form submission should not redirect.
+  };
+
+  const handleChangePassword = async (data: z.infer<typeof passwordSchema>) => {
+    await changePassword(data.currentPassword, data.newPassword);
+    setPasswordDialogOpen(false);
+    setConfirmationOpen(true);
   };
 
   useEffect(() => {
@@ -86,11 +112,15 @@ export const ProfileForm = () => {
     resolver: zodResolver(userSchemaWithFile),
   });
 
+  const passwordForm = useForm<z.infer<typeof passwordSchema>>({
+    resolver: zodResolver(passwordSchema),
+  });
+
   return (
     <div className="grid grid-cols-1 gap-4">
       <Heading
         title="Profile"
-        description="Manage your account details here. Update your email, profile picture, password, and other personal information to keep your profile accurate and secure"
+        description="Manage your account details here. Update your email, profile picture, password, and other personal information to keep your profile accurate and secure."
       />
       <Separator />
 
@@ -122,6 +152,112 @@ export const ProfileForm = () => {
                 </AvatarFallback>
               </Avatar>
             )}
+            <Dialog
+              open={isPasswordDialogOpen}
+              onOpenChange={setPasswordDialogOpen}
+            >
+              <DialogTrigger asChild>
+                <Button variant="link" className="mt-2">
+                  Change Password
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Change Password</DialogTitle>
+                </DialogHeader>
+                <Form {...passwordForm}>
+                  <form
+                    onSubmit={passwordForm.handleSubmit(handleChangePassword)}
+                    className="grid grid-cols-1 gap-4"
+                  >
+                    <FormField
+                      control={passwordForm.control}
+                      name="currentPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Current Password</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                {...field}
+                                type={
+                                  showPasswords.currentPassword
+                                    ? "text"
+                                    : "password"
+                                }
+                                placeholder="Enter current password"
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                className="absolute right-2 top-1/2 -translate-y-1/2"
+                                onClick={() =>
+                                  setShowPasswords((prev) => ({
+                                    ...prev,
+                                    currentPassword: !prev.currentPassword,
+                                  }))
+                                }
+                              >
+                                {showPasswords.currentPassword
+                                  ? "Hide"
+                                  : "Show"}
+                              </Button>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={passwordForm.control}
+                      name="newPassword"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>New Password</FormLabel>
+                          <FormControl>
+                            <div className="relative">
+                              <Input
+                                {...field}
+                                type={
+                                  showPasswords.newPassword
+                                    ? "text"
+                                    : "password"
+                                }
+                                placeholder="Enter new password"
+                              />
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                className="absolute right-2 top-1/2 -translate-y-1/2"
+                                onClick={() =>
+                                  setShowPasswords((prev) => ({
+                                    ...prev,
+                                    newPassword: !prev.newPassword,
+                                  }))
+                                }
+                              >
+                                {showPasswords.newPassword ? "Hide" : "Show"}
+                              </Button>
+                            </div>
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <div className="flex flex-row gap-4">
+                      <Button type="submit">Save</Button>
+                      <Button
+                        variant="secondary"
+                        type="button"
+                        onClick={() => setPasswordDialogOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
@@ -190,6 +326,18 @@ export const ProfileForm = () => {
           </div>
         </form>
       </Form>
+
+      <Dialog open={isConfirmationOpen} onOpenChange={setConfirmationOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Password Updated</DialogTitle>
+          </DialogHeader>
+          <p>Your password has been updated successfully!</p>
+          <div className="mt-4">
+            <Button onClick={() => setConfirmationOpen(false)}>Close</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
