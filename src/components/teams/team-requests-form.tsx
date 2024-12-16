@@ -68,7 +68,6 @@ export const TeamRequestForm = ({
       setError(null);
       try {
         const data = await findRequestById(teamRequestId);
-        console.log(`Team request ${JSON.stringify(data)}`);
         setTeamRequest(data);
       } finally {
         setLoading(false);
@@ -129,7 +128,7 @@ export const TeamRequestForm = ({
   return (
     <div className="py-4">
       <Breadcrumbs items={breadcrumbItems} />
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 mt-4">
         <Heading
           title={`${teamRequest?.workflowRequestName}: Edit Ticket`}
           description="Edit the details of your ticket"

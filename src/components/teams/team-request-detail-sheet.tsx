@@ -54,7 +54,7 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
     <FormProvider {...form}>
       <Sheet open={open} onOpenChange={onClose}>
         <SheetContent className="w-full sm:w-[64rem] h-full">
-          <ScrollArea className="h-full">
+          <ScrollArea className="h-full px-4">
             <SheetHeader>
               <SheetTitle>
                 <div className="w-full flex gap-2 items-start pt-4">

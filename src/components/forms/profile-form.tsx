@@ -13,6 +13,13 @@ import { CountrySelectField } from "@/components/shared/countries-select";
 import TimezoneSelect from "@/components/shared/timezones-select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { ExtInputField, ExtTextAreaField } from "@/components/ui/ext-form";
 import {
   Form,
@@ -24,19 +31,11 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 import DefaultUserLogo from "@/components/users/user-logo";
 import { useImageCropper } from "@/hooks/use-image-cropper";
-import { put, post } from "@/lib/actions/commons.action";
+import { put } from "@/lib/actions/commons.action";
 import { changePassword, findUserById } from "@/lib/actions/users.action";
 import { BACKEND_API } from "@/lib/constants";
-import { obfuscate } from "@/lib/endecode";
 import { UserDTOSchema } from "@/types/users";
 
 const userSchemaWithFile = UserDTOSchema.extend({
