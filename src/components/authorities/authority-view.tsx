@@ -8,8 +8,8 @@ import React, { useEffect, useState } from "react";
 import AddUserToAuthorityDialog from "@/components/authorities/authority-add-user-dialog";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Heading } from "@/components/heading";
+import { UserAvatar } from "@/components/shared/avatar-display";
 import PaginationExt from "@/components/shared/pagination-ext";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
@@ -25,7 +25,6 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import DefaultUserLogo from "@/components/users/user-logo";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import {
   deleteUserFromAuthority,
@@ -154,20 +153,15 @@ export const AuthorityView = ({ authorityId }: { authorityId: string }) => {
                   className="w-full md:w-[24rem] flex flex-row gap-4 border border-gray-200 px-4 py-4 rounded-2xl relative"
                   key={user.id}
                 >
-                  <div>
-                    <Avatar className="size-24 cursor-pointer ">
-                      <AvatarImage
-                        src={
-                          user?.imageUrl
-                            ? `/api/files/${user.imageUrl}`
-                            : undefined
-                        }
-                        alt={`${user.firstName} ${user.lastName}`}
-                      />
-                      <AvatarFallback>
-                        <DefaultUserLogo />
-                      </AvatarFallback>
-                    </Avatar>
+                  <div className="relative w-24 h-24">
+                    <UserAvatar imageUrl={user.imageUrl} size="w-24 h-24" />
+                    {user.status !== "ACTIVE" && (
+                      <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
+                        <span className="text-white text-xs font-bold">
+                          Not Activated
+                        </span>
+                      </div>
+                    )}
                   </div>
                   <div>
                     <div className="text-xl">

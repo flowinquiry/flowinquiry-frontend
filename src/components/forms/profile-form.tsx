@@ -13,6 +13,13 @@ import { CountrySelectField } from "@/components/shared/countries-select";
 import TimezoneSelect from "@/components/shared/timezones-select";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { ExtInputField, ExtTextAreaField } from "@/components/ui/ext-form";
 import {
   Form,
@@ -26,14 +33,21 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import DefaultUserLogo from "@/components/users/user-logo";
 import { useImageCropper } from "@/hooks/use-image-cropper";
-import { put } from "@/lib/actions/commons.action";
+import { post, put } from "@/lib/actions/commons.action";
 import { findUserById } from "@/lib/actions/users.action";
 import { BACKEND_API } from "@/lib/constants";
 import { obfuscate } from "@/lib/endecode";
 import { UserDTOSchema } from "@/types/users";
 
 const userSchemaWithFile = UserDTOSchema.extend({
-  file: z.any().optional(), // Add file as an optional field of any type
+  file: z.any().optional(),
+});
+
+const passwordSchema = z.object({
+  currentPassword: z
+    .string()
+    .min(6, "Current Password must be at least 6 characters"),
+  newPassword: z.string().min(6, "New Password must be at least 6 characters"),
 });
 
 type UserTypeWithFile = z.infer<typeof userSchemaWithFile>;
@@ -52,6 +66,12 @@ export const ProfileForm = () => {
   } = useImageCropper();
 
   const [user, setUser] = useState<UserTypeWithFile | undefined>(undefined);
+  const [isConfirmationOpen, setConfirmationOpen] = useState(false);
+  const [isPasswordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [showPasswords, setShowPasswords] = useState({
+    currentPassword: false,
+    newPassword: false,
+  });
 
   const handleSubmit = async (data: UserTypeWithFile) => {
     const formData = new FormData();
@@ -69,9 +89,20 @@ export const ProfileForm = () => {
     router.push(`/portal/users/${obfuscate(user?.id)}`);
   };
 
+  const handleChangePassword = async (data: z.infer<typeof passwordSchema>) => {
+    await post(`${BACKEND_API}/api/users/change-password`, {
+      id: user?.id,
+      currentPassword: data.currentPassword,
+      newPassword: data.newPassword,
+    });
+    setPasswordDialogOpen(false);
+    setConfirmationOpen(true);
+  };
+
   useEffect(() => {
     async function loadUserInfo() {
       const userData = await findUserById(Number(session?.user?.id));
+      console.log(`User data ${JSON.stringify(userData)}`);
       setUser({ ...userData, file: undefined });
 
       if (userData) {
@@ -85,11 +116,15 @@ export const ProfileForm = () => {
     resolver: zodResolver(userSchemaWithFile),
   });
 
+  const passwordForm = useForm<z.infer<typeof passwordSchema>>({
+    resolver: zodResolver(passwordSchema),
+  });
+
   return (
     <div className="grid grid-cols-1 gap-4">
       <Heading
         title="Profile"
-        description="Manage your account details here. Update your email, profile picture, password, and other personal information to keep your profile accurate and secure"
+        description="Manage your account details here. Update your email, profile picture, password, and other personal information to keep your profile accurate and secure."
       />
       <Separator />
 
@@ -112,12 +147,89 @@ export const ProfileForm = () => {
                 className="size-36 cursor-pointer ring-offset-2 ring-2 ring-slate-200"
               >
                 <input {...getInputProps()} />
-                <AvatarImage src={undefined} alt="@flexwork" />
+                <AvatarImage
+                  src={session?.user?.imageUrl ?? ""}
+                  alt="@flexwork"
+                />
                 <AvatarFallback>
                   <DefaultUserLogo />
                 </AvatarFallback>
               </Avatar>
             )}
+            <Dialog
+              open={isPasswordDialogOpen}
+              onOpenChange={setPasswordDialogOpen}
+            >
+              <DialogTrigger asChild>
+                <Button variant="link" className="mt-2">
+                  Change Password
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Change Password</DialogTitle>
+                </DialogHeader>
+                <Form {...passwordForm}>
+                  <form
+                    onSubmit={passwordForm.handleSubmit(handleChangePassword)}
+                    className="grid grid-cols-1 gap-4"
+                  >
+                    <ExtInputField
+                      form={passwordForm}
+                      fieldName="currentPassword"
+                      label="Current Password"
+                      type={showPasswords.currentPassword ? "text" : "password"}
+                      required={true}
+                    >
+                      <Button
+                        variant="ghost"
+                        className="absolute right-2 top-2"
+                        type="button"
+                        onClick={() =>
+                          setShowPasswords((prev) => ({
+                            ...prev,
+                            currentPassword: !prev.currentPassword,
+                          }))
+                        }
+                      >
+                        {showPasswords.currentPassword ? "Hide" : "Show"}
+                      </Button>
+                    </ExtInputField>
+                    <ExtInputField
+                      form={passwordForm}
+                      fieldName="newPassword"
+                      label="New Password"
+                      type={showPasswords.newPassword ? "text" : "password"}
+                      required={true}
+                    >
+                      <Button
+                        variant="ghost"
+                        className="absolute right-2 top-2"
+                        type="button"
+                        onClick={() =>
+                          setShowPasswords((prev) => ({
+                            ...prev,
+                            newPassword: !prev.newPassword,
+                          }))
+                        }
+                      >
+                        {showPasswords.newPassword ? "Hide" : "Show"}
+                      </Button>
+                    </ExtInputField>
+                    <div className="flex flex-row gap-4">
+                      <Button type="submit">Save</Button>
+                      <Button
+                        variant="secondary"
+                        type="button"
+                        onClick={() => setPasswordDialogOpen(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                </Form>
+              </DialogContent>
+            </Dialog>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
@@ -186,6 +298,18 @@ export const ProfileForm = () => {
           </div>
         </form>
       </Form>
+
+      <Dialog open={isConfirmationOpen} onOpenChange={setConfirmationOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Password Updated</DialogTitle>
+          </DialogHeader>
+          <p>Your password has been updated successfully!</p>
+          <div className="mt-4">
+            <Button onClick={() => setConfirmationOpen(false)}>Close</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

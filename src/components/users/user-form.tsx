@@ -23,7 +23,6 @@ export const UserForm = ({ userId }: { userId?: number }) => {
   const router = useRouter();
   const [user, setUser] = useState<UserDTO | undefined>();
   const [loading, setLoading] = useState(!!userId); // Only show loading if userId is defined
-  const [submitError, setSubmitError] = useState<string | null>(null); // State for error handling
 
   const form = useForm<UserFormValues>({
     resolver: zodResolver(UserDTOSchema),
@@ -115,12 +114,6 @@ export const UserForm = ({ userId }: { userId?: number }) => {
             placeholder="Timezone"
             required={true}
           />
-
-          {submitError && (
-            <div className="col-span-1 sm:col-span-2 text-red-600">
-              {submitError}
-            </div>
-          )}
 
           <div className="md:col-span-2 flex flex-row gap-4">
             <SubmitButton

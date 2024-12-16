@@ -49,9 +49,7 @@ const AuthoritiesSelect = ({
       control={form.control}
       name="authorities"
       render={({ field }) => {
-        // Transform field.value (array of AuthorityDTO) to match MultiSelect's defaultValue (array of options)
-        const defaultValues =
-          field.value?.map((auth: AuthorityDTO) => auth.name) ?? [];
+        const defaultValues = field.value ?? [];
 
         return (
           <FormItem className="space-y-0">

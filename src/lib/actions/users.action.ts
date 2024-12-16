@@ -1,6 +1,13 @@
 import { unstable_noStore as noStore } from "next/dist/server/web/spec-extension/unstable-no-store";
 
-import { doAdvanceSearch, get, post, put } from "@/lib/actions/commons.action";
+import {
+  deleteExec,
+  doAdvanceSearch,
+  get,
+  post,
+  put,
+  SecurityMode,
+} from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
 import { Pagination, QueryDTO } from "@/types/query";
 import { UserDTO } from "@/types/users";
@@ -33,21 +40,39 @@ export const createUser = async (user: UserDTO) => {
     formData.append("userDTO", userJsonBlob);
     return put<FormData, UserDTO>(`${BACKEND_API}/api/users`, formData);
   } else {
-    return post<UserDTO, UserDTO>(`${BACKEND_API}/api/admin/users`, user);
+    return post<UserDTO, UserDTO>(`${BACKEND_API}/api/users`, user);
   }
+};
+
+export const deleteUser = async (userId: number) => {
+  return deleteExec(`${BACKEND_API}/api/users/${userId}`);
+};
+
+export const resendActivationEmail = async (email: string) => {
+  return get(`${BACKEND_API}/api/${email}/resend-activation-email`);
 };
 
 export const passwordReset = async (key: string, password: string) => {
   await post(
     `${BACKEND_API}/api/account/reset-password/finish`,
     { key: key, newPassword: password },
-    false,
+    SecurityMode.NOT_SECURE,
   );
 };
 
 export const forgotPassword = async (email: string) => {
   await get(
     `${BACKEND_API}/api/account/reset-password/init?email=${email}`,
-    false,
+    SecurityMode.NOT_SECURE,
   );
+};
+
+export const changePassword = async (
+  currentPassword: string,
+  newPassword: string,
+) => {
+  await post(`${BACKEND_API}/api/account/change-password`, {
+    currentPassword: currentPassword,
+    newPassword: newPassword,
+  });
 };

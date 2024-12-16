@@ -5,14 +5,18 @@ import {
   doAdvanceSearch,
   get,
   post,
+  SecurityMode,
 } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
 import { Pagination, QueryDTO } from "@/types/query";
 import { TeamDTO, TransitionItemCollectionDTO } from "@/types/teams";
 import { UserDTO, UserWithTeamRoleDTO } from "@/types/users";
 
-export const findTeamById = async (teamId: number, isClient = true) => {
-  return get<TeamDTO>(`${BACKEND_API}/api/teams/${teamId}`, isClient);
+export const findTeamById = async (
+  teamId: number,
+  securityMode: SecurityMode = SecurityMode.CLIENT_SECURE,
+) => {
+  return get<TeamDTO>(`${BACKEND_API}/api/teams/${teamId}`, securityMode);
 };
 
 export async function searchTeams(query: QueryDTO, pagination: Pagination) {

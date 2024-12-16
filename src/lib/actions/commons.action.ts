@@ -19,20 +19,18 @@ export const fetchData = async <TData, TResponse>(
   const headers: Record<string, string> = {
     Accept: "application/json",
   };
-
+  const token = getToken ? await getToken() : undefined;
   if (getToken) {
     const token = await getToken();
     if (token) {
       headers.Authorization = `Bearer ${token}`;
     }
   }
-
   // Prepare the body and headers based on data type
   const options: RequestInit = {
     method,
     headers,
   };
-
   if (data instanceof FormData) {
     options.body = data;
     // Do not set Content-Type header; fetch automatically handles it for FormData
@@ -69,36 +67,36 @@ export const getServerToken = async (): Promise<string | undefined> => {
 
 export const get = async <TResponse>(
   url: string,
-  isClient: boolean = true,
+  securityMode: SecurityMode = SecurityMode.CLIENT_SECURE,
 ): Promise<TResponse> => {
-  const tokenProvider = isClient ? getClientToken : getServerToken;
+  const tokenProvider = determineTokenProvider(securityMode);
   return fetchData(url, "GET", undefined, tokenProvider);
 };
 
 export const post = async <TData, TResponse>(
   url: string,
   data?: TData,
-  isClient: boolean = true,
+  securityMode: SecurityMode = SecurityMode.CLIENT_SECURE,
 ): Promise<TResponse> => {
-  const tokenProvider = isClient ? getClientToken : getServerToken;
+  const tokenProvider = determineTokenProvider(securityMode);
   return fetchData(url, "POST", data, tokenProvider);
 };
 
 export const put = async <TData, TResponse>(
   url: string,
   data?: TData,
-  isClient: boolean = true,
+  securityMode: SecurityMode = SecurityMode.CLIENT_SECURE,
 ): Promise<TResponse> => {
-  const tokenProvider = isClient ? getClientToken : getServerToken;
+  const tokenProvider = determineTokenProvider(securityMode);
   return fetchData(url, "PUT", data, tokenProvider);
 };
 
 export const deleteExec = async <TData, TResponse>(
   url: string,
   data?: TData,
-  isClient: boolean = true,
+  securityMode: SecurityMode = SecurityMode.CLIENT_SECURE,
 ): Promise<TResponse> => {
-  const tokenProvider = isClient ? getClientToken : getServerToken;
+  const tokenProvider = determineTokenProvider(securityMode);
   return fetchData(url, "DELETE", data, tokenProvider);
 };
 
@@ -106,6 +104,21 @@ export const deleteExec = async <TData, TResponse>(
 const defaultPagination: Pagination = {
   page: 1,
   size: 10,
+};
+
+const determineTokenProvider = (
+  securityMode: SecurityMode,
+): (() => Promise<string | undefined>) | undefined => {
+  switch (securityMode) {
+    case SecurityMode.CLIENT_SECURE:
+      return getClientToken;
+    case SecurityMode.SERVER_SECURE:
+      return getServerToken;
+    case SecurityMode.NOT_SECURE:
+      return undefined;
+    default:
+      throw new Error(`Unhandled SecurityMode: ${securityMode}`);
+  }
 };
 
 // Function to send a dynamic search query with pagination and URL
@@ -136,6 +149,7 @@ export const doAdvanceSearch = async <R>(
   const queryParams = createQueryParams(pagination);
 
   const tokenProvider = isClient ? getClientToken : getServerToken;
+
   return fetchData<QueryDTO, PageableResult<R>>(
     `${url}?${queryParams.toString()}`,
     "POST",
@@ -143,3 +157,9 @@ export const doAdvanceSearch = async <R>(
     tokenProvider,
   );
 };
+
+export enum SecurityMode {
+  NOT_SECURE = "NOT_SECURE",
+  CLIENT_SECURE = "CLIENT_SECURE",
+  SERVER_SECURE = "SERVER_SECURE",
+}

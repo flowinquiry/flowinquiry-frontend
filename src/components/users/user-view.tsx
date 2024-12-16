@@ -81,7 +81,16 @@ export const UserView = ({ userId }: { userId: number }) => {
         {/* Left Panel */}
         <Card className="w-full md:w-[18rem]">
           <CardHeader className="flex flex-col items-center">
-            <UserAvatar imageUrl={user.imageUrl} size="w-32 h-32" />
+            <div className="relative w-32 h-32">
+              <UserAvatar imageUrl={user.imageUrl} size="w-32 h-32" />
+              {(user.status !== "ACTIVE" || user.isDeleted) && (
+                <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
+                  <span className="text-white text-xs font-bold">
+                    Not Activated
+                  </span>
+                </div>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="text-sm space-y-2">
             <div>

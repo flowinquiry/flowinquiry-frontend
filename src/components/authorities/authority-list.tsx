@@ -69,7 +69,6 @@ export function AuthoritiesView() {
 
   async function confirmDeleteAuthority() {
     if (selectedAuthority) {
-      console.log(`Delete ${JSON.stringify(selectedAuthority)}`);
       await deleteAuthority(selectedAuthority.name);
       setSelectedAuthority(null);
       fetchAuthorities();

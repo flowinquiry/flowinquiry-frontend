@@ -1,7 +1,5 @@
 import { z } from "zod";
 
-import { AuthorityDTOSchema } from "@/types/authorities";
-
 export const UserDTOSchema = z.object({
   id: z.number().nullish(),
   email: z.string().email(),
@@ -11,6 +9,9 @@ export const UserDTOSchema = z.object({
   timezone: z.string().nullish(),
   lastLoginTime: z.string().nullish(),
   activated: z.boolean().optional(),
+  status: z.enum(["ACTIVE", "PENDING"]).optional(),
+  isDeleted: z.boolean().optional(),
+  authorities: z.array(z.string()).optional(),
   imageUrl: z.string().nullish(),
   about: z.string().nullish(),
   address: z.string().nullish(),
@@ -20,15 +21,6 @@ export const UserDTOSchema = z.object({
   managerId: z.number().nullish(),
   managerImageUrl: z.string().nullish(),
   managerName: z.string().nullish(),
-  authorities: z
-    .array(z.union([AuthorityDTOSchema, z.string()]))
-    .transform((authorities) =>
-      authorities.map((auth) =>
-        typeof auth === "string"
-          ? { name: auth, descriptiveName: auth, systemRole: false }
-          : auth,
-      ),
-    ),
 });
 
 export type UserDTO = z.infer<typeof UserDTOSchema>;
