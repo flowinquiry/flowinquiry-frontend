@@ -32,7 +32,7 @@ jobs:
           key: ${{ runner.os }}-nextjs-${{ hashFiles('**/pnpm-lock.yaml') }}-${{ hashFiles('**/*.js', '**/*.jsx', '**/*.ts', '**/*.tsx') }}
           # If source files changed but packages didn't, rebuild from a prior cache.
           restore-keys: |
-            ${{ runner.os }}-flexwork-${{ hashFiles('**/pnpm-lock.yaml') }}-
+            ${{ runner.os }}-flowinquiry-${{ hashFiles('**/pnpm-lock.yaml') }}-
       - name: Setup pnpm package manager
         id: pnpm-package-manager
         run: |

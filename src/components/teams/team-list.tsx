@@ -202,7 +202,7 @@ export const TeamList = () => {
                                 ? `/api/files/${team.logoUrl}`
                                 : undefined
                             }
-                            alt="@flexwork"
+                            alt="@flowinquiry"
                           />
                           <AvatarFallback>
                             <DefaultTeamLogo />

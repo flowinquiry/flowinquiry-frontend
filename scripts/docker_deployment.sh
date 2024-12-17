@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # Default values
-IMAGE_NAME="flexwork-frontend"
-REMOTE_REPO="theflexwork/${IMAGE_NAME}"
+IMAGE_NAME="flowinquiry-frontend"
+REMOTE_REPO="flowinquiry/${IMAGE_NAME}"
 TAG="latest"
 
 # Parse arguments for custom tag

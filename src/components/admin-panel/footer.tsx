@@ -7,12 +7,12 @@ export function Footer() {
         <p className="text-xs md:text-sm leading-loose text-muted-foreground text-left">
           © {new Date().getFullYear()}{" "}
           <Link
-            href="https://theflexwork.io"
+            href="https://flowinquiry.io"
             target="_blank"
             rel="noopener noreferrer"
             className="font-medium underline underline-offset-4"
           >
-            TheFlexWork
+            FlowInquiry
           </Link>
           . All rights reserved.
         </p>

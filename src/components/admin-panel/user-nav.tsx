@@ -109,9 +109,9 @@ export function UserNav() {
       </DropdownMenu>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Flexwork</DialogTitle>
+          <DialogTitle>FlowInquiry</DialogTitle>
           <DialogDescription>
-            Flexwork, the powerful requests management for teams
+            FlowInquiry, the powerful requests management for teams
           </DialogDescription>
         </DialogHeader>
       </DialogContent>

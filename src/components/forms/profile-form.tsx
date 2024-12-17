@@ -157,7 +157,7 @@ export const ProfileForm = () => {
                       ? `/api/files/${session?.user?.imageUrl}`
                       : ""
                   }
-                  alt="@flexwork"
+                  alt="@flowinquiry"
                   className="object-cover"
                 />
                 <AvatarFallback>

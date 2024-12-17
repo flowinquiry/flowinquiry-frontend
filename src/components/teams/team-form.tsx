@@ -195,7 +195,7 @@ export const TeamForm = ({ teamId }: { teamId: number | undefined }) => {
                       src={
                         team?.logoUrl ? `/api/files/${team.logoUrl}` : undefined
                       }
-                      alt="@flexwork"
+                      alt="@flowinquiry"
                     />
                     <AvatarFallback>
                       <DefaultTeamLogo />

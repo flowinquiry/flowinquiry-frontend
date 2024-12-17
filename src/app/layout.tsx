@@ -12,8 +12,8 @@ import { ThemeProvider } from "@/providers/theme-provider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Flexwork",
-  description: "Flexwork dashboard",
+  title: "FlowInquiry",
+  description: "FlowInquiry dashboard",
 };
 
 const RootLayout = async ({

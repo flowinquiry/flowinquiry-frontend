@@ -24,7 +24,7 @@ echo "Creating an empty $output_file..."
 
 # Prompt user for backend server URL (with optional port)
 while true; do
-    read -p "Enter the Flexwork back-end server URL address (e.g., http://localhost or http://localhost:8080). This is the server hosting the Flexwork back-end services: " backend_server
+    read -p "Enter the FlowInquiry back-end server URL address (e.g., http://localhost or http://localhost:8080). This is the server hosting the FlowInquiry back-end services: " backend_server
     if [[ $backend_server =~ ^http(s)?://[a-zA-Z0-9.-]+(:[0-9]{1,5})?$ ]]; then
         break
     else

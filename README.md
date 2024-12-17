@@ -1,10 +1,10 @@
-# Flexwork Client
+# FlowInquiry Client
 
-[![Build status](https://github.com/theflexwork/flexwork-frontend/actions/workflows/node.js.yml/badge.svg)](https://github.com/theflexwork/flexwork-frontend/actions/workflows/node.js.yml)
+[![Build status](https://github.com/flowinquiry/flowinquiry-frontend/actions/workflows/node.js.yml/badge.svg)](https://github.com/flowinquiry/flowinquiry-frontend/actions/workflows/node.js.yml)
 
 ## Overview
 
-Flexwork Client is the front-end application for the Flexwork platform, designed to provide an intuitive and user-friendly interface for managing workflows, team collaboration, and requests. Built with Next.js, it offers a seamless experience across devices, leveraging modern web technologies for performance and accessibility.
+FlowInquiry Client is the front-end application for the FlowInquiry platform, designed to provide an intuitive and user-friendly interface for managing workflows, team collaboration, and requests. Built with Next.js, it offers a seamless experience across devices, leveraging modern web technologies for performance and accessibility.
 
 ## Key Features
 
@@ -14,7 +14,7 @@ Flexwork Client is the front-end application for the Flexwork platform, designed
 
 3. Optimized Performance: Built with Next.js for server-side rendering (SSR) and static site generation (SSG), ensuring fast load times and a smooth user experience.
 
-4. Integration with Flexwork Server: Communicates with the back-end via REST APIs for real-time data synchronization and updates.
+4. Integration with FlowInquiry Server: Communicates with the back-end via REST APIs for real-time data synchronization and updates.
 
 ## Getting Started
 
@@ -28,8 +28,8 @@ Flexwork Client is the front-end application for the Flexwork platform, designed
 1. Clone the repository:
 
 ```bash
-git clone git@github.com:theflexwork/flexwork-frontend.git
-cd flexwork-frontend
+git clone git@github.com:flowinquiry/flowinquiry-frontend.git
+cd flowinquiry-frontend
 ```
 
 2. Install dependencies
@@ -63,14 +63,14 @@ pnpm dev
 
 ## Related Information
 
-- [Flexwork document](https://theflexwork.github.io/flexwork-docs): The centralized document for Flexwork products
-- [Flexwork Server](https://github.com/theflexwork/flexwork-server): Back-end services for Flexwork.
-- [Flexwork Client](https://github.com/theflexwork/flexwork-frontend): Front-end application.
-- [Flexwork Ops](https://github.com/theflexwork/flexwork-ops): Deployment and operational scripts.
+- [FlowInquiry document](https://theflowinquiry.github.io/flowinquiry-docs): The centralized document for FlowInquiry products
+- [FlowInquiry Server](https://github.com/flowinquiry/flowinquiry-server): Back-end services for FlowInquiry.
+- [FlowInquiry Client](https://github.com/flowinquiry/flowinquiry-frontend): Front-end application.
+- [FlowInquiry Ops](https://github.com/flowinquiry/flowinquiry-ops): Deployment and operational scripts.
 
 ## Discussions
 
-For any inquiries about the project, including questions, proposals, or suggestions, please start a new discussion in the [Discussions](https://github.com/theflexwork/flexwork-frontend/discussions) section. This is the best place to engage with the community and the Flexwork team
+For any inquiries about the project, including questions, proposals, or suggestions, please start a new discussion in the [Discussions](https://github.com/flowinquiry/flowinquiry-frontend/discussions) section. This is the best place to engage with the community and the FlowInquiry team
 
 ## License
 

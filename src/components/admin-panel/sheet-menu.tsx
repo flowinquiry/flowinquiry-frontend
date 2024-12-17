@@ -29,7 +29,7 @@ export function SheetMenu() {
           >
             <Link href="/dashboard" className="flex items-center gap-2">
               <AppLogo className="w-6 h-6 mr-1" />
-              <SheetTitle className="font-bold text-lg">Flexwork</SheetTitle>
+              <SheetTitle className="font-bold text-lg">FlowInquiry</SheetTitle>
             </Link>
           </Button>
         </SheetHeader>
