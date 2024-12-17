@@ -62,12 +62,10 @@ const extensions = [
 const RichTextEditor = ({
   value,
   onChange,
-  onUpdate,
   disabled = false,
 }: {
   value: string | null;
   onChange: (value: string) => void;
-  onUpdate: (value: string) => void;
   disabled?: boolean;
 }) => {
   console.log(`Value ${value}`);
@@ -76,7 +74,7 @@ const RichTextEditor = ({
     content: value, // Set initial content
     onUpdate: ({ editor }) => {
       // Call onChange when content updates
-      onUpdate(editor.getHTML());
+      onChange(editor.getHTML());
     },
     immediatelyRender: false,
   });

@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import { toast } from "sonner";
 
 import { Icons } from "@/components/icons";
 import { Button } from "@/components/ui/button";
@@ -24,6 +23,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { useMediaQuery } from "@/hooks/use-media-query";
+import { useToast } from "@/hooks/use-toast";
 
 export interface EntitiesDeleteDialogProps<TEntity extends Record<string, any>>
   extends React.ComponentPropsWithoutRef<typeof Dialog> {
@@ -45,6 +45,7 @@ export function EntitiesDeleteDialog<TEntity extends Record<string, any>>({
   entityName,
   ...props
 }: EntitiesDeleteDialogProps<TEntity>) {
+  const { toast } = useToast();
   const [isDeletePending, startDeleteTransition] = React.useTransition();
   const isDesktop = useMediaQuery("(min-width: 640px)");
 
@@ -63,15 +64,16 @@ export function EntitiesDeleteDialog<TEntity extends Record<string, any>>({
         try {
           await deleteEntitiesFn(ids);
         } catch (error) {
-          toast.error(
-            `Cannot delete ${entityName}${entities.length > 1 ? "s" : ""}`,
-          );
+          toast({
+            variant: "destructive",
+            description: `Cannot delete ${entityName}${entities.length > 1 ? "s" : ""}`,
+          });
           return;
         }
 
-        toast.success(
-          `${entityName}${entities.length > 1 ? "s are" : " is"} deleted`,
-        );
+        toast({
+          description: `${entityName}${entities.length > 1 ? "s are" : " is"} deleted`,
+        });
         onSuccess?.();
         onOpenChange?.(false);
       })();

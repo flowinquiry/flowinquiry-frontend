@@ -1,6 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
@@ -33,6 +34,7 @@ import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import DefaultUserLogo from "@/components/users/user-logo";
 import { useImageCropper } from "@/hooks/use-image-cropper";
+import { useToast } from "@/hooks/use-toast";
 import { put } from "@/lib/actions/commons.action";
 import { changePassword, findUserById } from "@/lib/actions/users.action";
 import { BACKEND_API } from "@/lib/constants";
@@ -54,6 +56,7 @@ type UserTypeWithFile = z.infer<typeof userSchemaWithFile>;
 export const ProfileForm = () => {
   const router = useRouter();
   const { data: session } = useSession();
+  const { toast } = useToast();
 
   const {
     selectedFile,
@@ -85,19 +88,25 @@ export const ProfileForm = () => {
     }
 
     await put(`${BACKEND_API}/api/users`, formData);
-    // Profile form submission should not redirect.
+    toast({ description: "Save profile successfully" });
   };
 
   const handleChangePassword = async (data: z.infer<typeof passwordSchema>) => {
-    await changePassword(data.currentPassword, data.newPassword);
-    setPasswordDialogOpen(false);
-    setConfirmationOpen(true);
+    try {
+      await changePassword(data.currentPassword, data.newPassword);
+      setPasswordDialogOpen(false);
+      setConfirmationOpen(true);
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        description: "Can not change the password",
+      });
+    }
   };
 
   useEffect(() => {
     async function loadUserInfo() {
       const userData = await findUserById(Number(session?.user?.id));
-      console.log(`User data ${JSON.stringify(userData)}`);
       setUser({ ...userData, file: undefined });
 
       if (userData) {
@@ -128,7 +137,7 @@ export const ProfileForm = () => {
           onSubmit={form.handleSubmit(handleSubmit)}
           className="flex flex-row gap-4"
         >
-          <div>
+          <div className="flex flex-col items-center space-y-2">
             {selectedFile ? (
               <ImageCropper
                 dialogOpen={isDialogOpen}
@@ -143,8 +152,13 @@ export const ProfileForm = () => {
               >
                 <input {...getInputProps()} />
                 <AvatarImage
-                  src={session?.user?.imageUrl ?? ""}
+                  src={
+                    session?.user?.imageUrl
+                      ? `/api/files/${session?.user?.imageUrl}`
+                      : ""
+                  }
                   alt="@flexwork"
+                  className="object-cover"
                 />
                 <AvatarFallback>
                   <DefaultUserLogo />
@@ -169,6 +183,7 @@ export const ProfileForm = () => {
                     onSubmit={passwordForm.handleSubmit(handleChangePassword)}
                     className="grid grid-cols-1 gap-4"
                   >
+                    {/* Current Password Field */}
                     <FormField
                       control={passwordForm.control}
                       name="currentPassword"
@@ -186,10 +201,9 @@ export const ProfileForm = () => {
                                 }
                                 placeholder="Enter current password"
                               />
-                              <Button
+                              <button
                                 type="button"
-                                variant="ghost"
-                                className="absolute right-2 top-1/2 -translate-y-1/2"
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
                                 onClick={() =>
                                   setShowPasswords((prev) => ({
                                     ...prev,
@@ -197,16 +211,20 @@ export const ProfileForm = () => {
                                   }))
                                 }
                               >
-                                {showPasswords.currentPassword
-                                  ? "Hide"
-                                  : "Show"}
-                              </Button>
+                                {showPasswords.currentPassword ? (
+                                  <EyeOff size={20} />
+                                ) : (
+                                  <Eye size={20} />
+                                )}
+                              </button>
                             </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+
+                    {/* New Password Field */}
                     <FormField
                       control={passwordForm.control}
                       name="newPassword"
@@ -224,10 +242,9 @@ export const ProfileForm = () => {
                                 }
                                 placeholder="Enter new password"
                               />
-                              <Button
+                              <button
                                 type="button"
-                                variant="ghost"
-                                className="absolute right-2 top-1/2 -translate-y-1/2"
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500"
                                 onClick={() =>
                                   setShowPasswords((prev) => ({
                                     ...prev,
@@ -235,14 +252,20 @@ export const ProfileForm = () => {
                                   }))
                                 }
                               >
-                                {showPasswords.newPassword ? "Hide" : "Show"}
-                              </Button>
+                                {showPasswords.newPassword ? (
+                                  <EyeOff size={20} />
+                                ) : (
+                                  <Eye size={20} />
+                                )}
+                              </button>
                             </div>
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+
+                    {/* Submit and Cancel Buttons */}
                     <div className="flex flex-row gap-4">
                       <Button type="submit">Save</Button>
                       <Button
@@ -258,6 +281,7 @@ export const ProfileForm = () => {
               </DialogContent>
             </Dialog>
           </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <FormField
               control={form.control}
