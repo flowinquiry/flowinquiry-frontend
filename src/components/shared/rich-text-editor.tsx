@@ -3,6 +3,7 @@
 import Link from "@tiptap/extension-link";
 import { EditorContent, type Extension, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
+import { useEffect } from "react";
 
 import { BlockquoteToolbar } from "@/components/toolbars/blockquote";
 import { BoldToolbar } from "@/components/toolbars/bold";
@@ -54,8 +55,8 @@ const extensions = [
     },
   }),
   Link.configure({
-    openOnClick: true, // Optional: Opens links on click
-    linkOnPaste: true, // Optional: Automatically convert links on paste
+    openOnClick: true,
+    linkOnPaste: true,
   }),
 ];
 
@@ -68,16 +69,21 @@ const RichTextEditor = ({
   onChange: (value: string) => void;
   disabled?: boolean;
 }) => {
-  console.log(`Value ${value}`);
   const editor = useEditor({
     extensions: extensions as Extension[],
-    content: value, // Set initial content
+    content: value || "", // Set initial content
     onUpdate: ({ editor }) => {
-      // Call onChange when content updates
-      onChange(editor.getHTML());
+      onChange(editor.getHTML()); // Update parent form value
     },
-    immediatelyRender: false,
+    immediatelyRender: false, // Prevent SSR rendering
   });
+
+  // Synchronize the editor's content with the `value` prop
+  useEffect(() => {
+    if (editor && editor.getHTML() !== value) {
+      editor.commands.setContent(value || ""); // Update editor content
+    }
+  }, [value, editor]);
 
   if (!editor) {
     return null;
