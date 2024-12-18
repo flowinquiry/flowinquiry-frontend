@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronDown, ChevronRight } from "lucide-react";
 import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import {
@@ -34,6 +35,7 @@ const TeamUnresolvedTicketsPriorityDistributionChart = () => {
     Record<string, Record<TeamRequestPriority, number>>
   >({});
   const [loading, setLoading] = useState(true);
+  const [collapsed, setCollapsed] = useState(false); // State for collapsible content
 
   useEffect(() => {
     const fetchData = async () => {
@@ -71,48 +73,65 @@ const TeamUnresolvedTicketsPriorityDistributionChart = () => {
 
   return (
     <Card>
+      {/* Header with Chevron Icon and Title */}
       <CardHeader>
-        <CardTitle>Unresolved Tickets by Team</CardTitle>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setCollapsed(!collapsed)}
+            className="flex items-center p-0"
+          >
+            {collapsed ? (
+              <ChevronRight className="w-5 h-5" />
+            ) : (
+              <ChevronDown className="w-5 h-5" />
+            )}
+          </button>
+          <CardTitle>Unresolved Tickets by Team</CardTitle>
+        </div>
       </CardHeader>
-      <CardContent>
-        <ResponsiveContainer width="100%" height={400}>
-          {loading ? (
-            <div className="flex justify-center items-center">
-              <Spinner />
-            </div>
-          ) : chartData.length === 0 ? (
-            <div className="flex justify-center items-center">
-              <p className="text-gray-500">No data available to display.</p>
-            </div>
-          ) : (
-            <BarChart
-              layout="vertical"
-              data={chartData}
-              margin={{
-                top: 20,
-                right: 30,
-                left: 150,
-                bottom: 20,
-              }}
-              barSize={40}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis type="number" />
-              <YAxis type="category" dataKey="teamName" />
-              <Tooltip />
-              <Legend />
-              {Object.keys(PRIORITY_COLORS).map((priority) => (
-                <Bar
-                  key={`bar-${priority}`}
-                  dataKey={priority}
-                  stackId="a"
-                  fill={PRIORITY_COLORS[priority as TeamRequestPriority]}
-                />
-              ))}
-            </BarChart>
-          )}
-        </ResponsiveContainer>
-      </CardContent>
+
+      {/* Collapsible Content */}
+      {!collapsed && (
+        <CardContent>
+          <ResponsiveContainer width="100%" height={400}>
+            {loading ? (
+              <div className="flex justify-center items-center">
+                <Spinner />
+              </div>
+            ) : chartData.length === 0 ? (
+              <div className="flex justify-center items-center">
+                <p className="text-gray-500">No data available to display.</p>
+              </div>
+            ) : (
+              <BarChart
+                layout="vertical"
+                data={chartData}
+                margin={{
+                  top: 20,
+                  right: 30,
+                  left: 150,
+                  bottom: 20,
+                }}
+                barSize={40}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis type="number" />
+                <YAxis type="category" dataKey="teamName" />
+                <Tooltip />
+                <Legend />
+                {Object.keys(PRIORITY_COLORS).map((priority) => (
+                  <Bar
+                    key={`bar-${priority}`}
+                    dataKey={priority}
+                    stackId="a"
+                    fill={PRIORITY_COLORS[priority as TeamRequestPriority]}
+                  />
+                ))}
+              </BarChart>
+            )}
+          </ResponsiveContainer>
+        </CardContent>
+      )}
     </Card>
   );
 };

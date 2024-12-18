@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronDown, ChevronRight } from "lucide-react"; // Icon for toggle arrow
 import React, { useEffect, useState } from "react";
 
 import PaginationExt from "@/components/shared/pagination-ext";
@@ -19,6 +20,7 @@ const RecentTeamActivities = ({ teamId }: { teamId: number }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
+  const [collapsed, setCollapsed] = useState(false); // State to toggle collapse
 
   useEffect(() => {
     async function fetchActivityLogs() {
@@ -35,63 +37,76 @@ const RecentTeamActivities = ({ teamId }: { teamId: number }) => {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Recent Activities</CardTitle>
+      <CardHeader
+        className="cursor-pointer"
+        onClick={() => setCollapsed((prev) => !prev)}
+      >
+        <div className="flex items-center space-x-2">
+          {collapsed ? (
+            <ChevronRight className="w-5 h-5" />
+          ) : (
+            <ChevronDown className="w-5 h-5" />
+          )}
+          <CardTitle>Recent Activities</CardTitle>
+        </div>
       </CardHeader>
-      <CardContent>
-        {loading ? (
-          <div className="flex justify-center items-center h-[150px]">
-            <Spinner className="h-8 w-8">
-              <span>Loading data ...</span>
-            </Spinner>
-          </div>
-        ) : activityLogs && activityLogs.length > 0 ? (
-          <div className="space-y-2">
-            {activityLogs.map((activityLog, index) => (
-              <div
-                key={activityLog.id}
-                className={`py-4 px-4 rounded-md ${
-                  index % 2 === 0
-                    ? "bg-gray-50 dark:bg-gray-800"
-                    : "bg-white dark:bg-gray-900"
-                }`}
-              >
+
+      {!collapsed && (
+        <CardContent>
+          {loading ? (
+            <div className="flex justify-center items-center h-[150px]">
+              <Spinner className="h-8 w-8">
+                <span>Loading data ...</span>
+              </Spinner>
+            </div>
+          ) : activityLogs && activityLogs.length > 0 ? (
+            <div className="space-y-2">
+              {activityLogs.map((activityLog, index) => (
                 <div
-                  className="prose max-w-none dark:prose-invert"
-                  dangerouslySetInnerHTML={{
-                    __html: activityLog.content!,
-                  }}
-                />
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                  Modified at:{" "}
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <span className="cursor-pointer">
-                        {formatDateTimeDistanceToNow(
-                          new Date(activityLog.createdAt),
-                        )}
-                      </span>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      {new Date(activityLog.createdAt).toLocaleString()}{" "}
-                    </TooltipContent>
-                  </Tooltip>
-                </p>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            No activity logs available
-          </p>
-        )}
-        <PaginationExt
-          currentPage={currentPage}
-          totalPages={totalPages}
-          onPageChange={(page) => setCurrentPage(page)}
-          className="pt-2"
-        />
-      </CardContent>
+                  key={activityLog.id}
+                  className={`py-4 px-4 rounded-md ${
+                    index % 2 === 0
+                      ? "bg-gray-50 dark:bg-gray-800"
+                      : "bg-white dark:bg-gray-900"
+                  }`}
+                >
+                  <div
+                    className="prose max-w-none dark:prose-invert"
+                    dangerouslySetInnerHTML={{
+                      __html: activityLog.content!,
+                    }}
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
+                    Modified at:{" "}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="cursor-pointer">
+                          {formatDateTimeDistanceToNow(
+                            new Date(activityLog.createdAt),
+                          )}
+                        </span>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        {new Date(activityLog.createdAt).toLocaleString()}{" "}
+                      </TooltipContent>
+                    </Tooltip>
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              No activity logs available
+            </p>
+          )}
+          <PaginationExt
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={(page) => setCurrentPage(page)}
+            className="pt-2"
+          />
+        </CardContent>
+      )}
     </Card>
   );
 };

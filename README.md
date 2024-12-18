@@ -63,7 +63,7 @@ pnpm dev
 
 ## Related Information
 
-- [FlowInquiry document](https://theflowinquiry.github.io/flowinquiry-docs): The centralized document for FlowInquiry products
+- [FlowInquiry document](https://docs.flowinquiry.io): The centralized document for FlowInquiry products
 - [FlowInquiry Server](https://github.com/flowinquiry/flowinquiry-server): Back-end services for FlowInquiry.
 - [FlowInquiry Client](https://github.com/flowinquiry/flowinquiry-frontend): Front-end application.
 - [FlowInquiry Ops](https://github.com/flowinquiry/flowinquiry-ops): Deployment and operational scripts.

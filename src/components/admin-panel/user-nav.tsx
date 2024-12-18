@@ -4,6 +4,7 @@ import { CircleUserRound, Info, LogOut } from "lucide-react";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 
+import AppLogo from "@/components/app-logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -108,11 +109,24 @@ export function UserNav() {
         </DropdownMenuContent>
       </DropdownMenu>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>FlowInquiry</DialogTitle>
-          <DialogDescription>
-            FlowInquiry, the powerful requests management for teams
-          </DialogDescription>
+        <DialogHeader className="flex items-center space-x-4">
+          {/* Logo */}
+          <div>
+            <AppLogo />
+          </div>
+
+          {/* Title and Description */}
+          <div>
+            <DialogTitle className="text-2xl font-bold">
+              FlowInquiry
+            </DialogTitle>
+            <DialogDescription className="text-gray-600 dark:text-gray-400">
+              FlowInquiry is a powerful request management solution for teams.
+              It empowers organizations to track, manage, and customize customer
+              inquiries through flexible workflows, enhancing collaboration and
+              productivity.
+            </DialogDescription>
+          </div>
         </DialogHeader>
       </DialogContent>
     </Dialog>

@@ -25,7 +25,7 @@ export function Sidebar() {
         onMouseLeave={() => setIsHover(false)}
         className="relative h-full flex flex-col px-3 py-4 overflow-y-auto shadow-md dark:shadow-zinc-800"
       >
-        <div className="px-6 flex items-center">
+        <div className="px-6 flex items-center gap-2">
           <AppLogo className="w-10 h-10 mr-2" />
           <h1
             className={cn(
