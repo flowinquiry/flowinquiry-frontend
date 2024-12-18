@@ -76,9 +76,9 @@ const TeamRequestsStatusView = ({ requests }: TeamRequestsStatusViewProps) => {
                 </div>
               )}
 
-              <div className="relative flex gap-2">
+              <div className="flex items-start">
                 <span
-                  className="absolute top-0 inline-block px-2 py-1 text-xs font-semibold rounded-md"
+                  className="px-2 py-1 text-xs font-semibold rounded-md break-words max-w-[80px]"
                   style={{
                     backgroundColor: workflowColor.background,
                     color: workflowColor.text,
@@ -86,9 +86,11 @@ const TeamRequestsStatusView = ({ requests }: TeamRequestsStatusViewProps) => {
                 >
                   {request.workflowRequestName}
                 </span>
+
+                {/* Button Section */}
                 <Button
                   variant="link"
-                  className={`pl-16 text-xl text-left break-words whitespace-normal pb-4 ${
+                  className={`text-xl text-left break-words whitespace-normal pb-4 ${
                     request.isCompleted ? "line-through" : ""
                   }`}
                   onClick={() => openSheet(request)}
