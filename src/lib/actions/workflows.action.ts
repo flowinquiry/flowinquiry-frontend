@@ -1,4 +1,10 @@
-import { doAdvanceSearch, get, post, put } from "@/lib/actions/commons.action";
+import {
+  deleteExec,
+  doAdvanceSearch,
+  get,
+  post,
+  put,
+} from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
 import { Pagination, QueryDTO } from "@/types/query";
 import {
@@ -69,4 +75,19 @@ export const createWorkflowFromReference = async (
     `${BACKEND_API}/api/workflows/${referenceWorkflowId}/teams/${teamId}/create-workflow-reference`,
     workflowDto,
   );
+};
+
+export const createWorkflowFromCloning = async (
+  teamId: number,
+  cloneWorkflowId: number,
+  workflowDto: WorkflowDTO,
+) => {
+  return post<WorkflowDTO, WorkflowDetailDTO>(
+    `${BACKEND_API}/api/workflows/${cloneWorkflowId}/teams/${teamId}/create-workflow-clone`,
+    workflowDto,
+  );
+};
+
+export const deleteWorkflow = async (workflowId: number) => {
+  return deleteExec(`${BACKEND_API}/api/workflows/${workflowId}`);
 };

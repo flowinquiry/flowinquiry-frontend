@@ -5,8 +5,7 @@ import React, { useState } from "react";
 import { Heading } from "@/components/heading";
 import { TeamAvatar } from "@/components/shared/avatar-display";
 import TeamNavLayout from "@/components/teams/team-nav";
-import NewTeamWorkflowClone from "@/components/teams/team-workflow-new-clone";
-import NewTeamWorkflowReference from "@/components/teams/team-workflow-new-reference";
+import NewTeamWorkflowReferFromSharedOne from "@/components/teams/team-workflow-new-refer-shared-workflow";
 import NewTeamWorkflowFromScratch from "@/components/teams/team-workflow-new-scratch";
 import { Button } from "@/components/ui/button";
 import {
@@ -42,10 +41,13 @@ const TeamWorkflowNew = () => {
     switch (selectedOption) {
       case "scratch":
         return <NewTeamWorkflowFromScratch />;
-      case "reference":
-        return <NewTeamWorkflowReference teamId={team.id!} />;
       case "clone":
-        return <NewTeamWorkflowClone />;
+        return (
+          <NewTeamWorkflowReferFromSharedOne
+            teamId={team.id!}
+            isRefer={false}
+          />
+        );
       default:
         return null;
     }

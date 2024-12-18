@@ -49,7 +49,7 @@ export function UserNav() {
                     <AvatarImage
                       src={
                         session?.user?.imageUrl
-                          ? `/api/files/${session.user.imageUrl}`
+                          ? `/api/files/${session?.user?.imageUrl}`
                           : undefined
                       }
                       alt="Avatar"
@@ -63,8 +63,8 @@ export function UserNav() {
               </DropdownMenuTrigger>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-              {session?.user?.firstName?.charAt(0).toUpperCase()}
-              {session?.user?.lastName?.charAt(0).toUpperCase()}
+              {session?.user?.firstName}
+              {session?.user?.lastName}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>

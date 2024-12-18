@@ -65,12 +65,12 @@ const TeamRequestsStatusView = ({ requests }: TeamRequestsStatusViewProps) => {
               key={request.id}
             >
               {/* Ribbon for Overdue or Close-to-Deadline */}
-              {isOverdue && (
+              {!request.isCompleted && isOverdue && (
                 <div className="absolute top-0 right-0 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-bl-md dark:bg-red-800">
                   Overdue
                 </div>
               )}
-              {isCloseToDeadline && !isOverdue && (
+              {!request.isCompleted && isCloseToDeadline && !isOverdue && (
                 <div className="absolute top-0 right-0 bg-yellow-500 text-black text-xs font-bold px-2 py-1 rounded-bl-md dark:bg-yellow-600 dark:text-black">
                   1 Day Left
                 </div>

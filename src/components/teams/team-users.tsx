@@ -77,7 +77,7 @@ const TeamUsersView = () => {
     fetchUsers();
   }, []);
 
-  async function removeUserOutTeam(user: UserWithTeamRoleDTO) {
+  const removeUserOutTeam = async (user: UserWithTeamRoleDTO) => {
     // Check if the user is the only Manager
     const isOnlyManager =
       user.teamRole === "Manager" &&
@@ -90,7 +90,7 @@ const TeamUsersView = () => {
 
     await deleteUserFromTeam(team.id!, user.id!);
     await fetchUsers();
-  }
+  };
 
   // Group users by role
   const groupedUsers = items.reduce<Record<string, UserWithTeamRoleDTO[]>>(

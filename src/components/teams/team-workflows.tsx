@@ -1,6 +1,6 @@
 "use client";
 
-import { Plus } from "lucide-react";
+import { Ellipsis, Plus, Trash } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
@@ -9,7 +9,10 @@ import { TeamAvatar } from "@/components/shared/avatar-display";
 import TeamNavLayout from "@/components/teams/team-nav";
 import { buttonVariants } from "@/components/ui/button";
 import { usePagePermission } from "@/hooks/use-page-permission";
-import { getWorkflowsByTeam } from "@/lib/actions/workflows.action";
+import {
+  deleteWorkflow,
+  getWorkflowsByTeam,
+} from "@/lib/actions/workflows.action";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
@@ -17,6 +20,19 @@ import { useTeam } from "@/providers/team-provider";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { PermissionUtils } from "@/types/resources";
 import { WorkflowDTO } from "@/types/workflows";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { UserWithTeamRoleDTO } from "@/types/users";
 
 const TeamWorkflowsView = () => {
   const team = useTeam();
@@ -53,6 +69,11 @@ const TeamWorkflowsView = () => {
     return `/portal/teams/${obfuscate(workflow.ownerId)}/workflows/${obfuscate(workflow.id)}`;
   };
 
+  const deleteWorkflowFromTeam = async (workflow: WorkflowDTO) => {
+    await deleteWorkflow(workflow.id!);
+    await fetchWorkflows();
+  };
+
   if (loading) return <div>Loading...</div>;
 
   return (
@@ -84,7 +105,7 @@ const TeamWorkflowsView = () => {
                 className="relative w-[28rem] grid grid-cols-1 gap-4 border px-4 py-4 rounded-2xl border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
               >
                 {workflow.ownerId === null && (
-                  <div className="absolute top-0 right-0 bg-blue-600 text-white text-xs font-semibold px-2 py-1 rounded-bl-lg">
+                  <div className="absolute bottom-0 right-0 bg-blue-600 text-white text-xs font-semibold px-2 py-1 rounded-bl-lg">
                     Global
                   </div>
                 )}
@@ -100,6 +121,34 @@ const TeamWorkflowsView = () => {
                 <div className="text-sm text-gray-700 dark:text-gray-300">
                   {workflow.description}
                 </div>
+                {(PermissionUtils.canWrite(permissionLevel) ||
+                  teamRole === "Manager") && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Ellipsis className="cursor-pointer absolute top-2 right-2 text-gray-400" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-[14rem]">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() => deleteWorkflowFromTeam(workflow)}
+                            >
+                              <Trash /> Delete workflow
+                            </DropdownMenuItem>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>
+                              This action will remove workflow {workflow.name}{" "}
+                              out of the team {team.name}
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
               </div>
             ))}
           </div>
