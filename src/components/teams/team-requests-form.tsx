@@ -86,7 +86,6 @@ export const TeamRequestForm = ({
 
   async function onSubmit(formValues: TeamRequestDTO) {
     if (validateForm(formValues, TeamRequestDTOSchema, form)) {
-      console.log(`Team request ${JSON.stringify(formValues)}`);
       await updateTeamRequest(formValues.id!, formValues);
       router.push(
         `/portal/teams/${obfuscate(formValues.teamId)}/requests/${obfuscate(
