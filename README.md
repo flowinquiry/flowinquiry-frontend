@@ -63,29 +63,45 @@ By tailoring workflows to these and other scenarios, FlowInquiry empowers teams 
   </tr>
 </table>
 
+## FlowInquiry Front-end
+
+### Technologies
+
+**Next.js:** Used as the primary framework to structure the application, managing routing and integrating client-side rendering powered by React.js. Next.js facilitates seamless communication with the FlowInquiry back-end via REST APIs, ensuring a smooth data exchange and interactive user experience.
+
+**TailwindCSS:** Used in combination with ShadCN and FlowInquiry's custom components to deliver flexible layouts and customizable themes.
+
+**ShadCN:** Serves as the foundation of the FlowInquiry UI, providing a consistent and accessible design system. All FlowInquiry components are built on top of ShadCN, ensuring a cohesive and extensible user interface across the application.
+
+**Recharts:** Used to visually represent data in the FlowInquiry. It supports various chart types, including pie charts, timelines, bar charts, and more, enabling dynamic and interactive data visualization for users.
+
+**@xyflow/react:** Utilized for visualizing and editing workflows within FlowInquiry. It provides a dynamic and interactive interface for designing and reviewing workflow structures, making workflow management intuitive and efficient.
+
+And Many More: FlowInquiry leverages various open-source components, including tools like Zod for schema validation and TipTap for rich text editing. We deeply value the contributions of the open-source community and list all the amazing libraries and tools we utilize on our tribute [page](https://docs.flowinquiry.io/about)
+
 ## Getting Started
 
 ### Prerequisites
 
-- Node.js 20+
-- pnpm
+- [Node.js](https://nodejs.org/en) 20+
+- [pnpm](https://pnpm.io/)
 
 ### Setup Instructions
 
-1. Clone the repository:
+**1. Clone the repository:**
 
 ```bash
 git clone git@github.com:flowinquiry/flowinquiry-frontend.git
 cd flowinquiry-frontend
 ```
 
-2. Install dependencies
+**2. Install dependencies**
 
 ```bash
 pnpm install
 ```
 
-3. Configure application parameters
+**3. Configure application parameters**
 
 Set up the application environment variables by running the following script:
 
@@ -99,14 +115,20 @@ This script generates environment variables, including NEXT_PUBLIC_BACKEND_API, 
 NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
 ```
 
-4. Start the development server
+We recommend running the `scripts/all.sh` script, as it streamlines the process by checking your environment settings and performing all necessary configurations, removing the need to execute multiple scripts manually.
+
+**4. Start the development server**
 
 ```bash
 pnpm dev
 ```
 
-5. Access the application:
+**5. Access the application:**
    Open your browser and navigate to http://localhost:3000.
+
+## Deploy FlowInquiry
+
+To ensure a smooth deployment process, we provide detailed guidelines for deploying FlowInquiry in various environments. These instructions cover setup steps, configuration details, and best practices for deploying the service effectively. You can find the deployment documentation [here](https://docs.flowinquiry.io/developer_guides/deployment)
 
 ## Related Information
 
