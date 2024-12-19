@@ -40,7 +40,7 @@ const TeamUserSelectField = ({
 }: ExtInputProps &
   UiAttributes & {
     teamId: number;
-    onUserSelect?: (user: UserWithTeamRoleDTO) => void;
+    onUserSelect?: (user: UserWithTeamRoleDTO | null) => void; // Allow null for unselect
   }) => {
   const [users, setUsers] = useState<UserWithTeamRoleDTO[]>([]);
 
@@ -92,6 +92,26 @@ const TeamUserSelectField = ({
                 <CommandList>
                   <CommandEmpty>No user found.</CommandEmpty>
                   <CommandGroup>
+                    {/* Option to unassign a user */}
+                    <CommandItem
+                      value="none"
+                      onSelect={() => {
+                        form.setValue(fieldName, null); // Reset the value
+                        if (onUserSelect) {
+                          onUserSelect(null);
+                        }
+                      }}
+                      className="gap-2 text-gray-500"
+                    >
+                      None (Unassign User)
+                      <Check
+                        className={cn(
+                          "ml-auto",
+                          !field.value ? "opacity-100" : "opacity-0",
+                        )}
+                      />
+                    </CommandItem>
+                    {/* Render user options */}
                     {users.map((user) => (
                       <CommandItem
                         value={user.firstName!}

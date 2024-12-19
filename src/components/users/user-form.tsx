@@ -7,12 +7,17 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import { Heading } from "@/components/heading";
+import { CountrySelectField } from "@/components/shared/countries-select";
 import TimezoneSelect from "@/components/shared/timezones-select";
+import UserSelectField from "@/components/shared/user-select";
 import { Button } from "@/components/ui/button";
-import { ExtInputField, SubmitButton } from "@/components/ui/ext-form";
+import {
+  ExtInputField,
+  ExtTextAreaField,
+  SubmitButton,
+} from "@/components/ui/ext-form";
 import { Form } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
-import AuthoritiesSelect from "@/components/users/authorities-select";
 import { createUser, findUserById } from "@/lib/actions/users.action";
 import { obfuscate } from "@/lib/endecode";
 import { UserDTO, UserDTOSchema } from "@/types/users";
@@ -86,7 +91,8 @@ export const UserForm = ({ userId }: { userId?: number }) => {
             label="Email"
             placeholder="Email"
           />
-          <AuthoritiesSelect form={form} required={true} label="Authority" />
+          <UserSelectField form={form} fieldName="managerId" label="Manager" />
+
           <ExtInputField
             form={form}
             required={true}
@@ -101,6 +107,12 @@ export const UserForm = ({ userId }: { userId?: number }) => {
             label="Last Name"
             placeholder="Last Name"
           />
+          <ExtTextAreaField
+            form={form}
+            fieldName="about"
+            label="About"
+            placeholder="About"
+          />
           <ExtInputField
             form={form}
             fieldName="title"
@@ -114,6 +126,25 @@ export const UserForm = ({ userId }: { userId?: number }) => {
             placeholder="Timezone"
             required={true}
           />
+          <ExtInputField
+            form={form}
+            fieldName="address"
+            label="Address"
+            placeholder="Address"
+          />
+          <ExtInputField
+            form={form}
+            fieldName="city"
+            label="City"
+            placeholder="City"
+          />
+          <ExtInputField
+            form={form}
+            fieldName="state"
+            label="State"
+            placeholder="State"
+          />
+          <CountrySelectField form={form} fieldName="country" label="Country" />
 
           <div className="md:col-span-2 flex flex-row gap-4">
             <SubmitButton

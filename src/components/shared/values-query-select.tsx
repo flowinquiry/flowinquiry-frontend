@@ -81,7 +81,7 @@ const ValuesQuerySelect = <T,>({
         control={form.control}
         name={fieldName}
         render={({ field }) => (
-          <FormItem className="w-[300px]">
+          <FormItem className="w-[20rem]">
             <FormLabel>
               {fieldLabel}
               {required && <span className="text-destructive"> *</span>}
@@ -112,7 +112,7 @@ const ValuesQuerySelect = <T,>({
                   </Button>
                 </FormControl>
               </PopoverTrigger>
-              <PopoverContent className="w-[400px] p-0">
+              <PopoverContent className="w-[20rem] p-0">
                 <Command>
                   <CommandInput placeholder={searchPlaceholder} />
                   <CommandList>

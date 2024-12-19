@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, ChevronsUpDown } from "lucide-react";
+import React from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,6 +26,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
+import { UiAttributes } from "@/types/ui-components";
 
 export const countries = [
   { label: "Afghanistan", value: "AF" },
@@ -220,14 +222,21 @@ export const countries = [
   { label: "Zimbabwe", value: "ZW" },
 ];
 
-export const CountrySelectField = ({ form, fieldName }: ExtInputProps) => {
+export const CountrySelectField = ({
+  form,
+  fieldName,
+  label,
+  required = false,
+}: ExtInputProps & UiAttributes) => {
   return (
     <FormField
       control={form.control}
       name={fieldName}
       render={({ field }) => (
-        <FormItem className="flex flex-col py-2">
-          <FormLabel>Country</FormLabel>
+        <FormItem className="flex flex-col py-2 w-[20rem]">
+          <FormLabel>
+            {label} {required && <span className="text-destructive"> *</span>}
+          </FormLabel>
           <Popover>
             <PopoverTrigger asChild>
               <FormControl>
