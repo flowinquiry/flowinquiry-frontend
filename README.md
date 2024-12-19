@@ -2,21 +2,29 @@
 
 [![Build status](https://github.com/flowinquiry/flowinquiry-frontend/actions/workflows/node.js.yml/badge.svg)](https://github.com/flowinquiry/flowinquiry-frontend/actions/workflows/node.js.yml)
 
-## Overview
+## What is FlowInquiry
 
-FlowInquiry Client is the front-end application for the FlowInquiry platform, designed to provide an intuitive and user-friendly interface for managing workflows, team collaboration, and requests. Built with Next.js, it offers a seamless experience across devices, leveraging modern web technologies for performance and accessibility.
+FlowInquiry is a service designed to streamline the management of cases, tickets, and requests for teams handling both internal and external inquiries. It bridges communication gaps across teams and ensures timely resolution of customer or interdepartmental requests. By enabling organizations to define custom workflows with tailored Service Level Agreements (SLAs) for each state, FlowInquiry ensures teams can meet deadlines and respond promptly to requests. This structured approach enhances accountability, efficiency, and satisfaction for all parties involved, fostering smoother collaboration and better outcomes.
 
-## Key Features
+### Problems FlowInquiry Solves with Specific Use Cases
 
-1. Customizable Workflows: Allows users to create, edit, and visualize workflows with ease.
+FlowInquiry addresses several challenges faced by organizations in managing cases, tickets, and team communication. Here are some specific use cases:
 
-2. Role-Based Access Control: Ensures secure and personalized access for users based on their roles.
+**On-Call System Management**
+In an on-call system, teams often face challenges in managing incoming requests or incidents, particularly when multiple shifts or team members are involved. FlowInquiry ensures that each request follows a well-defined workflow, with SLAs for escalation and resolution. This helps reduce response times, avoids missed escalations, and provides clear accountability for handling incidents.
 
-3. Optimized Performance: Built with Next.js for server-side rendering (SSR) and static site generation (SSG), ensuring fast load times and a smooth user experience.
+**Case Management in CRM Applications**
+CRM applications often struggle to manage customer cases effectively, especially when handling inquiries, complaints, or service requests. FlowInquiry enables teams to define custom workflows tailored to specific case types, such as refunds, escalations, or product inquiries. SLAs for each workflow stage ensure customers receive timely updates and resolutions, enhancing customer satisfaction and loyalty.
 
-4. Integration with FlowInquiry Server: Communicates with the back-end via REST APIs for real-time data synchronization and updates.
+**Team Communication and Collaboration**
+Effective communication within and across teams can be difficult in large organizations, especially when requests involve multiple departments or external stakeholders. FlowInquiry acts as a centralized platform where requests are logged, tracked, and routed through clearly defined workflows. This reduces miscommunication, prevents delays, and ensures all parties are aligned on priorities.
 
-## Screenshots
+**Service Request Tracking for IT Teams**
+IT teams managing internal service requests often encounter bottlenecks due to unclear processes or manual tracking. FlowInquiry allows IT departments to automate workflows for common requests such as software installation, access management, or issue resolution. The system ensures each request is assigned, processed, and resolved within agreed SLAs.
+
+By tailoring workflows to these and other scenarios, FlowInquiry empowers teams to streamline operations, meet deadlines, and deliver exceptional service to both internal and external stakeholders.
+
+### Screenshots
 
 <table>
   <tr>
