@@ -1,6 +1,7 @@
 "use client";
 
 import { Edit, Trash } from "lucide-react";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
@@ -17,7 +18,6 @@ import {
 } from "@/lib/actions/workflows.action";
 import { PermissionUtils } from "@/types/resources";
 import { WorkflowDetailDTO } from "@/types/workflows";
-import { useRouter } from "next/navigation";
 
 const GlobalWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
   const router = useRouter();
