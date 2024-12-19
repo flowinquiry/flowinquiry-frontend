@@ -22,7 +22,7 @@ export type WorkflowDTO = z.infer<typeof WorkflowDTOSchema>;
 
 export const WorkflowStateDTOSchema = z.object({
   id: z.number().optional(),
-  workflowId: z.number(),
+  workflowId: z.number().optional(),
   stateName: z.string(),
   isInitial: z.boolean(),
   isFinal: z.boolean(),
@@ -32,7 +32,7 @@ export type WorkflowStateDTO = z.infer<typeof WorkflowStateDTOSchema>;
 
 export const WorkflowTransitionSchema = z.object({
   id: z.number().optional(),
-  workflowId: z.number(),
+  workflowId: z.number().optional(),
   sourceStateId: z.number().nullish(),
   targetStateId: z.number().nullish(),
   eventName: z.string().min(1),

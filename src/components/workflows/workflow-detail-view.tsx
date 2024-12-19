@@ -1,6 +1,6 @@
 "use client";
 
-import { Edit } from "lucide-react";
+import { Edit, Trash } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
@@ -11,13 +11,17 @@ import { WorkflowDiagram } from "@/components/workflows/workflow-diagram-view";
 import WorkflowEditForm from "@/components/workflows/workflow-editor-form";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import {
+  deleteWorkflow,
   getWorkflowDetail,
   updateWorkflowDetail,
 } from "@/lib/actions/workflows.action";
 import { PermissionUtils } from "@/types/resources";
 import { WorkflowDetailDTO } from "@/types/workflows";
+import { useRouter } from "next/navigation";
 
 const GlobalWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
+  const router = useRouter();
+
   const permissionLevel = usePagePermission();
   const [workflowDetail, setWorkflowDetail] =
     useState<WorkflowDetailDTO | null>(null);
@@ -48,6 +52,11 @@ const GlobalWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
     });
   };
 
+  const removeWorkflow = async (workflow: WorkflowDetailDTO) => {
+    await deleteWorkflow(workflow.id!);
+    router.push("/portal/settings/workflows");
+  };
+
   if (!workflowDetail) {
     return <div>Error loading workflow detail.</div>;
   }
@@ -72,13 +81,21 @@ const GlobalWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
             description={workflowDetail.description ?? ""}
           />
         </div>
-        {PermissionUtils.canWrite(permissionLevel) && (
-          <div className="flex space-x-4">
+        <div className="flex items-center space-x-4">
+          {PermissionUtils.canWrite(permissionLevel) && (
             <Button onClick={() => setIsEditing(!isEditing)}>
               {isEditing ? "Cancel Edit" : <Edit />} Customize Workflow
             </Button>
-          </div>
-        )}
+          )}
+          {PermissionUtils.canAccess(permissionLevel) && (
+            <Button
+              variant="destructive"
+              onClick={() => removeWorkflow(workflowDetail)}
+            >
+              <Trash /> Delete
+            </Button>
+          )}
+        </div>
       </div>
 
       {/* Spinner When Loading */}

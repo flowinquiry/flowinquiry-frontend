@@ -1,12 +1,12 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ExtInputField } from "@/components/ui/ext-form";
+import { ExtInputField, ExtTextAreaField } from "@/components/ui/ext-form";
 import { Form } from "@/components/ui/form";
 import WorkflowStatesSelect from "@/components/workflows/workflow-states-select";
 import { WorkflowDetailDTO, WorkflowDetailSchema } from "@/types/workflows";
@@ -68,6 +68,30 @@ const WorkflowEditForm = ({
       <h2 className="text-lg font-bold mb-4">Edit Workflow</h2>
       <Form {...form}>
         <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+          <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <ExtInputField
+                form={form}
+                fieldName="name"
+                label="Workflow Name"
+                placeholder="Enter workflow name"
+                required
+              />
+              <ExtInputField
+                form={form}
+                fieldName="requestName"
+                label="Ticket Type"
+                placeholder="Enter ticket type"
+                required
+              />
+            </div>
+            <ExtTextAreaField
+              form={form}
+              fieldName="description"
+              label="Description"
+              placeholder="Enter workflow description (optional)"
+            />
+          </div>
           {/* States Section */}
           <div>
             <h3 className="text-md font-semibold mb-4">States</h3>

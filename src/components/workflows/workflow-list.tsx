@@ -1,32 +1,42 @@
 "use client";
 
-import { ArrowDownAZ, ArrowUpAZ, Plus } from "lucide-react";
+import { ArrowDownAZ, ArrowUpAZ, Ellipsis, Plus, Trash } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { Heading } from "@/components/heading";
 import LoadingPlaceholder from "@/components/shared/loading-place-holder";
 import PaginationExt from "@/components/shared/pagination-ext";
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { usePagePermission } from "@/hooks/use-page-permission";
-import { searchWorkflows } from "@/lib/actions/workflows.action";
+import {
+  deleteWorkflow,
+  searchWorkflows,
+} from "@/lib/actions/workflows.action";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { WorkflowDTO } from "@/types/workflows";
 
-export function WorkflowsView() {
+const WorkflowsView = () => {
   const [items, setItems] = useState<Array<WorkflowDTO>>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
@@ -43,7 +53,7 @@ export function WorkflowsView() {
   const { replace } = useRouter();
   const pathname = usePathname();
 
-  const fetchData = useCallback(async () => {
+  const fetchWorkflows = useCallback(async () => {
     setLoading(true);
 
     const query: QueryDTO = {
@@ -96,8 +106,8 @@ export function WorkflowsView() {
   }, 2000);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    fetchWorkflows();
+  }, [fetchWorkflows]);
 
   const toggleSortDirection = () => {
     setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
@@ -108,6 +118,11 @@ export function WorkflowsView() {
       return `/portal/settings/workflows/${obfuscate(workflow.id)}`;
     }
     return `/portal/teams/${obfuscate(workflow.ownerId)}/workflows/${obfuscate(workflow.id)}`;
+  };
+
+  const deleteWorkflowOutOfWorkspace = async (workflow: WorkflowDTO) => {
+    await deleteWorkflow(workflow.id!);
+    await fetchWorkflows();
   };
 
   return (
@@ -141,7 +156,7 @@ export function WorkflowsView() {
           </Tooltip>
           {PermissionUtils.canWrite(permissionLevel) && (
             <Link
-              href={"/portal/settings/workflows/new/edit"}
+              href={"/portal/settings/workflows/new"}
               className={cn(buttonVariants({ variant: "default" }))}
             >
               <Plus className="mr-2 h-4 w-4" /> New workflow
@@ -165,17 +180,17 @@ export function WorkflowsView() {
             >
               {/* Ribbon for visibility */}
               {workflow.visibility === "PUBLIC" && (
-                <div className="absolute top-0 right-0 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-tr-2xl rounded-bl-md shadow-md">
+                <div className="absolute bottom-0 right-0 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-br-2xl rounded-tl-md shadow-md border border-gray-200">
                   PUBLIC
                 </div>
               )}
               {workflow.visibility === "PRIVATE" && (
-                <div className="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-tr-2xl rounded-bl-md shadow-md">
+                <div className="absolute bottom-0 right-0 bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-br-2xl rounded-tl-md shadow-md border border-gray-200">
                   PRIVATE
                 </div>
               )}
               {workflow.visibility === "TEAM" && (
-                <div className="absolute top-0 right-0 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-tr-2xl rounded-bl-md shadow-md">
+                <div className="absolute bottom-0 right-0 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-br-2xl rounded-tl-md shadow-md border border-gray-200">
                   TEAM
                 </div>
               )}
@@ -196,6 +211,34 @@ export function WorkflowsView() {
                 <Badge variant="secondary">{workflow.requestName}</Badge>
               </div>
               <div className="text-sm">{workflow.description}</div>
+              {PermissionUtils.canWrite(permissionLevel) && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Ellipsis className="cursor-pointer absolute top-2 right-2 text-gray-400" />
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-[14rem]">
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <DropdownMenuItem
+                            className="cursor-pointer"
+                            onClick={() =>
+                              deleteWorkflowOutOfWorkspace(workflow)
+                            }
+                          >
+                            <Trash /> Delete workflow
+                          </DropdownMenuItem>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>
+                            This action will remove workflow {workflow.name}
+                          </p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
           ))}
         </div>
@@ -207,6 +250,6 @@ export function WorkflowsView() {
       />
     </div>
   );
-}
+};
 
 export default WorkflowsView;

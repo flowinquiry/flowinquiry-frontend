@@ -22,9 +22,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { usePagePermission } from "@/hooks/use-page-permission";
 import { findTeamsByMemberId } from "@/lib/actions/teams.action";
 import { findUserById, getDirectReports } from "@/lib/actions/users.action";
 import { obfuscate } from "@/lib/endecode";
+import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
 import { UserDTO } from "@/types/users";
 
@@ -36,6 +38,7 @@ export const UserView = ({ userId }: { userId: number }) => {
   );
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const permissionLevel = usePagePermission();
 
   useEffect(() => {
     async function fetchData() {
@@ -137,14 +140,16 @@ export const UserView = ({ userId }: { userId: number }) => {
                 </div>
                 <div className="text-sm text-gray-500">{user.timezone}</div>
               </div>
-              <Button
-                onClick={() =>
-                  router.push(`/portal/users/${obfuscate(user.id)}/edit`)
-                }
-              >
-                <Edit />
-                Edit
-              </Button>
+              {PermissionUtils.canWrite(permissionLevel) && (
+                <Button
+                  onClick={() =>
+                    router.push(`/portal/users/${obfuscate(user.id)}/edit`)
+                  }
+                >
+                  <Edit />
+                  Edit
+                </Button>
+              )}
             </div>
           </CardHeader>
           <CardContent>
