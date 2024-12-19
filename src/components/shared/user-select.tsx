@@ -151,6 +151,21 @@ export const UserSelectField = ({
                     <CommandEmpty>No users found.</CommandEmpty>
                   )}
                   <CommandGroup>
+                    <CommandItem
+                      value="none"
+                      onSelect={() => {
+                        form.setValue(fieldName, null); // Reset the field value to null
+                      }}
+                      className="gap-2 text-gray-500"
+                    >
+                      None (Unassign User)
+                      <Check
+                        className={cn(
+                          "ml-auto",
+                          field.value === null ? "opacity-100" : "opacity-0",
+                        )}
+                      />
+                    </CommandItem>
                     {users.map((user) => (
                       <Tooltip key={user.value}>
                         <TooltipTrigger asChild>
