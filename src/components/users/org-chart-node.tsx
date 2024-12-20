@@ -1,6 +1,7 @@
-import React from "react";
 import { Handle, Position } from "@xyflow/react";
 import Link from "next/link";
+import React from "react";
+
 import { UserAvatar } from "@/components/shared/avatar-display";
 
 interface PersonNodeProps {

@@ -12,7 +12,6 @@ import {
   Node,
   MarkerType,
   Position,
-  Connection,
 } from "@xyflow/react";
 import dagre from "@dagrejs/dagre";
 import "@xyflow/react/dist/style.css";
@@ -62,7 +61,8 @@ interface UserInfoNode {
   name: string;
   avatarUrl: string;
   userPageLink: string;
-  subordinates: UserInfoNode[]; // Recursive type for hierarchy
+  subordinates: UserInfoNode[];
+  parent?: UserInfoNode | null; // Reference to the parent node
 }
 
 // Sample hierarchical data
@@ -83,80 +83,14 @@ const orgData: UserInfoNode = {
           name: "Jim Brown (Lead Developer)",
           avatarUrl: "https://via.placeholder.com/100",
           userPageLink: "/users/4",
-          subordinates: [
-            {
-              id: "8",
-              name: "Alice Green (Frontend Developer)",
-              avatarUrl: "https://via.placeholder.com/100",
-              userPageLink: "/users/8",
-              subordinates: [],
-            },
-            {
-              id: "9",
-              name: "Bob Yellow (Backend Developer)",
-              avatarUrl: "https://via.placeholder.com/100",
-              userPageLink: "/users/9",
-              subordinates: [],
-            },
-            {
-              id: "10",
-              name: "Charlie White (UI Designer)",
-              avatarUrl: "https://via.placeholder.com/100",
-              userPageLink: "/users/10",
-              subordinates: [],
-            },
-            {
-              id: "11",
-              name: "Diana Black (DevOps Engineer)",
-              avatarUrl: "https://via.placeholder.com/100",
-              userPageLink: "/users/11",
-              subordinates: [],
-            },
-          ],
+          subordinates: [],
         },
         {
           id: "5",
           name: "Sara White (QA Lead)",
           avatarUrl: "https://via.placeholder.com/100",
           userPageLink: "/users/5",
-          subordinates: [
-            {
-              id: "12",
-              name: "Ella Pink (QA Analyst)",
-              avatarUrl: "https://via.placeholder.com/100",
-              userPageLink: "/users/12",
-              subordinates: [],
-            },
-            {
-              id: "13",
-              name: "Frank Grey (Automation Engineer)",
-              avatarUrl: "https://via.placeholder.com/100",
-              userPageLink: "/users/13",
-              subordinates: [],
-            },
-          ],
-        },
-        {
-          id: "6",
-          name: "Tom Brown (Project Manager)",
-          avatarUrl: "https://via.placeholder.com/100",
-          userPageLink: "/users/6",
-          subordinates: [
-            {
-              id: "14",
-              name: "Grace Silver (Scrum Master)",
-              avatarUrl: "https://via.placeholder.com/100",
-              userPageLink: "/users/14",
-              subordinates: [],
-            },
-            {
-              id: "15",
-              name: "Hank Gold (Business Analyst)",
-              avatarUrl: "https://via.placeholder.com/100",
-              userPageLink: "/users/15",
-              subordinates: [],
-            },
-          ],
+          subordinates: [],
         },
       ],
     },
@@ -165,33 +99,20 @@ const orgData: UserInfoNode = {
       name: "Tom Green (CFO)",
       avatarUrl: "https://via.placeholder.com/100",
       userPageLink: "/users/3",
-      subordinates: [
-        {
-          id: "7",
-          name: "Mary Blue (Financial Analyst)",
-          avatarUrl: "https://via.placeholder.com/100",
-          userPageLink: "/users/7",
-          subordinates: [
-            {
-              id: "16",
-              name: "Ivan Teal (Junior Analyst)",
-              avatarUrl: "https://via.placeholder.com/100",
-              userPageLink: "/users/16",
-              subordinates: [],
-            },
-            {
-              id: "17",
-              name: "Jack Cyan (Intern)",
-              avatarUrl: "https://via.placeholder.com/100",
-              userPageLink: "/users/17",
-              subordinates: [],
-            },
-          ],
-        },
-      ],
+      subordinates: [],
     },
   ],
 };
+
+const setParentReferences = (
+  node: UserInfoNode,
+  parent: UserInfoNode | null = null,
+) => {
+  node.parent = parent;
+  node.subordinates.forEach((sub) => setParentReferences(sub, node));
+};
+
+setParentReferences(orgData);
 
 const OrgChartView = () => {
   const [rootUser, setRootUser] = useState<UserInfoNode>(orgData); // Dynamic root user
@@ -203,41 +124,73 @@ const OrgChartView = () => {
   >([]);
 
   // Generate chart nodes and edges dynamically
-  const generateChart = (user: UserInfoNode, level = 2) => {
+  const generateChart = (node: UserInfoNode) => {
     const nodes: Node<Record<string, unknown>>[] = [];
     const edges: Edge<Record<string, unknown>>[] = [];
 
-    const traverse = (node: UserInfoNode, currentLevel: number) => {
-      if (currentLevel > level) return;
-
+    // Add parent node (if exists)
+    if (node.parent) {
       nodes.push({
-        id: node.id,
-        type: "custom", // Matches nodeTypes key
+        id: node.parent.id,
+        type: "custom",
         data: {
-          label: node.name,
-          avatarUrl: node.avatarUrl,
-          userPageLink: node.userPageLink,
-          onClick: () => setRootUser(node), // Set this node as root
+          label: node.parent.name,
+          avatarUrl: node.parent.avatarUrl,
+          userPageLink: node.parent.userPageLink,
+          onClick: () => setRootUser(node.parent),
         },
         position: { x: 0, y: 0 },
       });
 
-      node.subordinates.forEach((sub) => {
-        edges.push({
-          id: `e${node.id}-${sub.id}`,
-          source: node.id,
-          target: sub.id,
-          animated: true,
-          markerEnd: { type: MarkerType.Arrow },
-        });
-        traverse(sub, currentLevel + 1);
+      edges.push({
+        id: `e${node.parent.id}-${node.id}`,
+        source: node.parent.id,
+        target: node.id,
+        animated: true,
+        markerEnd: { type: MarkerType.Arrow },
       });
-    };
+    }
 
-    traverse(user, 1);
+    // Add the current node
+    nodes.push({
+      id: node.id,
+      type: "custom",
+      data: {
+        label: node.name,
+        avatarUrl: node.avatarUrl,
+        userPageLink: node.userPageLink,
+        onClick: () => setRootUser(node),
+      },
+      position: { x: 0, y: 0 },
+    });
+
+    // Add subordinates
+    node.subordinates.forEach((sub) => {
+      nodes.push({
+        id: sub.id,
+        type: "custom",
+        data: {
+          label: sub.name,
+          avatarUrl: sub.avatarUrl,
+          userPageLink: sub.userPageLink,
+          onClick: () => setRootUser(sub),
+        },
+        position: { x: 0, y: 0 },
+      });
+
+      edges.push({
+        id: `e${node.id}-${sub.id}`,
+        source: node.id,
+        target: sub.id,
+        animated: true,
+        markerEnd: { type: MarkerType.Arrow },
+      });
+    });
+
     return { nodes, edges };
   };
 
+  // Update chart dynamically when rootUser changes
   useEffect(() => {
     const { nodes, edges } = generateChart(rootUser);
     const { nodes: layoutedNodes, edges: layoutedEdges } = applyLayout(
@@ -248,7 +201,7 @@ const OrgChartView = () => {
     setEdges(layoutedEdges);
   }, [rootUser]);
 
-  const onConnect = (connection: Connection) =>
+  const onConnect = (connection: any) =>
     setEdges((eds) => addEdge(connection, eds));
 
   return (
