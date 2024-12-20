@@ -17,8 +17,6 @@ import {
 } from "@xyflow/react";
 import React, { useEffect, useState } from "react";
 
-import { Breadcrumbs } from "@/components/breadcrumbs";
-import { Heading } from "@/components/heading";
 import PersonNode from "@/components/users/org-chart-node";
 import { getOrgChart, getUserHierarchy } from "@/lib/actions/users.action";
 
@@ -44,6 +42,11 @@ const applyLayout = (
   nodes: Node<Record<string, unknown>>[],
   edges: Edge<Record<string, unknown>>[],
 ) => {
+  // Clear the graph
+  dagreGraph.nodes().forEach((node) => dagreGraph.removeNode(node));
+  dagreGraph.edges().forEach(({ v, w }) => dagreGraph.removeEdge(v, w)); // Corrected
+
+  // Add nodes and edges
   nodes.forEach((node) => {
     dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
   });
@@ -52,16 +55,17 @@ const applyLayout = (
     dagreGraph.setEdge(edge.source, edge.target);
   });
 
+  // Perform layout
   dagre.layout(dagreGraph);
 
   return {
     nodes: nodes.map((node) => {
-      const nodeWithPosition = dagreGraph.node(node.id);
+      const position = dagreGraph.node(node.id);
       return {
         ...node,
         position: {
-          x: nodeWithPosition.x - nodeWidth / 2,
-          y: nodeWithPosition.y - nodeHeight / 2,
+          x: position.x - nodeWidth / 2,
+          y: position.y - nodeHeight / 2,
         },
         sourcePosition: Position.Bottom,
         targetPosition: Position.Top,
@@ -72,6 +76,7 @@ const applyLayout = (
 };
 
 const OrgChartView = ({ userId }: { userId?: number }) => {
+  const [rootUserId, setRootUserId] = useState<number | undefined>(userId);
   const [rootUser, setRootUser] = useState<UserHierarchyDTO | null>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState<
     Node<Record<string, unknown>>
@@ -79,13 +84,50 @@ const OrgChartView = ({ userId }: { userId?: number }) => {
   const [edges, setEdges, onEdgesChange] = useEdgesState<
     Edge<Record<string, unknown>>
   >([]);
+  const DUMMY_MANAGER_ID = -1;
 
-  // Generate chart nodes and edges dynamically
   const generateChart = (data: UserHierarchyDTO) => {
     const nodes: Node<Record<string, unknown>>[] = [];
     const edges: Edge<Record<string, unknown>>[] = [];
 
-    // Add manager node (if exists)
+    if (data.id === DUMMY_MANAGER_ID) {
+      nodes.push({
+        id: DUMMY_MANAGER_ID.toString(),
+        type: "custom",
+        data: {
+          label: "Top-Level Manager",
+          avatarUrl: "",
+          userPageLink: "#",
+          onClick: () => setRootUserId(DUMMY_MANAGER_ID),
+        },
+        position: { x: 0, y: 0 },
+      });
+
+      data.subordinates.forEach((sub) => {
+        nodes.push({
+          id: sub.id.toString(),
+          type: "custom",
+          data: {
+            label: sub.name,
+            avatarUrl: sub.imageUrl,
+            userPageLink: `/users/${sub.id}`,
+            onClick: () => setRootUserId(sub.id),
+          },
+          position: { x: 0, y: 0 },
+        });
+
+        edges.push({
+          id: `e${DUMMY_MANAGER_ID}-${sub.id}`,
+          source: DUMMY_MANAGER_ID.toString(),
+          target: sub.id.toString(),
+          animated: true,
+          markerEnd: { type: MarkerType.Arrow },
+        });
+      });
+
+      return { nodes, edges };
+    }
+
     if (data.managerId) {
       nodes.push({
         id: data.managerId.toString(),
@@ -94,8 +136,7 @@ const OrgChartView = ({ userId }: { userId?: number }) => {
           label: data.managerName,
           avatarUrl: data.managerImageUrl,
           userPageLink: `/users/${data.managerId}`,
-          onClick: () =>
-            setRootUser({ id: data.managerId } as UserHierarchyDTO),
+          onClick: () => setRootUserId(data.managerId ?? undefined),
         },
         position: { x: 0, y: 0 },
       });
@@ -109,7 +150,6 @@ const OrgChartView = ({ userId }: { userId?: number }) => {
       });
     }
 
-    // Add the current node
     nodes.push({
       id: data.id.toString(),
       type: "custom",
@@ -117,13 +157,12 @@ const OrgChartView = ({ userId }: { userId?: number }) => {
         label: data.name,
         avatarUrl: data.imageUrl,
         userPageLink: `/users/${data.id}`,
-        onClick: () => setRootUser(data),
+        onClick: () => setRootUserId(data.id),
       },
       position: { x: 0, y: 0 },
     });
 
-    // Add subordinates
-    data.subordinates?.forEach((sub) => {
+    data.subordinates.forEach((sub) => {
       nodes.push({
         id: sub.id.toString(),
         type: "custom",
@@ -131,7 +170,7 @@ const OrgChartView = ({ userId }: { userId?: number }) => {
           label: sub.name,
           avatarUrl: sub.imageUrl,
           userPageLink: `/users/${sub.id}`,
-          onClick: () => setRootUser(sub),
+          onClick: () => setRootUserId(sub.id),
         },
         position: { x: 0, y: 0 },
       });
@@ -148,13 +187,15 @@ const OrgChartView = ({ userId }: { userId?: number }) => {
     return { nodes, edges };
   };
 
-  // Fetch the org chart when rootUser changes
   useEffect(() => {
     const loadOrgChart = async () => {
       try {
-        const data = rootUser?.id
-          ? await getUserHierarchy(rootUser.id)
-          : await getOrgChart();
+        const data =
+          rootUserId === DUMMY_MANAGER_ID
+            ? await getOrgChart()
+            : rootUserId === undefined
+              ? await getOrgChart()
+              : await getUserHierarchy(rootUserId);
         setRootUser(data);
       } catch (error) {
         console.error("Failed to load org chart:", error);
@@ -162,9 +203,8 @@ const OrgChartView = ({ userId }: { userId?: number }) => {
     };
 
     loadOrgChart();
-  }, [rootUser?.id]);
+  }, [rootUserId]);
 
-  // Update chart dynamically when rootUser changes
   useEffect(() => {
     if (!rootUser) return;
     const { nodes, edges } = generateChart(rootUser);
@@ -180,28 +220,22 @@ const OrgChartView = ({ userId }: { userId?: number }) => {
     setEdges((eds) => addEdge(connection, eds));
 
   return (
-    <div>
-      <Breadcrumbs items={[{ title: "Org Chart", link: "#" }]} />
-      <div className="py-4">
-        <Heading title="Org Chart" description="Organization Hierarchy" />
+    <ReactFlowProvider>
+      <div style={{ height: "50rem", width: "100%" }}>
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          fitView
+          attributionPosition="bottom-left"
+          nodeTypes={{ custom: PersonNode }}
+        >
+          <Background gap={16} size={0.5} />
+        </ReactFlow>
       </div>
-      <ReactFlowProvider>
-        <div style={{ height: "100vh", width: "100%" }}>
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            fitView
-            attributionPosition="bottom-left"
-            nodeTypes={{ custom: PersonNode }}
-          >
-            <Background gap={16} size={0.5} />
-          </ReactFlow>
-        </div>
-      </ReactFlowProvider>
-    </div>
+    </ReactFlowProvider>
   );
 };
 

@@ -39,6 +39,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import OrgChartDialog from "@/components/users/org-chart-dialog";
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import { useToast } from "@/hooks/use-toast";
@@ -66,6 +67,7 @@ export const UserList = () => {
     undefined,
   );
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [isOrgChartOpen, setIsOrgChartOpen] = useState(false);
 
   const permissionLevel = usePagePermission();
 
@@ -193,13 +195,10 @@ export const UserList = () => {
               <Plus className="mr-2 h-4 w-4" /> Invite user
             </Link>
           )}
-          <Link
-            href={"/portal/users/org"}
-            className={cn(buttonVariants({ variant: "default" }))}
-          >
+          <Button onClick={() => setIsOrgChartOpen(true)}>
             <Network />
             Org chart
-          </Link>
+          </Button>
         </div>
       </div>
       <Separator />
@@ -289,6 +288,12 @@ export const UserList = () => {
         currentPage={currentPage}
         totalPages={totalPages}
         onPageChange={(page) => setCurrentPage(page)}
+      />
+
+      <OrgChartDialog
+        userId={undefined} // Pass undefined to load the top-level org chart
+        isOpen={isOrgChartOpen}
+        onClose={() => setIsOrgChartOpen(false)}
       />
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
