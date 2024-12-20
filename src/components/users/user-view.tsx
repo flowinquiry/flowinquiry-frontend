@@ -22,6 +22,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import OrgChartDialog from "@/components/users/org-chart-dialog"; // Import OrgChartDialog
 import { usePagePermission } from "@/hooks/use-page-permission";
 import { findTeamsByMemberId } from "@/lib/actions/teams.action";
 import { findUserById, getDirectReports } from "@/lib/actions/users.action";
@@ -29,7 +30,6 @@ import { obfuscate } from "@/lib/endecode";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
 import { UserDTO } from "@/types/users";
-import OrgChartDialog from "@/components/users/org-chart-dialog"; // Import OrgChartDialog
 
 export const UserView = ({ userId }: { userId: number }) => {
   const [user, setUser] = useState<UserDTO | undefined | null>(undefined);
