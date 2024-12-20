@@ -10,7 +10,7 @@ import {
 } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
 import { Pagination, QueryDTO } from "@/types/query";
-import { UserDTO } from "@/types/users";
+import { UserDTO, UserHierarchyDTO } from "@/types/users";
 
 export async function searchUsers(query: QueryDTO, pagination: Pagination) {
   noStore();
@@ -75,4 +75,12 @@ export const changePassword = async (
     currentPassword: currentPassword,
     newPassword: newPassword,
   });
+};
+
+export const getOrgChart = async () => {
+  return get<UserHierarchyDTO>(`${BACKEND_API}/api/users/orgChart`);
+};
+
+export const getUserHierarchy = async (userId: number) => {
+  return get<UserHierarchyDTO>(`${BACKEND_API}/api/users/${userId}/hierarchy`);
 };

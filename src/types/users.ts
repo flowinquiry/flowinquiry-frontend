@@ -38,3 +38,13 @@ export const UserWithTeamRoleDTOSchema = z.object({
 });
 
 export type UserWithTeamRoleDTO = z.infer<typeof UserWithTeamRoleDTOSchema>;
+
+export interface UserHierarchyDTO {
+  id: number;
+  name: string;
+  imageUrl: string;
+  managerId: number | null; // Manager may be null if the user has no manager
+  managerName: string | null; // Manager name may be null if the user has no manager
+  managerImageUrl: string | null; // Manager image may be null if the user has no manager
+  subordinates: UserHierarchyDTO[]; // Recursive type for subordinates
+}

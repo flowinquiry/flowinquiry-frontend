@@ -1,21 +1,37 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import "@xyflow/react/dist/style.css";
+
+import dagre from "@dagrejs/dagre";
 import {
+  addEdge,
+  Background,
+  Edge,
+  MarkerType,
+  Node,
+  Position,
   ReactFlow,
   ReactFlowProvider,
-  Background,
-  addEdge,
-  useNodesState,
   useEdgesState,
-  Edge,
-  Node,
-  MarkerType,
-  Position,
+  useNodesState,
 } from "@xyflow/react";
-import dagre from "@dagrejs/dagre";
-import "@xyflow/react/dist/style.css";
+import React, { useEffect, useState } from "react";
+
+import { Breadcrumbs } from "@/components/breadcrumbs";
+import { Heading } from "@/components/heading";
 import PersonNode from "@/components/users/org-chart-node";
+import { getOrgChart, getUserHierarchy } from "@/lib/actions/users.action";
+
+// Define the type for the user hierarchy DTO
+export interface UserHierarchyDTO {
+  id: number;
+  name: string;
+  imageUrl: string;
+  managerId: number | null;
+  managerName: string | null;
+  managerImageUrl: string | null;
+  subordinates: UserHierarchyDTO[];
+}
 
 const nodeWidth = 200;
 const nodeHeight = 100;
@@ -49,73 +65,14 @@ const applyLayout = (
         },
         sourcePosition: Position.Bottom,
         targetPosition: Position.Top,
-      } as Node<Record<string, unknown>>; // Explicitly cast as Node
+      } as Node<Record<string, unknown>>;
     }),
     edges,
   };
 };
 
-// Define the type for user nodes
-interface UserInfoNode {
-  id: string;
-  name: string;
-  avatarUrl: string;
-  userPageLink: string;
-  subordinates: UserInfoNode[];
-  parent?: UserInfoNode | null; // Reference to the parent node
-}
-
-// Sample hierarchical data
-const orgData: UserInfoNode = {
-  id: "1",
-  name: "John Doe (CEO)",
-  avatarUrl: "https://via.placeholder.com/100",
-  userPageLink: "/users/1",
-  subordinates: [
-    {
-      id: "2",
-      name: "Jane Smith (CTO)",
-      avatarUrl: "https://via.placeholder.com/100",
-      userPageLink: "/users/2",
-      subordinates: [
-        {
-          id: "4",
-          name: "Jim Brown (Lead Developer)",
-          avatarUrl: "https://via.placeholder.com/100",
-          userPageLink: "/users/4",
-          subordinates: [],
-        },
-        {
-          id: "5",
-          name: "Sara White (QA Lead)",
-          avatarUrl: "https://via.placeholder.com/100",
-          userPageLink: "/users/5",
-          subordinates: [],
-        },
-      ],
-    },
-    {
-      id: "3",
-      name: "Tom Green (CFO)",
-      avatarUrl: "https://via.placeholder.com/100",
-      userPageLink: "/users/3",
-      subordinates: [],
-    },
-  ],
-};
-
-const setParentReferences = (
-  node: UserInfoNode,
-  parent: UserInfoNode | null = null,
-) => {
-  node.parent = parent;
-  node.subordinates.forEach((sub) => setParentReferences(sub, node));
-};
-
-setParentReferences(orgData);
-
-const OrgChartView = () => {
-  const [rootUser, setRootUser] = useState<UserInfoNode>(orgData); // Dynamic root user
+const OrgChartView = ({ userId }: { userId?: number }) => {
+  const [rootUser, setRootUser] = useState<UserHierarchyDTO | null>(null);
   const [nodes, setNodes, onNodesChange] = useNodesState<
     Node<Record<string, unknown>>
   >([]);
@@ -124,28 +81,29 @@ const OrgChartView = () => {
   >([]);
 
   // Generate chart nodes and edges dynamically
-  const generateChart = (node: UserInfoNode) => {
+  const generateChart = (data: UserHierarchyDTO) => {
     const nodes: Node<Record<string, unknown>>[] = [];
     const edges: Edge<Record<string, unknown>>[] = [];
 
-    // Add parent node (if exists)
-    if (node.parent) {
+    // Add manager node (if exists)
+    if (data.managerId) {
       nodes.push({
-        id: node.parent.id,
+        id: data.managerId.toString(),
         type: "custom",
         data: {
-          label: node.parent.name,
-          avatarUrl: node.parent.avatarUrl,
-          userPageLink: node.parent.userPageLink,
-          onClick: () => setRootUser(node.parent),
+          label: data.managerName,
+          avatarUrl: data.managerImageUrl,
+          userPageLink: `/users/${data.managerId}`,
+          onClick: () =>
+            setRootUser({ id: data.managerId } as UserHierarchyDTO),
         },
         position: { x: 0, y: 0 },
       });
 
       edges.push({
-        id: `e${node.parent.id}-${node.id}`,
-        source: node.parent.id,
-        target: node.id,
+        id: `e${data.managerId}-${data.id}`,
+        source: data.managerId.toString(),
+        target: data.id.toString(),
         animated: true,
         markerEnd: { type: MarkerType.Arrow },
       });
@@ -153,35 +111,35 @@ const OrgChartView = () => {
 
     // Add the current node
     nodes.push({
-      id: node.id,
+      id: data.id.toString(),
       type: "custom",
       data: {
-        label: node.name,
-        avatarUrl: node.avatarUrl,
-        userPageLink: node.userPageLink,
-        onClick: () => setRootUser(node),
+        label: data.name,
+        avatarUrl: data.imageUrl,
+        userPageLink: `/users/${data.id}`,
+        onClick: () => setRootUser(data),
       },
       position: { x: 0, y: 0 },
     });
 
     // Add subordinates
-    node.subordinates.forEach((sub) => {
+    data.subordinates?.forEach((sub) => {
       nodes.push({
-        id: sub.id,
+        id: sub.id.toString(),
         type: "custom",
         data: {
           label: sub.name,
-          avatarUrl: sub.avatarUrl,
-          userPageLink: sub.userPageLink,
+          avatarUrl: sub.imageUrl,
+          userPageLink: `/users/${sub.id}`,
           onClick: () => setRootUser(sub),
         },
         position: { x: 0, y: 0 },
       });
 
       edges.push({
-        id: `e${node.id}-${sub.id}`,
-        source: node.id,
-        target: sub.id,
+        id: `e${data.id}-${sub.id}`,
+        source: data.id.toString(),
+        target: sub.id.toString(),
         animated: true,
         markerEnd: { type: MarkerType.Arrow },
       });
@@ -190,8 +148,25 @@ const OrgChartView = () => {
     return { nodes, edges };
   };
 
+  // Fetch the org chart when rootUser changes
+  useEffect(() => {
+    const loadOrgChart = async () => {
+      try {
+        const data = rootUser?.id
+          ? await getUserHierarchy(rootUser.id)
+          : await getOrgChart();
+        setRootUser(data);
+      } catch (error) {
+        console.error("Failed to load org chart:", error);
+      }
+    };
+
+    loadOrgChart();
+  }, [rootUser?.id]);
+
   // Update chart dynamically when rootUser changes
   useEffect(() => {
+    if (!rootUser) return;
     const { nodes, edges } = generateChart(rootUser);
     const { nodes: layoutedNodes, edges: layoutedEdges } = applyLayout(
       nodes,
@@ -205,22 +180,28 @@ const OrgChartView = () => {
     setEdges((eds) => addEdge(connection, eds));
 
   return (
-    <ReactFlowProvider>
-      <div style={{ height: "100vh", width: "100%" }}>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          fitView
-          attributionPosition="bottom-left"
-          nodeTypes={{ custom: PersonNode }}
-        >
-          <Background gap={16} size={0.5} />
-        </ReactFlow>
+    <div>
+      <Breadcrumbs items={[{ title: "Org Chart", link: "#" }]} />
+      <div className="py-4">
+        <Heading title="Org Chart" description="Organization Hierarchy" />
       </div>
-    </ReactFlowProvider>
+      <ReactFlowProvider>
+        <div style={{ height: "100vh", width: "100%" }}>
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            fitView
+            attributionPosition="bottom-left"
+            nodeTypes={{ custom: PersonNode }}
+          >
+            <Background gap={16} size={0.5} />
+          </ReactFlow>
+        </div>
+      </ReactFlowProvider>
+    </div>
   );
 };
 
