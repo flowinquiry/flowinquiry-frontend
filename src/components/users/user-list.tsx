@@ -5,6 +5,7 @@ import {
   ArrowDownAZ,
   ArrowUpAZ,
   Ellipsis,
+  Network,
   Plus,
   RotateCw,
   Trash,
@@ -192,6 +193,13 @@ export const UserList = () => {
               <Plus className="mr-2 h-4 w-4" /> Invite user
             </Link>
           )}
+          <Link
+            href={"/portal/users/org"}
+            className={cn(buttonVariants({ variant: "default" }))}
+          >
+            <Network />
+            Org chart
+          </Link>
         </div>
       </div>
       <Separator />

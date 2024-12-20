@@ -124,7 +124,7 @@ pnpm dev
 ```
 
 **5. Access the application:**
-   Open your browser and navigate to http://localhost:3000.
+Open your browser and navigate to http://localhost:3000.
 
 ## Deploy FlowInquiry
 
