@@ -14,11 +14,14 @@ import {
   ReactFlowProvider,
   useEdgesState,
   useNodesState,
+  useReactFlow,
 } from "@xyflow/react";
 import React, { useEffect, useState } from "react";
 
 import PersonNode from "@/components/users/org-chart-node";
 import { getOrgChart, getUserHierarchy } from "@/lib/actions/users.action";
+import { obfuscate } from "@/lib/endecode";
+import { Button } from "@/components/ui/button";
 
 // Define the type for the user hierarchy DTO
 export interface UserHierarchyDTO {
@@ -36,17 +39,15 @@ const nodeHeight = 100;
 
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
-dagreGraph.setGraph({ rankdir: "TB" }); // Top-to-bottom layout
+dagreGraph.setGraph({ rankdir: "TB" });
 
 const applyLayout = (
   nodes: Node<Record<string, unknown>>[],
   edges: Edge<Record<string, unknown>>[],
 ) => {
-  // Clear the graph
   dagreGraph.nodes().forEach((node) => dagreGraph.removeNode(node));
-  dagreGraph.edges().forEach(({ v, w }) => dagreGraph.removeEdge(v, w)); // Corrected
+  dagreGraph.edges().forEach(({ v, w }) => dagreGraph.removeEdge(v, w));
 
-  // Add nodes and edges
   nodes.forEach((node) => {
     dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
   });
@@ -55,7 +56,6 @@ const applyLayout = (
     dagreGraph.setEdge(edge.source, edge.target);
   });
 
-  // Perform layout
   dagre.layout(dagreGraph);
 
   return {
@@ -73,6 +73,62 @@ const applyLayout = (
     }),
     edges,
   };
+};
+
+const OrgChartContent = ({
+  nodes,
+  edges,
+  onNodesChange,
+  onEdgesChange,
+  onConnect,
+  setRootUserId,
+}: {
+  nodes: Node<Record<string, unknown>>[];
+  edges: Edge<Record<string, unknown>>[];
+  onNodesChange: any;
+  onEdgesChange: any;
+  onConnect: any;
+  setRootUserId: (id: number | undefined) => void;
+}) => {
+  const { zoomIn, zoomOut } = useReactFlow();
+
+  return (
+    <div className="flex h-full">
+      {/* Org Chart */}
+      <div className="relative flex-grow">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          fitView
+          attributionPosition="bottom-left"
+          nodeTypes={{ custom: PersonNode }}
+        >
+          <Background gap={16} size={0.5} />
+        </ReactFlow>
+        <div className="absolute top-2 right-2 z-10 flex space-x-2">
+          <Button variant="outline" onClick={() => zoomIn()}>
+            Zoom In
+          </Button>
+          <Button variant="outline" onClick={() => zoomOut()}>
+            Zoom Out
+          </Button>
+        </div>
+      </div>
+
+      {/* Instructions Sidebar */}
+      <div className="w-64 p-4 border-l border-gray-200 bg-gray-50 dark:bg-gray-800">
+        <h2 className="font-bold mb-4">How to Use the Org Chart</h2>
+        <ul className="list-disc ml-4 space-y-2">
+          <li>Drag the entire org chart to adjust your view.</li>
+          <li>Click a user icon to view the org chart from that user.</li>
+          <li>Click a user link to navigate to the user's profile page.</li>
+        </ul>
+      </div>
+    </div>
+  );
 };
 
 const OrgChartView = ({ userId }: { userId?: number }) => {
@@ -110,7 +166,7 @@ const OrgChartView = ({ userId }: { userId?: number }) => {
           data: {
             label: sub.name,
             avatarUrl: sub.imageUrl,
-            userPageLink: `/users/${sub.id}`,
+            userPageLink: `/portal/users/${obfuscate(sub.id)}`,
             onClick: () => setRootUserId(sub.id),
           },
           position: { x: 0, y: 0 },
@@ -135,7 +191,7 @@ const OrgChartView = ({ userId }: { userId?: number }) => {
         data: {
           label: data.managerName,
           avatarUrl: data.managerImageUrl,
-          userPageLink: `/users/${data.managerId}`,
+          userPageLink: `/portal/users/${obfuscate(data.managerId)}`,
           onClick: () => setRootUserId(data.managerId ?? undefined),
         },
         position: { x: 0, y: 0 },
@@ -156,7 +212,7 @@ const OrgChartView = ({ userId }: { userId?: number }) => {
       data: {
         label: data.name,
         avatarUrl: data.imageUrl,
-        userPageLink: `/users/${data.id}`,
+        userPageLink: `/portal/users/${obfuscate(data.id)}`,
         onClick: () => setRootUserId(data.id),
       },
       position: { x: 0, y: 0 },
@@ -169,7 +225,7 @@ const OrgChartView = ({ userId }: { userId?: number }) => {
         data: {
           label: sub.name,
           avatarUrl: sub.imageUrl,
-          userPageLink: `/users/${sub.id}`,
+          userPageLink: `/portal/users/${obfuscate(sub.id)}`,
           onClick: () => setRootUserId(sub.id),
         },
         position: { x: 0, y: 0 },
@@ -221,20 +277,14 @@ const OrgChartView = ({ userId }: { userId?: number }) => {
 
   return (
     <ReactFlowProvider>
-      <div style={{ height: "50rem", width: "100%" }}>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodesChange={onNodesChange}
-          onEdgesChange={onEdgesChange}
-          onConnect={onConnect}
-          fitView
-          attributionPosition="bottom-left"
-          nodeTypes={{ custom: PersonNode }}
-        >
-          <Background gap={16} size={0.5} />
-        </ReactFlow>
-      </div>
+      <OrgChartContent
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        setRootUserId={setRootUserId}
+      />
     </ReactFlowProvider>
   );
 };

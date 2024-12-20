@@ -22,12 +22,12 @@ const PersonNode = ({ data }: { data: any }) => {
 
   return (
     <div
-      className={`p-4 rounded-lg shadow-md flex flex-col items-center ${
+      className={`p-2 rounded-lg shadow-md flex flex-col items-center ${
         isDarkMode ? "bg-gray-800 border-gray-600" : "bg-white border-gray-300"
       }`}
       style={{
-        width: "200px",
-        height: "100px",
+        width: "150px",
+        height: "80px",
       }}
       onClick={onClick} // Call the onClick handler when clicked
     >
@@ -44,17 +44,11 @@ const PersonNode = ({ data }: { data: any }) => {
       />
 
       {/* Avatar */}
-      <UserAvatar imageUrl={avatarUrl} size="w-12 h-12" className="mb-2" />
+      <UserAvatar imageUrl={avatarUrl} size="w-8 h-8" />
 
       {/* User Name */}
       <Link href={userPageLink}>
-        <span
-          className={`font-bold text-center ${
-            isDarkMode ? "text-blue-400" : "text-blue-600"
-          } hover:underline cursor-pointer`}
-        >
-          {label}
-        </span>
+        <span className={`text-center text-xs scale-50`}>{label}</span>
       </Link>
     </div>
   );

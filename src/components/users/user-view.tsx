@@ -1,7 +1,7 @@
 "use client";
 
 import { formatDistanceToNow } from "date-fns";
-import { Edit } from "lucide-react";
+import { Edit, Network } from "lucide-react";
 import Link from "next/link";
 import { notFound, useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
@@ -29,6 +29,7 @@ import { obfuscate } from "@/lib/endecode";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
 import { UserDTO } from "@/types/users";
+import OrgChartDialog from "@/components/users/org-chart-dialog"; // Import OrgChartDialog
 
 export const UserView = ({ userId }: { userId: number }) => {
   const [user, setUser] = useState<UserDTO | undefined | null>(undefined);
@@ -37,6 +38,7 @@ export const UserView = ({ userId }: { userId: number }) => {
     undefined,
   );
   const [loading, setLoading] = useState(true);
+  const [isOrgChartOpen, setIsOrgChartOpen] = useState(false); // State to control OrgChartDialog visibility
   const router = useRouter();
   const permissionLevel = usePagePermission();
 
@@ -134,22 +136,29 @@ export const UserView = ({ userId }: { userId: number }) => {
         <Card className="w-full md:w-[56rem]">
           <CardHeader>
             <div className="flex justify-between items-center">
-              <div>
+              <div className="flex-1">
                 <div className="text-xl">
                   {user.firstName} {user.lastName}
                 </div>
                 <div className="text-sm text-gray-500">{user.timezone}</div>
               </div>
-              {PermissionUtils.canWrite(permissionLevel) && (
-                <Button
-                  onClick={() =>
-                    router.push(`/portal/users/${obfuscate(user.id)}/edit`)
-                  }
-                >
-                  <Edit />
-                  Edit
+
+              <div className="flex gap-2 ml-auto">
+                {PermissionUtils.canWrite(permissionLevel) && (
+                  <Button
+                    onClick={() =>
+                      router.push(`/portal/users/${obfuscate(user.id)}/edit`)
+                    }
+                  >
+                    <Edit />
+                    Edit
+                  </Button>
+                )}
+                <Button onClick={() => setIsOrgChartOpen(true)}>
+                  <Network />
+                  Org chart
                 </Button>
-              )}
+              </div>
             </div>
           </CardHeader>
           <CardContent>
@@ -218,6 +227,12 @@ export const UserView = ({ userId }: { userId: number }) => {
           </CardFooter>
         </Card>
       </div>
+
+      <OrgChartDialog
+        userId={user.id!}
+        isOpen={isOrgChartOpen}
+        onClose={() => setIsOrgChartOpen(false)}
+      />
     </div>
   );
 };

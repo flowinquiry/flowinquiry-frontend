@@ -1,33 +1,313 @@
 "use client";
 
-import React from "react";
+import "@xyflow/react/dist/style.css";
 
+import dagre from "@dagrejs/dagre";
+import {
+  addEdge,
+  Background,
+  Edge,
+  MarkerType,
+  Node,
+  Position,
+  ReactFlow,
+  ReactFlowProvider,
+  useEdgesState,
+  useNodesState,
+  useReactFlow,
+} from "@xyflow/react";
+import React, { useEffect, useState } from "react";
+
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import OrgChartView from "@/components/users/org-chart-view";
+import PersonNode from "@/components/users/org-chart-node";
+import { getOrgChart, getUserHierarchy } from "@/lib/actions/users.action";
+import { obfuscate } from "@/lib/endecode";
 
-interface OrgChartDialogProps {
-  userId?: number; // Optional userId, defaults to undefined for top-level org chart
-  isOpen: boolean; // Whether the dialog is open
-  onClose: () => void; // Callback for closing the dialog
+// Define the type for the user hierarchy DTO
+export interface UserHierarchyDTO {
+  id: number;
+  name: string;
+  imageUrl: string;
+  managerId: number | null;
+  managerName: string | null;
+  managerImageUrl: string | null;
+  subordinates: UserHierarchyDTO[];
 }
 
-const OrgChartDialog: React.FC<OrgChartDialogProps> = ({
+const nodeWidth = 200;
+const nodeHeight = 100;
+
+const dagreGraph = new dagre.graphlib.Graph();
+dagreGraph.setDefaultEdgeLabel(() => ({}));
+dagreGraph.setGraph({ rankdir: "TB" });
+
+const applyLayout = (
+  nodes: Node<Record<string, unknown>>[],
+  edges: Edge<Record<string, unknown>>[],
+) => {
+  dagreGraph.nodes().forEach((node) => dagreGraph.removeNode(node));
+  dagreGraph.edges().forEach(({ v, w }) => dagreGraph.removeEdge(v, w));
+
+  nodes.forEach((node) => {
+    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+  });
+
+  edges.forEach((edge) => {
+    dagreGraph.setEdge(edge.source, edge.target);
+  });
+
+  dagre.layout(dagreGraph);
+
+  return {
+    nodes: nodes.map((node) => {
+      const position = dagreGraph.node(node.id);
+      return {
+        ...node,
+        position: {
+          x: position.x - nodeWidth / 2,
+          y: position.y - nodeHeight / 2,
+        },
+        sourcePosition: Position.Bottom,
+        targetPosition: Position.Top,
+      } as Node<Record<string, unknown>>;
+    }),
+    edges,
+  };
+};
+
+const OrgChartContent = ({
+  nodes,
+  edges,
+  onNodesChange,
+  onEdgesChange,
+  onConnect,
+  setRootUserId,
+}: {
+  nodes: Node<Record<string, unknown>>[];
+  edges: Edge<Record<string, unknown>>[];
+  onNodesChange: any;
+  onEdgesChange: any;
+  onConnect: any;
+  setRootUserId: (id: number | undefined) => void;
+}) => {
+  const { zoomIn, zoomOut } = useReactFlow();
+
+  return (
+    <div className="flex h-full">
+      {/* Org Chart */}
+      <div className="relative flex-grow h-full">
+        <ReactFlow
+          nodes={nodes}
+          edges={edges}
+          onNodesChange={onNodesChange}
+          onEdgesChange={onEdgesChange}
+          onConnect={onConnect}
+          fitView
+          attributionPosition="bottom-left"
+          nodeTypes={{ custom: PersonNode }}
+        >
+          <Background gap={16} size={0.5} />
+        </ReactFlow>
+        <div className="absolute top-2 right-2 z-10 flex space-x-2">
+          <Button variant="outline" onClick={() => zoomIn()}>
+            Zoom In
+          </Button>
+          <Button variant="outline" onClick={() => zoomOut()}>
+            Zoom Out
+          </Button>
+        </div>
+      </div>
+
+      {/* Instructions Sidebar */}
+      <div className="w-64 p-4 border-l border-gray-200 bg-gray-50 dark:bg-gray-800 overflow-auto">
+        <h2 className="font-bold mb-4">How to Use the Org Chart</h2>
+        <ul className="list-disc ml-4 space-y-2">
+          <li>Drag the entire org chart to adjust your view.</li>
+          <li>Click a user icon to view the org chart from that user.</li>
+          <li>Click a user link to navigate to the user's profile page.</li>
+        </ul>
+      </div>
+    </div>
+  );
+};
+
+const OrgChartDialog = ({
   userId,
   isOpen,
   onClose,
+}: {
+  userId?: number;
+  isOpen: boolean;
+  onClose: () => void;
 }) => {
+  const [rootUserId, setRootUserId] = useState<number | undefined>(userId);
+  const [rootUser, setRootUser] = useState<UserHierarchyDTO | null>(null);
+  const [nodes, setNodes, onNodesChange] = useNodesState<
+    Node<Record<string, unknown>>
+  >([]);
+  const [edges, setEdges, onEdgesChange] = useEdgesState<
+    Edge<Record<string, unknown>>
+  >([]);
+  const DUMMY_MANAGER_ID = -1;
+
+  const generateChart = (data: UserHierarchyDTO) => {
+    const nodes: Node<Record<string, unknown>>[] = [];
+    const edges: Edge<Record<string, unknown>>[] = [];
+
+    if (data.id === DUMMY_MANAGER_ID) {
+      nodes.push({
+        id: DUMMY_MANAGER_ID.toString(),
+        type: "custom",
+        data: {
+          label: "Top-Level Manager",
+          avatarUrl: "",
+          userPageLink: "#",
+          onClick: () => setRootUserId(DUMMY_MANAGER_ID),
+        },
+        position: { x: 0, y: 0 },
+      });
+
+      data.subordinates.forEach((sub) => {
+        nodes.push({
+          id: sub.id.toString(),
+          type: "custom",
+          data: {
+            label: sub.name,
+            avatarUrl: sub.imageUrl,
+            userPageLink: `/portal/users/${obfuscate(sub.id)}`,
+            onClick: () => setRootUserId(sub.id),
+          },
+          position: { x: 0, y: 0 },
+        });
+
+        edges.push({
+          id: `e${DUMMY_MANAGER_ID}-${sub.id}`,
+          source: DUMMY_MANAGER_ID.toString(),
+          target: sub.id.toString(),
+          animated: true,
+          markerEnd: { type: MarkerType.Arrow },
+        });
+      });
+
+      return { nodes, edges };
+    }
+
+    if (data.managerId) {
+      nodes.push({
+        id: data.managerId.toString(),
+        type: "custom",
+        data: {
+          label: data.managerName,
+          avatarUrl: data.managerImageUrl,
+          userPageLink: `/portal/users/${obfuscate(data.managerId)}`,
+          onClick: () => setRootUserId(data.managerId ?? undefined),
+        },
+        position: { x: 0, y: 0 },
+      });
+
+      edges.push({
+        id: `e${data.managerId}-${data.id}`,
+        source: data.managerId.toString(),
+        target: data.id.toString(),
+        animated: true,
+        markerEnd: { type: MarkerType.Arrow },
+      });
+    }
+
+    nodes.push({
+      id: data.id.toString(),
+      type: "custom",
+      data: {
+        label: data.name,
+        avatarUrl: data.imageUrl,
+        userPageLink: `/portal/users/${obfuscate(data.id)}`,
+        onClick: () => setRootUserId(data.id),
+      },
+      position: { x: 0, y: 0 },
+    });
+
+    data.subordinates.forEach((sub) => {
+      nodes.push({
+        id: sub.id.toString(),
+        type: "custom",
+        data: {
+          label: sub.name,
+          avatarUrl: sub.imageUrl,
+          userPageLink: `/portal/users/${obfuscate(sub.id)}`,
+          onClick: () => setRootUserId(sub.id),
+        },
+        position: { x: 0, y: 0 },
+      });
+
+      edges.push({
+        id: `e${data.id}-${sub.id}`,
+        source: data.id.toString(),
+        target: sub.id.toString(),
+        animated: true,
+        markerEnd: { type: MarkerType.Arrow },
+      });
+    });
+
+    return { nodes, edges };
+  };
+
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const loadOrgChart = async () => {
+      try {
+        const data =
+          rootUserId === DUMMY_MANAGER_ID
+            ? await getOrgChart()
+            : rootUserId === undefined
+              ? await getOrgChart()
+              : await getUserHierarchy(rootUserId);
+        setRootUser(data);
+      } catch (error) {
+        console.error("Failed to load org chart:", error);
+      }
+    };
+
+    loadOrgChart();
+  }, [rootUserId, isOpen]);
+
+  useEffect(() => {
+    if (!rootUser) return;
+    const { nodes, edges } = generateChart(rootUser);
+    const { nodes: layoutedNodes, edges: layoutedEdges } = applyLayout(
+      nodes,
+      edges,
+    );
+    setNodes(layoutedNodes);
+    setEdges(layoutedEdges);
+  }, [rootUser]);
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-[100rem] w-full">
         <DialogHeader>
           <DialogTitle>Organization Chart</DialogTitle>
         </DialogHeader>
-        <OrgChartView userId={userId} />
+        <div className="h-[50rem]">
+          {isOpen && (
+            <ReactFlowProvider>
+              <OrgChartContent
+                nodes={nodes}
+                edges={edges}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={(connection: any) => addEdge(connection, edges)}
+                setRootUserId={setRootUserId}
+              />
+            </ReactFlowProvider>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
