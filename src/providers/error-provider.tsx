@@ -3,8 +3,7 @@
 import React, { createContext, useContext, useState } from "react";
 
 interface ErrorContextProps {
-  error: string | null;
-  setError: (error: string | null) => void;
+  setError: (error: string | null) => void; // To set global errors
 }
 
 const ErrorContext = createContext<ErrorContextProps | undefined>(undefined);
@@ -14,12 +13,23 @@ export const ErrorProvider: React.FC<{ children: React.ReactNode }> = ({
 }) => {
   const [error, setError] = useState<string | null>(null);
 
+  const handleClose = () => setError(null);
+
   return (
-    <ErrorContext.Provider value={{ error, setError }}>
+    <ErrorContext.Provider value={{ setError }}>
       {children}
       {error && (
-        <div className="fixed bottom-0 left-0 right-0 p-4 bg-red-500 text-white text-center z-50">
-          {error}
+        <div
+          className="fixed bottom-0 left-0 right-0 p-4 bg-red-500 text-white text-center z-50 flex items-center justify-between"
+          style={{ minHeight: "50px" }}
+        >
+          <span>{error}</span>
+          <button
+            onClick={handleClose}
+            className="ml-4 px-4 py-2 bg-white text-red-500 font-bold rounded hover:bg-gray-200"
+          >
+            Close
+          </button>
         </div>
       )}
     </ErrorContext.Provider>

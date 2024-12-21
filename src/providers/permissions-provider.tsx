@@ -12,8 +12,8 @@ import React, {
 import { useAccessTokenManager } from "@/lib/access-token-manager";
 import { get } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
-import { PermissionLevel, ResourceId } from "@/types/resources";
 import { useError } from "@/providers/error-provider";
+import { PermissionLevel, ResourceId } from "@/types/resources";
 
 export type Permission = {
   resourceName: ResourceId;

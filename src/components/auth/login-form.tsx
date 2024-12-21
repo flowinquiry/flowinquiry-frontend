@@ -27,6 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { toast } from "../ui/use-toast";
+import { useState } from "react";
 
 const formSchema = z.object({
   email: z
@@ -39,7 +40,7 @@ const formSchema = z.object({
 
 const LoginForm = () => {
   const router = useRouter();
-
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -50,6 +51,7 @@ const LoginForm = () => {
   });
 
   const handleSubmit = async (data: z.infer<typeof formSchema>) => {
+    setErrorMessage(null);
     const response = await signIn("credentials", {
       email: data.email,
       password: data.password,
@@ -60,12 +62,7 @@ const LoginForm = () => {
     if (response?.error === null) {
       router.push("/portal");
     } else {
-      toast({
-        variant: "destructive",
-        title: "Sign-in failure",
-        description:
-          "Unable to authenticate using the account details provided.",
-      });
+      setErrorMessage("Login failed. Please try again.");
     }
   };
 
@@ -78,6 +75,12 @@ const LoginForm = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-2">
+        {/* Show error message */}
+        {errorMessage && (
+          <div className="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded">
+            {errorMessage}
+          </div>
+        )}
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}

@@ -33,7 +33,7 @@ const RootLayout = async ({
       </head>
       <body className={inter.className}>
         <ErrorProvider>
-          <ThemeProvider attribute="class" defaultTheme="light">
+          <ThemeProvider attribute="class" defaultTheme="system">
             <ReactQueryProvider>
               <TooltipProvider>{children}</TooltipProvider>
               <Toaster />
