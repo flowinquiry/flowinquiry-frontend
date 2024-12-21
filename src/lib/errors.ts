@@ -18,47 +18,47 @@ export class HttpError extends Error {
 export const handleError = async (
   response: Response,
   url: string,
-): Promise<void> => {
-  let errorMessage = undefined;
-  try {
-    // Check if there's a body to parse based on Content-Length or status
-    if (
-      response.headers.get("Content-Length") !== "0" &&
-      response.status !== 204
-    ) {
-      const errorDetails = await response.json(); // Attempt to parse JSON
-      errorMessage = errorDetails.message || errorMessage;
-    }
-  } catch (error) {
-    errorMessage = "Failed to parse error details from response";
+): Promise<Error> => {
+  let errorMessage = "An unexpected error occurred.";
+  let details: string | undefined;
+
+  if (response.headers.get("content-type")?.includes("application/json")) {
+    const errorBody = await response.json();
+    details = errorBody.message || JSON.stringify(errorBody);
+  } else {
+    details = await response.text();
   }
 
   switch (response.status) {
-    case HttpError.UNAUTHORIZED:
-      throw new HttpError(
-        HttpError.UNAUTHORIZED,
-        `Error at ${url}: ${errorMessage || "Unauthorized"}`,
-      );
-    case HttpError.BAD_REQUEST:
-      throw new HttpError(
-        HttpError.BAD_REQUEST,
-        `Error at ${url}: ${errorMessage || "Bad request"}`,
-      );
-
-    case HttpError.NOT_FOUND:
-      throw new HttpError(
-        HttpError.NOT_FOUND,
-        `Error at ${url}: ${errorMessage || "Not Found"}`,
-      );
-    case HttpError.INTERNAL_SERVER_ERROR:
-      throw new HttpError(
-        HttpError.INTERNAL_SERVER_ERROR,
-        `Error at ${url}: ${errorMessage || "Internal Server Error"}`,
-      );
+    case 400:
+      errorMessage = "Bad request. Please check your input.";
+      break;
+    case 401:
+      errorMessage = "Unauthorized. Please log in and try again.";
+      break;
+    case 403:
+      errorMessage =
+        "Forbidden. You do not have permission to perform this action.";
+      break;
+    case 404:
+      errorMessage = "Resource not found. Please try again later.";
+      break;
+    case 500:
+      errorMessage = "Server error. Please try again later.";
+      break;
+    case 503:
+      errorMessage = "Service unavailable. Please try again later.";
+      break;
     default:
-      throw new HttpError(
-        response.status,
-        errorMessage || "An unknown error occurred",
-      );
+      errorMessage = `Unexpected error (status: ${response.status}).`;
+      break;
   }
+
+  console.error(`Error fetching ${url}:`, {
+    status: response.status,
+    details,
+  });
+
+  // Return an Error object with the errorMessage
+  return new Error(errorMessage);
 };

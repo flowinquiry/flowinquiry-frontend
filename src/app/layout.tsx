@@ -6,6 +6,7 @@ import { Inter } from "next/font/google";
 
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { ErrorProvider } from "@/providers/error-provider";
 import ReactQueryProvider from "@/providers/react-query-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
 
@@ -31,12 +32,14 @@ const RootLayout = async ({
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
       </head>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="light">
-          <ReactQueryProvider>
-            <TooltipProvider>{children}</TooltipProvider>
-            <Toaster />
-          </ReactQueryProvider>
-        </ThemeProvider>
+        <ErrorProvider>
+          <ThemeProvider attribute="class" defaultTheme="light">
+            <ReactQueryProvider>
+              <TooltipProvider>{children}</TooltipProvider>
+              <Toaster />
+            </ReactQueryProvider>
+          </ThemeProvider>
+        </ErrorProvider>
       </body>
     </html>
   );

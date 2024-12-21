@@ -13,6 +13,7 @@ import { useAccessTokenManager } from "@/lib/access-token-manager";
 import { get } from "@/lib/actions/commons.action";
 import { BACKEND_API } from "@/lib/constants";
 import { PermissionLevel, ResourceId } from "@/types/resources";
+import { useError } from "@/providers/error-provider";
 
 export type Permission = {
   resourceName: ResourceId;
@@ -44,21 +45,23 @@ interface PermissionsProviderProps {
   children: ReactNode;
 }
 
-// Fetch permissions
-const fetchPermissions = async (userId: number): Promise<Permission[]> => {
-  return get<Array<Permission>>(
-    `${BACKEND_API}/api/users/permissions/${userId}`,
-  );
-};
-
 // PermissionsProvider component
 export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({
   children,
 }) => {
+  const { setError } = useError();
   const { data: session, status } = useSession();
   const [permissions, setPermissions] = useState<Permission[]>([]);
 
   const userId = session?.user?.id ? Number(session.user.id) : null;
+
+  // Fetch permissions
+  const fetchPermissions = async (userId: number): Promise<Permission[]> => {
+    return get<Array<Permission>>(
+      `${BACKEND_API}/api/users/permissions/${userId}`,
+      setError,
+    );
+  };
 
   // Make sure session access token is cached
   useAccessTokenManager();

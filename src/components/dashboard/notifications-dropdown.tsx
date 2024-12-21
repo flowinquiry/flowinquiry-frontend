@@ -26,10 +26,12 @@ import {
 } from "@/lib/actions/notifications.action";
 import { formatDateTime, formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { cn } from "@/lib/utils";
+import { useError } from "@/providers/error-provider";
 import { NotificationDTO } from "@/types/commons";
 
 const NotificationsDropdown = () => {
   const { data: session } = useSession();
+  const { setError } = useError();
 
   const [notifications, setNotifications] = useState<Array<NotificationDTO>>(
     [],
@@ -39,11 +41,12 @@ const NotificationsDropdown = () => {
     async function fetchNotifications() {
       const notificationsData = await getUnReadNotificationsByUserId(
         Number(session?.user?.id),
+        setError,
       );
       setNotifications(notificationsData);
     }
     fetchNotifications();
-  }, []);
+  }, [session]);
 
   const handleNotificationClick = async (notificationId: number) => {
     await markNotificationsAsRead([notificationId]);

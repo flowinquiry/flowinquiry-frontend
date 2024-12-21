@@ -14,44 +14,55 @@ export const fetchData = async <TData, TResponse>(
   url: string,
   method: "GET" | "POST" | "PUT" | "DELETE",
   data?: TData,
-  getToken?: () => Promise<string | undefined>,
+  securityMode: SecurityMode = SecurityMode.CLIENT_SECURE,
+  setError?: (error: string | null) => void,
 ): Promise<TResponse> => {
   const headers: Record<string, string> = {
     Accept: "application/json",
   };
-  if (getToken) {
-    const token = await getToken();
+
+  const tokenProvider = determineTokenProvider(securityMode);
+  if (tokenProvider) {
+    const token = await tokenProvider();
     if (token) {
       headers.Authorization = `Bearer ${token}`;
     }
   }
-  // Prepare the body and headers based on data type
+
   const options: RequestInit = {
     method,
     headers,
   };
+
   if (data instanceof FormData) {
     options.body = data;
-    // Do not set Content-Type header; fetch automatically handles it for FormData
   } else if (data !== undefined) {
     headers["Content-Type"] = "application/json";
     options.body = JSON.stringify(data);
   }
 
-  const response = await fetch(url, options);
+  try {
+    const response = await fetch(url, options);
 
-  if (response.ok) {
-    const contentType = response.headers.get("content-type");
-    if (contentType && contentType.includes("application/json")) {
-      return (await response.json()) as TResponse;
+    if (response.ok) {
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        return (await response.json()) as TResponse;
+      } else {
+        return undefined as unknown as TResponse;
+      }
     } else {
-      return undefined as unknown as TResponse;
+      const error = await handleError(response, url);
+      if (setError) {
+        setError(error.message);
+      }
+      throw error;
     }
-  } else {
-    await handleError(response, url);
-
-    // Add unreachable return statement for TypeScript type safety
-    return Promise.reject("Unreachable code: handleError should throw");
+  } catch (error) {
+    if (setError) {
+      setError("There was a network issue. Please try again.");
+    }
+    throw error; // Rethrow for server-side handling
   }
 };
 
@@ -66,37 +77,37 @@ export const getServerToken = async (): Promise<string | undefined> => {
 
 export const get = async <TResponse>(
   url: string,
+  setError?: (error: string | null) => void,
   securityMode: SecurityMode = SecurityMode.CLIENT_SECURE,
 ): Promise<TResponse> => {
-  const tokenProvider = determineTokenProvider(securityMode);
-  return fetchData(url, "GET", undefined, tokenProvider);
+  return fetchData(url, "GET", undefined, securityMode, setError);
 };
 
 export const post = async <TData, TResponse>(
   url: string,
   data?: TData,
+  setError?: (error: string | null) => void,
   securityMode: SecurityMode = SecurityMode.CLIENT_SECURE,
 ): Promise<TResponse> => {
-  const tokenProvider = determineTokenProvider(securityMode);
-  return fetchData(url, "POST", data, tokenProvider);
+  return fetchData(url, "POST", data, securityMode, setError);
 };
 
 export const put = async <TData, TResponse>(
   url: string,
   data?: TData,
+  setError?: (error: string | null) => void,
   securityMode: SecurityMode = SecurityMode.CLIENT_SECURE,
 ): Promise<TResponse> => {
-  const tokenProvider = determineTokenProvider(securityMode);
-  return fetchData(url, "PUT", data, tokenProvider);
+  return fetchData(url, "PUT", data, securityMode, setError);
 };
 
 export const deleteExec = async <TData, TResponse>(
   url: string,
   data?: TData,
+  setError?: (error: string | null) => void,
   securityMode: SecurityMode = SecurityMode.CLIENT_SECURE,
 ): Promise<TResponse> => {
-  const tokenProvider = determineTokenProvider(securityMode);
-  return fetchData(url, "DELETE", data, tokenProvider);
+  return fetchData(url, "DELETE", data, securityMode, setError);
 };
 
 // Default pagination object
@@ -124,8 +135,9 @@ const determineTokenProvider = (
 export const doAdvanceSearch = async <R>(
   url: string, // URL is passed as a parameter
   query: QueryDTO = { filters: [] },
-  pagination: Pagination = defaultPagination, // Default pagination with page 1 and size 10
-  isClient: boolean = true,
+  pagination: Pagination = defaultPagination,
+  setError?: (error: string | null) => void,
+  securityMode: SecurityMode = SecurityMode.CLIENT_SECURE,
 ) => {
   // Validate QueryDTO
   const queryValidation = querySchema.safeParse(query);
@@ -147,13 +159,12 @@ export const doAdvanceSearch = async <R>(
 
   const queryParams = createQueryParams(pagination);
 
-  const tokenProvider = isClient ? getClientToken : getServerToken;
-
   return fetchData<QueryDTO, PageableResult<R>>(
     `${url}?${queryParams.toString()}`,
     "POST",
     query,
-    tokenProvider,
+    securityMode,
+    setError,
   );
 };
 

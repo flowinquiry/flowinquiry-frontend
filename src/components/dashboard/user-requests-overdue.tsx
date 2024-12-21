@@ -21,6 +21,7 @@ import { getOverdueTicketsByUser } from "@/lib/actions/teams-request.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { TeamRequestDTO, TeamRequestPriority } from "@/types/team-requests";
+import { useError } from "@/providers/error-provider";
 
 const UserTeamsOverdueTickets = () => {
   const { data: session } = useSession();
@@ -34,11 +35,18 @@ const UserTeamsOverdueTickets = () => {
 
   const [sortBy, setSortBy] = useState("priority");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const { setError } = useError();
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchOverdueTickets = async () => {
       setLoading(true);
-      getOverdueTicketsByUser(userId, currentPage, sortBy, sortDirection)
+      getOverdueTicketsByUser(
+        userId,
+        currentPage,
+        sortBy,
+        sortDirection,
+        setError,
+      )
         .then((data) => {
           setTickets(data.content);
           setTotalPages(data.totalPages);
@@ -47,7 +55,7 @@ const UserTeamsOverdueTickets = () => {
         .finally(() => setLoading(false));
     };
 
-    fetchData();
+    fetchOverdueTickets();
   }, [userId, currentPage, sortBy, sortDirection]);
 
   const toggleSortDirection = () => {

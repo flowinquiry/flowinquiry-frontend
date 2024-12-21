@@ -122,6 +122,7 @@ export const getOverdueTicketsByUser = async (
   page: number,
   sortBy: string,
   sortDirection: string,
+  setError?: (error: string | null) => void,
 ) => {
   return get<PageableResult<TeamRequestDTO>>(
     `${BACKEND_API}/api/team-requests/users/${userId}/overdue-tickets?page=${page}&size=5&sort=${sortBy},${sortDirection}`,
