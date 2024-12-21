@@ -16,6 +16,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { getTicketCreationDaySeries } from "@/lib/actions/teams-request.action";
+import { useError } from "@/providers/error-provider";
 import { TicketActionCountByDateDTO } from "@/types/teams";
 
 const TicketCreationByDaySeriesChart = ({
@@ -29,12 +30,13 @@ const TicketCreationByDaySeriesChart = ({
     (TicketActionCountByDateDTO & { displayDay: string })[]
   >([]);
   const [loading, setLoading] = useState(true);
-  const [collapsed, setCollapsed] = useState(false); // State for collapsible content
+  const [collapsed, setCollapsed] = useState(false);
+  const { setError } = useError();
 
   useEffect(() => {
     async function fetchData() {
       setLoading(true);
-      getTicketCreationDaySeries(teamId, days)
+      getTicketCreationDaySeries(teamId, days, setError)
         .then((data) => {
           const formattedData = data.map((item, index) => ({
             ...item,

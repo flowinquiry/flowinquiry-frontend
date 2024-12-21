@@ -34,6 +34,7 @@ import {
   findPermissionsByAuthorityName,
 } from "@/lib/actions/authorities.action";
 import { obfuscate } from "@/lib/endecode";
+import { useError } from "@/providers/error-provider";
 import {
   AuthorityDTO,
   AuthorityDTOSchema,
@@ -56,11 +57,11 @@ const AuthorityForm = ({
   authorityId: string | undefined;
 }) => {
   const router = useRouter();
-  const [loading, setLoading] = useState(!!authorityId); // Only show loading if authorityId is present
-  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(!!authorityId);
   const [authorityResourcePermissions, setAuthorityResourcePermissions] =
     useState<Array<AuthorityResourcePermissionDTO>>([]);
   const [authority, setAuthority] = useState<AuthorityDTO | undefined>();
+  const { setError } = useError();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -82,7 +83,10 @@ const AuthorityForm = ({
       if (!authorityId) return; // Skip fetching if authorityId is undefined
 
       try {
-        const fetchedAuthority = await findAuthorityByName(authorityId);
+        const fetchedAuthority = await findAuthorityByName(
+          authorityId,
+          setError,
+        );
 
         if (fetchedAuthority) {
           setAuthority(fetchedAuthority);
@@ -107,8 +111,6 @@ const AuthorityForm = ({
             })),
           });
         }
-      } catch (err) {
-        setError("Failed to fetch authority. Please try again later.");
       } finally {
         setLoading(false);
       }
@@ -118,15 +120,11 @@ const AuthorityForm = ({
   }, [authorityId, reset]);
 
   async function onSubmit(formData: FormData) {
-    try {
-      await createAuthority(formData.authority);
-      await batchSavePermissions(formData.permissions);
-      router.push(
-        `/portal/settings/authorities/${obfuscate(formData.authority.name)}`,
-      );
-    } catch (err) {
-      setError("Failed to save changes. Please try again.");
-    }
+    await createAuthority(formData.authority, setError);
+    await batchSavePermissions(formData.permissions, setError);
+    router.push(
+      `/portal/settings/authorities/${obfuscate(formData.authority.name)}`,
+    );
   }
 
   const isSystemRole = authority?.systemRole;
@@ -149,17 +147,6 @@ const AuthorityForm = ({
     return (
       <div className="flex justify-center items-center h-full">
         <Spinner>Loading data...</Spinner>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex flex-col items-center">
-        <p className="text-red-500">{error}</p>
-        <Button variant="secondary" onClick={() => router.back()}>
-          Go Back
-        </Button>
       </div>
     );
   }

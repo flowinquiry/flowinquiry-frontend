@@ -9,20 +9,26 @@ import { createQueryParams, Pagination } from "@/types/query";
 import { UserDTO } from "@/types/users";
 
 export const getAuthorities = async (page: number) => {
-  // TODO: temporarily disable the paging for the MVP
   return get<PageableResult<AuthorityDTO>>(
     `${BACKEND_API}/api/authorities?page=${page}&size=2000&sort=descriptiveName,asc`,
   );
 };
 
-export const findAuthorityByName = async (name: string) => {
-  return get<AuthorityDTO>(`${BACKEND_API}/api/authorities/${name}`);
+export const findAuthorityByName = async (
+  name: string,
+  setError?: (error: string | null) => void,
+) => {
+  return get<AuthorityDTO>(`${BACKEND_API}/api/authorities/${name}`, setError);
 };
 
-export const createAuthority = async (authority: AuthorityDTO) => {
+export const createAuthority = async (
+  authority: AuthorityDTO,
+  setError?: (error: string | null) => void,
+) => {
   return post<AuthorityDTO, AuthorityDTO>(
     `${BACKEND_API}/api/authorities`,
     authority,
+    setError,
   );
 };
 
@@ -40,11 +46,16 @@ export const findPermissionsByAuthorityName = async (authorityName: string) => {
 
 export const batchSavePermissions = async (
   permissions: Array<AuthorityResourcePermissionDTO>,
+  setError?: (error: string | null) => void,
 ) => {
   return post<
     Array<AuthorityResourcePermissionDTO>,
     Array<AuthorityResourcePermissionDTO>
-  >(`${BACKEND_API}/api/authority-permissions/batchSave`, permissions);
+  >(
+    `${BACKEND_API}/api/authority-permissions/batchSave`,
+    permissions,
+    setError,
+  );
 };
 
 export async function getUsersByAuthority(

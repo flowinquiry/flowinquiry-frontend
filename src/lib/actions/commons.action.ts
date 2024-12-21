@@ -52,17 +52,20 @@ export const fetchData = async <TData, TResponse>(
         return undefined as unknown as TResponse;
       }
     } else {
+      // Handle error and return a meaningful error object
       const error = await handleError(response, url);
       if (setError) {
-        setError(error.message);
+        setError(error.message); // Only set error here
       }
-      throw error;
+      throw error; // Re-throw to propagate the error
     }
-  } catch (error) {
-    if (setError) {
+  } catch (error: any) {
+    // Only handle network-related errors here
+    if (!error.handled && setError) {
+      console.log(`Error ${error}`);
       setError("There was a network issue. Please try again.");
     }
-    throw error; // Rethrow for server-side handling
+    throw error; // Always re-throw for further handling
   }
 };
 
