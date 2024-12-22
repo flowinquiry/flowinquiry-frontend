@@ -15,9 +15,9 @@ import { getActivityLogs } from "@/lib/actions/activity-logs.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
+import { useError } from "@/providers/error-provider";
 import { ActivityLogDTO } from "@/types/activity-logs";
 import { EntityType } from "@/types/commons";
-import { useError } from "@/providers/error-provider";
 
 type AuditLogViewProps = {
   entityType: EntityType;

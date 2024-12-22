@@ -20,8 +20,8 @@ import { Form } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
 import { createUser, findUserById } from "@/lib/actions/users.action";
 import { obfuscate } from "@/lib/endecode";
-import { UserDTO, UserDTOSchema } from "@/types/users";
 import { useError } from "@/providers/error-provider";
+import { UserDTO, UserDTOSchema } from "@/types/users";
 
 type UserFormValues = z.infer<typeof UserDTOSchema>;
 

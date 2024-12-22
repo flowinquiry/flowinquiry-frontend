@@ -40,11 +40,11 @@ import {
 } from "@/lib/actions/teams.action";
 import { obfuscate } from "@/lib/endecode";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
+import { useError } from "@/providers/error-provider";
 import { useTeam } from "@/providers/team-provider";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { PermissionUtils } from "@/types/resources";
 import { UserWithTeamRoleDTO } from "@/types/users";
-import { useError } from "@/providers/error-provider";
 
 const TeamUsersView = () => {
   const team = useTeam();

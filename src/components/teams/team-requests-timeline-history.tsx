@@ -19,8 +19,8 @@ import {
 } from "@/components/ui/tooltip";
 import { getTeamRequestStateChangesHistory } from "@/lib/actions/teams.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
-import { TransitionItemCollectionDTO } from "@/types/teams";
 import { useError } from "@/providers/error-provider";
+import { TransitionItemCollectionDTO } from "@/types/teams";
 
 const TeamRequestsTimelineHistory = ({ teamId }: { teamId: number }) => {
   const [transitionItemCollection, setTransitionItemCollection] =

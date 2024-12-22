@@ -13,8 +13,8 @@ import {
 } from "@/components/ui/tooltip";
 import { getActivityLogs } from "@/lib/actions/activity-logs.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
-import { ActivityLogDTO } from "@/types/activity-logs";
 import { useError } from "@/providers/error-provider";
+import { ActivityLogDTO } from "@/types/activity-logs";
 
 const RecentTeamActivities = ({ teamId }: { teamId: number }) => {
   const [activityLogs, setActivityLogs] = useState<ActivityLogDTO[]>([]);

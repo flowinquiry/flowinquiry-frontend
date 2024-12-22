@@ -28,11 +28,11 @@ import {
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
+import { useError } from "@/providers/error-provider";
 import { useTeam } from "@/providers/team-provider";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { PermissionUtils } from "@/types/resources";
 import { WorkflowDTO } from "@/types/workflows";
-import { useError } from "@/providers/error-provider";
 
 const TeamWorkflowsView = () => {
   const team = useTeam();

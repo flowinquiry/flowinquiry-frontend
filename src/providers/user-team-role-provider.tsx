@@ -4,8 +4,8 @@ import { useSession } from "next-auth/react";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 import { getUserRoleInTeam } from "@/lib/actions/teams.action";
-import { TeamRole } from "@/types/teams";
 import { useError } from "@/providers/error-provider";
+import { TeamRole } from "@/types/teams";
 
 type UserTeamRoleContextType = {
   role: TeamRole;

@@ -28,9 +28,9 @@ import {
 } from "@/components/ui/popover";
 import { findMembersByTeamId } from "@/lib/actions/teams.action";
 import { cn } from "@/lib/utils";
+import { useError } from "@/providers/error-provider";
 import { UiAttributes } from "@/types/ui-components";
 import { UserWithTeamRoleDTO } from "@/types/users";
-import { useError } from "@/providers/error-provider";
 
 const TeamUserSelectField = ({
   form,

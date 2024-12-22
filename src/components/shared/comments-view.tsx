@@ -17,8 +17,8 @@ import {
 } from "@/lib/actions/comments.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
-import { CommentDTO, EntityType } from "@/types/commons";
 import { useError } from "@/providers/error-provider";
+import { CommentDTO, EntityType } from "@/types/commons";
 
 type CommentsViewProps = {
   entityType: EntityType;

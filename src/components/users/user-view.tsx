@@ -27,10 +27,10 @@ import { usePagePermission } from "@/hooks/use-page-permission";
 import { findTeamsByMemberId } from "@/lib/actions/teams.action";
 import { findUserById, getDirectReports } from "@/lib/actions/users.action";
 import { obfuscate } from "@/lib/endecode";
+import { useError } from "@/providers/error-provider";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
 import { UserDTO } from "@/types/users";
-import { useError } from "@/providers/error-provider";
 
 export const UserView = ({ userId }: { userId: number }) => {
   const [user, setUser] = useState<UserDTO | undefined | null>(undefined);

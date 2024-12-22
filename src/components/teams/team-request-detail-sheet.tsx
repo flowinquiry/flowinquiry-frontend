@@ -22,8 +22,8 @@ import { updateTeamRequest } from "@/lib/actions/teams-request.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { getSpecifiedColor } from "@/lib/utils";
-import { TeamRequestDTO } from "@/types/team-requests";
 import { useError } from "@/providers/error-provider";
+import { TeamRequestDTO } from "@/types/team-requests";
 
 type RequestDetailsProps = {
   open: boolean;

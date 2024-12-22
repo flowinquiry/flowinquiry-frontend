@@ -32,10 +32,10 @@ import {
 } from "@/lib/actions/workflows.action";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
+import { useError } from "@/providers/error-provider";
 import { QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { WorkflowDTO } from "@/types/workflows";
-import { useError } from "@/providers/error-provider";
 
 const WorkflowsView = () => {
   const [items, setItems] = useState<Array<WorkflowDTO>>([]);

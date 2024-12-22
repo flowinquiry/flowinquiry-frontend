@@ -17,8 +17,8 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { getTeamTicketPriorityDistributionForUser } from "@/lib/actions/teams-request.action";
-import { TeamRequestPriority } from "@/types/team-requests";
 import { useError } from "@/providers/error-provider";
+import { TeamRequestPriority } from "@/types/team-requests";
 
 const PRIORITY_COLORS: Record<TeamRequestPriority, string> = {
   Critical: "#dc2626",

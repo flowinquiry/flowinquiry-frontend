@@ -35,9 +35,9 @@ import {
   getAuthorities,
 } from "@/lib/actions/authorities.action";
 import { obfuscate } from "@/lib/endecode";
+import { useError } from "@/providers/error-provider";
 import { AuthorityDTO } from "@/types/authorities";
 import { PermissionUtils } from "@/types/resources";
-import { useError } from "@/providers/error-provider";
 
 export function AuthoritiesView() {
   const router = useRouter();

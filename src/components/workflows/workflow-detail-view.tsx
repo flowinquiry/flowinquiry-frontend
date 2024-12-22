@@ -16,9 +16,9 @@ import {
   getWorkflowDetail,
   updateWorkflowDetail,
 } from "@/lib/actions/workflows.action";
+import { useError } from "@/providers/error-provider";
 import { PermissionUtils } from "@/types/resources";
 import { WorkflowDetailDTO } from "@/types/workflows";
-import { useError } from "@/providers/error-provider";
 
 const GlobalWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
   const router = useRouter();

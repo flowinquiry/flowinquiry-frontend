@@ -7,8 +7,8 @@ import { WorkflowDiagram } from "@/components/workflows/workflow-diagram-view";
 import WorkflowEditForm from "@/components/workflows/workflow-editor-form";
 import { saveWorkflowDetail } from "@/lib/actions/workflows.action";
 import { obfuscate } from "@/lib/endecode";
-import { WorkflowDetailDTO } from "@/types/workflows";
 import { useError } from "@/providers/error-provider";
+import { WorkflowDetailDTO } from "@/types/workflows";
 
 const defaultWorkflow: WorkflowDetailDTO = {
   id: undefined,
