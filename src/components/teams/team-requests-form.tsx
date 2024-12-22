@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { notFound, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -34,12 +34,12 @@ import {
 import { obfuscate } from "@/lib/endecode";
 import { randomPair } from "@/lib/utils";
 import { validateForm } from "@/lib/validator";
+import { useError } from "@/providers/error-provider";
 import {
   TeamRequestDTO,
   TeamRequestDTOSchema,
   TeamRequestPriority,
 } from "@/types/team-requests";
-import { useError } from "@/providers/error-provider";
 
 export const TeamRequestForm = ({
   teamRequestId,

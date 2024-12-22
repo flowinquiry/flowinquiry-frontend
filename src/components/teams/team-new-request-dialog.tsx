@@ -31,6 +31,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { createTeamRequest } from "@/lib/actions/teams-request.action";
+import { useError } from "@/providers/error-provider";
 import {
   TeamRequestDTO,
   TeamRequestDTOSchema,
@@ -38,7 +39,6 @@ import {
 } from "@/types/team-requests";
 import { TeamDTO } from "@/types/teams";
 import { WorkflowDTO } from "@/types/workflows";
-import { useError } from "@/providers/error-provider";
 
 type NewRequestToTeamDialogProps = {
   open: boolean;

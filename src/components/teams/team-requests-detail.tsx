@@ -27,9 +27,9 @@ import { obfuscate } from "@/lib/endecode";
 import { navigateToRecord } from "@/lib/navigation-record";
 import { getSpecifiedColor, randomPair } from "@/lib/utils";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
+import { useError } from "@/providers/error-provider";
 import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/team-requests";
-import { useError } from "@/providers/error-provider";
 
 const TeamRequestDetailView = ({
   teamRequestId,

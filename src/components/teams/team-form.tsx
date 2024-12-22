@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -32,8 +31,8 @@ import { findTeamById } from "@/lib/actions/teams.action";
 import { BACKEND_API } from "@/lib/constants";
 import { obfuscate } from "@/lib/endecode";
 import { validateForm } from "@/lib/validator";
-import { TeamDTO, TeamDTOSchema } from "@/types/teams";
 import { useError } from "@/providers/error-provider";
+import { TeamDTO, TeamDTOSchema } from "@/types/teams";
 
 export const TeamForm = ({ teamId }: { teamId: number | undefined }) => {
   const router = useRouter();

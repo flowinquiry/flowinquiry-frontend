@@ -30,8 +30,8 @@ import {
   getGlobalWorkflowHasNotLinkedWithTeam,
 } from "@/lib/actions/workflows.action";
 import { obfuscate } from "@/lib/endecode";
-import { WorkflowDTO } from "@/types/workflows";
 import { useError } from "@/providers/error-provider";
+import { WorkflowDTO } from "@/types/workflows";
 
 const workflowReferenceSchema = z.object({
   referenceWorkflowId: z

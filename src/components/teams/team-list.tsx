@@ -40,10 +40,10 @@ import { usePagePermission } from "@/hooks/use-page-permission";
 import { deleteTeams, searchTeams } from "@/lib/actions/teams.action";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
+import { useError } from "@/providers/error-provider";
 import { Filter, QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
-import { useError } from "@/providers/error-provider";
 
 export const TeamList = () => {
   const router = useRouter();

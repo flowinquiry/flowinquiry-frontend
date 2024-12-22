@@ -36,13 +36,13 @@ import { searchTeamRequests } from "@/lib/actions/teams-request.action";
 import { getWorkflowsByTeam } from "@/lib/actions/workflows.action";
 import { obfuscate } from "@/lib/endecode";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
+import { useError } from "@/providers/error-provider";
 import { useTeam } from "@/providers/team-provider";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { Filter, GroupFilter, QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/team-requests";
 import { WorkflowDTO } from "@/types/workflows";
-import { useError } from "@/providers/error-provider";
 
 export type Pagination = {
   page: number;

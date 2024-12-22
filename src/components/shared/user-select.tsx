@@ -34,9 +34,9 @@ import {
 } from "@/components/ui/tooltip";
 import { searchUsers } from "@/lib/actions/users.action";
 import { cn } from "@/lib/utils";
+import { useError } from "@/providers/error-provider";
 import { QueryDTO } from "@/types/query";
 import { UiAttributes } from "@/types/ui-components";
-import { useError } from "@/providers/error-provider";
 
 export const UserSelectField = ({
   form,

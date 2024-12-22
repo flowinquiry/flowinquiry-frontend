@@ -18,8 +18,8 @@ import {
 import { getOverdueTicketsByTeam } from "@/lib/actions/teams-request.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
-import { TeamRequestDTO, TeamRequestPriority } from "@/types/team-requests";
 import { useError } from "@/providers/error-provider";
+import { TeamRequestDTO, TeamRequestPriority } from "@/types/team-requests";
 
 const TeamOverdueTickets = ({ teamId }: { teamId: number }) => {
   const [currentPage, setCurrentPage] = useState(1);

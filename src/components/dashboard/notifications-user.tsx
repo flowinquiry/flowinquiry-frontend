@@ -13,8 +13,8 @@ import {
   markNotificationsAsRead,
 } from "@/lib/actions/notifications.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
-import { NotificationDTO } from "@/types/commons";
 import { useError } from "@/providers/error-provider";
+import { NotificationDTO } from "@/types/commons";
 
 const UserNotifications = () => {
   const [notifications, setNotifications] = useState<NotificationDTO[]>([]);

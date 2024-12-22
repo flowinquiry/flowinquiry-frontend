@@ -22,11 +22,11 @@ import {
 } from "@/lib/actions/workflows.action";
 import { obfuscate } from "@/lib/endecode";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
+import { useError } from "@/providers/error-provider";
 import { useTeam } from "@/providers/team-provider";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { PermissionUtils } from "@/types/resources";
 import { WorkflowDetailDTO } from "@/types/workflows";
-import { useError } from "@/providers/error-provider";
 
 const TeamWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
   const team = useTeam();

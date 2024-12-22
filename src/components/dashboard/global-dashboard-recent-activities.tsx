@@ -17,8 +17,8 @@ import {
 import { getUserActivities } from "@/lib/actions/activity-logs.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
-import { ActivityLogDTO } from "@/types/activity-logs";
 import { useError } from "@/providers/error-provider";
+import { ActivityLogDTO } from "@/types/activity-logs";
 
 const RecentUserTeamActivities = () => {
   const [activityLogs, setActivityLogs] = useState<ActivityLogDTO[]>([]);

@@ -50,10 +50,10 @@ import {
 } from "@/lib/actions/users.action";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
+import { useError } from "@/providers/error-provider";
 import { QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { UserDTO } from "@/types/users";
-import { useError } from "@/providers/error-provider";
 
 export const UserList = () => {
   const { toast } = useToast();

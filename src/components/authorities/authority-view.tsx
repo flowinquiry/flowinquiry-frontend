@@ -33,13 +33,13 @@ import {
   getUsersByAuthority,
 } from "@/lib/actions/authorities.action";
 import { obfuscate } from "@/lib/endecode";
+import { useError } from "@/providers/error-provider";
 import {
   AuthorityDTO,
   AuthorityResourcePermissionDTO,
 } from "@/types/authorities";
 import { PermissionUtils } from "@/types/resources";
 import { UserDTO } from "@/types/users";
-import { useError } from "@/providers/error-provider";
 
 export const AuthorityView = ({ authorityId }: { authorityId: string }) => {
   const permissionLevel = usePagePermission();

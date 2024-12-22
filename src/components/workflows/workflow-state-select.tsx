@@ -18,8 +18,8 @@ import {
 } from "@/components/ui/select";
 import { getValidTargetStates } from "@/lib/actions/workflows.action";
 import { cn } from "@/lib/utils";
-import { WorkflowStateDTO } from "@/types/workflows";
 import { useError } from "@/providers/error-provider";
+import { WorkflowStateDTO } from "@/types/workflows";
 
 type WorkflowStateSelectProps = {
   form: UseFormReturn<any>;

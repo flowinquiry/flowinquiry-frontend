@@ -24,8 +24,8 @@ import {
 } from "@/components/ui/form";
 import MultipleSelector from "@/components/ui/multi-select-dynamic";
 import { addUsersToTeam, findUsersNotInTeam } from "@/lib/actions/teams.action";
-import { TeamDTO } from "@/types/teams";
 import { useError } from "@/providers/error-provider";
+import { TeamDTO } from "@/types/teams";
 
 type AddUserToTeamDialogProps = {
   open: boolean;

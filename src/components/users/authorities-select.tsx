@@ -10,9 +10,9 @@ import {
 } from "@/components/ui/form";
 import { MultiSelect } from "@/components/ui/multi-select";
 import { getAuthorities } from "@/lib/actions/authorities.action";
+import { useError } from "@/providers/error-provider";
 import { AuthorityDTO } from "@/types/authorities";
 import { UiAttributes } from "@/types/ui-components";
-import { useError } from "@/providers/error-provider";
 
 interface AuthoritiesSelectProps {
   form: any;
