@@ -68,7 +68,7 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({
 
   useEffect(() => {
     if (status === "authenticated" && userId && permissions.length === 0) {
-      fetchPermissions(userId).then(setPermissions).catch(console.error);
+      fetchPermissions(userId).then(setPermissions);
     }
   }, [status, userId, permissions]);
 

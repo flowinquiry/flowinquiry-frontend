@@ -14,8 +14,8 @@ export const fetchData = async <TData, TResponse>(
   url: string,
   method: "GET" | "POST" | "PUT" | "DELETE",
   data?: TData,
-  securityMode: SecurityMode = SecurityMode.CLIENT_SECURE,
   setError?: (error: string | null) => void,
+  securityMode: SecurityMode = SecurityMode.CLIENT_SECURE,
 ): Promise<TResponse> => {
   const headers: Record<string, string> = {
     Accept: "application/json",
@@ -57,13 +57,13 @@ export const fetchData = async <TData, TResponse>(
       if (setError) {
         setError(error.message); // Only set error here
       }
+
       throw error; // Re-throw to propagate the error
     }
   } catch (error: any) {
     // Only handle network-related errors here
     if (!error.handled && setError) {
-      console.log(`Error ${error}`);
-      setError("There was a network issue. Please try again.");
+      setError(`There was a network issue ${error}. Please try again.`);
     }
     throw error; // Always re-throw for further handling
   }
@@ -83,7 +83,7 @@ export const get = async <TResponse>(
   setError?: (error: string | null) => void,
   securityMode: SecurityMode = SecurityMode.CLIENT_SECURE,
 ): Promise<TResponse> => {
-  return fetchData(url, "GET", undefined, securityMode, setError);
+  return fetchData(url, "GET", undefined, setError, securityMode);
 };
 
 export const post = async <TData, TResponse>(
@@ -92,7 +92,7 @@ export const post = async <TData, TResponse>(
   setError?: (error: string | null) => void,
   securityMode: SecurityMode = SecurityMode.CLIENT_SECURE,
 ): Promise<TResponse> => {
-  return fetchData(url, "POST", data, securityMode, setError);
+  return fetchData(url, "POST", data, setError, securityMode);
 };
 
 export const put = async <TData, TResponse>(
@@ -101,7 +101,7 @@ export const put = async <TData, TResponse>(
   setError?: (error: string | null) => void,
   securityMode: SecurityMode = SecurityMode.CLIENT_SECURE,
 ): Promise<TResponse> => {
-  return fetchData(url, "PUT", data, securityMode, setError);
+  return fetchData(url, "PUT", data, setError, securityMode);
 };
 
 export const deleteExec = async <TData, TResponse>(
@@ -110,7 +110,7 @@ export const deleteExec = async <TData, TResponse>(
   setError?: (error: string | null) => void,
   securityMode: SecurityMode = SecurityMode.CLIENT_SECURE,
 ): Promise<TResponse> => {
-  return fetchData(url, "DELETE", data, securityMode, setError);
+  return fetchData(url, "DELETE", data, setError, securityMode);
 };
 
 // Default pagination object
@@ -166,8 +166,8 @@ export const doAdvanceSearch = async <R>(
     `${url}?${queryParams.toString()}`,
     "POST",
     query,
-    securityMode,
     setError,
+    securityMode,
   );
 };
 

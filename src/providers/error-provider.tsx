@@ -1,6 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useState } from "react";
+import { useRouter } from "next/navigation";
+import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface ErrorContextProps {
   setError: (error: string | null) => void; // To set global errors
@@ -14,7 +15,15 @@ export const ErrorProvider: React.FC<{ children: React.ReactNode }> = ({
   const [error, setError] = useState<string | null>(null);
 
   const handleClose = () => setError(null);
+  const router = useRouter();
 
+  useEffect(() => {
+    if (error?.includes("Token expired or invalid")) {
+      // Redirect to login on token expiration
+      router.push("/login");
+      setError("Unauthorized. Please log in and try again.");
+    }
+  }, [error, router]);
   return (
     <ErrorContext.Provider value={{ setError }}>
       {children}

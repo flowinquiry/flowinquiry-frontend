@@ -44,7 +44,7 @@ export const handleError = async (
       errorMessage = "Bad request. Please check your input.";
       break;
     case HttpError.UNAUTHORIZED:
-      errorMessage = "Unauthorized. Please log in and try again.";
+      errorMessage = details || "Unauthorized access.";
       break;
     case HttpError.FORBIDDEN:
       errorMessage =

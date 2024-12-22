@@ -9,6 +9,7 @@ import React, {
 } from "react";
 
 import { findTeamById } from "@/lib/actions/teams.action";
+import { useError } from "@/providers/error-provider";
 import { TeamDTO } from "@/types/teams";
 
 interface TeamProviderProps {
@@ -32,10 +33,11 @@ export const TeamProvider: React.FC<TeamProviderProps> = ({
   children,
 }) => {
   const [team, setTeam] = useState<TeamDTO | null>(null);
+  const { setError } = useError();
 
   useEffect(() => {
     const fetchTeam = async () => {
-      findTeamById(teamId).then((data) => setTeam(data));
+      findTeamById(teamId, setError).then((data) => setTeam(data));
     };
 
     fetchTeam();
