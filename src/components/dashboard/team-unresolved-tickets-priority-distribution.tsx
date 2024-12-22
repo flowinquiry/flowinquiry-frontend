@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { getTeamTicketPriorityDistributionForUser } from "@/lib/actions/teams-request.action";
 import { TeamRequestPriority } from "@/types/team-requests";
+import { useError } from "@/providers/error-provider";
 
 const PRIORITY_COLORS: Record<TeamRequestPriority, string> = {
   Critical: "#dc2626",
@@ -36,11 +37,15 @@ const TeamUnresolvedTicketsPriorityDistributionChart = () => {
   >({});
   const [loading, setLoading] = useState(true);
   const [collapsed, setCollapsed] = useState(false); // State for collapsible content
+  const { setError } = useError();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const result = await getTeamTicketPriorityDistributionForUser(userId);
+        const result = await getTeamTicketPriorityDistributionForUser(
+          userId,
+          setError,
+        );
         const chartData = result.reduce(
           (acc, item) => {
             if (!acc[item.teamName]) {

@@ -44,6 +44,7 @@ import { useTeam } from "@/providers/team-provider";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { PermissionUtils } from "@/types/resources";
 import { UserWithTeamRoleDTO } from "@/types/users";
+import { useError } from "@/providers/error-provider";
 
 const TeamUsersView = () => {
   const team = useTeam();
@@ -62,10 +63,11 @@ const TeamUsersView = () => {
   const [items, setItems] = useState<Array<UserWithTeamRoleDTO>>([]);
   const [totalMembers, setTotalMembers] = useState(0);
   const [loading, setLoading] = useState(false);
+  const { setError } = useError();
 
   const fetchUsers = async () => {
     setLoading(true);
-    findMembersByTeamId(team.id!)
+    findMembersByTeamId(team.id!, setError)
       .then((data) => {
         setItems(data);
         setTotalMembers(data.length);
@@ -88,7 +90,7 @@ const TeamUsersView = () => {
       return;
     }
 
-    await deleteUserFromTeam(team.id!, user.id!);
+    await deleteUserFromTeam(team.id!, user.id!, setError);
     await fetchUsers();
   };
 

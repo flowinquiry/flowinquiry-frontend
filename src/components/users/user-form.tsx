@@ -21,6 +21,7 @@ import { Separator } from "@/components/ui/separator";
 import { createUser, findUserById } from "@/lib/actions/users.action";
 import { obfuscate } from "@/lib/endecode";
 import { UserDTO, UserDTOSchema } from "@/types/users";
+import { useError } from "@/providers/error-provider";
 
 type UserFormValues = z.infer<typeof UserDTOSchema>;
 
@@ -28,6 +29,7 @@ export const UserForm = ({ userId }: { userId?: number }) => {
   const router = useRouter();
   const [user, setUser] = useState<UserDTO | undefined>();
   const [loading, setLoading] = useState(!!userId); // Only show loading if userId is defined
+  const { setError } = useError();
 
   const form = useForm<UserFormValues>({
     resolver: zodResolver(UserDTOSchema),
@@ -41,7 +43,7 @@ export const UserForm = ({ userId }: { userId?: number }) => {
       if (!userId) return;
 
       try {
-        const userData = await findUserById(userId);
+        const userData = await findUserById(userId, setError);
         if (userData) {
           setUser(userData);
           reset(userData);
@@ -55,7 +57,7 @@ export const UserForm = ({ userId }: { userId?: number }) => {
   }, [userId, reset]);
 
   async function onSubmit(data: UserDTO) {
-    const savedUser = await createUser(data);
+    const savedUser = await createUser(data, setError);
     router.push(`/portal/users/${obfuscate(savedUser.id)}`);
   }
 

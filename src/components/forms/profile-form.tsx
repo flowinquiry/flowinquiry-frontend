@@ -38,6 +38,7 @@ import { useToast } from "@/hooks/use-toast";
 import { put } from "@/lib/actions/commons.action";
 import { changePassword, findUserById } from "@/lib/actions/users.action";
 import { BACKEND_API } from "@/lib/constants";
+import { useError } from "@/providers/error-provider";
 import { UserDTOSchema } from "@/types/users";
 
 const userSchemaWithFile = UserDTOSchema.extend({
@@ -68,6 +69,7 @@ export const ProfileForm = () => {
   } = useImageCropper();
 
   const [user, setUser] = useState<UserTypeWithFile | undefined>(undefined);
+  const { setError } = useError();
   const [isConfirmationOpen, setConfirmationOpen] = useState(false);
   const [isPasswordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [showPasswords, setShowPasswords] = useState({
@@ -87,13 +89,13 @@ export const ProfileForm = () => {
       formData.append("file", selectedFile);
     }
 
-    await put(`${BACKEND_API}/api/users`, formData);
+    await put(`${BACKEND_API}/api/users`, formData, setError);
     toast({ description: "Save profile successfully" });
   };
 
   const handleChangePassword = async (data: z.infer<typeof passwordSchema>) => {
     try {
-      await changePassword(data.currentPassword, data.newPassword);
+      await changePassword(data.currentPassword, data.newPassword, setError);
       setPasswordDialogOpen(false);
       setConfirmationOpen(true);
     } catch (error) {
@@ -106,7 +108,7 @@ export const ProfileForm = () => {
 
   useEffect(() => {
     async function loadUserInfo() {
-      const userData = await findUserById(Number(session?.user?.id));
+      const userData = await findUserById(Number(session?.user?.id), setError);
       setUser({ ...userData, file: undefined });
 
       if (userData) {

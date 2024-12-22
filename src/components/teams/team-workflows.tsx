@@ -32,6 +32,7 @@ import { useTeam } from "@/providers/team-provider";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { PermissionUtils } from "@/types/resources";
 import { WorkflowDTO } from "@/types/workflows";
+import { useError } from "@/providers/error-provider";
 
 const TeamWorkflowsView = () => {
   const team = useTeam();
@@ -46,11 +47,12 @@ const TeamWorkflowsView = () => {
   const teamRole = useUserTeamRole().role;
   const [loading, setLoading] = useState(false);
   const [workflows, setWorkflows] = useState<WorkflowDTO[]>([]);
+  const { setError } = useError();
 
   const fetchWorkflows = async () => {
     setLoading(true);
     try {
-      const result = await getWorkflowsByTeam(team.id!);
+      const result = await getWorkflowsByTeam(team.id!, setError);
       setWorkflows(result);
     } finally {
       setLoading(false);
@@ -69,7 +71,7 @@ const TeamWorkflowsView = () => {
   };
 
   const deleteWorkflowFromTeam = async (workflow: WorkflowDTO) => {
-    await deleteWorkflow(workflow.id!);
+    await deleteWorkflow(workflow.id!, setError);
     await fetchWorkflows();
   };
 

@@ -33,10 +33,10 @@ import { BACKEND_API } from "@/lib/constants";
 import { obfuscate } from "@/lib/endecode";
 import { validateForm } from "@/lib/validator";
 import { TeamDTO, TeamDTOSchema } from "@/types/teams";
+import { useError } from "@/providers/error-provider";
 
 export const TeamForm = ({ teamId }: { teamId: number | undefined }) => {
   const router = useRouter();
-  const { data: session } = useSession();
 
   const {
     selectedFile,
@@ -49,7 +49,7 @@ export const TeamForm = ({ teamId }: { teamId: number | undefined }) => {
 
   const [team, setTeam] = useState<TeamDTO | undefined>(undefined);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { setError } = useError();
 
   const defaultValues = TeamDTOSchema.parse({});
 
@@ -61,10 +61,9 @@ export const TeamForm = ({ teamId }: { teamId: number | undefined }) => {
   useEffect(() => {
     const fetchTeam = async () => {
       setLoading(true);
-      setError(null);
       try {
         if (teamId) {
-          const data = await findTeamById(teamId);
+          const data = await findTeamById(teamId, setError);
           if (!data) {
             throw new Error("Team not found.");
           }
@@ -72,8 +71,6 @@ export const TeamForm = ({ teamId }: { teamId: number | undefined }) => {
         } else {
           setTeam(undefined);
         }
-      } catch (err: any) {
-        setError(err.message || "An error occurred while fetching the team.");
       } finally {
         setLoading(false);
       }
@@ -145,23 +142,6 @@ export const TeamForm = ({ teamId }: { teamId: number | undefined }) => {
     return (
       <div className="py-4 flex justify-center items-center">
         <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="py-4">
-        <Heading
-          title="Error"
-          description="We encountered an issue loading the team."
-        />
-        <p className="text-red-500 mt-4">{error}</p>
-        <div className="mt-4">
-          <Button variant="secondary" onClick={() => router.back()}>
-            Go Back
-          </Button>
-        </div>
       </div>
     );
   }

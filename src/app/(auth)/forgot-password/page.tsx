@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { forgotPassword } from "@/lib/actions/users.action";
+import { useError } from "@/providers/error-provider";
 
 const formSchema = z.object({
   email: z.string().email({ message: "Please enter a valid email address" }),
@@ -31,13 +32,14 @@ type FormData = z.infer<typeof formSchema>;
 const ForgotPasswordPage = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState<string | null>(null);
+  const { setError } = useError();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
   });
 
   const handleSubmit = async (data: FormData) => {
-    await forgotPassword(data.email);
+    await forgotPassword(data.email, setError);
     setSubmittedEmail(data.email);
     setIsSubmitted(true);
   };

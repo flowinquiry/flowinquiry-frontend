@@ -8,6 +8,7 @@ import WorkflowEditForm from "@/components/workflows/workflow-editor-form";
 import { saveWorkflowDetail } from "@/lib/actions/workflows.action";
 import { obfuscate } from "@/lib/endecode";
 import { WorkflowDetailDTO } from "@/types/workflows";
+import { useError } from "@/providers/error-provider";
 
 const defaultWorkflow: WorkflowDetailDTO = {
   id: undefined,
@@ -30,6 +31,7 @@ const NewWorkflowFromScratch = ({
   const [previewWorkflowDetail, setPreviewWorkflowDetail] =
     useState<WorkflowDetailDTO>(defaultWorkflow);
   const router = useRouter();
+  const { setError } = useError();
 
   const handleSave = async (updatedWorkflow: WorkflowDetailDTO) => {
     try {
@@ -42,7 +44,7 @@ const NewWorkflowFromScratch = ({
         ownerId: teamId,
       };
 
-      const workflow = await saveWorkflowDetail(workflowToSave);
+      const workflow = await saveWorkflowDetail(workflowToSave, setError);
 
       if (workflow?.id) {
         if (teamId) {

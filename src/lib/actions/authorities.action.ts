@@ -8,9 +8,13 @@ import { PageableResult } from "@/types/commons";
 import { createQueryParams, Pagination } from "@/types/query";
 import { UserDTO } from "@/types/users";
 
-export const getAuthorities = async (page: number) => {
+export const getAuthorities = async (
+  page: number,
+  setError?: (error: string | null) => void,
+) => {
   return get<PageableResult<AuthorityDTO>>(
     `${BACKEND_API}/api/authorities?page=${page}&size=2000&sort=descriptiveName,asc`,
+    setError,
   );
 };
 
@@ -32,15 +36,24 @@ export const createAuthority = async (
   );
 };
 
-export const deleteAuthority = async (authority_name: string) => {
+export const deleteAuthority = async (
+  authority_name: string,
+  setError?: (error: string | null) => void,
+) => {
   return deleteExec<string, void>(
     `${BACKEND_API}/api/authorities/${authority_name}`,
+    undefined,
+    setError,
   );
 };
 
-export const findPermissionsByAuthorityName = async (authorityName: string) => {
+export const findPermissionsByAuthorityName = async (
+  authorityName: string,
+  setError?: (error: string | null) => void,
+) => {
   return get<Array<AuthorityResourcePermissionDTO>>(
     `${BACKEND_API}/api/authority-permissions/${authorityName}`,
+    setError,
   );
 };
 

@@ -83,18 +83,35 @@ export const addUsersToTeam = (
   );
 };
 
-export const deleteUserFromTeam = async (teamId: number, userId: number) => {
-  return deleteExec(`${BACKEND_API}/api/teams/${teamId}/users/${userId}`);
-};
-
-export const getUserRoleInTeam = async (userId: number, teamId: number) => {
-  return get<Record<string, string>>(
-    `${BACKEND_API}/api/teams/${teamId}/users/${userId}/role`,
+export const deleteUserFromTeam = async (
+  teamId: number,
+  userId: number,
+  setError?: (error: string | null) => void,
+) => {
+  return deleteExec(
+    `${BACKEND_API}/api/teams/${teamId}/users/${userId}`,
+    undefined,
+    setError,
   );
 };
 
-export const getTeamRequestStateChangesHistory = async (ticketId: number) => {
+export const getUserRoleInTeam = async (
+  userId: number,
+  teamId: number,
+  setError?: (error: string | null) => void,
+) => {
+  return get<Record<string, string>>(
+    `${BACKEND_API}/api/teams/${teamId}/users/${userId}/role`,
+    setError,
+  );
+};
+
+export const getTeamRequestStateChangesHistory = async (
+  ticketId: number,
+  setError?: (error: string | null) => void,
+) => {
   return get<TransitionItemCollectionDTO>(
     `${BACKEND_API}/api/team-requests/${ticketId}/states-history`,
+    setError,
   );
 };

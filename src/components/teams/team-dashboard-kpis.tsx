@@ -19,6 +19,7 @@ import {
   getCountOverdueTicketsByTeamId,
   getTicketStatisticsByTeamId,
 } from "@/lib/actions/teams-request.action";
+import { useError } from "@/providers/error-provider";
 
 const TeamDashboardTopSection = ({ teamId }: { teamId: number }) => {
   const router = useRouter();
@@ -26,15 +27,16 @@ const TeamDashboardTopSection = ({ teamId }: { teamId: number }) => {
   const [pendingTickets, setPendingTickets] = useState(0);
   const [completedTickets, setCompletedTickets] = useState(0);
   const [overDueTickets, setOverdueTickets] = useState(0);
+  const { setError } = useError();
 
   useEffect(() => {
     async function fetchStatisticData() {
-      getTicketStatisticsByTeamId(teamId).then((data) => {
+      getTicketStatisticsByTeamId(teamId, setError).then((data) => {
         setTotalTickets(data.totalTickets);
         setPendingTickets(data.pendingTickets);
         setCompletedTickets(data.completedTickets);
       });
-      getCountOverdueTicketsByTeamId(teamId).then((data) =>
+      getCountOverdueTicketsByTeamId(teamId, setError).then((data) =>
         setOverdueTickets(data),
       );
     }

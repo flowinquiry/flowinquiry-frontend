@@ -43,9 +43,11 @@ import { cn } from "@/lib/utils";
 import { Filter, QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
+import { useError } from "@/providers/error-provider";
 
 export const TeamList = () => {
   const router = useRouter();
+  const { setError } = useError();
   const { data: session } = useSession();
   const [items, setItems] = useState<Array<TeamDTO>>([]);
   const [teamSearchTerm, setTeamSearchTerm] = useState<string | undefined>(
@@ -90,16 +92,20 @@ export const TeamList = () => {
         filters,
       };
 
-      const pageResult = await searchTeams(query, {
-        page: currentPage,
-        size: 10,
-        sort: [
-          {
-            field: "name",
-            direction: sortDirection,
-          },
-        ],
-      });
+      const pageResult = await searchTeams(
+        query,
+        {
+          page: currentPage,
+          size: 10,
+          sort: [
+            {
+              field: "name",
+              direction: sortDirection,
+            },
+          ],
+        },
+        setError,
+      );
       if (pageResult) {
         setItems(pageResult.content);
         setTotalElements(pageResult.totalElements);
@@ -135,7 +141,7 @@ export const TeamList = () => {
   };
 
   const deleteTeam = async (ids: number[]) => {
-    await deleteTeams(ids);
+    await deleteTeams(ids, setError);
     fetchData();
   };
 

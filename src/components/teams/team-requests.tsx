@@ -42,6 +42,7 @@ import { Filter, GroupFilter, QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/team-requests";
 import { WorkflowDTO } from "@/types/workflows";
+import { useError } from "@/providers/error-provider";
 
 export type Pagination = {
   page: number;
@@ -76,6 +77,7 @@ const TeamRequestsView = () => {
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(false);
   const [statuses, setStatuses] = useState<string[]>(["New", "Assigned"]);
+  const { setError } = useError();
 
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
@@ -173,7 +175,7 @@ const TeamRequestsView = () => {
 
   useEffect(() => {
     const fetchWorkflows = () => {
-      getWorkflowsByTeam(team.id!).then((data) => setWorkflows(data));
+      getWorkflowsByTeam(team.id!, setError).then((data) => setWorkflows(data));
     };
     fetchWorkflows();
   }, [team.id]);
@@ -192,11 +194,15 @@ const TeamRequestsView = () => {
         ],
       };
 
-      const pageResult = await searchTeamRequests(combinedQuery, {
-        page: currentPage,
-        size: 10,
-        sort: pagination.sort,
-      });
+      const pageResult = await searchTeamRequests(
+        combinedQuery,
+        {
+          page: currentPage,
+          size: 10,
+          sort: pagination.sort,
+        },
+        setError,
+      );
 
       setRequests(pageResult.content);
       setTotalElements(pageResult.totalElements);

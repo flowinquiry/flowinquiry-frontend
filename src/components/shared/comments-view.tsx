@@ -18,6 +18,7 @@ import {
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { CommentDTO, EntityType } from "@/types/commons";
+import { useError } from "@/providers/error-provider";
 
 type CommentsViewProps = {
   entityType: EntityType;
@@ -33,11 +34,12 @@ const CommentsView: React.FC<CommentsViewProps> = ({
   const [comments, setComments] = useState<CommentDTO[]>([]);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
+  const { setError } = useError();
 
   useEffect(() => {
     if (entityId) {
       setLoading(true);
-      getCommentsForEntity(entityType, entityId)
+      getCommentsForEntity(entityType, entityId, setError)
         .then((data) => {
           setComments(data);
         })
@@ -57,7 +59,7 @@ const CommentsView: React.FC<CommentsViewProps> = ({
     setSubmitting(true);
 
     try {
-      const savedComment = await createNewComment(newCommentObj);
+      const savedComment = await createNewComment(newCommentObj, setError);
       savedComment.createdByName =
         `${session?.user?.firstName ?? ""} ${session?.user?.lastName ?? ""}`.trim();
       setComments((prevComments) => [savedComment, ...prevComments]);
@@ -95,14 +97,12 @@ const CommentsView: React.FC<CommentsViewProps> = ({
           <ul className="space-y-4">
             {comments.map((comment) => (
               <li key={comment.id} className="flex items-start gap-4 w-full">
-                {/* User Avatar */}
                 <div className="relative">
                   <UserAvatar imageUrl={comment.createdByImageUrl} />
                 </div>
 
                 {/* Bubble with Curved Tail */}
                 <div className="relative bg-gray-100 dark:bg-gray-800 text-sm p-4 rounded-lg shadow-md max-w-full flex-1 before:content-[''] before:absolute before:-left-5 before:top-3 before:w-6 before:h-6 before:bg-gray-100 before:dark:bg-gray-800 before:rounded-tl-full before:rounded-br-full before:shadow-md">
-                  {/* User Name */}
                   <div>
                     <Button
                       variant="link"
@@ -116,7 +116,6 @@ const CommentsView: React.FC<CommentsViewProps> = ({
                     </Button>
                   </div>
 
-                  {/* Date */}
                   <div className="text-gray-600 dark:text-gray-400 text-xs mb-1">
                     <Tooltip>
                       <TooltipTrigger>
@@ -134,7 +133,6 @@ const CommentsView: React.FC<CommentsViewProps> = ({
                     </Tooltip>
                   </div>
 
-                  {/* Comment Content */}
                   <div
                     className="prose max-w-none"
                     dangerouslySetInnerHTML={{

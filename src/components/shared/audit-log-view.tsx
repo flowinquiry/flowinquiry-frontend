@@ -17,6 +17,7 @@ import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { ActivityLogDTO } from "@/types/activity-logs";
 import { EntityType } from "@/types/commons";
+import { useError } from "@/providers/error-provider";
 
 type AuditLogViewProps = {
   entityType: EntityType;
@@ -31,11 +32,12 @@ const AuditLogView: React.FC<AuditLogViewProps> = ({
   const [loading, setLoading] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
+  const { setError } = useError();
 
   useEffect(() => {
     const fetchAuditLogs = async () => {
       setLoading(true);
-      getActivityLogs("Team_Request", entityId, currentPage)
+      getActivityLogs("Team_Request", entityId, currentPage, 10, setError)
         .then((data) => {
           setTotalPages(data.totalPages);
           setActivityLogs(data.content);

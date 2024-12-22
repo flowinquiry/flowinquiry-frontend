@@ -93,6 +93,7 @@ const AuthorityForm = ({
 
           const fetchedPermissions = await findPermissionsByAuthorityName(
             fetchedAuthority.name,
+            setError,
           );
 
           setAuthorityResourcePermissions(

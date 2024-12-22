@@ -39,6 +39,7 @@ import {
 } from "@/types/authorities";
 import { PermissionUtils } from "@/types/resources";
 import { UserDTO } from "@/types/users";
+import { useError } from "@/providers/error-provider";
 
 export const AuthorityView = ({ authorityId }: { authorityId: string }) => {
   const permissionLevel = usePagePermission();
@@ -54,6 +55,7 @@ export const AuthorityView = ({ authorityId }: { authorityId: string }) => {
     useState<Array<AuthorityResourcePermissionDTO>>();
   const [loadingAuthority, setLoadingAuthority] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const { setError } = useError();
 
   const router = useRouter();
 
@@ -76,11 +78,12 @@ export const AuthorityView = ({ authorityId }: { authorityId: string }) => {
     const fetchData = async () => {
       setLoadingAuthority(true);
       try {
-        const authorityData = await findAuthorityByName(authorityId);
+        const authorityData = await findAuthorityByName(authorityId, setError);
         setAuthority(authorityData);
 
         const resourcePermissionsResult = await findPermissionsByAuthorityName(
           authorityData.name,
+          setError,
         );
         setResourcePermissions(resourcePermissionsResult);
       } finally {

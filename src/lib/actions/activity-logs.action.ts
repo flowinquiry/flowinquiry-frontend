@@ -8,9 +8,11 @@ export const getActivityLogs = async (
   entityId: number,
   page: number,
   displayNumber = 10,
+  setError?: (error: string | null) => void,
 ) => {
   return get<PageableResult<ActivityLogDTO>>(
     `${BACKEND_API}/api/activity-logs?entityType=${entityType}&entityId=${entityId}&page=${page}&size=${displayNumber}&sort=createdAt,desc`,
+    setError,
   );
 };
 
@@ -18,8 +20,10 @@ export const getUserActivities = async (
   userId: number,
   page: number,
   displayNumber = 10,
+  setError?: (error: string | null) => void,
 ) => {
   return get<PageableResult<ActivityLogDTO>>(
     `${BACKEND_API}/api/activity-logs/user/${userId}?page=${page}&size=${displayNumber}&sort=createdAt,desc`,
+    setError,
   );
 };

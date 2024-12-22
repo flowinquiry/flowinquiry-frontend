@@ -30,6 +30,7 @@ import { obfuscate } from "@/lib/endecode";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
 import { UserDTO } from "@/types/users";
+import { useError } from "@/providers/error-provider";
 
 export const UserView = ({ userId }: { userId: number }) => {
   const [user, setUser] = useState<UserDTO | undefined | null>(undefined);
@@ -41,17 +42,18 @@ export const UserView = ({ userId }: { userId: number }) => {
   const [isOrgChartOpen, setIsOrgChartOpen] = useState(false); // State to control OrgChartDialog visibility
   const router = useRouter();
   const permissionLevel = usePagePermission();
+  const { setError } = useError();
 
   useEffect(() => {
     async function fetchData() {
       try {
-        const userData = await findUserById(userId);
+        const userData = await findUserById(userId, setError);
         setUser(userData);
 
-        const teamData = await findTeamsByMemberId(userId);
+        const teamData = await findTeamsByMemberId(userId, setError);
         setTeams(teamData);
 
-        const reportData = await getDirectReports(userId);
+        const reportData = await getDirectReports(userId, setError);
         setDirectReports(reportData);
       } finally {
         setLoading(false);

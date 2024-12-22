@@ -20,18 +20,18 @@ import {
 import { getTeamRequestStateChangesHistory } from "@/lib/actions/teams.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { TransitionItemCollectionDTO } from "@/types/teams";
+import { useError } from "@/providers/error-provider";
 
 const TeamRequestsTimelineHistory = ({ teamId }: { teamId: number }) => {
   const [transitionItemCollection, setTransitionItemCollection] =
     useState<TransitionItemCollectionDTO | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { setError } = useError();
 
   useEffect(() => {
     const fetchStatesHistory = async () => {
       setLoading(true);
-      setError(null);
-      getTeamRequestStateChangesHistory(teamId)
+      getTeamRequestStateChangesHistory(teamId, setError)
         .then((data) => setTransitionItemCollection(data))
         .finally(() => setLoading(false));
     };
@@ -40,10 +40,6 @@ const TeamRequestsTimelineHistory = ({ teamId }: { teamId: number }) => {
 
   if (loading) {
     return <div className="text-center py-4">Loading timeline history...</div>;
-  }
-
-  if (error) {
-    return <div className="text-center py-4 text-red-500">{error}</div>;
   }
 
   if (

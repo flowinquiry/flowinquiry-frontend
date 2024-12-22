@@ -49,7 +49,7 @@ const NotificationsDropdown = () => {
   }, [session]);
 
   const handleNotificationClick = async (notificationId: number) => {
-    await markNotificationsAsRead([notificationId]);
+    await markNotificationsAsRead([notificationId], setError);
 
     setNotifications((prevNotifications) =>
       prevNotifications.map((notification) =>
@@ -73,7 +73,7 @@ const NotificationsDropdown = () => {
       .map((notification) => notification.id)
       .filter((id): id is number => id !== null);
 
-    await markNotificationsAsRead(notificationIds);
+    await markNotificationsAsRead(notificationIds, setError);
 
     setNotifications([]);
   };

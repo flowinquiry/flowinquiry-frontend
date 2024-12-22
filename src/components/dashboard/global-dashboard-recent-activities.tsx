@@ -18,6 +18,7 @@ import { getUserActivities } from "@/lib/actions/activity-logs.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { ActivityLogDTO } from "@/types/activity-logs";
+import { useError } from "@/providers/error-provider";
 
 const RecentUserTeamActivities = () => {
   const [activityLogs, setActivityLogs] = useState<ActivityLogDTO[]>([]);
@@ -25,6 +26,7 @@ const RecentUserTeamActivities = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
   const [collapsed, setCollapsed] = useState(false); // State for collapsible content
+  const { setError } = useError();
 
   const { data: session } = useSession();
   const userId = Number(session?.user?.id!);
@@ -32,7 +34,7 @@ const RecentUserTeamActivities = () => {
   useEffect(() => {
     async function fetchActivityLogs() {
       setLoading(true);
-      getUserActivities(userId, currentPage, 5)
+      getUserActivities(userId, currentPage, 5, setError)
         .then((data) => {
           setActivityLogs(data.content);
           setTotalPages(data.totalPages);

@@ -19,6 +19,7 @@ import {
 import { getValidTargetStates } from "@/lib/actions/workflows.action";
 import { cn } from "@/lib/utils";
 import { WorkflowStateDTO } from "@/types/workflows";
+import { useError } from "@/providers/error-provider";
 
 type WorkflowStateSelectProps = {
   form: UseFormReturn<any>;
@@ -41,11 +42,12 @@ const WorkflowStateSelect = ({
 }: WorkflowStateSelectProps) => {
   const [workflowStates, setWorkflowStates] = useState<WorkflowStateDTO[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const { setError } = useError();
 
   useEffect(() => {
     const loadWorkflowStates = async () => {
       setIsLoading(true);
-      getValidTargetStates(workflowId, workflowStateId, includeSelf)
+      getValidTargetStates(workflowId, workflowStateId, includeSelf, setError)
         .then((data) => {
           setWorkflowStates(data);
 

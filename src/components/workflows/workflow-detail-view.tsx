@@ -18,6 +18,7 @@ import {
 } from "@/lib/actions/workflows.action";
 import { PermissionUtils } from "@/types/resources";
 import { WorkflowDetailDTO } from "@/types/workflows";
+import { useError } from "@/providers/error-provider";
 
 const GlobalWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
   const router = useRouter();
@@ -29,11 +30,12 @@ const GlobalWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
     useState<WorkflowDetailDTO | null>(null); // Separate state for preview
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const { setError } = useError();
 
   useEffect(() => {
     async function fetchWorkflowDetail() {
       setLoading(true);
-      getWorkflowDetail(workflowId)
+      getWorkflowDetail(workflowId, setError)
         .then((data) => {
           setWorkflowDetail(data);
           setPreviewWorkflowDetail(data); // Initialize preview with the original workflow
@@ -45,15 +47,17 @@ const GlobalWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
   }, [workflowId]);
 
   const handleSave = (updatedWorkflow: WorkflowDetailDTO) => {
-    updateWorkflowDetail(updatedWorkflow.id!, updatedWorkflow).then((data) => {
-      setWorkflowDetail(data); // Update the main workflow detail
-      setPreviewWorkflowDetail(data); // Sync preview with saved workflow
-      setIsEditing(false);
-    });
+    updateWorkflowDetail(updatedWorkflow.id!, updatedWorkflow, setError).then(
+      (data) => {
+        setWorkflowDetail(data); // Update the main workflow detail
+        setPreviewWorkflowDetail(data); // Sync preview with saved workflow
+        setIsEditing(false);
+      },
+    );
   };
 
   const removeWorkflow = async (workflow: WorkflowDetailDTO) => {
-    await deleteWorkflow(workflow.id!);
+    await deleteWorkflow(workflow.id!, setError);
     router.push("/portal/settings/workflows");
   };
 

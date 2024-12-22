@@ -53,6 +53,7 @@ import { cn } from "@/lib/utils";
 import { QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { UserDTO } from "@/types/users";
+import { useError } from "@/providers/error-provider";
 
 export const UserList = () => {
   const { toast } = useToast();
@@ -74,6 +75,7 @@ export const UserList = () => {
   const searchParams = useSearchParams();
   const { replace } = useRouter();
   const pathname = usePathname();
+  const { setError } = useError();
 
   const fetchUsers = useCallback(async () => {
     setLoading(true);
@@ -90,16 +92,20 @@ export const UserList = () => {
         : [],
     };
 
-    searchUsers(query, {
-      page: currentPage,
-      size: 10,
-      sort: [
-        {
-          field: "firstName,lastName",
-          direction: sortDirection,
-        },
-      ],
-    })
+    searchUsers(
+      query,
+      {
+        page: currentPage,
+        size: 10,
+        sort: [
+          {
+            field: "firstName,lastName",
+            direction: sortDirection,
+          },
+        ],
+      },
+      setError,
+    )
       .then((pageResult) => {
         setItems(pageResult.content);
         setTotalElements(pageResult.totalElements);
@@ -142,7 +148,7 @@ export const UserList = () => {
 
   async function confirmDeleteUser() {
     if (selectedUser) {
-      await deleteUser(selectedUser.id!);
+      await deleteUser(selectedUser.id!, setError);
       setSelectedUser(null);
       await fetchUsers();
     }
@@ -151,7 +157,7 @@ export const UserList = () => {
   }
 
   function onResendActivationEmail(user: UserDTO) {
-    resendActivationEmail(user.email).then(() => {
+    resendActivationEmail(user.email, setError).then(() => {
       toast({
         description: `An activation email has been sent to ${user.email}`,
       });

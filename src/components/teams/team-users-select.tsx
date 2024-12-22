@@ -30,6 +30,7 @@ import { findMembersByTeamId } from "@/lib/actions/teams.action";
 import { cn } from "@/lib/utils";
 import { UiAttributes } from "@/types/ui-components";
 import { UserWithTeamRoleDTO } from "@/types/users";
+import { useError } from "@/providers/error-provider";
 
 const TeamUserSelectField = ({
   form,
@@ -43,10 +44,11 @@ const TeamUserSelectField = ({
     onUserSelect?: (user: UserWithTeamRoleDTO | null) => void; // Allow null for unselect
   }) => {
   const [users, setUsers] = useState<UserWithTeamRoleDTO[]>([]);
+  const { setError } = useError();
 
   useEffect(() => {
     async function fetchUsers() {
-      findMembersByTeamId(teamId).then((data) => setUsers(data));
+      findMembersByTeamId(teamId, setError).then((data) => setUsers(data));
     }
     fetchUsers();
   }, [teamId]);

@@ -26,6 +26,7 @@ import { useTeam } from "@/providers/team-provider";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { PermissionUtils } from "@/types/resources";
 import { WorkflowDetailDTO } from "@/types/workflows";
+import { useError } from "@/providers/error-provider";
 
 const TeamWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
   const team = useTeam();
@@ -35,6 +36,7 @@ const TeamWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
     useState<WorkflowDetailDTO | null>(null); // Separate state for preview
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const { setError } = useError();
 
   const permissionLevel = usePagePermission();
   const teamRole = useUserTeamRole().role;
@@ -42,7 +44,7 @@ const TeamWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
   useEffect(() => {
     async function fetchWorkflowDetail() {
       setLoading(true);
-      getWorkflowDetail(workflowId)
+      getWorkflowDetail(workflowId, setError)
         .then((data) => {
           setWorkflowDetail(data);
           setPreviewWorkflowDetail(data); // Initialize preview with the original workflow
@@ -54,11 +56,13 @@ const TeamWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
   }, [workflowId]);
 
   const handleSave = (updatedWorkflow: WorkflowDetailDTO) => {
-    updateWorkflowDetail(updatedWorkflow.id!, updatedWorkflow).then((data) => {
-      setWorkflowDetail(data);
-      setPreviewWorkflowDetail(data);
-      setIsEditing(false);
-    });
+    updateWorkflowDetail(updatedWorkflow.id!, updatedWorkflow, setError).then(
+      (data) => {
+        setWorkflowDetail(data);
+        setPreviewWorkflowDetail(data);
+        setIsEditing(false);
+      },
+    );
   };
 
   if (!workflowDetail) {

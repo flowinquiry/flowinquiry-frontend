@@ -31,6 +31,7 @@ import {
 } from "@/lib/actions/workflows.action";
 import { obfuscate } from "@/lib/endecode";
 import { WorkflowDTO } from "@/types/workflows";
+import { useError } from "@/providers/error-provider";
 
 const workflowReferenceSchema = z.object({
   referenceWorkflowId: z
@@ -53,9 +54,11 @@ const NewTeamWorkflowReferFromSharedOne = ({
 }) => {
   const router = useRouter();
   const [globalWorkflows, setGlobalWorkflows] = useState<WorkflowDTO[]>([]);
+  const { setError } = useError();
+
   useEffect(() => {
     async function loadGlobalWorkflowsNotLinkWithTeamYet() {
-      getGlobalWorkflowHasNotLinkedWithTeam(teamId).then((data) =>
+      getGlobalWorkflowHasNotLinkedWithTeam(teamId, setError).then((data) =>
         setGlobalWorkflows(data),
       );
     }
@@ -74,23 +77,33 @@ const NewTeamWorkflowReferFromSharedOne = ({
 
   const onSubmit = (values: WorkflowReferenceFormValues) => {
     if (isRefer) {
-      createWorkflowFromReference(teamId, values.referenceWorkflowId, {
-        name: values.name,
-        requestName: values.requestName,
-        description: values.description,
-        ownerId: teamId,
-      }).then((data) => {
+      createWorkflowFromReference(
+        teamId,
+        values.referenceWorkflowId,
+        {
+          name: values.name,
+          requestName: values.requestName,
+          description: values.description,
+          ownerId: teamId,
+        },
+        setError,
+      ).then((data) => {
         router.push(
           `/portal/teams/${obfuscate(teamId)}/workflows/${obfuscate(data.id)}`,
         );
       });
     } else {
-      createWorkflowFromCloning(teamId, values.referenceWorkflowId, {
-        name: values.name,
-        requestName: values.requestName,
-        description: values.description,
-        ownerId: teamId,
-      }).then((data) => {
+      createWorkflowFromCloning(
+        teamId,
+        values.referenceWorkflowId,
+        {
+          name: values.name,
+          requestName: values.requestName,
+          description: values.description,
+          ownerId: teamId,
+        },
+        setError,
+      ).then((data) => {
         router.push(
           `/portal/teams/${obfuscate(teamId)}/workflows/${obfuscate(data.id)}`,
         );

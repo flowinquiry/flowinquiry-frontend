@@ -38,6 +38,7 @@ import {
 } from "@/types/team-requests";
 import { TeamDTO } from "@/types/teams";
 import { WorkflowDTO } from "@/types/workflows";
+import { useError } from "@/providers/error-provider";
 
 type NewRequestToTeamDialogProps = {
   open: boolean;
@@ -55,6 +56,7 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
   onSaveSuccess,
 }) => {
   const { data: session } = useSession();
+  const { setError } = useError();
 
   const form = useForm<z.infer<typeof TeamRequestDTOSchema>>({
     resolver: zodResolver(TeamRequestDTOSchema),
@@ -73,7 +75,7 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
   }, [workflow, form]);
 
   const onSubmit = async (data: TeamRequestDTO) => {
-    await createTeamRequest(data);
+    await createTeamRequest(data, setError);
     setOpen(false);
     onSaveSuccess();
   };

@@ -14,6 +14,7 @@ import {
 } from "@/lib/actions/notifications.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { NotificationDTO } from "@/types/commons";
+import { useError } from "@/providers/error-provider";
 
 const UserNotifications = () => {
   const [notifications, setNotifications] = useState<NotificationDTO[]>([]);
@@ -21,14 +22,14 @@ const UserNotifications = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
   const [collapsed, setCollapsed] = useState(false); // State for collapsible content
-
+  const { setError } = useError();
   const { data: session } = useSession();
   const userId = Number(session?.user?.id!);
 
   useEffect(() => {
     async function fetchNotifications() {
       setLoading(true);
-      getUserNotifications(userId, currentPage, 5)
+      getUserNotifications(userId, currentPage, 5, setError)
         .then((data) => {
           setNotifications(data.content);
           setTotalPages(data.totalPages);
@@ -39,7 +40,7 @@ const UserNotifications = () => {
   }, [userId, currentPage]);
 
   const handleMarkAsRead = async (notificationId: number) => {
-    markNotificationsAsRead([notificationId]).finally(() => {
+    markNotificationsAsRead([notificationId], setError).finally(() => {
       setNotifications((prev) =>
         prev.map((n) => (n.id === notificationId ? { ...n, isRead: true } : n)),
       );

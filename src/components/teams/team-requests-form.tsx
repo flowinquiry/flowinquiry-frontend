@@ -39,6 +39,7 @@ import {
   TeamRequestDTOSchema,
   TeamRequestPriority,
 } from "@/types/team-requests";
+import { useError } from "@/providers/error-provider";
 
 export const TeamRequestForm = ({
   teamRequestId,
@@ -50,8 +51,8 @@ export const TeamRequestForm = ({
   const [teamRequest, setTeamRequest] = useState<TeamRequestDTO | undefined>(
     undefined,
   );
+  const { setError } = useError();
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   // Parse empty object to get schema defaults
   const defaultValues = TeamRequestDTOSchema.parse({});
@@ -65,9 +66,8 @@ export const TeamRequestForm = ({
   useEffect(() => {
     const fetchTeamRequest = async () => {
       setLoading(true);
-      setError(null);
       try {
-        const data = await findRequestById(teamRequestId);
+        const data = await findRequestById(teamRequestId, setError);
         setTeamRequest(data);
       } finally {
         setLoading(false);
@@ -86,7 +86,7 @@ export const TeamRequestForm = ({
 
   async function onSubmit(formValues: TeamRequestDTO) {
     if (validateForm(formValues, TeamRequestDTOSchema, form)) {
-      await updateTeamRequest(formValues.id!, formValues);
+      await updateTeamRequest(formValues.id!, formValues, setError);
       router.push(
         `/portal/teams/${obfuscate(formValues.teamId)}/requests/${obfuscate(
           formValues.id,
@@ -103,8 +103,18 @@ export const TeamRequestForm = ({
     );
   }
 
-  if (error || !teamRequest) {
-    notFound();
+  if (!teamRequest) {
+    return (
+      <div className="py-4">
+        <h1 className="text-2xl font-bold">Error</h1>
+        <p className="text-red-500 mt-4">Team request not found</p>
+        <div className="mt-4">
+          <Button variant="secondary" onClick={() => router.back()}>
+            Go Back
+          </Button>
+        </div>
+      </div>
+    );
   }
 
   const breadcrumbItems = [

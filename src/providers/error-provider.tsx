@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import React, { createContext, useContext, useEffect, useState } from "react";
 
 interface ErrorContextProps {
-  setError: (error: string | null) => void; // To set global errors
+  setError?: (error: string | null) => void; // To set global errors
 }
 
 const ErrorContext = createContext<ErrorContextProps | undefined>(undefined);

@@ -25,6 +25,7 @@ import {
 import MultipleSelector from "@/components/ui/multi-select-dynamic";
 import { addUsersToTeam, findUsersNotInTeam } from "@/lib/actions/teams.action";
 import { TeamDTO } from "@/types/teams";
+import { useError } from "@/providers/error-provider";
 
 type AddUserToTeamDialogProps = {
   open: boolean;
@@ -50,6 +51,7 @@ const AddUserToTeamDialog: React.FC<AddUserToTeamDialogProps> = ({
   teamEntity,
   onSaveSuccess,
 }) => {
+  const { setError } = useError();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
   });
@@ -57,14 +59,14 @@ const AddUserToTeamDialog: React.FC<AddUserToTeamDialogProps> = ({
   const onSubmit = async (data: z.infer<typeof FormSchema>) => {
     if (data && data.users) {
       const userIds = data.users.map((user) => Number(user.value));
-      await addUsersToTeam(teamEntity.id!, userIds, data.role);
+      await addUsersToTeam(teamEntity.id!, userIds, data.role, setError);
       setOpen(false);
       onSaveSuccess();
     }
   };
 
   const searchUsers = async (userTerm: string) => {
-    const users = await findUsersNotInTeam(userTerm, teamEntity.id!);
+    const users = await findUsersNotInTeam(userTerm, teamEntity.id!, setError);
     return Promise.all(
       users.map((user) => ({
         value: `${user.id}`,

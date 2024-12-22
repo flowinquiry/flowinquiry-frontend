@@ -29,6 +29,7 @@ import { getWorkflowsByTeam } from "@/lib/actions/workflows.action";
 import { cn } from "@/lib/utils";
 import { UiAttributes } from "@/types/ui-components";
 import { WorkflowDTO } from "@/types/workflows";
+import { useError } from "@/providers/error-provider";
 
 const WorkflowSelectField = ({
   form,
@@ -37,9 +38,10 @@ const WorkflowSelectField = ({
   teamId,
 }: ExtInputProps & UiAttributes & { teamId: number }) => {
   const [workflows, setWorkflows] = useState<Array<WorkflowDTO>>([]);
+  const { setError } = useError();
   useEffect(() => {
     async function fetchWorkflows() {
-      const workflowData = await getWorkflowsByTeam(teamId);
+      const workflowData = await getWorkflowsByTeam(teamId, setError);
       setWorkflows(workflowData);
     }
     fetchWorkflows();

@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import PersonNode from "@/components/users/org-chart-node";
 import { getOrgChart, getUserHierarchy } from "@/lib/actions/users.action";
 import { obfuscate } from "@/lib/endecode";
+import { useError } from "@/providers/error-provider";
 
 // Define the type for the user hierarchy DTO
 export interface UserHierarchyDTO {
@@ -141,6 +142,7 @@ const OrgChartView = ({ userId }: { userId?: number }) => {
     Edge<Record<string, unknown>>
   >([]);
   const DUMMY_MANAGER_ID = -1;
+  const { setError } = useError();
 
   const generateChart = (data: UserHierarchyDTO) => {
     const nodes: Node<Record<string, unknown>>[] = [];
@@ -248,10 +250,10 @@ const OrgChartView = ({ userId }: { userId?: number }) => {
       try {
         const data =
           rootUserId === DUMMY_MANAGER_ID
-            ? await getOrgChart()
+            ? await getOrgChart(setError)
             : rootUserId === undefined
-              ? await getOrgChart()
-              : await getUserHierarchy(rootUserId);
+              ? await getOrgChart(setError)
+              : await getUserHierarchy(rootUserId, setError);
         setRootUser(data);
       } catch (error) {
         console.error("Failed to load org chart:", error);

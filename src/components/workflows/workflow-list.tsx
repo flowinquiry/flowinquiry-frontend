@@ -35,6 +35,7 @@ import { cn } from "@/lib/utils";
 import { QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { WorkflowDTO } from "@/types/workflows";
+import { useError } from "@/providers/error-provider";
 
 const WorkflowsView = () => {
   const [items, setItems] = useState<Array<WorkflowDTO>>([]);
@@ -46,7 +47,7 @@ const WorkflowsView = () => {
     string | undefined
   >(undefined);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-
+  const { setError } = useError();
   const permissionLevel = usePagePermission();
 
   const searchParams = useSearchParams();
@@ -68,16 +69,20 @@ const WorkflowsView = () => {
         : [],
     };
 
-    searchWorkflows(query, {
-      page: currentPage,
-      size: 10,
-      sort: [
-        {
-          field: "name",
-          direction: sortDirection,
-        },
-      ],
-    })
+    searchWorkflows(
+      query,
+      {
+        page: currentPage,
+        size: 10,
+        sort: [
+          {
+            field: "name",
+            direction: sortDirection,
+          },
+        ],
+      },
+      setError,
+    )
       .then((pageResult) => {
         setItems(pageResult.content);
         setTotalElements(pageResult.totalElements);
@@ -121,7 +126,7 @@ const WorkflowsView = () => {
   };
 
   const deleteWorkflowOutOfWorkspace = async (workflow: WorkflowDTO) => {
-    await deleteWorkflow(workflow.id!);
+    await deleteWorkflow(workflow.id!, setError);
     await fetchWorkflows();
   };
 

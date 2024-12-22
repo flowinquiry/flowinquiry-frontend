@@ -23,6 +23,7 @@ import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { getSpecifiedColor } from "@/lib/utils";
 import { TeamRequestDTO } from "@/types/team-requests";
+import { useError } from "@/providers/error-provider";
 
 type RequestDetailsProps = {
   open: boolean;
@@ -38,6 +39,7 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
   const [teamRequest, setTeamRequest] = useState<TeamRequestDTO>(request);
   const workflowColor = getSpecifiedColor(request.workflowRequestName!);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const { setError } = useError();
 
   const form = useForm<TeamRequestDTO>({
     defaultValues: teamRequest,
@@ -45,7 +47,7 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
 
   const onSubmit = async (data: TeamRequestDTO) => {
     setSubmitting(true);
-    await updateTeamRequest(teamRequest.id!, data)
+    await updateTeamRequest(teamRequest.id!, data, setError)
       .then((data) => setTeamRequest(data))
       .finally(() => setSubmitting(false));
   };

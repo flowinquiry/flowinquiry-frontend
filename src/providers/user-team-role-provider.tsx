@@ -5,6 +5,7 @@ import React, { createContext, useContext, useEffect, useState } from "react";
 
 import { getUserRoleInTeam } from "@/lib/actions/teams.action";
 import { TeamRole } from "@/types/teams";
+import { useError } from "@/providers/error-provider";
 
 type UserTeamRoleContextType = {
   role: TeamRole;
@@ -20,14 +21,14 @@ export const UserTeamRoleProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ teamId, children }) => {
   const [role, setRole] = useState<TeamRole>("Guest");
-
+  const { setError } = useError();
   const { data: session, status } = useSession();
 
   const userId = session?.user?.id ? Number(session.user.id) : null;
   useEffect(() => {
     async function fetchTeamRole() {
       if (status === "authenticated" && userId && !role) {
-        const roleName = await getUserRoleInTeam(userId, teamId);
+        const roleName = await getUserRoleInTeam(userId, teamId, setError);
         setRole(roleName.role as TeamRole);
       }
     }

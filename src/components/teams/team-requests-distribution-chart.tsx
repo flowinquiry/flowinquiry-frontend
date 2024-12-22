@@ -19,6 +19,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { getTicketsAssignmentDistributionByTeam } from "@/lib/actions/teams-request.action";
 import { obfuscate } from "@/lib/endecode";
 import { TicketDistributionDTO } from "@/types/team-requests";
+import { useError } from "@/providers/error-provider";
 
 interface TicketDistributionChartProps {
   teamId: number;
@@ -31,12 +32,13 @@ const TicketDistributionChart: React.FC<TicketDistributionChartProps> = ({
 }) => {
   const [data, setData] = useState<TicketDistributionDTO[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [collapsed, setCollapsed] = useState(false); // Collapsible state
+  const [collapsed, setCollapsed] = useState(false);
+  const { setError } = useError();
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
-      getTicketsAssignmentDistributionByTeam(teamId)
+      getTicketsAssignmentDistributionByTeam(teamId, setError)
         .then((data) => setData(data))
         .finally(() => setLoading(false));
     };

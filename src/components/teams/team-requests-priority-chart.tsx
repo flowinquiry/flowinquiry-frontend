@@ -16,18 +16,20 @@ import { Spinner } from "@/components/ui/spinner";
 import { getTicketsPriorityDistributionByTeam } from "@/lib/actions/teams-request.action";
 import { PriorityDistributionDTO } from "@/types/team-requests";
 import { TeamRequestPriority } from "@/types/team-requests";
+import { useError } from "@/providers/error-provider";
 
 const TicketPriorityPieChart = ({ teamId }: { teamId: number }) => {
   const [priorityData, setPriorityData] = useState<PriorityDistributionDTO[]>(
     [],
   );
   const [loading, setLoading] = useState(true);
-  const [collapsed, setCollapsed] = useState(false); // State for collapsible content
+  const [collapsed, setCollapsed] = useState(false);
+  const { setError } = useError();
 
   useEffect(() => {
     const fetchPriorityData = async () => {
       setLoading(true);
-      getTicketsPriorityDistributionByTeam(teamId)
+      getTicketsPriorityDistributionByTeam(teamId, setError)
         .then((data) => setPriorityData(data))
         .finally(() => setLoading(false));
     };

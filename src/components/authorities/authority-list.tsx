@@ -37,6 +37,7 @@ import {
 import { obfuscate } from "@/lib/endecode";
 import { AuthorityDTO } from "@/types/authorities";
 import { PermissionUtils } from "@/types/resources";
+import { useError } from "@/providers/error-provider";
 
 export function AuthoritiesView() {
   const router = useRouter();
@@ -49,9 +50,10 @@ export function AuthoritiesView() {
   const [selectedAuthority, setSelectedAuthority] =
     useState<AuthorityDTO | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { setError } = useError();
 
   const fetchAuthorities = async () => {
-    getAuthorities(currentPage).then((pageableResult) => {
+    getAuthorities(currentPage, setError).then((pageableResult) => {
       setAuthorities(pageableResult.content);
       setTotalPages(pageableResult.totalPages);
       setTotalElements(pageableResult.totalElements);
@@ -69,7 +71,7 @@ export function AuthoritiesView() {
 
   async function confirmDeleteAuthority() {
     if (selectedAuthority) {
-      await deleteAuthority(selectedAuthority.name);
+      await deleteAuthority(selectedAuthority.name, setError);
       setSelectedAuthority(null);
       fetchAuthorities();
     }

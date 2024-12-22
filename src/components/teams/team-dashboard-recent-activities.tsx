@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronRight } from "lucide-react"; // Icon for toggle arrow
+import { ChevronDown, ChevronRight } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 import PaginationExt from "@/components/shared/pagination-ext";
@@ -14,6 +14,7 @@ import {
 import { getActivityLogs } from "@/lib/actions/activity-logs.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { ActivityLogDTO } from "@/types/activity-logs";
+import { useError } from "@/providers/error-provider";
 
 const RecentTeamActivities = ({ teamId }: { teamId: number }) => {
   const [activityLogs, setActivityLogs] = useState<ActivityLogDTO[]>([]);
@@ -21,11 +22,12 @@ const RecentTeamActivities = ({ teamId }: { teamId: number }) => {
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
   const [collapsed, setCollapsed] = useState(false); // State to toggle collapse
+  const { setError } = useError();
 
   useEffect(() => {
     async function fetchActivityLogs() {
       setLoading(true);
-      getActivityLogs("Team", teamId, currentPage, 5)
+      getActivityLogs("Team", teamId, currentPage, 5, setError)
         .then((data) => {
           setActivityLogs(data.content);
           setTotalPages(data.totalPages);

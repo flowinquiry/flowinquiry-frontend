@@ -12,6 +12,7 @@ import { MultiSelect } from "@/components/ui/multi-select";
 import { getAuthorities } from "@/lib/actions/authorities.action";
 import { AuthorityDTO } from "@/types/authorities";
 import { UiAttributes } from "@/types/ui-components";
+import { useError } from "@/providers/error-provider";
 
 interface AuthoritiesSelectProps {
   form: any;
@@ -24,10 +25,11 @@ const AuthoritiesSelect = ({
   required,
 }: AuthoritiesSelectProps & UiAttributes) => {
   const [authorities, setAuthorities] = useState<AuthorityDTO[]>();
+  const { setError } = useError();
 
   useEffect(() => {
     const fetchAuthorities = async () => {
-      const data = await getAuthorities(0);
+      const data = await getAuthorities(0, setError);
       setAuthorities(data.content);
     };
 

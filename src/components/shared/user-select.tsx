@@ -1,3 +1,5 @@
+"use client";
+
 import { Check, ChevronsUpDown } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
@@ -34,6 +36,7 @@ import { searchUsers } from "@/lib/actions/users.action";
 import { cn } from "@/lib/utils";
 import { QueryDTO } from "@/types/query";
 import { UiAttributes } from "@/types/ui-components";
+import { useError } from "@/providers/error-provider";
 
 export const UserSelectField = ({
   form,
@@ -46,7 +49,7 @@ export const UserSelectField = ({
   >([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-
+  const { setError } = useError();
   const debouncedSearchTerm = useDebounce(searchTerm, 2000);
 
   useEffect(() => {
@@ -69,16 +72,20 @@ export const UserSelectField = ({
               ]
             : [],
         };
-        const data = await searchUsers(query, {
-          page: 1,
-          size: 10,
-          sort: [
-            {
-              field: "firstName,lastName",
-              direction: "desc",
-            },
-          ],
-        });
+        const data = await searchUsers(
+          query,
+          {
+            page: 1,
+            size: 10,
+            sort: [
+              {
+                field: "firstName,lastName",
+                direction: "desc",
+              },
+            ],
+          },
+          setError,
+        );
         const filterUsers = data.content.map((user) => ({
           label: `${user.firstName} ${user.lastName}`,
           value: String(user.id),

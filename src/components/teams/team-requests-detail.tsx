@@ -29,6 +29,7 @@ import { getSpecifiedColor, randomPair } from "@/lib/utils";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
 import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/team-requests";
+import { useError } from "@/providers/error-provider";
 
 const TeamRequestDetailView = ({
   teamRequestId,
@@ -43,22 +44,17 @@ const TeamRequestDetailView = ({
     undefined,
   );
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { setError } = useError();
 
   useEffect(() => {
     const fetchRequest = async () => {
       setLoading(true);
-      setError(null);
       try {
-        const data = await findRequestById(teamRequestId);
+        const data = await findRequestById(teamRequestId, setError);
         if (!data) {
           throw new Error("Could not find the specified team request.");
         }
         setTeamRequest(data);
-      } catch (err: any) {
-        setError(
-          err.message || "An error occurred while fetching the team request.",
-        );
       } finally {
         setLoading(false);
       }
@@ -76,6 +72,7 @@ const TeamRequestDetailView = ({
       findPreviousTeamRequest,
       "You reach the first record",
       teamRequest.id!,
+      setError,
     );
     setTeamRequest(previousTeamRequest);
   };
@@ -86,6 +83,7 @@ const TeamRequestDetailView = ({
       findNextTeamRequest,
       "You reach the last record",
       teamRequest.id!,
+      setError,
     );
     setTeamRequest(nextTeamRequest);
   };
@@ -98,13 +96,11 @@ const TeamRequestDetailView = ({
     );
   }
 
-  if (error || !teamRequest) {
+  if (!teamRequest) {
     return (
       <div className="py-4">
         <h1 className="text-2xl font-bold">Error</h1>
-        <p className="text-red-500 mt-4">
-          {error || "Team request not found."}
-        </p>
+        <p className="text-red-500 mt-4">Team request not found</p>
         <div className="mt-4">
           <Button variant="secondary" onClick={() => router.back()}>
             Go Back
