@@ -30,6 +30,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { API_URL } from "@/lib/constants";
 
 export function UserNav() {
   const { data: session } = useSession();
@@ -49,7 +50,7 @@ export function UserNav() {
                     <AvatarImage
                       src={
                         session?.user?.imageUrl
-                          ? `/api/files/${session?.user?.imageUrl}`
+                          ? `${API_URL}/api/files/${session?.user?.imageUrl}`
                           : undefined
                       }
                       alt="Avatar"
@@ -110,12 +111,10 @@ export function UserNav() {
       </DropdownMenu>
       <DialogContent>
         <DialogHeader className="flex items-center space-x-4">
-          {/* Logo */}
           <div>
             <AppLogo />
           </div>
 
-          {/* Title and Description */}
           <div>
             <DialogTitle className="text-2xl font-bold">
               FlowInquiry

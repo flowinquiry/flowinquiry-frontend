@@ -3,6 +3,7 @@ import "./theme.css";
 
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { PublicEnvScript } from "next-runtime-env";
 
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,18 +18,14 @@ export const metadata: Metadata = {
   description: "FlowInquiry dashboard",
 };
 
-const RootLayout = async ({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) => {
+const RootLayout = async ({ children }: { children: React.ReactNode }) => {
   return (
     <html suppressHydrationWarning={true} lang="en">
       <head>
+        <PublicEnvScript />
+        <title>FlowInquiry - Ticket Management</title>
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
-        {/* Favicon for modern browsers */}
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-        {/* Fallback favicon for older browsers */}
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
       </head>
       <body className={inter.className}>

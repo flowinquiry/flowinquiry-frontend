@@ -5,7 +5,6 @@ import {
   post,
   put,
 } from "@/lib/actions/commons.action";
-import { BACKEND_API } from "@/lib/constants";
 import { Pagination, QueryDTO } from "@/types/query";
 import {
   WorkflowDetailDTO,
@@ -17,10 +16,7 @@ export const getWorkflowsByTeam = (
   teamId: number,
   setError?: (error: string | null) => void,
 ) => {
-  return get<Array<WorkflowDTO>>(
-    `${BACKEND_API}/api/workflows/teams/${teamId}`,
-    setError,
-  );
+  return get<Array<WorkflowDTO>>(`/api/workflows/teams/${teamId}`, setError);
 };
 
 export const getGlobalWorkflowHasNotLinkedWithTeam = (
@@ -28,7 +24,7 @@ export const getGlobalWorkflowHasNotLinkedWithTeam = (
   setError?: (error: string | null) => void,
 ) => {
   return get<Array<WorkflowDTO>>(
-    `${BACKEND_API}/api/workflows/teams/${teamId}/global-workflows-not-linked-yet`,
+    `/api/workflows/teams/${teamId}/global-workflows-not-linked-yet`,
     setError,
   );
 };
@@ -40,7 +36,7 @@ export const getValidTargetStates = async (
   setError?: (error: string | null) => void,
 ) => {
   return get<Array<WorkflowStateDTO>>(
-    `${BACKEND_API}/api/workflows/${workflowId}/transitions?workflowStateId=${workflowStateId}&&includeSelf=${includeSelf}`,
+    `/api/workflows/${workflowId}/transitions?workflowStateId=${workflowStateId}&&includeSelf=${includeSelf}`,
     setError,
   );
 };
@@ -51,7 +47,7 @@ export async function searchWorkflows(
   setError?: (error: string | null) => void,
 ) {
   return doAdvanceSearch<WorkflowDTO>(
-    `${BACKEND_API}/api/workflows/search`,
+    `/api/workflows/search`,
     query,
     pagination,
     setError,
@@ -63,7 +59,7 @@ export const getWorkflowDetail = async (
   setError?: (error: string | null) => void,
 ) => {
   return get<WorkflowDetailDTO>(
-    `${BACKEND_API}/api/workflows/details/${workflowId}`,
+    `/api/workflows/details/${workflowId}`,
     setError,
   );
 };
@@ -73,7 +69,7 @@ export const saveWorkflowDetail = async (
   setError?: (error: string | null) => void,
 ) => {
   return post<WorkflowDetailDTO, WorkflowDetailDTO>(
-    `${BACKEND_API}/api/workflows/details`,
+    `/api/workflows/details`,
     workflowDetail,
     setError,
   );
@@ -85,7 +81,7 @@ export const updateWorkflowDetail = async (
   setError?: (error: string | null) => void,
 ) => {
   return put<WorkflowDetailDTO, WorkflowDetailDTO>(
-    `${BACKEND_API}/api/workflows/details/${workflowId}`,
+    `/api/workflows/details/${workflowId}`,
     workflowDetail,
     setError,
   );
@@ -98,7 +94,7 @@ export const createWorkflowFromReference = async (
   setError?: (error: string | null) => void,
 ) => {
   return post<WorkflowDTO, WorkflowDetailDTO>(
-    `${BACKEND_API}/api/workflows/${referenceWorkflowId}/teams/${teamId}/create-workflow-reference`,
+    `/api/workflows/${referenceWorkflowId}/teams/${teamId}/create-workflow-reference`,
     workflowDto,
     setError,
   );
@@ -111,7 +107,7 @@ export const createWorkflowFromCloning = async (
   setError?: (error: string | null) => void,
 ) => {
   return post<WorkflowDTO, WorkflowDetailDTO>(
-    `${BACKEND_API}/api/workflows/${cloneWorkflowId}/teams/${teamId}/create-workflow-clone`,
+    `/api/workflows/${cloneWorkflowId}/teams/${teamId}/create-workflow-clone`,
     workflowDto,
     setError,
   );
@@ -121,9 +117,5 @@ export const deleteWorkflow = async (
   workflowId: number,
   setError?: (error: string | null) => void,
 ) => {
-  return deleteExec(
-    `${BACKEND_API}/api/workflows/${workflowId}`,
-    undefined,
-    setError,
-  );
+  return deleteExec(`/api/workflows/${workflowId}`, undefined, setError);
 };

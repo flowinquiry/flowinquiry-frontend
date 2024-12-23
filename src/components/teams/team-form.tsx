@@ -26,9 +26,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useImageCropper } from "@/hooks/use-image-cropper";
-import { post, put } from "@/lib/actions/commons.action";
-import { findTeamById } from "@/lib/actions/teams.action";
-import { BACKEND_API } from "@/lib/constants";
+import {
+  createTeam,
+  findTeamById,
+  updateTeam,
+} from "@/lib/actions/teams.action";
+import { API_URL } from "@/lib/constants";
 import { obfuscate } from "@/lib/endecode";
 import { validateForm } from "@/lib/validator";
 import { useError } from "@/providers/error-provider";
@@ -104,13 +107,12 @@ export const TeamForm = ({ teamId }: { teamId: number | undefined }) => {
       if (formValues.id) {
         // Edit mode
         redirectTeamId = formValues.id;
-        await put(`${BACKEND_API}/api/teams`, formData);
+        await updateTeam(formData, setError);
       } else {
         // Create mode
-        await post<FormData, TeamDTO>(
-          `${BACKEND_API}/api/teams`,
-          formData,
-        ).then((data) => (redirectTeamId = data.id));
+        await createTeam(formData, setError).then(
+          (data) => (redirectTeamId = data.id),
+        );
       }
 
       router.push(`/portal/teams/${obfuscate(redirectTeamId)}/dashboard`);
@@ -172,7 +174,9 @@ export const TeamForm = ({ teamId }: { teamId: number | undefined }) => {
                     <input {...getInputProps()} />
                     <AvatarImage
                       src={
-                        team?.logoUrl ? `/api/files/${team.logoUrl}` : undefined
+                        team?.logoUrl
+                          ? `${API_URL}/api/files/${team.logoUrl}`
+                          : undefined
                       }
                       alt="@flowinquiry"
                     />

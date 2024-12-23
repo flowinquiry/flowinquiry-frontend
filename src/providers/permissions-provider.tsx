@@ -10,8 +10,7 @@ import React, {
 } from "react";
 
 import { useAccessTokenManager } from "@/lib/access-token-manager";
-import { get } from "@/lib/actions/commons.action";
-import { BACKEND_API } from "@/lib/constants";
+import { getUserPermissions } from "@/lib/actions/users.action";
 import { useError } from "@/providers/error-provider";
 import { PermissionLevel, ResourceId } from "@/types/resources";
 
@@ -55,20 +54,12 @@ export const PermissionsProvider: React.FC<PermissionsProviderProps> = ({
 
   const userId = session?.user?.id ? Number(session.user.id) : null;
 
-  // Fetch permissions
-  const fetchPermissions = async (userId: number): Promise<Permission[]> => {
-    return get<Array<Permission>>(
-      `${BACKEND_API}/api/users/permissions/${userId}`,
-      setError,
-    );
-  };
-
   // Make sure session access token is cached
   useAccessTokenManager();
 
   useEffect(() => {
     if (status === "authenticated" && userId && permissions.length === 0) {
-      fetchPermissions(userId).then(setPermissions);
+      getUserPermissions(userId, setError).then(setPermissions);
     }
   }, [status, userId, permissions]);
 

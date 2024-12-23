@@ -93,8 +93,6 @@ export const UserSelectField = ({
           avatarUrl: user.imageUrl ?? undefined,
         }));
         setUsers(filterUsers);
-      } catch (error) {
-        console.error("Failed to fetch users:", error);
       } finally {
         setIsLoading(false);
       }

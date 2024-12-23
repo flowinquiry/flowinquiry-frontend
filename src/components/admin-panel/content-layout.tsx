@@ -1,3 +1,5 @@
+"use client";
+
 import { Navbar } from "@/components/admin-panel/navbar";
 
 interface ContentLayoutProps {

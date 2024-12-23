@@ -48,5 +48,6 @@ jobs:
       - run: pnpm install
       - name: Build the application
         env:
-          NEXT_PUBLIC_BACKEND_API: "http://localhost:8080"
+          NEXT_PUBLIC_API_URL: "http://localhost:8080"
+          BACK_END_URL: "http://localhost:8080"
         run: pnpm build

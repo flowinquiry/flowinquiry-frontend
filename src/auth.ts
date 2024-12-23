@@ -18,8 +18,7 @@ export const { handlers, auth } = NextAuth({
         if (!credentials) {
           throw new Error("Invalid credentials");
         }
-        const user = await apiAuthSignIn(credentials);
-        return user;
+        return await apiAuthSignIn(credentials);
       },
     }),
   ],

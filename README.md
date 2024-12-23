@@ -1,6 +1,7 @@
 # FlowInquiry Client
 
 [![Build status](https://github.com/flowinquiry/flowinquiry-frontend/actions/workflows/node.js.yml/badge.svg)](https://github.com/flowinquiry/flowinquiry-frontend/actions/workflows/node.js.yml)
+![License](https://img.shields.io/badge/License-AGPLv3-blue)
 
 ## What is FlowInquiry
 
@@ -11,16 +12,16 @@ FlowInquiry is a service designed to streamline the management of cases, tickets
 FlowInquiry addresses several challenges faced by organizations in managing cases, tickets, and team communication. Here are some specific use cases:
 
 **On-Call System Management**
-In an on-call system, teams often face challenges in managing incoming requests or incidents, particularly when multiple shifts or team members are involved. FlowInquiry ensures that each request follows a well-defined workflow, with SLAs for escalation and resolution. This helps reduce response times, avoids missed escalations, and provides clear accountability for handling incidents.
+Managing incoming requests or incidents in an on-call system can be challenging with multiple shifts and team members. FlowInquiry streamlines the process by enforcing well-defined workflows with SLAs for escalation and resolution, reducing response times, avoiding missed escalations, and ensuring accountability.
 
 **Case Management in CRM Applications**
-CRM applications often struggle to manage customer cases effectively, especially when handling inquiries, complaints, or service requests. FlowInquiry enables teams to define custom workflows tailored to specific case types, such as refunds, escalations, or product inquiries. SLAs for each workflow stage ensure customers receive timely updates and resolutions, enhancing customer satisfaction and loyalty.
+FlowInquiry helps CRM teams manage customer cases like inquiries, complaints, and service requests by enabling custom workflows tailored to case types such as refunds or escalations. SLAs at each workflow stage ensure timely updates and resolutions, boosting customer satisfaction and loyalty.
 
 **Team Communication and Collaboration**
-Effective communication within and across teams can be difficult in large organizations, especially when requests involve multiple departments or external stakeholders. FlowInquiry acts as a centralized platform where requests are logged, tracked, and routed through clearly defined workflows. This reduces miscommunication, prevents delays, and ensures all parties are aligned on priorities.
+FlowInquiry enhances communication across teams by providing a centralized platform to log, track, and route requests through clear workflows. This minimizes miscommunication, prevents delays, and aligns all stakeholders on priorities, even in large organizations.
 
 **Service Request Tracking for IT Teams**
-IT teams managing internal service requests often encounter bottlenecks due to unclear processes or manual tracking. FlowInquiry allows IT departments to automate workflows for common requests such as software installation, access management, or issue resolution. The system ensures each request is assigned, processed, and resolved within agreed SLAs.
+FlowInquiry automates IT service request workflows, such as software installation and access management, reducing bottlenecks caused by manual tracking. It ensures requests are assigned, processed, and resolved efficiently within SLA timelines.
 
 By tailoring workflows to these and other scenarios, FlowInquiry empowers teams to streamline operations, meet deadlines, and deliver exceptional service to both internal and external stakeholders.
 
@@ -109,10 +110,10 @@ Set up the application environment variables by running the following script:
 scripts/init_environments.sh
 ```
 
-This script generates environment variables, including NEXT_PUBLIC_BACKEND_API, to establish the communication between the client and server. Example
+This script generates environment variables, including NEXT_PUBLIC_API_URL, to establish the communication between the client and server. Example
 
 ```
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
+NEXT_PUBLIC_API_URL=http://localhost:8080
 ```
 
 We recommend running the `scripts/all.sh` script, as it streamlines the process by checking your environment settings and performing all necessary configurations, removing the need to execute multiple scripts manually.

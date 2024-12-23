@@ -169,6 +169,9 @@ importers:
       next-auth:
         specifier: 5.0.0-beta.25
         version: 5.0.0-beta.25(next@15.1.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
+      next-runtime-env:
+        specifier: ^3.2.2
+        version: 3.2.2(next@15.1.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0)
       next-themes:
         specifier: ^0.4.4
         version: 0.4.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -4253,6 +4256,15 @@ packages:
         optional: true
       nodemailer:
         optional: true
+
+  next-runtime-env@3.2.2:
+    resolution:
+      {
+        integrity: sha512-S5S6NxIf3XeaVc9fLBN2L5Jzu+6dLYCXeOaPQa1RzKRYlG2BBayxXOj6A4VsciocyNkJMazW1VAibtbb1/ZjAw==,
+      }
+    peerDependencies:
+      next: ^14
+      react: ^18
 
   next-themes@0.4.4:
     resolution:
@@ -8370,6 +8382,11 @@ snapshots:
   next-auth@5.0.0-beta.25(next@15.1.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0):
     dependencies:
       "@auth/core": 0.37.2
+      next: 15.1.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react: 19.0.0
+
+  next-runtime-env@3.2.2(next@15.1.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0))(react@19.0.0):
+    dependencies:
       next: 15.1.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react: 19.0.0
 

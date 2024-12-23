@@ -8,7 +8,7 @@ import {
   put,
   SecurityMode,
 } from "@/lib/actions/commons.action";
-import { BACKEND_API } from "@/lib/constants";
+import { Permission } from "@/providers/permissions-provider";
 import { Pagination, QueryDTO } from "@/types/query";
 import { UserDTO, UserHierarchyDTO } from "@/types/users";
 
@@ -19,62 +19,60 @@ export async function searchUsers(
 ) {
   noStore();
   return doAdvanceSearch<UserDTO>(
-    `${BACKEND_API}/api/users/search`,
+    `/api/users/search`,
     query,
     pagination,
     setError,
   );
 }
 
+export const getUserPermissions = async (
+  userId: number,
+  setError?: (error: string | null) => void,
+) => {
+  return get<Array<Permission>>(`/api/users/permissions/${userId}`, setError);
+};
+
 export const getDirectReports = async (
   userId: number,
   setError?: (error: string | null) => void,
 ) => {
-  return get<Array<UserDTO>>(
-    `${BACKEND_API}/api/users/${userId}/direct-reports`,
-    setError,
-  );
+  return get<Array<UserDTO>>(`/api/users/${userId}/direct-reports`, setError);
 };
 
 export const findUserById = async (
   userId: number,
   setError?: (error: string | null) => void,
 ) => {
-  return get<UserDTO>(`${BACKEND_API}/api/users/${userId}`, setError);
+  return get<UserDTO>(`/api/users/${userId}`, setError);
 };
 
 export const createUser = async (
   user: UserDTO,
   setError?: (error: string | null) => void,
 ) => {
-  if (user.id) {
-    const formData = new FormData();
-    const userJsonBlob = new Blob([JSON.stringify(user)], {
-      type: "application/json",
-    });
-    formData.append("userDTO", userJsonBlob);
-    return put<FormData, UserDTO>(
-      `${BACKEND_API}/api/users`,
-      formData,
-      setError,
-    );
-  } else {
-    return post<UserDTO, UserDTO>(`${BACKEND_API}/api/users`, user, setError);
-  }
+  return post<UserDTO, UserDTO>(`/api/users`, user, setError);
+};
+
+export const updateUser = async (
+  userForm: FormData,
+  setError?: (error: string | null) => void,
+) => {
+  return put<FormData, UserDTO>(`/api/users`, userForm, setError);
 };
 
 export const deleteUser = async (
   userId: number,
   setError?: (error: string | null) => void,
 ) => {
-  return deleteExec(`${BACKEND_API}/api/users/${userId}`, setError);
+  return deleteExec(`/api/users/${userId}`, setError);
 };
 
 export const resendActivationEmail = async (
   email: string,
   setError?: (error: string | null) => void,
 ) => {
-  return get(`${BACKEND_API}/api/${email}/resend-activation-email`, setError);
+  return get(`/api/${email}/resend-activation-email`, setError);
 };
 
 export const passwordReset = async (
@@ -83,7 +81,7 @@ export const passwordReset = async (
   setError?: (error: string | null) => void,
 ) => {
   await post(
-    `${BACKEND_API}/api/account/reset-password/finish`,
+    `/api/account/reset-password/finish`,
     { key: key, newPassword: password },
     setError,
     SecurityMode.NOT_SECURE,
@@ -95,7 +93,7 @@ export const forgotPassword = async (
   setError?: (error: string | null) => void,
 ) => {
   await get(
-    `${BACKEND_API}/api/account/reset-password/init?email=${email}`,
+    `/api/account/reset-password/init?email=${email}`,
     setError,
     SecurityMode.NOT_SECURE,
   );
@@ -107,7 +105,7 @@ export const changePassword = async (
   setError?: (error: string | null) => void,
 ) => {
   await post(
-    `${BACKEND_API}/api/account/change-password`,
+    `/api/account/change-password`,
     {
       currentPassword: currentPassword,
       newPassword: newPassword,
@@ -119,15 +117,12 @@ export const changePassword = async (
 export const getOrgChart = async (
   setError?: (error: string | null) => void,
 ) => {
-  return get<UserHierarchyDTO>(`${BACKEND_API}/api/users/orgChart`, setError);
+  return get<UserHierarchyDTO>(`/api/users/orgChart`, setError);
 };
 
 export const getUserHierarchy = async (
   userId: number,
   setError?: (error: string | null) => void,
 ) => {
-  return get<UserHierarchyDTO>(
-    `${BACKEND_API}/api/users/${userId}/hierarchy`,
-    setError,
-  );
+  return get<UserHierarchyDTO>(`/api/users/${userId}/hierarchy`, setError);
 };

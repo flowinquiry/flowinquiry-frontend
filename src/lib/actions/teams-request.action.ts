@@ -1,7 +1,4 @@
-import { unstable_noStore as noStore } from "next/dist/server/web/spec-extension/unstable-no-store";
-
 import { doAdvanceSearch, get, post, put } from "@/lib/actions/commons.action";
-import { BACKEND_API } from "@/lib/constants";
 import { PageableResult } from "@/types/commons";
 import { Pagination, QueryDTO } from "@/types/query";
 import {
@@ -20,7 +17,7 @@ export const createTeamRequest = async (
   setError?: (error: string | null) => void,
 ) => {
   return post<TeamRequestDTO, TeamRequestDTO>(
-    `${BACKEND_API}/api/team-requests`,
+    `/api/team-requests`,
     teamRequest,
     setError,
   );
@@ -30,10 +27,7 @@ export const findRequestById = async (
   requestId: number,
   setError?: (error: string | null) => void,
 ) => {
-  return get<TeamRequestDTO>(
-    `${BACKEND_API}/api/team-requests/${requestId}`,
-    setError,
-  );
+  return get<TeamRequestDTO>(`/api/team-requests/${requestId}`, setError);
 };
 
 export const updateTeamRequest = async (
@@ -42,7 +36,7 @@ export const updateTeamRequest = async (
   setError?: (error: string | null) => void,
 ) => {
   return put<TeamRequestDTO, TeamRequestDTO>(
-    `${BACKEND_API}/api/team-requests/${teamRequestId}`,
+    `/api/team-requests/${teamRequestId}`,
     teamRequest,
     setError,
   );
@@ -53,9 +47,8 @@ export async function searchTeamRequests(
   pagination: Pagination,
   setError?: (error: string | null) => void,
 ) {
-  noStore();
   return doAdvanceSearch<TeamRequestDTO>(
-    `${BACKEND_API}/api/team-requests/search`,
+    `/api/team-requests/search`,
     query,
     pagination,
     setError,
@@ -67,7 +60,7 @@ export const findPreviousTeamRequest = async (
   setError?: (error: string | null) => void,
 ) => {
   return get<TeamRequestDTO>(
-    `${BACKEND_API}/api/team-requests/${requestId}/previous`,
+    `/api/team-requests/${requestId}/previous`,
     setError,
   );
 };
@@ -76,10 +69,7 @@ export const findNextTeamRequest = async (
   requestId: number,
   setError?: (error: string | null) => void,
 ) => {
-  return get<TeamRequestDTO>(
-    `${BACKEND_API}/api/team-requests/${requestId}/next`,
-    setError,
-  );
+  return get<TeamRequestDTO>(`/api/team-requests/${requestId}/next`, setError);
 };
 
 export const getTicketsAssignmentDistributionByTeam = async (
@@ -87,7 +77,7 @@ export const getTicketsAssignmentDistributionByTeam = async (
   setError?: (error: string | null) => void,
 ) => {
   return get<TicketDistributionDTO[]>(
-    `${BACKEND_API}/api/team-requests/teams/${teamId}/ticket-distribution`,
+    `/api/team-requests/teams/${teamId}/ticket-distribution`,
     setError,
   );
 };
@@ -97,7 +87,7 @@ export const getTicketsPriorityDistributionByTeam = async (
   setError?: (error: string | null) => void,
 ) => {
   return get<PriorityDistributionDTO[]>(
-    `${BACKEND_API}/api/team-requests/teams/${teamId}/priority-distribution`,
+    `/api/team-requests/teams/${teamId}/priority-distribution`,
     setError,
   );
 };
@@ -110,7 +100,7 @@ export const getUnassignedTickets = async (
   setError?: (error: string | null) => void,
 ) => {
   return get<PageableResult<TeamRequestDTO>>(
-    `${BACKEND_API}/api/team-requests/teams/${teamId}/unassigned-tickets?page=${page}&size=5&sort=${sortBy},${sortDirection}`,
+    `/api/team-requests/teams/${teamId}/unassigned-tickets?page=${page}&size=5&sort=${sortBy},${sortDirection}`,
     setError,
   );
 };
@@ -123,7 +113,7 @@ export const getOverdueTicketsByTeam = async (
   setError?: (error: string | null) => void,
 ) => {
   return get<PageableResult<TeamRequestDTO>>(
-    `${BACKEND_API}/api/team-requests/teams/${teamId}/overdue-tickets?page=${page}&size=5&sort=${sortBy},${sortDirection}`,
+    `/api/team-requests/teams/${teamId}/overdue-tickets?page=${page}&size=5&sort=${sortBy},${sortDirection}`,
     setError,
   );
 };
@@ -133,7 +123,7 @@ export const getTicketStatisticsByTeamId = async (
   setError?: (error: string | null) => void,
 ) => {
   return get<TicketStatisticsDTO>(
-    `${BACKEND_API}/api/team-requests/teams/${teamId}/statistics`,
+    `/api/team-requests/teams/${teamId}/statistics`,
     setError,
   );
 };
@@ -143,7 +133,7 @@ export const getCountOverdueTicketsByTeamId = async (
   setError?: (error: string | null) => void,
 ) => {
   return get<number>(
-    `${BACKEND_API}/api/team-requests/teams/${teamId}/overdue-tickets/count`,
+    `/api/team-requests/teams/${teamId}/overdue-tickets/count`,
     setError,
   );
 };
@@ -154,7 +144,7 @@ export const getTicketCreationDaySeries = async (
   setError?: (error: string | null) => void,
 ) => {
   return get<TicketActionCountByDateDTO[]>(
-    `${BACKEND_API}/api/team-requests/teams/${teamId}/ticket-creations-day-series?days=${days}`,
+    `/api/team-requests/teams/${teamId}/ticket-creations-day-series?days=${days}`,
     setError,
   );
 };
@@ -167,7 +157,7 @@ export const getOverdueTicketsByUser = async (
   setError?: (error: string | null) => void,
 ) => {
   return get<PageableResult<TeamRequestDTO>>(
-    `${BACKEND_API}/api/team-requests/users/${userId}/overdue-tickets?page=${page}&size=5&sort=${sortBy},${sortDirection}`,
+    `/api/team-requests/users/${userId}/overdue-tickets?page=${page}&size=5&sort=${sortBy},${sortDirection}`,
     setError,
   );
 };
@@ -177,7 +167,7 @@ export const getTeamTicketPriorityDistributionForUser = async (
   setError?: (error: string | null) => void,
 ) => {
   return get<Array<TeamTicketPriorityDistributionDTO>>(
-    `${BACKEND_API}/api/team-requests/users/${userId}/team-tickets-priority-distribution`,
+    `/api/team-requests/users/${userId}/team-tickets-priority-distribution`,
     setError,
   );
 };

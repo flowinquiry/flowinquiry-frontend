@@ -1,13 +1,7 @@
-import { redirect } from "next/navigation";
+import { Home } from "@/components/home";
 
-import { auth } from "@/auth";
+const Page = async () => {
+  return <Home />;
+};
 
-export default async function Home() {
-  const session = await auth();
-  if (!session) {
-    console.warn("No authentication. Redirect to the login page ...");
-    redirect("/login");
-  } else {
-    redirect("/portal");
-  }
-}
+export default Page;
