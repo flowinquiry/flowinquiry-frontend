@@ -26,6 +26,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { useBackendApi } from "@/providers/backend-api-provider";
 
 const formSchema = z.object({
   email: z
@@ -37,6 +38,7 @@ const formSchema = z.object({
 });
 
 const LoginForm = () => {
+  const backendApi = useBackendApi();
   const router = useRouter();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const form = useForm<z.infer<typeof formSchema>>({

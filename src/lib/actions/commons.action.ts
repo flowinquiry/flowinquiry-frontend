@@ -1,6 +1,7 @@
 import { auth } from "@/auth";
 import { getAccessToken } from "@/lib/access-token-manager";
 import { handleError, HttpError } from "@/lib/errors";
+import { getBackendApi } from "@/lib/runtime-variables";
 import { PageableResult } from "@/types/commons";
 import {
   createQueryParams,
@@ -41,8 +42,9 @@ export const fetchData = async <TData, TResponse>(
     options.body = JSON.stringify(data);
   }
 
+  const BACKEND_API = getBackendApi();
   try {
-    const response = await fetch(url, options);
+    const response = await fetch(`${BACKEND_API}${url}`, options);
 
     if (response.ok) {
       const contentType = response.headers.get("content-type");

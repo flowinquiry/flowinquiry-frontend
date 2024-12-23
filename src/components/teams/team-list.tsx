@@ -39,6 +39,7 @@ import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import { deleteTeams, searchTeams } from "@/lib/actions/teams.action";
 import { obfuscate } from "@/lib/endecode";
+import { getBackendApi } from "@/lib/runtime-variables";
 import { cn } from "@/lib/utils";
 import { useError } from "@/providers/error-provider";
 import { Filter, QueryDTO } from "@/types/query";
@@ -205,7 +206,7 @@ export const TeamList = () => {
                           <AvatarImage
                             src={
                               team.logoUrl
-                                ? `/api/files/${team.logoUrl}`
+                                ? `${getBackendApi()}/api/files/${team.logoUrl}`
                                 : undefined
                             }
                             alt="@flowinquiry"

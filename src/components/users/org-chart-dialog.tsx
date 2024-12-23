@@ -263,17 +263,13 @@ const OrgChartDialog = ({
     if (!isOpen) return;
 
     const loadOrgChart = async () => {
-      try {
-        const data =
-          rootUserId === DUMMY_MANAGER_ID
+      const data =
+        rootUserId === DUMMY_MANAGER_ID
+          ? await getOrgChart(setError)
+          : rootUserId === undefined
             ? await getOrgChart(setError)
-            : rootUserId === undefined
-              ? await getOrgChart(setError)
-              : await getUserHierarchy(rootUserId, setError);
-        setRootUser(data);
-      } catch (error) {
-        console.error("Failed to load org chart:", error);
-      }
+            : await getUserHierarchy(rootUserId, setError);
+      setRootUser(data);
     };
 
     loadOrgChart();

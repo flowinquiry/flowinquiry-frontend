@@ -4,7 +4,6 @@ import {
   get,
   post,
 } from "@/lib/actions/commons.action";
-import { BACKEND_API } from "@/lib/constants";
 import { Pagination, QueryDTO } from "@/types/query";
 import { TeamDTO, TransitionItemCollectionDTO } from "@/types/teams";
 import { UserDTO, UserWithTeamRoleDTO } from "@/types/users";
@@ -13,7 +12,7 @@ export const findTeamById = async (
   teamId: number,
   setError?: (error: string | null) => void,
 ) => {
-  return get<TeamDTO>(`${BACKEND_API}/api/teams/${teamId}`, setError);
+  return get<TeamDTO>(`/api/teams/${teamId}`, setError);
 };
 
 export async function searchTeams(
@@ -22,7 +21,7 @@ export async function searchTeams(
   setError?: (error: string | null) => void,
 ) {
   return doAdvanceSearch<TeamDTO>(
-    `${BACKEND_API}/api/teams/search`,
+    `/api/teams/search`,
     query,
     pagination,
     setError,
@@ -33,7 +32,7 @@ export async function deleteTeams(
   ids: number[],
   setError?: (error: string | null) => void,
 ) {
-  return deleteExec(`${BACKEND_API}/api/teams`, ids, setError);
+  return deleteExec(`/api/teams`, ids, setError);
 }
 
 export async function findMembersByTeamId(
@@ -41,7 +40,7 @@ export async function findMembersByTeamId(
   setError?: (error: string | null) => void,
 ) {
   return get<Array<UserWithTeamRoleDTO>>(
-    `${BACKEND_API}/api/teams/${teamId}/members`,
+    `/api/teams/${teamId}/members`,
     setError,
   );
 }
@@ -50,10 +49,7 @@ export async function findTeamsByMemberId(
   userId: number,
   setError?: (error: string | null) => void,
 ) {
-  return get<Array<TeamDTO>>(
-    `${BACKEND_API}/api/teams/users/${userId}`,
-    setError,
-  );
+  return get<Array<TeamDTO>>(`/api/teams/users/${userId}`, setError);
 }
 
 export async function findUsersNotInTeam(
@@ -62,7 +58,7 @@ export async function findUsersNotInTeam(
   setError?: (error: string | null) => void,
 ) {
   return get<Array<UserDTO>>(
-    `${BACKEND_API}/api/teams/searchUsersNotInTeam?userTerm=${userTerm}&&teamId=${teamId}`,
+    `/api/teams/searchUsersNotInTeam?userTerm=${userTerm}&&teamId=${teamId}`,
     setError,
   );
 }
@@ -74,7 +70,7 @@ export const addUsersToTeam = (
   setError?: (error: string | null) => void,
 ) => {
   return post(
-    `${BACKEND_API}/api/teams/${teamId}/add-users`,
+    `/api/teams/${teamId}/add-users`,
     {
       userIds: userIds,
       role: teamRole,
@@ -89,7 +85,7 @@ export const deleteUserFromTeam = async (
   setError?: (error: string | null) => void,
 ) => {
   return deleteExec(
-    `${BACKEND_API}/api/teams/${teamId}/users/${userId}`,
+    `/api/teams/${teamId}/users/${userId}`,
     undefined,
     setError,
   );
@@ -101,7 +97,7 @@ export const getUserRoleInTeam = async (
   setError?: (error: string | null) => void,
 ) => {
   return get<Record<string, string>>(
-    `${BACKEND_API}/api/teams/${teamId}/users/${userId}/role`,
+    `/api/teams/${teamId}/users/${userId}/role`,
     setError,
   );
 };
@@ -111,7 +107,7 @@ export const getTeamRequestStateChangesHistory = async (
   setError?: (error: string | null) => void,
 ) => {
   return get<TransitionItemCollectionDTO>(
-    `${BACKEND_API}/api/team-requests/${ticketId}/states-history`,
+    `/api/team-requests/${ticketId}/states-history`,
     setError,
   );
 };

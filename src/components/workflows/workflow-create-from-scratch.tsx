@@ -34,31 +34,27 @@ const NewWorkflowFromScratch = ({
   const { setError } = useError();
 
   const handleSave = async (updatedWorkflow: WorkflowDetailDTO) => {
-    try {
-      // Ensure the team ID is correctly assigned to the workflow
-      const workflowToSave = {
-        ...updatedWorkflow,
-        visibility: teamId
-          ? ("PRIVATE" as "PRIVATE" | "PUBLIC" | "TEAM")
-          : ("PUBLIC" as "PRIVATE" | "PUBLIC" | "TEAM"),
-        ownerId: teamId,
-      };
+    // Ensure the team ID is correctly assigned to the workflow
+    const workflowToSave = {
+      ...updatedWorkflow,
+      visibility: teamId
+        ? ("PRIVATE" as "PRIVATE" | "PUBLIC" | "TEAM")
+        : ("PUBLIC" as "PRIVATE" | "PUBLIC" | "TEAM"),
+      ownerId: teamId,
+    };
 
-      const workflow = await saveWorkflowDetail(workflowToSave, setError);
+    const workflow = await saveWorkflowDetail(workflowToSave, setError);
 
-      if (workflow?.id) {
-        if (teamId) {
-          router.push(
-            `/portal/teams/${obfuscate(teamId)}/workflows/${obfuscate(workflow.id)}`,
-          );
-        } else {
-          router.push(`/portal/settings/workflows/${obfuscate(workflow.id)}`);
-        }
+    if (workflow?.id) {
+      if (teamId) {
+        router.push(
+          `/portal/teams/${obfuscate(teamId)}/workflows/${obfuscate(workflow.id)}`,
+        );
       } else {
-        console.error("Workflow save failed: Missing workflow ID.");
+        router.push(`/portal/settings/workflows/${obfuscate(workflow.id)}`);
       }
-    } catch (error) {
-      console.error("Error saving workflow:", error);
+    } else {
+      console.error("Workflow save failed: Missing workflow ID.");
     }
   };
 

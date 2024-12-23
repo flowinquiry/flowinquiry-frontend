@@ -30,6 +30,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getBackendApi } from "@/lib/runtime-variables";
 
 export function UserNav() {
   const { data: session } = useSession();
@@ -49,7 +50,7 @@ export function UserNav() {
                     <AvatarImage
                       src={
                         session?.user?.imageUrl
-                          ? `/api/files/${session?.user?.imageUrl}`
+                          ? `${getBackendApi()}/api/files/${session?.user?.imageUrl}`
                           : undefined
                       }
                       alt="Avatar"
