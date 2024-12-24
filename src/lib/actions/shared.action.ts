@@ -1,5 +1,4 @@
 import { get } from "@/lib/actions/commons.action";
-import { BACKEND_API } from "@/lib/constants";
 import { mapEntityToFilterOptions } from "@/lib/mappers";
 import { EntityValueDefinition } from "@/types/commons";
 
@@ -9,7 +8,7 @@ export interface TimezoneInfo {
 }
 
 export const getTimezones = async (): Promise<Array<TimezoneInfo>> => {
-  return get<Array<TimezoneInfo>>(`${BACKEND_API}/api/timezones`);
+  return get<Array<TimezoneInfo>>(`/api/timezones`);
 };
 
 export const findEntitiesFilterOptions = async (

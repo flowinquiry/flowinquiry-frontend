@@ -35,9 +35,12 @@ import { Separator } from "@/components/ui/separator";
 import DefaultUserLogo from "@/components/users/user-logo";
 import { useImageCropper } from "@/hooks/use-image-cropper";
 import { useToast } from "@/hooks/use-toast";
-import { put } from "@/lib/actions/commons.action";
-import { changePassword, findUserById } from "@/lib/actions/users.action";
-import { BACKEND_API } from "@/lib/constants";
+import {
+  changePassword,
+  findUserById,
+  updateUser,
+} from "@/lib/actions/users.action";
+import { getApiUrl } from "@/lib/runtime-variables";
 import { useError } from "@/providers/error-provider";
 import { UserDTOSchema } from "@/types/users";
 
@@ -89,7 +92,7 @@ export const ProfileForm = () => {
       formData.append("file", selectedFile);
     }
 
-    await put(`${BACKEND_API}/api/users`, formData, setError);
+    await updateUser(formData, setError);
     toast({ description: "Save profile successfully" });
   };
 
@@ -156,7 +159,7 @@ export const ProfileForm = () => {
                 <AvatarImage
                   src={
                     session?.user?.imageUrl
-                      ? `/api/files/${session?.user?.imageUrl}`
+                      ? `${getApiUrl()}/api/files/${session?.user?.imageUrl}`
                       : ""
                   }
                   alt="@flowinquiry"

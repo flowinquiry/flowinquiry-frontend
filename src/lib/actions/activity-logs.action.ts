@@ -1,5 +1,4 @@
 import { get } from "@/lib/actions/commons.action";
-import { BACKEND_API } from "@/lib/constants";
 import { ActivityLogDTO } from "@/types/activity-logs";
 import { EntityType, PageableResult } from "@/types/commons";
 
@@ -11,7 +10,7 @@ export const getActivityLogs = async (
   setError?: (error: string | null) => void,
 ) => {
   return get<PageableResult<ActivityLogDTO>>(
-    `${BACKEND_API}/api/activity-logs?entityType=${entityType}&entityId=${entityId}&page=${page}&size=${displayNumber}&sort=createdAt,desc`,
+    `/api/activity-logs?entityType=${entityType}&entityId=${entityId}&page=${page}&size=${displayNumber}&sort=createdAt,desc`,
     setError,
   );
 };
@@ -23,7 +22,7 @@ export const getUserActivities = async (
   setError?: (error: string | null) => void,
 ) => {
   return get<PageableResult<ActivityLogDTO>>(
-    `${BACKEND_API}/api/activity-logs/user/${userId}?page=${page}&size=${displayNumber}&sort=createdAt,desc`,
+    `/api/activity-logs/user/${userId}?page=${page}&size=${displayNumber}&sort=createdAt,desc`,
     setError,
   );
 };

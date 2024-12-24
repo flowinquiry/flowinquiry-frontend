@@ -39,6 +39,7 @@ import {
   findMembersByTeamId,
 } from "@/lib/actions/teams.action";
 import { obfuscate } from "@/lib/endecode";
+import { getApiUrl } from "@/lib/runtime-variables";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
 import { useError } from "@/providers/error-provider";
 import { useTeam } from "@/providers/team-provider";
@@ -169,7 +170,7 @@ const TeamUsersView = () => {
                               <AvatarImage
                                 src={
                                   user?.imageUrl
-                                    ? `/api/files/${user.imageUrl}`
+                                    ? `${getApiUrl()}/api/files/${user.imageUrl}`
                                     : undefined
                                 }
                                 alt={`${user.firstName} ${user.lastName}`}
