@@ -24,14 +24,14 @@ docker tag ${IMAGE_NAME} ${REMOTE_REPO}:${TAG}
 docker tag ${IMAGE_NAME} ${REMOTE_REPO}:latest
 
 # Step 3: Log in to the Docker repository (Docker Hub by default)
-#echo "Logging into Docker repository..."
-#docker login || { echo "Login failed"; exit 1; }
-#
-## Step 4: Push both tags to the remote repository
-#echo "Pushing Docker image to remote repository with tag '${TAG}'..."
-#docker push ${REMOTE_REPO}:${TAG}
-#
-#echo "Pushing Docker image to remote repository with tag 'latest'..."
-#docker push ${REMOTE_REPO}:latest
-#
-#echo "Docker image has been pushed successfully with tags '${TAG}' and 'latest'."
+echo "Logging into Docker repository..."
+docker login || { echo "Login failed"; exit 1; }
+
+# Step 4: Push both tags to the remote repository
+echo "Pushing Docker image to remote repository with tag '${TAG}'..."
+docker push ${REMOTE_REPO}:${TAG}
+
+echo "Pushing Docker image to remote repository with tag 'latest'..."
+docker push ${REMOTE_REPO}:latest
+
+echo "Docker image has been pushed successfully with tags '${TAG}' and 'latest'."

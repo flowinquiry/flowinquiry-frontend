@@ -33,7 +33,7 @@ while true; do
 done
 
 # Append to the .env.local file
-echo "BACKEND_API=\"$backend_server\"" >> "$output_file"
+echo "BACKEND_URL=\"$backend_server\"" >> "$output_file"
 
 
 # Run npx auth and append its output to .env

@@ -5,7 +5,7 @@ import React from "react";
 import DefaultTeamLogo from "@/components/teams/team-logo";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import DefaultUserLogo from "@/components/users/user-logo";
-import { getBackendApi } from "@/lib/runtime-variables";
+import { getApiUrl } from "@/lib/runtime-variables";
 
 interface AvatarDisplayProps {
   imageUrl?: string | null;
@@ -25,7 +25,7 @@ export const AvatarDisplay: React.FC<AvatarDisplayProps> = ({
   return (
     <Avatar className={`${size} cursor-pointer ${className}`} onClick={onClick}>
       <AvatarImage
-        src={imageUrl ? `${getBackendApi()}/api/files/${imageUrl}` : undefined}
+        src={imageUrl ? `${getApiUrl()}/api/files/${imageUrl}` : undefined}
       />
       <AvatarFallback>{fallbackContent}</AvatarFallback>
     </Avatar>

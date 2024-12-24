@@ -3,10 +3,25 @@ import {
   doAdvanceSearch,
   get,
   post,
+  put,
 } from "@/lib/actions/commons.action";
 import { Pagination, QueryDTO } from "@/types/query";
 import { TeamDTO, TransitionItemCollectionDTO } from "@/types/teams";
 import { UserDTO, UserWithTeamRoleDTO } from "@/types/users";
+
+export const createTeam = async (
+  teamForm: FormData,
+  setError?: (error: string | null) => void,
+) => {
+  return post<FormData, TeamDTO>(`/api/teams`, teamForm, setError);
+};
+
+export const updateTeam = async (
+  teamForm: FormData,
+  setError?: (error: string | null) => void,
+) => {
+  return put<FormData, TeamDTO>(`/api/teams`, teamForm, setError);
+};
 
 export const findTeamById = async (
   teamId: number,

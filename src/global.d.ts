@@ -1,6 +1,6 @@
 declare global {
   interface Window {
-    BACKEND_API?: string; // Add BACKEND_API as an optional property
+    BASE_URL?: string; // Add BACKEND_URL as an optional property
   }
 }
 

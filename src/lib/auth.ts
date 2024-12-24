@@ -2,7 +2,7 @@ export default async function apiAuthSignIn(
   credentials: Partial<Record<"email" | "password", unknown>> | undefined,
 ) {
   try {
-    const response = await fetch(`${process.env.BACKEND_API}/api/login`, {
+    const response = await fetch(`${process.env.BACKEND_URL}/api/login`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

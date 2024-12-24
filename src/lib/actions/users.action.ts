@@ -51,16 +51,14 @@ export const createUser = async (
   user: UserDTO,
   setError?: (error: string | null) => void,
 ) => {
-  if (user.id) {
-    const formData = new FormData();
-    const userJsonBlob = new Blob([JSON.stringify(user)], {
-      type: "application/json",
-    });
-    formData.append("userDTO", userJsonBlob);
-    return put<FormData, UserDTO>(`/api/users`, formData, setError);
-  } else {
-    return post<UserDTO, UserDTO>(`/api/users`, user, setError);
-  }
+  return post<UserDTO, UserDTO>(`/api/users`, user, setError);
+};
+
+export const updateUser = async (
+  userForm: FormData,
+  setError?: (error: string | null) => void,
+) => {
+  return put<FormData, UserDTO>(`/api/users`, userForm, setError);
 };
 
 export const deleteUser = async (

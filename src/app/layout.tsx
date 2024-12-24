@@ -7,8 +7,7 @@ import { Inter } from "next/font/google";
 import AutoInitBackendApi from "@/components/init-api-backend";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { setBackendApi } from "@/lib/runtime-variables";
-import { BackendApiProvider } from "@/providers/backend-api-provider";
+import { setBackendUrl, setBaseUrl } from "@/lib/runtime-variables";
 import { ErrorProvider } from "@/providers/error-provider";
 import ReactQueryProvider from "@/providers/react-query-provider";
 import { ThemeProvider } from "@/providers/theme-provider";
@@ -20,23 +19,20 @@ export const metadata: Metadata = {
   description: "FlowInquiry dashboard",
 };
 
-// Server-side function to fetch the BACKEND_API dynamically
-async function getBackendApi(): Promise<string> {
-  const backendApi = process.env.BACKEND_API;
-  if (!backendApi) {
-    throw new Error("BACKEND_API is not defined in the environment");
-  }
-  return backendApi;
-}
-
 const RootLayout = async ({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) => {
-  const backendApi = await getBackendApi();
+  const backendUrl = process.env.BACKEND_URL;
+  if (!backendUrl) {
+    throw new Error("BACKEND_URL is not defined in the environment");
+  }
+  setBackendUrl(backendUrl);
 
-  setBackendApi(backendApi);
+  // Base url is the mandatory field in environments except local
+  const baseUrl = process.env.BASE_URL;
+  setBaseUrl(baseUrl);
 
   return (
     <html suppressHydrationWarning={true} lang="en">
@@ -52,23 +48,19 @@ const RootLayout = async ({
         <script
           id="runtime-config"
           dangerouslySetInnerHTML={{
-            __html: `window.BACKEND_API="${backendApi}";`,
+            __html: `window.BASE_URL="${baseUrl}";`,
           }}
         />
-        <BackendApiProvider backendApi={backendApi}>
-          <ErrorProvider>
-            <ThemeProvider attribute="class" defaultTheme="system">
-              <ReactQueryProvider>
-                <TooltipProvider>
-                  <AutoInitBackendApi />{" "}
-                  {/* Initialize BACKEND_API on client */}
-                  {children}
-                </TooltipProvider>
-                <Toaster />
-              </ReactQueryProvider>
-            </ThemeProvider>
-          </ErrorProvider>
-        </BackendApiProvider>
+        <ErrorProvider>
+          <ThemeProvider attribute="class" defaultTheme="system">
+            <ReactQueryProvider>
+              <TooltipProvider>
+                <AutoInitBackendApi /> {children}
+              </TooltipProvider>
+              <Toaster />
+            </ReactQueryProvider>
+          </ThemeProvider>
+        </ErrorProvider>
       </body>
     </html>
   );

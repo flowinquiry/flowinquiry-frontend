@@ -6,7 +6,7 @@ const nextConfig = {
       fallback: [
         {
           source: "/api/:path*",
-          destination: `${process.env.BACKEND_API}/api/:path*`,
+          destination: `${process.env.BACKEND_URL}/api/:path*`,
         },
       ],
     };

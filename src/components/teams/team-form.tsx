@@ -26,10 +26,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useImageCropper } from "@/hooks/use-image-cropper";
-import { post, put } from "@/lib/actions/commons.action";
-import { findTeamById } from "@/lib/actions/teams.action";
+import {
+  createTeam,
+  findTeamById,
+  updateTeam,
+} from "@/lib/actions/teams.action";
 import { obfuscate } from "@/lib/endecode";
-import { getBackendApi } from "@/lib/runtime-variables";
+import { getApiUrl } from "@/lib/runtime-variables";
 import { validateForm } from "@/lib/validator";
 import { useError } from "@/providers/error-provider";
 import { TeamDTO, TeamDTOSchema } from "@/types/teams";
@@ -104,13 +107,12 @@ export const TeamForm = ({ teamId }: { teamId: number | undefined }) => {
       if (formValues.id) {
         // Edit mode
         redirectTeamId = formValues.id;
-        await put(`${getBackendApi()}/api/teams`, formData);
+        await updateTeam(formData, setError);
       } else {
         // Create mode
-        await post<FormData, TeamDTO>(
-          `${getBackendApi()}/api/teams`,
-          formData,
-        ).then((data) => (redirectTeamId = data.id));
+        await createTeam(formData, setError).then(
+          (data) => (redirectTeamId = data.id),
+        );
       }
 
       router.push(`/portal/teams/${obfuscate(redirectTeamId)}/dashboard`);
@@ -173,7 +175,7 @@ export const TeamForm = ({ teamId }: { teamId: number | undefined }) => {
                     <AvatarImage
                       src={
                         team?.logoUrl
-                          ? `${getBackendApi()}/api/files/${team.logoUrl}`
+                          ? `${getApiUrl()}/api/files/${team.logoUrl}`
                           : undefined
                       }
                       alt="@flowinquiry"

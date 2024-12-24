@@ -30,7 +30,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { getBackendApi } from "@/lib/runtime-variables";
+import { getApiUrl, getBaseUrl } from "@/lib/runtime-variables";
 
 export function UserNav() {
   const { data: session } = useSession();
@@ -50,7 +50,7 @@ export function UserNav() {
                     <AvatarImage
                       src={
                         session?.user?.imageUrl
-                          ? `${getBackendApi()}/api/files/${session?.user?.imageUrl}`
+                          ? `${getApiUrl()}/api/files/${session?.user?.imageUrl}`
                           : undefined
                       }
                       alt="Avatar"
@@ -102,7 +102,7 @@ export function UserNav() {
           <DropdownMenuSeparator />
           <DropdownMenuItem
             className="hover:cursor-pointer"
-            onClick={() => signOut()}
+            onClick={() => signOut({ redirectTo: getBaseUrl() })}
           >
             <LogOut className="w-4 h-4 mr-3 text-muted-foreground" />
             Sign out
