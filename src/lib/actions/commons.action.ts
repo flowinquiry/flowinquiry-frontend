@@ -1,6 +1,6 @@
 import { auth } from "@/auth";
 import { getAccessToken } from "@/lib/access-token-manager";
-import { API_URL, BACK_END_URL } from "@/lib/constants";
+import { BACK_END_URL, BASE_URL } from "@/lib/constants";
 import { handleError, HttpError } from "@/lib/errors";
 import { PageableResult } from "@/types/commons";
 import {
@@ -44,7 +44,7 @@ export const fetchData = async <TData, TResponse>(
 
   try {
     const apiUrl =
-      securityMode === SecurityMode.CLIENT_SECURE ? API_URL : BACK_END_URL;
+      securityMode === SecurityMode.CLIENT_SECURE ? BASE_URL : BACK_END_URL;
     const response = await fetch(`${apiUrl}${url}`, options);
 
     if (response.ok) {

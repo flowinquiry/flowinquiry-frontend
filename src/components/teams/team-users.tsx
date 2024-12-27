@@ -38,7 +38,7 @@ import {
   deleteUserFromTeam,
   findMembersByTeamId,
 } from "@/lib/actions/teams.action";
-import { API_URL } from "@/lib/constants";
+import { BASE_URL } from "@/lib/constants";
 import { obfuscate } from "@/lib/endecode";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
 import { useError } from "@/providers/error-provider";
@@ -170,7 +170,7 @@ const TeamUsersView = () => {
                               <AvatarImage
                                 src={
                                   user?.imageUrl
-                                    ? `${API_URL}/api/files/${user.imageUrl}`
+                                    ? `${BASE_URL}/api/files/${user.imageUrl}`
                                     : undefined
                                 }
                                 alt={`${user.firstName} ${user.lastName}`}

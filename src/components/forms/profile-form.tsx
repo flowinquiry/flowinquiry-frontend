@@ -40,7 +40,7 @@ import {
   findUserById,
   updateUser,
 } from "@/lib/actions/users.action";
-import { API_URL } from "@/lib/constants";
+import { BASE_URL } from "@/lib/constants";
 import { useError } from "@/providers/error-provider";
 import { UserDTOSchema } from "@/types/users";
 
@@ -159,7 +159,7 @@ export const ProfileForm = () => {
                 <AvatarImage
                   src={
                     session?.user?.imageUrl
-                      ? `${API_URL}/api/files/${session?.user?.imageUrl}`
+                      ? `${BASE_URL}/api/files/${session?.user?.imageUrl}`
                       : ""
                   }
                   alt="@flowinquiry"

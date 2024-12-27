@@ -31,7 +31,7 @@ import {
   findTeamById,
   updateTeam,
 } from "@/lib/actions/teams.action";
-import { API_URL } from "@/lib/constants";
+import { BASE_URL } from "@/lib/constants";
 import { obfuscate } from "@/lib/endecode";
 import { validateForm } from "@/lib/validator";
 import { useError } from "@/providers/error-provider";
@@ -175,7 +175,7 @@ export const TeamForm = ({ teamId }: { teamId: number | undefined }) => {
                     <AvatarImage
                       src={
                         team?.logoUrl
-                          ? `${API_URL}/api/files/${team.logoUrl}`
+                          ? `${BASE_URL}/api/files/${team.logoUrl}`
                           : undefined
                       }
                       alt="@flowinquiry"

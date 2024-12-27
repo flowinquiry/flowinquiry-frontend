@@ -38,7 +38,7 @@ import {
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import { deleteTeams, searchTeams } from "@/lib/actions/teams.action";
-import { API_URL } from "@/lib/constants";
+import { BASE_URL } from "@/lib/constants";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { useError } from "@/providers/error-provider";
@@ -59,7 +59,7 @@ export const TeamList = () => {
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(false);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [filterUserTeamsOnly, setFilterUserTeamsOnly] = useState(true);
+  const [filterUserTeamsOnly, setFilterUserTeamsOnly] = useState(false);
 
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<TeamDTO | null>(null);
@@ -206,7 +206,7 @@ export const TeamList = () => {
                           <AvatarImage
                             src={
                               team.logoUrl
-                                ? `${API_URL}/api/files/${team.logoUrl}`
+                                ? `${BASE_URL}/api/files/${team.logoUrl}`
                                 : undefined
                             }
                             alt="@flowinquiry"

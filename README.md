@@ -110,10 +110,10 @@ Set up the application environment variables by running the following script:
 scripts/init_environments.sh
 ```
 
-This script generates environment variables, including NEXT_PUBLIC_API_URL, to establish the communication between the client and server. Example
+This script generates environment variables, including BACK_END_URL, to establish the communication between the client and server. Example
 
 ```
-NEXT_PUBLIC_API_URL=http://localhost:8080
+BACK_END_URL=http://localhost:8080
 ```
 
 We recommend running the `scripts/all.sh` script, as it streamlines the process by checking your environment settings and performing all necessary configurations, removing the need to execute multiple scripts manually.
