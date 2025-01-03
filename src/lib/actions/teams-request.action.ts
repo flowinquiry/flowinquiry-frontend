@@ -1,4 +1,5 @@
 import { doAdvanceSearch, get, post, put } from "@/lib/actions/commons.action";
+import { HttpError } from "@/lib/errors";
 import { PageableResult } from "@/types/commons";
 import { Pagination, QueryDTO } from "@/types/query";
 import {
@@ -14,7 +15,7 @@ import {
 
 export const createTeamRequest = async (
   teamRequest: TeamRequestDTO,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return post<TeamRequestDTO, TeamRequestDTO>(
     `/api/team-requests`,
@@ -25,7 +26,7 @@ export const createTeamRequest = async (
 
 export const findRequestById = async (
   requestId: number,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<TeamRequestDTO>(`/api/team-requests/${requestId}`, setError);
 };
@@ -33,7 +34,7 @@ export const findRequestById = async (
 export const updateTeamRequest = async (
   teamRequestId: number,
   teamRequest: TeamRequestDTO,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return put<TeamRequestDTO, TeamRequestDTO>(
     `/api/team-requests/${teamRequestId}`,
@@ -45,7 +46,7 @@ export const updateTeamRequest = async (
 export async function searchTeamRequests(
   query: QueryDTO,
   pagination: Pagination,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) {
   return doAdvanceSearch<TeamRequestDTO>(
     `/api/team-requests/search`,
@@ -57,7 +58,7 @@ export async function searchTeamRequests(
 
 export const findPreviousTeamRequest = async (
   requestId: number,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<TeamRequestDTO>(
     `/api/team-requests/${requestId}/previous`,
@@ -67,14 +68,14 @@ export const findPreviousTeamRequest = async (
 
 export const findNextTeamRequest = async (
   requestId: number,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<TeamRequestDTO>(`/api/team-requests/${requestId}/next`, setError);
 };
 
 export const getTicketsAssignmentDistributionByTeam = async (
   teamId: number,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<TicketDistributionDTO[]>(
     `/api/team-requests/teams/${teamId}/ticket-distribution`,
@@ -84,7 +85,7 @@ export const getTicketsAssignmentDistributionByTeam = async (
 
 export const getTicketsPriorityDistributionByTeam = async (
   teamId: number,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<PriorityDistributionDTO[]>(
     `/api/team-requests/teams/${teamId}/priority-distribution`,
@@ -97,7 +98,7 @@ export const getUnassignedTickets = async (
   page: number,
   sortBy: string,
   sortDirection: string,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<PageableResult<TeamRequestDTO>>(
     `/api/team-requests/teams/${teamId}/unassigned-tickets?page=${page}&size=5&sort=${sortBy},${sortDirection}`,
@@ -110,7 +111,7 @@ export const getOverdueTicketsByTeam = async (
   page: number,
   sortBy: string,
   sortDirection: string,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<PageableResult<TeamRequestDTO>>(
     `/api/team-requests/teams/${teamId}/overdue-tickets?page=${page}&size=5&sort=${sortBy},${sortDirection}`,
@@ -120,7 +121,7 @@ export const getOverdueTicketsByTeam = async (
 
 export const getTicketStatisticsByTeamId = async (
   teamId: number,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<TicketStatisticsDTO>(
     `/api/team-requests/teams/${teamId}/statistics`,
@@ -130,7 +131,7 @@ export const getTicketStatisticsByTeamId = async (
 
 export const getCountOverdueTicketsByTeamId = async (
   teamId: number,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<number>(
     `/api/team-requests/teams/${teamId}/overdue-tickets/count`,
@@ -141,7 +142,7 @@ export const getCountOverdueTicketsByTeamId = async (
 export const getTicketCreationDaySeries = async (
   teamId: number,
   days: number,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<TicketActionCountByDateDTO[]>(
     `/api/team-requests/teams/${teamId}/ticket-creations-day-series?days=${days}`,
@@ -154,7 +155,7 @@ export const getOverdueTicketsByUser = async (
   page: number,
   sortBy: string,
   sortDirection: string,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<PageableResult<TeamRequestDTO>>(
     `/api/team-requests/users/${userId}/overdue-tickets?page=${page}&size=5&sort=${sortBy},${sortDirection}`,
@@ -164,7 +165,7 @@ export const getOverdueTicketsByUser = async (
 
 export const getTeamTicketPriorityDistributionForUser = async (
   userId: number,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<Array<TeamTicketPriorityDistributionDTO>>(
     `/api/team-requests/users/${userId}/team-tickets-priority-distribution`,

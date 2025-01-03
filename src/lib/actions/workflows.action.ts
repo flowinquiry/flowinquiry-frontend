@@ -5,6 +5,7 @@ import {
   post,
   put,
 } from "@/lib/actions/commons.action";
+import { HttpError } from "@/lib/errors";
 import { Pagination, QueryDTO } from "@/types/query";
 import {
   WorkflowDetailDTO,
@@ -14,14 +15,14 @@ import {
 
 export const getWorkflowsByTeam = (
   teamId: number,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<Array<WorkflowDTO>>(`/api/workflows/teams/${teamId}`, setError);
 };
 
 export const getGlobalWorkflowHasNotLinkedWithTeam = (
   teamId: number,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<Array<WorkflowDTO>>(
     `/api/workflows/teams/${teamId}/global-workflows-not-linked-yet`,
@@ -33,7 +34,7 @@ export const getValidTargetStates = async (
   workflowId: number,
   workflowStateId: number,
   includeSelf: boolean,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<Array<WorkflowStateDTO>>(
     `/api/workflows/${workflowId}/transitions?workflowStateId=${workflowStateId}&&includeSelf=${includeSelf}`,
@@ -44,7 +45,7 @@ export const getValidTargetStates = async (
 export async function searchWorkflows(
   query: QueryDTO,
   pagination: Pagination,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) {
   return doAdvanceSearch<WorkflowDTO>(
     `/api/workflows/search`,
@@ -56,7 +57,7 @@ export async function searchWorkflows(
 
 export const getWorkflowDetail = async (
   workflowId: number,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<WorkflowDetailDTO>(
     `/api/workflows/details/${workflowId}`,
@@ -66,7 +67,7 @@ export const getWorkflowDetail = async (
 
 export const saveWorkflowDetail = async (
   workflowDetail: WorkflowDetailDTO,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return post<WorkflowDetailDTO, WorkflowDetailDTO>(
     `/api/workflows/details`,
@@ -78,7 +79,7 @@ export const saveWorkflowDetail = async (
 export const updateWorkflowDetail = async (
   workflowId: number,
   workflowDetail: WorkflowDetailDTO,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return put<WorkflowDetailDTO, WorkflowDetailDTO>(
     `/api/workflows/details/${workflowId}`,
@@ -91,7 +92,7 @@ export const createWorkflowFromReference = async (
   teamId: number,
   referenceWorkflowId: number,
   workflowDto: WorkflowDTO,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return post<WorkflowDTO, WorkflowDetailDTO>(
     `/api/workflows/${referenceWorkflowId}/teams/${teamId}/create-workflow-reference`,
@@ -104,7 +105,7 @@ export const createWorkflowFromCloning = async (
   teamId: number,
   cloneWorkflowId: number,
   workflowDto: WorkflowDTO,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return post<WorkflowDTO, WorkflowDetailDTO>(
     `/api/workflows/${cloneWorkflowId}/teams/${teamId}/create-workflow-clone`,
@@ -115,7 +116,7 @@ export const createWorkflowFromCloning = async (
 
 export const deleteWorkflow = async (
   workflowId: number,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return deleteExec(`/api/workflows/${workflowId}`, undefined, setError);
 };

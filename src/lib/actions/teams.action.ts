@@ -5,27 +5,28 @@ import {
   post,
   put,
 } from "@/lib/actions/commons.action";
+import { HttpError } from "@/lib/errors";
 import { Pagination, QueryDTO } from "@/types/query";
 import { TeamDTO, TransitionItemCollectionDTO } from "@/types/teams";
 import { UserDTO, UserWithTeamRoleDTO } from "@/types/users";
 
 export const createTeam = async (
   teamForm: FormData,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return post<FormData, TeamDTO>(`/api/teams`, teamForm, setError);
 };
 
 export const updateTeam = async (
   teamForm: FormData,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return put<FormData, TeamDTO>(`/api/teams`, teamForm, setError);
 };
 
 export const findTeamById = async (
   teamId: number,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<TeamDTO>(`/api/teams/${teamId}`, setError);
 };
@@ -33,7 +34,7 @@ export const findTeamById = async (
 export async function searchTeams(
   query: QueryDTO,
   pagination: Pagination,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) {
   return doAdvanceSearch<TeamDTO>(
     `/api/teams/search`,
@@ -45,14 +46,14 @@ export async function searchTeams(
 
 export async function deleteTeams(
   ids: number[],
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) {
   return deleteExec(`/api/teams`, ids, setError);
 }
 
 export async function findMembersByTeamId(
   teamId: number,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) {
   return get<Array<UserWithTeamRoleDTO>>(
     `/api/teams/${teamId}/members`,
@@ -62,7 +63,7 @@ export async function findMembersByTeamId(
 
 export async function findTeamsByMemberId(
   userId: number,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) {
   return get<Array<TeamDTO>>(`/api/teams/users/${userId}`, setError);
 }
@@ -70,7 +71,7 @@ export async function findTeamsByMemberId(
 export async function findUsersNotInTeam(
   userTerm: string,
   teamId: number,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) {
   return get<Array<UserDTO>>(
     `/api/teams/searchUsersNotInTeam?userTerm=${userTerm}&&teamId=${teamId}`,
@@ -82,7 +83,7 @@ export const addUsersToTeam = (
   teamId: number,
   userIds: number[],
   teamRole: string,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return post(
     `/api/teams/${teamId}/add-users`,
@@ -97,7 +98,7 @@ export const addUsersToTeam = (
 export const deleteUserFromTeam = async (
   teamId: number,
   userId: number,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return deleteExec(
     `/api/teams/${teamId}/users/${userId}`,
@@ -109,7 +110,7 @@ export const deleteUserFromTeam = async (
 export const getUserRoleInTeam = async (
   userId: number,
   teamId: number,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<Record<string, string>>(
     `/api/teams/${teamId}/users/${userId}/role`,
@@ -119,7 +120,7 @@ export const getUserRoleInTeam = async (
 
 export const getTeamRequestStateChangesHistory = async (
   ticketId: number,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<TransitionItemCollectionDTO>(
     `/api/team-requests/${ticketId}/states-history`,

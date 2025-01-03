@@ -1,4 +1,5 @@
 import { deleteExec, get, post } from "@/lib/actions/commons.action";
+import { HttpError } from "@/lib/errors";
 import {
   AuthorityDTO,
   AuthorityResourcePermissionDTO,
@@ -9,7 +10,7 @@ import { UserDTO } from "@/types/users";
 
 export const getAuthorities = async (
   page: number,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<PageableResult<AuthorityDTO>>(
     `/api/authorities?page=${page}&size=2000&sort=descriptiveName,asc`,
@@ -19,14 +20,14 @@ export const getAuthorities = async (
 
 export const findAuthorityByName = async (
   name: string,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<AuthorityDTO>(`/api/authorities/${name}`, setError);
 };
 
 export const createAuthority = async (
   authority: AuthorityDTO,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return post<AuthorityDTO, AuthorityDTO>(
     `/api/authorities`,
@@ -37,7 +38,7 @@ export const createAuthority = async (
 
 export const deleteAuthority = async (
   authority_name: string,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return deleteExec<string, void>(
     `/api/authorities/${authority_name}`,
@@ -48,7 +49,7 @@ export const deleteAuthority = async (
 
 export const findPermissionsByAuthorityName = async (
   authorityName: string,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<Array<AuthorityResourcePermissionDTO>>(
     `/api/authority-permissions/${authorityName}`,
@@ -58,7 +59,7 @@ export const findPermissionsByAuthorityName = async (
 
 export const batchSavePermissions = async (
   permissions: Array<AuthorityResourcePermissionDTO>,
-  setError?: (error: string | null) => void,
+  setError?: (error: HttpError | string | null) => void,
 ) => {
   return post<
     Array<AuthorityResourcePermissionDTO>,
