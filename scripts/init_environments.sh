@@ -33,7 +33,10 @@ while true; do
 done
 
 # Append to the .env.local file
-echo "NEXT_PUBLIC_BACK_END_URL=\"$backend_server\"" >> "$output_file"
+cat <<EOL >> "$output_file"
+NEXT_PUBLIC_BASE_URL="$backend_server"
+BACK_END_URL="$backend_server"
+EOL
 
 
 # Run npx auth and append its output to .env

@@ -48,6 +48,7 @@ export const fetchData = async <TData, TResponse>(
       securityMode === SecurityMode.NOT_SECURE
         ? BASE_URL
         : BACK_END_URL;
+
     const response = await fetch(`${apiUrl}${url}`, options);
 
     if (response.ok) {
