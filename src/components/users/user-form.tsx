@@ -18,7 +18,11 @@ import {
 } from "@/components/ui/ext-form";
 import { Form } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
-import { createUser, findUserById } from "@/lib/actions/users.action";
+import {
+  createUser,
+  findUserById,
+  updateUser,
+} from "@/lib/actions/users.action";
 import { obfuscate } from "@/lib/endecode";
 import { useError } from "@/providers/error-provider";
 import { UserDTO, UserDTOSchema } from "@/types/users";
@@ -57,7 +61,19 @@ export const UserForm = ({ userId }: { userId?: number }) => {
   }, [userId, reset]);
 
   async function onSubmit(data: UserDTO) {
-    const savedUser = await createUser(data, setError);
+    let savedUser;
+    if (data.id) {
+      const formData = new FormData();
+
+      const userJsonBlob = new Blob([JSON.stringify(data)], {
+        type: "application/json",
+      });
+      formData.append("userDTO", userJsonBlob);
+      savedUser = await updateUser(formData, setError);
+    } else {
+      savedUser = await createUser(data, setError);
+    }
+
     router.push(`/portal/users/${obfuscate(savedUser.id)}`);
   }
 
