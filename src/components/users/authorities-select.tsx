@@ -16,11 +16,14 @@ import { UiAttributes } from "@/types/ui-components";
 
 interface AuthoritiesSelectProps {
   form: any;
+  fieldName: string;
   label: string;
+  required?: boolean;
 }
 
 const AuthoritiesSelect = ({
   form,
+  fieldName,
   label,
   required,
 }: AuthoritiesSelectProps & UiAttributes) => {
@@ -49,33 +52,35 @@ const AuthoritiesSelect = ({
   return (
     <FormField
       control={form.control}
-      name="authorities"
+      name={fieldName}
       render={({ field }) => {
         const defaultValues = field.value ?? [];
 
         return (
-          <FormItem className="space-y-0">
+          <FormItem className="space-y-2">
             <FormLabel>
               {label}
               {required && <span className="text-destructive"> *</span>}
             </FormLabel>
-            <MultiSelect
-              options={options}
-              onValueChange={(newValues) =>
-                field.onChange(
-                  newValues
-                    .map((selectedValue) =>
-                      authorities.find((auth) => auth.name === selectedValue),
-                    )
-                    .filter(Boolean)
-                    .map((auth) => auth?.name),
-                )
-              }
-              defaultValue={defaultValues}
-              placeholder="Select authorities"
-              animation={2}
-              maxCount={3}
-            />
+            <div className="max-w-[20rem]">
+              <MultiSelect
+                options={options}
+                onValueChange={(newValues) =>
+                  field.onChange(
+                    newValues
+                      .map((selectedValue) =>
+                        authorities.find((auth) => auth.name === selectedValue),
+                      )
+                      .filter(Boolean)
+                      .map((auth) => auth?.name),
+                  )
+                }
+                defaultValue={defaultValues}
+                placeholder="Select authorities"
+                animation={2}
+                maxCount={3}
+              />
+            </div>
             <FormMessage />
           </FormItem>
         );

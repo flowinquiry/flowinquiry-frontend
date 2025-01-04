@@ -49,6 +49,7 @@ export const ExtInputField = ({
   required = false,
   type = undefined,
   onChange,
+  className = "",
   ...props
 }: ExtInputProps & UiAttributes) => {
   return (
@@ -62,7 +63,14 @@ export const ExtInputField = ({
             {required && <span className="text-destructive"> *</span>}
           </FormLabel>
           <FormControl>
-            {<Input type={type} placeholder={placeholder} {...field} />}
+            {
+              <Input
+                type={type}
+                placeholder={placeholder}
+                {...field}
+                className={className} // Apply custom classes here
+              />
+            }
           </FormControl>
           <FormMessage />
         </FormItem>

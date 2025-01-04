@@ -49,6 +49,10 @@ function ActivationContent() {
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
+    defaultValues: {
+      password: "",
+      confirmPassword: "",
+    },
   });
 
   const [countdown, setCountdown] = useState(5); // Countdown timer (in seconds)

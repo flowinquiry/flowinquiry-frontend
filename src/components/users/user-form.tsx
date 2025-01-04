@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/ext-form";
 import { Form } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
+import AuthoritiesSelect from "@/components/users/authorities-select";
 import {
   createUser,
   findUserById,
@@ -101,15 +102,25 @@ export const UserForm = ({ userId }: { userId?: number }) => {
           onSubmit={form.handleSubmit(onSubmit)}
           className="grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-[72rem]"
         >
-          <ExtInputField
-            form={form}
-            required={true}
-            fieldName="email"
-            label="Email"
-            placeholder="Email"
-          />
-          <UserSelectField form={form} fieldName="managerId" label="Manager" />
+          {/* Email field spans the entire row */}
+          <div className="sm:col-span-2">
+            <ExtInputField
+              form={form}
+              required={true}
+              fieldName="email"
+              label="Email"
+              placeholder="Email"
+              className="w-[20rem]"
+            />
+          </div>
 
+          <UserSelectField form={form} fieldName="managerId" label="Manager" />
+          <AuthoritiesSelect
+            form={form}
+            label="Authority"
+            fieldName="authorities"
+            required={true}
+          />
           <ExtInputField
             form={form}
             required={true}
@@ -163,7 +174,8 @@ export const UserForm = ({ userId }: { userId?: number }) => {
           />
           <CountrySelectField form={form} fieldName="country" label="Country" />
 
-          <div className="md:col-span-2 flex flex-row gap-4">
+          {/* Buttons section spans the entire row */}
+          <div className="sm:col-span-2 flex flex-row gap-4">
             <SubmitButton
               label={isEdit ? "Update" : "Invite"}
               labelWhileLoading={isEdit ? "Updating..." : "Inviting..."}
