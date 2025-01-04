@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { passwordReset } from "@/lib/actions/users.action";
+import { useError } from "@/providers/error-provider";
 
 const schema = z
   .object({
@@ -44,6 +45,7 @@ function ActivationContent() {
 
   const [status, setStatus] = useState("loading"); // 'loading', 'success', 'error'
   const [errorMessage, setErrorMessage] = useState("");
+  const { setError } = useError();
 
   const form = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -77,7 +79,7 @@ function ActivationContent() {
     if (status === "submitted" && keyParam) {
       const activateUser = async (key: string) => {
         try {
-          await passwordReset(key, form.getValues("password"));
+          await passwordReset(key, form.getValues("password"), setError);
           setStatus("success");
         } catch (error) {
           setErrorMessage(
