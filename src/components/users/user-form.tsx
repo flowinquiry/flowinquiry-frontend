@@ -61,20 +61,19 @@ export const UserForm = ({ userId }: { userId?: number }) => {
   }, [userId, reset]);
 
   async function onSubmit(data: UserDTO) {
-    let savedUser;
-    if (data.id) {
-      const formData = new FormData();
-
-      const userJsonBlob = new Blob([JSON.stringify(data)], {
-        type: "application/json",
-      });
-      formData.append("userDTO", userJsonBlob);
-      savedUser = await updateUser(formData, setError);
-    } else {
-      savedUser = await createUser(data, setError);
-    }
-
+    const savedUser = data.id
+      ? await updateUser(prepareFormData(data), setError)
+      : await createUser(data, setError);
     router.push(`/portal/users/${obfuscate(savedUser.id)}`);
+  }
+
+  function prepareFormData(data: UserDTO): FormData {
+    const formData = new FormData();
+    const userJsonBlob = new Blob([JSON.stringify(data)], {
+      type: "application/json",
+    });
+    formData.append("userDTO", userJsonBlob);
+    return formData;
   }
 
   const isEdit = !!user;
