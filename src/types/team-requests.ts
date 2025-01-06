@@ -7,6 +7,14 @@ export type TeamRequestPriority =
   | "Low"
   | "Trivial";
 
+const WatcherDTOSchema = z.object({
+  id: z.number(),
+  firstName: z.string(),
+  lastName: z.string(),
+  imageUrl: z.string().optional(), // Optional field in case it's null/undefined
+  email: z.string().email(),
+});
+
 export const TeamRequestDTOSchema = z.object({
   id: z.number().optional(),
   teamId: z.number().optional(),
@@ -54,9 +62,11 @@ export const TeamRequestDTOSchema = z.object({
     return value;
   }, z.date().nullish()),
   channel: z.string().nullish(),
+  watchers: z.array(WatcherDTOSchema).optional(),
 });
 
 export type TeamRequestDTO = z.infer<typeof TeamRequestDTOSchema>;
+export type WatcherDTO = z.infer<typeof WatcherDTOSchema>;
 
 export type TicketChannel =
   | "Email"

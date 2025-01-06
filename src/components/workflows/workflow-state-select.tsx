@@ -81,10 +81,12 @@ const WorkflowStateSelect = ({
           </FormLabel>
           <FormControl>
             <Select
-              value={field.value != null ? String(field.value) : undefined} // Convert number to string for Select
+              // Convert the integer field value to a string for Select
+              value={field.value != null ? String(field.value) : undefined}
+              // Convert the selected string value back to an integer
               onValueChange={(value) =>
                 field.onChange(value ? Number(value) : null)
-              } // Convert string back to number
+              }
               disabled={isLoading || workflowStates.length === 0}
             >
               <SelectTrigger className={cn("w-[16rem]")}>

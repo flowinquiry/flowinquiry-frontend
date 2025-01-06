@@ -17,12 +17,21 @@ export class HttpError extends Error {
   }
 }
 
+const STATUS_MESSAGES: Record<number, string> = {
+  400: "Bad request. Please check your input.",
+  401: "Unauthorized access. Please log in.",
+  403: "Forbidden. You do not have permission to perform this action.",
+  404: "Resource not found. Please try again later.",
+  409: "Conflict. The request could not be completed due to a conflict.",
+  500: "Server error. Please try again later.",
+  503: "Service unavailable. Please try again later.",
+};
+
 // Utility method to handle HTTP errors
 export const handleError = async (
   response: Response,
   url: string,
 ): Promise<HttpError> => {
-  let errorMessage = "An unexpected error occurred.";
   let details: string | undefined;
 
   try {
@@ -38,36 +47,10 @@ export const handleError = async (
     details = response.statusText || "No additional details available.";
   }
 
-  // Customize the error message based on the status code
-  switch (response.status) {
-    case HttpError.BAD_REQUEST:
-      errorMessage = "Bad request. Please check your input.";
-      break;
-    case HttpError.UNAUTHORIZED:
-      errorMessage = details || "Unauthorized access.";
-      break;
-    case HttpError.FORBIDDEN:
-      errorMessage =
-        "Forbidden. You do not have permission to perform this action.";
-      break;
-    case HttpError.NOT_FOUND:
-      errorMessage = "Resource not found. Please try again later.";
-      break;
-    case HttpError.INTERNAL_SERVER_ERROR:
-      errorMessage = "Server error. Please try again later.";
-      break;
-    case 503:
-      errorMessage = "Service unavailable. Please try again later.";
-      break;
-    default:
-      errorMessage = `Unexpected error (status: ${response.status}).`;
-      break;
-  }
-
-  // Append the details to the error message if available
-  // if (details) {
-  //   errorMessage += ` Details: ${details}`;
-  // }
+  // Retrieve the error message from the map or use a default
+  const errorMessage =
+    STATUS_MESSAGES[response.status] ||
+    `Unexpected error (status: ${response.status}).`;
 
   // Log the error for debugging
   console.error(`Error fetching ${url}:`, {
@@ -76,5 +59,9 @@ export const handleError = async (
     details,
   });
 
-  return new HttpError(response.status, errorMessage, true);
+  return new HttpError(
+    response.status,
+    `${errorMessage} Details: ${details}`,
+    true,
+  );
 };

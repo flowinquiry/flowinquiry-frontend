@@ -2001,10 +2001,10 @@ packages:
         integrity: sha512-bhAXu23DJWsrI45xafYpkQ4NtcKMwWnAC/vKrd2l+nxMFuvOT3XMYTIj2opv8vq8AO5Yh7Qac/nSeP/3zjTK0w==,
       }
 
-  "@types/d3-shape@3.1.6":
+  "@types/d3-shape@3.1.7":
     resolution:
       {
-        integrity: sha512-5KKk5aKGu2I+O6SONMYSNflgiP0WfZIQvVUMan50wHsLG1G94JlxEVnCpQARfTtzytuY0p/9PXXZb3I7giofIA==,
+        integrity: sha512-VLvUQ33C+3J+8p+Daf+nYSOsjB4GXp19/S/aGo60m9h1v6XaxjiT82lKVWJCfzhtuZ3yD7i/TPeC/fuKLLOSmg==,
       }
 
   "@types/d3-time@3.0.4":
@@ -3272,10 +3272,10 @@ packages:
         integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==,
       }
 
-  fast-equals@5.1.3:
+  fast-equals@5.2.0:
     resolution:
       {
-        integrity: sha512-6117/nJPFyrTjoCBQI7lpRFf+Oda4mH8HtlNMi28os+URb7MQU/dXUTrKhA2KR4G0O1MCfdi/KExIVEmzEh3qA==,
+        integrity: sha512-3VpaQYf+CDFdRQfgsb+3vY7XaKjM35WCMoQTTE8h4S/eUkHzyJFOOA/gATYgoLejy4FBrEQD/sXe5Auk4cW/AQ==,
       }
     engines: { node: ">=6.0.0" }
 
@@ -3286,10 +3286,10 @@ packages:
       }
     engines: { node: ">=8.6.0" }
 
-  fast-glob@3.3.2:
+  fast-glob@3.3.3:
     resolution:
       {
-        integrity: sha512-oX2ruAFQwf/Orj8m737Y5adxDQO0LAB7/S5MnxCdTNDd4p6BsyIVsv9JQsATbTSq8KHRpLwIHbVlUNatxd+1Ow==,
+        integrity: sha512-7MptL8U0cqcFdzIzwOTHoilX9x5BrNqye7Z/LuC7kCMRio1EMSyqRK3BEAUD7sXRq4iT4AzTVuZdhgQ2TCvYLg==,
       }
     engines: { node: ">=8.6.0" }
 
@@ -6961,7 +6961,7 @@ snapshots:
 
   "@types/d3-selection@3.0.11": {}
 
-  "@types/d3-shape@3.1.6":
+  "@types/d3-shape@3.1.7":
     dependencies:
       "@types/d3-path": 3.1.0
 
@@ -7073,7 +7073,7 @@ snapshots:
       "@typescript-eslint/types": 8.19.0
       "@typescript-eslint/visitor-keys": 8.19.0
       debug: 4.4.0
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       is-glob: 4.0.3
       minimatch: 9.0.5
       semver: 7.6.3
@@ -7710,7 +7710,7 @@ snapshots:
       debug: 4.4.0
       enhanced-resolve: 5.18.0
       eslint: 9.17.0(jiti@1.21.7)
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       get-tsconfig: 4.8.1
       is-bun-module: 1.3.0
       is-glob: 4.0.3
@@ -7905,7 +7905,7 @@ snapshots:
 
   fast-deep-equal@3.1.3: {}
 
-  fast-equals@5.1.3: {}
+  fast-equals@5.2.0: {}
 
   fast-glob@3.3.1:
     dependencies:
@@ -7915,7 +7915,7 @@ snapshots:
       merge2: 1.4.1
       micromatch: 4.0.8
 
-  fast-glob@3.3.2:
+  fast-glob@3.3.3:
     dependencies:
       "@nodelib/fs.stat": 2.0.5
       "@nodelib/fs.walk": 1.2.8
@@ -8846,7 +8846,7 @@ snapshots:
 
   react-smooth@4.0.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
-      fast-equals: 5.1.3
+      fast-equals: 5.2.0
       prop-types: 15.8.1
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
@@ -9194,7 +9194,7 @@ snapshots:
       chokidar: 3.6.0
       didyoumean: 1.2.2
       dlv: 1.1.3
-      fast-glob: 3.3.2
+      fast-glob: 3.3.3
       glob-parent: 6.0.2
       is-glob: 4.0.3
       jiti: 1.21.7
@@ -9359,7 +9359,7 @@ snapshots:
       "@types/d3-ease": 3.0.2
       "@types/d3-interpolate": 3.0.4
       "@types/d3-scale": 4.0.8
-      "@types/d3-shape": 3.1.6
+      "@types/d3-shape": 3.1.7
       "@types/d3-time": 3.0.4
       "@types/d3-timer": 3.0.2
       d3-array: 3.2.4
