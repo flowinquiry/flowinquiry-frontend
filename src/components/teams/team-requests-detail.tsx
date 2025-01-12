@@ -30,6 +30,7 @@ import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
 import { useError } from "@/providers/error-provider";
 import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/team-requests";
+import AttachmentView from "@/components/shared/attachment-view";
 
 const TeamRequestDetailView = ({
   teamRequestId,
@@ -309,6 +310,16 @@ const TeamRequestDetailView = ({
                     },
                   ]}
                 />
+
+                {(teamRequest.numberAttachments ?? 0) > 0 && (
+                  <div className="flex items-center gap-2">
+                    <h2 className="text-xl font-bold mb-2">Attachments</h2>
+                    <AttachmentView
+                      entityType="Team_Request"
+                      entityId={teamRequest.id!}
+                    />
+                  </div>
+                )}
               </div>
               <Tabs
                 defaultValue="comments"

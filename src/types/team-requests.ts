@@ -63,6 +63,7 @@ export const TeamRequestDTOSchema = z.object({
   }, z.date().nullish()),
   channel: z.string().nullish(),
   watchers: z.array(WatcherDTOSchema).optional(),
+  numberAttachments: z.onumber(),
 });
 
 export type TeamRequestDTO = z.infer<typeof TeamRequestDTOSchema>;

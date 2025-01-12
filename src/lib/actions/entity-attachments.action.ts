@@ -1,6 +1,6 @@
-import { post } from "@/lib/actions/commons.action";
+import { get, post } from "@/lib/actions/commons.action";
 import { HttpError } from "@/lib/errors";
-import { EntityType } from "@/types/commons";
+import { EntityAttachmentDTO, EntityType } from "@/types/commons";
 
 export const uploadAttachmentsForEntity = async (
   entityType: EntityType,
@@ -16,4 +16,15 @@ export const uploadAttachmentsForEntity = async (
   });
 
   return post<FormData, void>(`/api/entity-attachments`, formData, setError);
+};
+
+export const getEntityAttachments = async (
+  entityType: EntityType,
+  entityId: number,
+  setError?: (error: HttpError | string | null) => void,
+) => {
+  return get<EntityAttachmentDTO[]>(
+    `/api/entity-attachments?entityTpe=${entityType}&&entityId=${entityId}`,
+    setError,
+  );
 };
