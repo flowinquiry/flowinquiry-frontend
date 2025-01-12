@@ -31,6 +31,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { uploadAttachmentsForEntity } from "@/lib/actions/entity-attachments.action";
 import { createTeamRequest } from "@/lib/actions/teams-request.action";
 import { useError } from "@/providers/error-provider";
 import {
@@ -40,7 +41,6 @@ import {
 } from "@/types/team-requests";
 import { TeamDTO } from "@/types/teams";
 import { WorkflowDTO } from "@/types/workflows";
-import { uploadAttachmentsForEntity } from "@/lib/actions/entity-attachments.action";
 
 type NewRequestToTeamDialogProps = {
   open: boolean;
