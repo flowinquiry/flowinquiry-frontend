@@ -1,4 +1,4 @@
-import { get, post } from "@/lib/actions/commons.action";
+import { deleteExec, get, post } from "@/lib/actions/commons.action";
 import { HttpError } from "@/lib/errors";
 import { EntityAttachmentDTO, EntityType } from "@/types/commons";
 
@@ -24,7 +24,14 @@ export const getEntityAttachments = async (
   setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<EntityAttachmentDTO[]>(
-    `/api/entity-attachments?entityTpe=${entityType}&&entityId=${entityId}`,
+    `/api/entity-attachments?entityType=${entityType}&&entityId=${entityId}`,
     setError,
   );
+};
+
+export const deleteEntityAttachment = async (
+  attachmentId: number,
+  setError?: (error: HttpError | string | null) => void,
+) => {
+  return deleteExec(`/api/entity-attachments/${attachmentId}`, setError);
 };

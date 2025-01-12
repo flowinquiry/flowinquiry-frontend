@@ -1,9 +1,19 @@
 "use client";
-"use client";
 
+import { DownloadIcon, Paperclip, TrashIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
-import { getEntityAttachments } from "@/lib/actions/entity-attachments.action";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
+  deleteEntityAttachment,
+  getEntityAttachments,
+} from "@/lib/actions/entity-attachments.action";
+import { BASE_URL } from "@/lib/constants";
+import { formatBytes } from "@/lib/utils";
 import { useError } from "@/providers/error-provider";
 import { EntityAttachmentDTO, EntityType } from "@/types/commons";
 
@@ -22,44 +32,85 @@ const AttachmentView: React.FC<AttachmentViewProps> = ({
 
   useEffect(() => {
     const fetchAttachments = async () => {
-      await getEntityAttachments(entityType, entityId, setError)
-        .then((data) => setAttachments(data))
-        .finally(() => setLoading(false));
+      try {
+        const data = await getEntityAttachments(entityType, entityId, setError);
+        setAttachments(data);
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchAttachments();
   }, [entityType, entityId]);
+
+  const handleDelete = async (attachmentId: number) => {
+    await deleteEntityAttachment(attachmentId, setError);
+    setAttachments((prev) =>
+      prev.filter((attachment) => attachment.id !== attachmentId),
+    );
+  };
 
   if (loading) {
     return <p>Loading attachments...</p>;
   }
 
   return (
-    <div className="attachment-view">
+    <div className="attachment-view w-full">
       {attachments.length === 0 ? (
         <p>No attachments found.</p>
       ) : (
         <ul className="list-disc pl-5">
           {attachments.map((attachment, index) => (
-            <li key={index} className="mb-2">
-              <a
-                href={attachment.fileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-blue-600 underline"
-              >
-                {attachment.fileName}
-              </a>{" "}
-              <span className="text-sm text-gray-500">
-                {attachment.fileType || "Unknown type"} -{" "}
-                {attachment.fileSize
-                  ? `${attachment.fileSize} bytes`
-                  : "Unknown size"}
-              </span>
-              <br />
-              <span className="text-sm text-gray-400">
-                Uploaded: {new Date(attachment.uploadedAt).toLocaleString()}
-              </span>
+            <li key={index} className="mb-2 flex items-center gap-2">
+              {/* Icon */}
+              <Paperclip size={16} />
+
+              <div className="flex justify-between items-center w-full">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <a
+                      href={`${BASE_URL}/api/files/${attachment.fileUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-blue-600 underline truncate w-full"
+                    >
+                      {attachment.fileName}
+                    </a>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>
+                      Uploaded at:{" "}
+                      {new Date(attachment.uploadedAt).toLocaleString()}
+                    </p>
+                    {attachment.fileSize && (
+                      <p>Size: {formatBytes(attachment.fileSize)}</p>
+                    )}
+                  </TooltipContent>
+                </Tooltip>
+
+                {/* Action Buttons */}
+                <div className="pl-2 flex items-center gap-2">
+                  {attachment.fileUrl && (
+                    <a
+                      href={`${BASE_URL}/api/files/${attachment.fileUrl}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      download
+                      title="Download"
+                    >
+                      <DownloadIcon size={16} />
+                    </a>
+                  )}
+
+                  <button
+                    className="text-red-600 hover:text-red-800"
+                    title="Delete"
+                    onClick={() => handleDelete(attachment.id)}
+                  >
+                    <TrashIcon size={16} />
+                  </button>
+                </div>
+              </div>
             </li>
           ))}
         </ul>

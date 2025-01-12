@@ -312,8 +312,8 @@ const TeamRequestDetailView = ({
                 />
 
                 {(teamRequest.numberAttachments ?? 0) > 0 && (
-                  <div className="flex items-center gap-2">
-                    <h2 className="text-xl font-bold mb-2">Attachments</h2>
+                  <div className="w-full flex text-sm font-medium text-neutral-500 dark:text-neutral-400 gap-2">
+                    <span>Attachments</span>
                     <AttachmentView
                       entityType="Team_Request"
                       entityId={teamRequest.id!}

@@ -30,6 +30,7 @@ export interface PageableResult<Entity> {
 }
 
 export interface EntityAttachmentDTO {
+  id: number;
   entityType: EntityType;
   entityId: number;
   fileName: string;
