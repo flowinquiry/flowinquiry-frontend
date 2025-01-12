@@ -62,17 +62,16 @@ const AttachmentView: React.FC<AttachmentViewProps> = ({
         <ul className="list-disc pl-5">
           {attachments.map((attachment, index) => (
             <li key={index} className="mb-2 flex items-center gap-2">
-              {/* Icon */}
               <Paperclip size={16} />
 
-              <div className="flex justify-between items-center w-full">
+              <div className="flex items-center gap-2 w-full">
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <a
                       href={`${BASE_URL}/api/files/${attachment.fileUrl}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-blue-600 underline truncate w-full"
+                      className="underline truncate overflow-hidden"
                     >
                       {attachment.fileName}
                     </a>
@@ -89,7 +88,7 @@ const AttachmentView: React.FC<AttachmentViewProps> = ({
                 </Tooltip>
 
                 {/* Action Buttons */}
-                <div className="pl-2 flex items-center gap-2">
+                <div className="flex items-center gap-2">
                   {attachment.fileUrl && (
                     <a
                       href={`${BASE_URL}/api/files/${attachment.fileUrl}`}

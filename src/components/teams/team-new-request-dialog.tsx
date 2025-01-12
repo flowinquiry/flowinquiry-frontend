@@ -142,6 +142,7 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
                   <FileUploader
                     maxFileCount={8}
                     maxSize={8 * 1024 * 1024}
+                    accept={{ "*/*": [] }}
                     onValueChange={setFiles}
                   />
                 </div>

@@ -4,6 +4,7 @@ import Link from "next/link";
 import React, { useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
+import AttachmentView from "@/components/shared/attachment-view";
 import { UserAvatar } from "@/components/shared/avatar-display";
 import CommentsView from "@/components/shared/comments-view";
 import { NColumnsGrid } from "@/components/shared/n-columns-grid";
@@ -208,6 +209,15 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
                   },
                 ]}
               />
+              {(teamRequest.numberAttachments ?? 0) > 0 && (
+                <div className="w-full flex text-sm font-medium text-neutral-500 dark:text-neutral-400 gap-2">
+                  <span>Attachments</span>
+                  <AttachmentView
+                    entityType="Team_Request"
+                    entityId={teamRequest.id!}
+                  />
+                </div>
+              )}
             </div>
 
             <CommentsView
