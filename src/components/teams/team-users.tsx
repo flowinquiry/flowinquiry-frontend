@@ -5,7 +5,7 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 import { Heading } from "@/components/heading";
-import { TeamAvatar } from "@/components/shared/avatar-display";
+import { TeamAvatar, UserAvatar } from "@/components/shared/avatar-display";
 import LoadingPlaceHolder from "@/components/shared/loading-place-holder"; // Import your spinner component
 import AddUserToTeamDialog from "@/components/teams/team-add-user-dialog";
 import TeamNavLayout from "@/components/teams/team-nav";
@@ -18,7 +18,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -32,13 +31,11 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import DefaultUserLogo from "@/components/users/user-logo";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import {
   deleteUserFromTeam,
   findMembersByTeamId,
 } from "@/lib/actions/teams.action";
-import { BASE_URL } from "@/lib/constants";
 import { obfuscate } from "@/lib/endecode";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
 import { useError } from "@/providers/error-provider";
@@ -166,19 +163,11 @@ const TeamUsersView = () => {
                           className="w-[28rem] flex flex-row gap-4 border border-gray-200 px-4 py-4 rounded-2xl relative"
                         >
                           <div>
-                            <Avatar className="size-24 cursor-pointer">
-                              <AvatarImage
-                                src={
-                                  user?.imageUrl
-                                    ? `${BASE_URL}/api/files/${user.imageUrl}`
-                                    : undefined
-                                }
-                                alt={`${user.firstName} ${user.lastName}`}
-                              />
-                              <AvatarFallback>
-                                <DefaultUserLogo />
-                              </AvatarFallback>
-                            </Avatar>
+                            <UserAvatar
+                              imageUrl={user.imageUrl}
+                              size="w-24 h-24"
+                              className="cursor-pointer"
+                            />
                           </div>
                           <div>
                             <div className="text-xl">

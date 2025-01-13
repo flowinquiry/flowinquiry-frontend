@@ -5,7 +5,7 @@ import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 
 import AppLogo from "@/components/app-logo";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { UserAvatar } from "@/components/shared/avatar-display";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -31,7 +31,6 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { BASE_URL } from "@/lib/constants";
-import { UserAvatar } from "@/components/shared/avatar-display";
 
 export function UserNav() {
   const { data: session } = useSession();

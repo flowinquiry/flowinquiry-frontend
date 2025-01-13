@@ -11,6 +11,30 @@ import {
   querySchema,
 } from "@/types/query";
 
+export const getSecureBlobResource = async (
+  url: string,
+  setError?: (error: HttpError | string | null) => void,
+) => {
+  const token = getAccessToken();
+
+  try {
+    const response = await fetch(`${BASE_URL}/api/files/${url}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (response.ok) {
+      return response.blob();
+    } else {
+      throw new Error("Error retrieving file");
+    }
+  } catch (error: any) {
+    if (setError) {
+      setError(`Error to get resource ${url}`);
+    }
+  }
+};
+
 export const fetchData = async <TData, TResponse>(
   url: string,
   method: "GET" | "POST" | "PUT" | "DELETE",

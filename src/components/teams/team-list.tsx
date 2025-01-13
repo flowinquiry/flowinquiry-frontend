@@ -14,11 +14,10 @@ import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 
 import { Heading } from "@/components/heading";
+import { TeamAvatar } from "@/components/shared/avatar-display";
 import { EntitiesDeleteDialog } from "@/components/shared/entity-delete-dialog";
 import LoadingPlaceHolder from "@/components/shared/loading-place-holder";
 import PaginationExt from "@/components/shared/pagination-ext";
-import DefaultTeamLogo from "@/components/teams/team-logo";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -38,14 +37,12 @@ import {
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import { deleteTeams, searchTeams } from "@/lib/actions/teams.action";
-import { BASE_URL } from "@/lib/constants";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { useError } from "@/providers/error-provider";
 import { Filter, QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
-import { TeamAvatar } from "@/components/shared/avatar-display";
 
 export const TeamList = () => {
   const router = useRouter();

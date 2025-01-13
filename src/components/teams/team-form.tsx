@@ -9,8 +9,7 @@ import { useForm } from "react-hook-form";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { Heading } from "@/components/heading";
 import { ImageCropper } from "@/components/image-cropper";
-import DefaultTeamLogo from "@/components/teams/team-logo";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { TeamAvatar } from "@/components/shared/avatar-display";
 import { Button } from "@/components/ui/button";
 import {
   ExtInputField,
@@ -31,7 +30,6 @@ import {
   findTeamById,
   updateTeam,
 } from "@/lib/actions/teams.action";
-import { BASE_URL } from "@/lib/constants";
 import { obfuscate } from "@/lib/endecode";
 import { validateForm } from "@/lib/validator";
 import { useError } from "@/providers/error-provider";
@@ -167,23 +165,15 @@ export const TeamForm = ({ teamId }: { teamId: number | undefined }) => {
                     setSelectedFile={setSelectedFile}
                   />
                 ) : (
-                  <Avatar
-                    {...getRootProps()}
-                    className="size-36 cursor-pointer ring-offset-2 ring-2 ring-slate-200"
-                  >
+                  <>
                     <input {...getInputProps()} />
-                    <AvatarImage
-                      src={
-                        team?.logoUrl
-                          ? `${BASE_URL}/api/files/${team.logoUrl}`
-                          : undefined
-                      }
-                      alt="@flowinquiry"
+                    <TeamAvatar
+                      {...getRootProps()}
+                      imageUrl={team?.logoUrl}
+                      size="w-36 h-36"
+                      className="cursor-pointer ring-offset-2 ring-2 ring-slate-200"
                     />
-                    <AvatarFallback>
-                      <DefaultTeamLogo />
-                    </AvatarFallback>
-                  </Avatar>
+                  </>
                 )}
               </TooltipTrigger>
               <TooltipContent>

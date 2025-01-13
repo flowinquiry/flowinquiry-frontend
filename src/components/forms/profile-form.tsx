@@ -10,9 +10,9 @@ import { z } from "zod";
 
 import { Heading } from "@/components/heading";
 import { ImageCropper } from "@/components/image-cropper";
+import { UserAvatar } from "@/components/shared/avatar-display";
 import { CountrySelectField } from "@/components/shared/countries-select";
 import TimezoneSelect from "@/components/shared/timezones-select";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -32,7 +32,6 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
-import DefaultUserLogo from "@/components/users/user-logo";
 import { useImageCropper } from "@/hooks/use-image-cropper";
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -40,10 +39,8 @@ import {
   findUserById,
   updateUser,
 } from "@/lib/actions/users.action";
-import { BASE_URL } from "@/lib/constants";
 import { useError } from "@/providers/error-provider";
 import { UserDTOSchema } from "@/types/users";
-import { UserAvatar } from "@/components/shared/avatar-display";
 
 const userSchemaWithFile = UserDTOSchema.extend({
   file: z.any().optional(),
