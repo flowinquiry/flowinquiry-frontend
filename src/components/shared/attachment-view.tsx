@@ -8,11 +8,11 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getSecureBlobResource } from "@/lib/actions/commons.action";
 import {
   deleteEntityAttachment,
   getEntityAttachments,
 } from "@/lib/actions/entity-attachments.action";
-import { BASE_URL } from "@/lib/constants";
 import { formatBytes } from "@/lib/utils";
 import { useError } from "@/providers/error-provider";
 import { EntityAttachmentDTO, EntityType } from "@/types/commons";
@@ -50,6 +50,22 @@ const AttachmentView: React.FC<AttachmentViewProps> = ({
     );
   };
 
+  const handleDownload = async (fileUrl: string, fileName: string) => {
+    const blob = await getSecureBlobResource(fileUrl, setError);
+    if (blob) {
+      const objectURL = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = objectURL;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+
+      // Revoke the object URL to free up memory
+      URL.revokeObjectURL(objectURL);
+    }
+  };
+
   if (loading) {
     return <p>Loading attachments...</p>;
   }
@@ -67,14 +83,18 @@ const AttachmentView: React.FC<AttachmentViewProps> = ({
               <div className="flex items-center gap-2 w-full">
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <a
-                      href={`${BASE_URL}/api/files/${attachment.fileUrl}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="underline truncate overflow-hidden"
+                    <button
+                      type="button"
+                      className="underline truncate overflow-hidden text-left"
+                      onClick={() =>
+                        handleDownload(
+                          attachment.fileUrl,
+                          attachment.fileName || "download",
+                        )
+                      }
                     >
                       {attachment.fileName}
-                    </a>
+                    </button>
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>
@@ -89,19 +109,22 @@ const AttachmentView: React.FC<AttachmentViewProps> = ({
 
                 {/* Action Buttons */}
                 <div className="flex items-center gap-2">
-                  {attachment.fileUrl && (
-                    <a
-                      href={`${BASE_URL}/api/files/${attachment.fileUrl}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      download
-                      title="Download"
-                    >
-                      <DownloadIcon size={16} />
-                    </a>
-                  )}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleDownload(
+                        attachment.fileUrl,
+                        attachment.fileName || "download",
+                      )
+                    }
+                    className="text-blue-600 hover:text-blue-800"
+                    title="Download"
+                  >
+                    <DownloadIcon size={16} />
+                  </button>
 
                   <button
+                    type="button"
                     className="text-red-600 hover:text-red-800"
                     title="Delete"
                     onClick={() => handleDelete(attachment.id)}
