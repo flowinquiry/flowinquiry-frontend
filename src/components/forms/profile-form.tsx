@@ -43,6 +43,7 @@ import {
 import { BASE_URL } from "@/lib/constants";
 import { useError } from "@/providers/error-provider";
 import { UserDTOSchema } from "@/types/users";
+import { UserAvatar } from "@/components/shared/avatar-display";
 
 const userSchemaWithFile = UserDTOSchema.extend({
   file: z.any().optional(),
@@ -61,7 +62,6 @@ export const ProfileForm = () => {
   const router = useRouter();
   const { data: session } = useSession();
   const { toast } = useToast();
-
   const {
     selectedFile,
     setSelectedFile,
@@ -151,24 +151,15 @@ export const ProfileForm = () => {
                 setSelectedFile={setSelectedFile}
               />
             ) : (
-              <Avatar
-                {...getRootProps()}
-                className="size-36 cursor-pointer ring-offset-2 ring-2 ring-slate-200"
-              >
+              <>
                 <input {...getInputProps()} />
-                <AvatarImage
-                  src={
-                    session?.user?.imageUrl
-                      ? `${BASE_URL}/api/files/${session?.user?.imageUrl}`
-                      : ""
-                  }
-                  alt="@flowinquiry"
-                  className="object-cover"
+                <UserAvatar
+                  {...getRootProps()}
+                  size="w-36 h-36"
+                  className="cursor-pointer ring-offset-2 ring-2 ring-slate-200"
+                  imageUrl={session?.user?.imageUrl}
                 />
-                <AvatarFallback>
-                  <DefaultUserLogo />
-                </AvatarFallback>
-              </Avatar>
+              </>
             )}
             <Dialog
               open={isPasswordDialogOpen}

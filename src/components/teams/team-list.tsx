@@ -45,6 +45,7 @@ import { useError } from "@/providers/error-provider";
 import { Filter, QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
+import { TeamAvatar } from "@/components/shared/avatar-display";
 
 export const TeamList = () => {
   const router = useRouter();
@@ -202,19 +203,12 @@ export const TeamList = () => {
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Avatar className="size-24 cursor-pointer">
-                          <AvatarImage
-                            src={
-                              team.logoUrl
-                                ? `${BASE_URL}/api/files/${team.logoUrl}`
-                                : undefined
-                            }
-                            alt="@flowinquiry"
-                          />
-                          <AvatarFallback>
-                            <DefaultTeamLogo />
-                          </AvatarFallback>
-                        </Avatar>
+                        <TeamAvatar
+                          size="w-24 h-24"
+                          className="cursor-pointer"
+                          key={team.id}
+                          imageUrl={team.logoUrl}
+                        />
                       </TooltipTrigger>
                       <TooltipContent>{team.slogan}</TooltipContent>
                     </Tooltip>

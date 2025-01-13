@@ -31,6 +31,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { BASE_URL } from "@/lib/constants";
+import { UserAvatar } from "@/components/shared/avatar-display";
 
 export function UserNav() {
   const { data: session } = useSession();
@@ -46,26 +47,15 @@ export function UserNav() {
                   variant="outline"
                   className="relative h-8 w-8 rounded-full"
                 >
-                  <Avatar className="h-8 w-8">
-                    <AvatarImage
-                      src={
-                        session?.user?.imageUrl
-                          ? `${BASE_URL}/api/files/${session?.user?.imageUrl}`
-                          : undefined
-                      }
-                      alt="Avatar"
-                    />
-                    <AvatarFallback className="bg-transparent">
-                      {session?.user?.firstName?.charAt(0).toUpperCase()}
-                      {session?.user?.lastName?.charAt(0).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
+                  <UserAvatar
+                    imageUrl={session?.user?.imageUrl}
+                    size="h-8 w-8"
+                  />
                 </Button>
               </DropdownMenuTrigger>
             </TooltipTrigger>
             <TooltipContent side="bottom">
-              {session?.user?.firstName}
-              {session?.user?.lastName}
+              {session?.user?.firstName} {session?.user?.lastName}
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
