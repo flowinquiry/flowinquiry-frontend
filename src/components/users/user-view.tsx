@@ -1,6 +1,5 @@
 "use client";
 
-import { formatDistanceToNow } from "date-fns";
 import { Edit, Network } from "lucide-react";
 import Link from "next/link";
 import { notFound, useRouter } from "next/navigation";
@@ -27,6 +26,7 @@ import { usePagePermission } from "@/hooks/use-page-permission";
 import { findTeamsByMemberId } from "@/lib/actions/teams.action";
 import { findUserById, getDirectReports } from "@/lib/actions/users.action";
 import { obfuscate } from "@/lib/endecode";
+import { safeFormatDistanceToNow } from "@/lib/utils";
 import { useError } from "@/providers/error-provider";
 import { PermissionUtils } from "@/types/resources";
 import { TeamDTO } from "@/types/teams";
@@ -115,7 +115,7 @@ export const UserView = ({ userId }: { userId: number }) => {
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <span>
-                      {formatDistanceToNow(new Date(user.lastLoginTime), {
+                      {safeFormatDistanceToNow(user.lastLoginTime, {
                         addSuffix: true,
                       })}
                     </span>

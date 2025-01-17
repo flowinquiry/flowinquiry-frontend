@@ -1,6 +1,5 @@
 "use client";
 
-import { formatDistanceToNow } from "date-fns";
 import {
   ArrowDownAZ,
   ArrowUpAZ,
@@ -49,7 +48,7 @@ import {
   searchUsers,
 } from "@/lib/actions/users.action";
 import { obfuscate } from "@/lib/endecode";
-import { cn } from "@/lib/utils";
+import { cn, safeFormatDistanceToNow } from "@/lib/utils";
 import { useError } from "@/providers/error-provider";
 import { QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
@@ -280,7 +279,7 @@ export const UserList = () => {
                 <div>
                   Last login time:{" "}
                   {user.lastLoginTime
-                    ? formatDistanceToNow(new Date(user.lastLoginTime), {
+                    ? safeFormatDistanceToNow(user.lastLoginTime, {
                         addSuffix: true,
                       })
                     : "No recent login"}

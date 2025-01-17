@@ -1,4 +1,5 @@
 import { type ClassValue, clsx } from "clsx";
+import { formatDistanceToNow, FormatDistanceToNowOptions } from "date-fns";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -17,26 +18,22 @@ export function formatDate(
   }).format(new Date(date));
 }
 
-export function toSentenceCase(str: string) {
-  return str
-    .replace(/_/g, " ")
-    .replace(/([A-Z])/g, " $1")
-    .toLowerCase()
-    .replace(/^\w/, (c) => c.toUpperCase())
-    .replace(/\s+/g, " ")
-    .trim();
-}
-
-export function getUrlFromString(str: string) {
-  if (isValidUrl(str)) {
-    return str;
-  }
+export function safeFormatDistanceToNow(
+  dateInput: string | number | Date | undefined | null,
+  options: FormatDistanceToNowOptions = {},
+  defaultValue: string = "",
+): string {
   try {
-    if (str.includes(".") && !str.includes(" ")) {
-      return new URL(`https://${str}`).toString();
+    if (!dateInput) return defaultValue; // Handle null or undefined values
+    const date = new Date(dateInput);
+    console.log(`Date ${date} ${dateInput}`);
+    if (isNaN(date.getTime())) {
+      return defaultValue;
     }
-  } catch {
-    return null;
+    return formatDistanceToNow(date, options);
+  } catch (error) {
+    console.error("Error formatting date:", error);
+    return defaultValue;
   }
 }
 
