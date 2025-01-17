@@ -18,22 +18,22 @@ declare module "next-auth" {
     authorities: Array<AuthorityType>;
   }
 
-  export interface DefaultSession {
-    user?: User;
-    expires: ISODateString;
+  interface Session {
+    accessToken?: string; // Add accessToken to the session
+    provider?: string; // Add provider for OAuth2
+    user: DefaultUser & {
+      id: string;
+    };
   }
 }
 
 declare module "next-auth/jwt" {
-  import { AdapterUser } from "@/types/next-auth";
   interface JWT {
-    name?: string | null;
-    email?: string | null;
-    picture?: string | null;
-    sub?: string;
-    iat?: number;
-    exp?: number;
-    jti?: string;
-    user?: AdapterUser;
+    id?: string;
+    accessToken?: string; // Add accessToken to JWT
+    provider?: string; // Add provider to JWT
+    user?: DefaultUser & {
+      id: string;
+    };
   }
 }

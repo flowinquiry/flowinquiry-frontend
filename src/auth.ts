@@ -1,6 +1,6 @@
-import { AdapterUser } from "@auth/core/adapters";
-import NextAuth, { User } from "next-auth";
+import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
 
 import apiAuthSignIn from "@/lib/auth";
 import { BASE_URL } from "@/lib/constants";
@@ -19,8 +19,18 @@ export const { handlers, auth } = NextAuth({
         if (!credentials) {
           throw new Error("Invalid credentials");
         }
-        return await apiAuthSignIn(credentials);
+        const user = await apiAuthSignIn(credentials);
+        // Ensure the user object contains the required fields
+        if (!user || !user.id || !user.email || !user.accessToken) {
+          throw new Error("Authentication failed");
+        }
+        // Return an object that matches AdapterUser type
+        return user;
       },
+    }),
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
   ],
   callbacks: {
@@ -39,14 +49,21 @@ export const { handlers, auth } = NextAuth({
     },
     jwt({ token, account, user }) {
       if (user) {
-        token.accessToken = user?.accessToken;
-        token.id = user.id;
-        token.user = user;
+        token.accessToken = user.accessToken as string; // Credentials-based accessToken
+        token.id = user.id as string; // User ID from either credentials or OAuth2
+        token.user = user; // Full user object for credentials
+      }
+      // If account exists (OAuth2 flow)
+      if (account) {
+        token.accessToken = account.access_token as string; //  Social token from the provider
+        token.provider = account.provider as string; // e.g., "google"
       }
       return token;
     },
     session({ session, token }) {
-      session.user = token.user as AdapterUser & User;
+      session.accessToken = token.accessToken as string;
+      session.provider = token.provider as string; // Add provider for OAuth2
+      session.user = token.user || session.user; // Include user object if available
       return session;
     },
   },

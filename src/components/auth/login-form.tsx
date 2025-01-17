@@ -3,7 +3,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { signIn } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -39,6 +39,7 @@ const formSchema = z.object({
 
 const LoginForm = () => {
   const router = useRouter();
+  const { data: session } = useSession();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -65,10 +66,13 @@ const LoginForm = () => {
 
   const handleGoogleSignIn = async () => {
     const response = await signIn("google", { redirect: false });
-    if (response?.error === null) {
-      router.push("/portal");
-    } else {
+    if (response?.error) {
       setErrorMessage("Google login failed. Please try again.");
+      return;
+    }
+
+    console.log(session);
+    if (session?.accessToken) {
     }
   };
 
@@ -84,9 +88,7 @@ const LoginForm = () => {
       <Card className="w-full max-w-md">
         <CardHeader>
           <CardTitle>Login</CardTitle>
-          <CardDescription>
-            Log into your account with your credentials or Google account
-          </CardDescription>
+          <CardDescription></CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Show error message */}
