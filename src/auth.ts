@@ -4,6 +4,8 @@ import GoogleProvider from "next-auth/providers/google";
 
 import apiAuthSignIn from "@/lib/auth";
 import { BASE_URL } from "@/lib/constants";
+import { post } from "@/lib/actions/commons.action";
+import { submitSocialToken } from "@/lib/actions/users.action";
 
 export const { handlers, auth } = NextAuth({
   providers: [
@@ -60,10 +62,23 @@ export const { handlers, auth } = NextAuth({
       }
       return token;
     },
-    session({ session, token }) {
+    async session({ session, token }) {
       session.accessToken = token.accessToken as string;
       session.provider = token.provider as string; // Add provider for OAuth2
       session.user = token.user || session.user; // Include user object if available
+      // Social login - Exchange the social token for a backend JWT
+      if (token.provider === "google") {
+        try {
+          const response = await submitSocialToken(
+            session.provider,
+            session.accessToken,
+          );
+          session.accessToken = response.jwtToken as string;
+        } catch (error) {
+          console.error("Error to get the jwt token from backend");
+          throw error;
+        }
+      }
       return session;
     },
   },
