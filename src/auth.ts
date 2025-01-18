@@ -2,10 +2,9 @@ import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
 
+import { submitSocialToken } from "@/lib/actions/users.action";
 import apiAuthSignIn from "@/lib/auth";
 import { BASE_URL } from "@/lib/constants";
-import { post } from "@/lib/actions/commons.action";
-import { submitSocialToken } from "@/lib/actions/users.action";
 
 export const { handlers, auth } = NextAuth({
   providers: [

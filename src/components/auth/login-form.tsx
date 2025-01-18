@@ -28,7 +28,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { ENABLE_SOCIAL_LOGIN } from "@/lib/constants";
-import { submitSocialToken } from "@/lib/actions/users.action";
 
 const formSchema = z.object({
   email: z
