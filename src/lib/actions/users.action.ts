@@ -32,7 +32,10 @@ export async function submitSocialToken(
   accessToken: string,
   setError?: (error: HttpError | string | null) => void,
 ) {
-  return post<Record<string, string>, Record<string, string>>(
+  return post<
+    { provider: string; socialToken: string },
+    { jwtToken: string; user: UserDTO }
+  >(
     `/api/auth/social-login`,
     {
       provider: provider,

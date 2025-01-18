@@ -26,7 +26,6 @@ export function safeFormatDistanceToNow(
   try {
     if (!dateInput) return defaultValue; // Handle null or undefined values
     const date = new Date(dateInput);
-    console.log(`Date ${date} ${dateInput}`);
     if (isNaN(date.getTime())) {
       return defaultValue;
     }

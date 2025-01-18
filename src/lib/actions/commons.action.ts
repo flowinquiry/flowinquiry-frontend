@@ -29,9 +29,7 @@ export const getSecureBlobResource = async (
       throw new Error("Error retrieving file");
     }
   } catch (error: any) {
-    if (setError) {
-      setError(`Error to get resource ${url}`);
-    }
+    console.error(`Error to get resource ${url}`);
   }
 };
 

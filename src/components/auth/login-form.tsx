@@ -4,7 +4,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { signIn, useSession } from "next-auth/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -39,7 +39,7 @@ const formSchema = z.object({
 
 const LoginForm = () => {
   const router = useRouter();
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -70,12 +70,13 @@ const LoginForm = () => {
       setErrorMessage("Google login failed. Please try again.");
       return;
     }
+  };
 
-    if (session?.accessToken) {
-      console.log("session accessToken", session.accessToken);
+  useEffect(() => {
+    if (status === "authenticated" && session?.accessToken) {
       router.push("/portal");
     }
-  };
+  }, [status, session, router]);
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">

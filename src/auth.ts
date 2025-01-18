@@ -62,9 +62,15 @@ export const { handlers, auth } = NextAuth({
       return token;
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken as string;
       session.provider = token.provider as string; // Add provider for OAuth2
       session.user = token.user || session.user; // Include user object if available
+
+      // Check if token.accessToken is not undefined
+      if (token.accessToken !== undefined) {
+        session.accessToken = token.accessToken as string;
+      } else {
+        session.accessToken = session.user.accessToken as string;
+      }
       // Social login - Exchange the social token for a backend JWT
       if (token.provider === "google") {
         try {
@@ -72,7 +78,11 @@ export const { handlers, auth } = NextAuth({
             session.provider,
             session.accessToken,
           );
-          session.accessToken = response.jwtToken as string;
+          session.accessToken = response.jwtToken;
+          session.user = {
+            ...session.user, // Retain existing attributes in session.user
+            ...response.user, // Overwrite or add attributes from response.user
+          };
         } catch (error) {
           console.error("Error to get the jwt token from backend");
           throw error;

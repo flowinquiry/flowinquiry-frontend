@@ -4,12 +4,8 @@ let cachedAccessToken: string | null = null;
 
 export const useAccessTokenManager = () => {
   const { data: session } = useSession();
-
-  if (
-    session?.user?.accessToken &&
-    cachedAccessToken !== session.user.accessToken
-  ) {
-    cachedAccessToken = session?.user.accessToken;
+  if (session?.accessToken && cachedAccessToken !== session.accessToken) {
+    cachedAccessToken = session?.accessToken;
   }
 
   return cachedAccessToken;

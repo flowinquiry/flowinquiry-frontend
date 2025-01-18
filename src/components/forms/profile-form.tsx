@@ -77,7 +77,7 @@ export const ProfileForm = () => {
     newPassword: false,
   });
 
-  const handleSubmit = async (data: UserTypeWithFile) => {
+  const onSubmit = async (data: UserTypeWithFile) => {
     const formData = new FormData();
 
     const userJsonBlob = new Blob([JSON.stringify(data)], {
@@ -136,7 +136,7 @@ export const ProfileForm = () => {
 
       <Form {...form}>
         <form
-          onSubmit={form.handleSubmit(handleSubmit)}
+          onSubmit={form.handleSubmit(onSubmit)}
           className="flex flex-row gap-4"
         >
           <div className="flex flex-col items-center space-y-2">
