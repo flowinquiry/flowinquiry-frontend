@@ -84,8 +84,12 @@ export const { handlers, auth } = NextAuth({
             ...response.user, // Overwrite or add attributes from response.user
           };
         } catch (error) {
-          console.error("Error to get the jwt token from backend");
-          throw error;
+          console.error(
+            `Error to get the jwt token from backend ${JSON.stringify(error)}`,
+          );
+          session.error =
+            "Social login token exchange failed: " + (error as any)?.details ||
+            "Unknown error";
         }
       }
       return session;
