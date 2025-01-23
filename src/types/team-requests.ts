@@ -7,12 +7,32 @@ export type TeamRequestPriority =
   | "Low"
   | "Trivial";
 
+// Define the TicketHealthLevel enum
+export const TicketHealthLevel = z.enum([
+  "Excellent",
+  "Good",
+  "Fair",
+  "Poor",
+  "Critical",
+]);
+
 const WatcherDTOSchema = z.object({
   id: z.number(),
   firstName: z.string(),
   lastName: z.string(),
   imageUrl: z.string().optional(), // Optional field in case it's null/undefined
   email: z.string().email(),
+});
+
+export const TeamRequestConversationHealthDTOSchema = z.object({
+  id: z.number().optional(),
+  teamRequestId: z.number().optional(),
+  conversationHealth: z.number().optional(),
+  cumulativeSentiment: z.number().optional(),
+  totalMessages: z.number().optional(),
+  totalQuestions: z.number().optional(),
+  resolvedQuestions: z.number().optional(),
+  healthLevel: TicketHealthLevel.optional(),
 });
 
 export const TeamRequestDTOSchema = z.object({
@@ -64,8 +84,12 @@ export const TeamRequestDTOSchema = z.object({
   channel: z.string().nullish(),
   watchers: z.array(WatcherDTOSchema).optional(),
   numberAttachments: z.onumber(),
+  conversationHealth: TeamRequestConversationHealthDTOSchema.optional(),
 });
 
+export type TeamRequestConversationHealthDTO = z.infer<
+  typeof TeamRequestConversationHealthDTOSchema
+>;
 export type TeamRequestDTO = z.infer<typeof TeamRequestDTOSchema>;
 export type WatcherDTO = z.infer<typeof WatcherDTOSchema>;
 
