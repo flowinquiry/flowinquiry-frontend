@@ -1,8 +1,9 @@
 import React from "react";
+
 import {
   Tooltip,
-  TooltipTrigger,
   TooltipContent,
+  TooltipTrigger,
 } from "@/components/ui/tooltip"; // Import ShadCN Tooltip components
 
 type HealthLevel = "critical" | "poor" | "fair" | "good" | "excellent";
