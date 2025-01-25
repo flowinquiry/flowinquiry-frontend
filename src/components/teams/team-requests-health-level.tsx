@@ -58,33 +58,36 @@ const TeamRequestHealthLevel: React.FC<HealthLevelProgressProps> = ({
   const starsCount = levelMap[currentLevel]; // Number of filled stars
 
   return (
-    <div className="flex items-center gap-2">
-      {[1, 2, 3, 4, 5].map((index) => (
-        <Tooltip key={index}>
-          <TooltipTrigger asChild>
-            <span
-              className={`text-xl cursor-pointer ${
-                index <= starsCount ? "text-yellow-500" : "text-gray-300"
-              }`}
-            >
-              ★
-            </span>
-          </TooltipTrigger>
-          <TooltipContent className="text-sm max-w-xs">
-            {index === starsCount && (
-              <>
-                <strong className="block text-base">
-                  {tooltips[currentLevel].title}
-                </strong>
-                <p className="text-xs text-gray-500">
-                  {tooltips[currentLevel].description}
-                </p>
-              </>
-            )}
-          </TooltipContent>
-        </Tooltip>
-      ))}
-    </div>
+    <Tooltip>
+      <TooltipTrigger asChild>
+        <div className="flex items-center gap-4 cursor-pointer">
+          {/* Title */}
+          <h3 className="text-sm font-medium">Conversation Health:</h3>
+
+          {/* Stars */}
+          <div className="flex gap-1">
+            {[1, 2, 3, 4, 5].map((index) => (
+              <span
+                key={index}
+                className={`text-sm ${
+                  index <= starsCount ? "text-yellow-500" : "text-gray-300"
+                }`}
+              >
+                ★
+              </span>
+            ))}
+          </div>
+        </div>
+      </TooltipTrigger>
+      <TooltipContent className="text-sm max-w-xs">
+        <strong className="block text-base">
+          {tooltips[currentLevel].title}
+        </strong>
+        <p className="text-xs text-gray-500">
+          {tooltips[currentLevel].description}
+        </p>
+      </TooltipContent>
+    </Tooltip>
   );
 };
 

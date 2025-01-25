@@ -31,6 +31,7 @@ import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
 import { useError } from "@/providers/error-provider";
 import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/team-requests";
+import TeamRequestHealthLevel from "@/components/teams/team-requests-health-level";
 
 const TeamRequestDetailView = ({
   teamRequestId,
@@ -179,6 +180,11 @@ const TeamRequestDetailView = ({
               <ChevronRight className="text-gray-400" />
             </Button>
           </div>
+          {teamRequest.conversationHealth?.healthLevel && (
+            <TeamRequestHealthLevel
+              currentLevel={teamRequest.conversationHealth.healthLevel}
+            />
+          )}
 
           <Card>
             <CardContent className="p-4 space-y-6">

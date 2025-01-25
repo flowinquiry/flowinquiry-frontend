@@ -8,6 +8,7 @@ import AttachmentView from "@/components/shared/attachment-view";
 import { UserAvatar } from "@/components/shared/avatar-display";
 import CommentsView from "@/components/shared/comments-view";
 import { NColumnsGrid } from "@/components/shared/n-columns-grid";
+import TeamRequestHealthLevel from "@/components/teams/team-requests-health-level";
 import { PriorityDisplay } from "@/components/teams/team-requests-priority-display";
 import TeamUserSelectField from "@/components/teams/team-users-select";
 import { Badge } from "@/components/ui/badge";
@@ -84,6 +85,11 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
                     </Link>
                   </Button>
                 </div>
+                {request.conversationHealth?.healthLevel && (
+                  <TeamRequestHealthLevel
+                    currentLevel={request.conversationHealth.healthLevel}
+                  />
+                )}
               </SheetTitle>
             </SheetHeader>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">
