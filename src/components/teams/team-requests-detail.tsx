@@ -11,6 +11,7 @@ import { UserAvatar } from "@/components/shared/avatar-display";
 import CommentsView from "@/components/shared/comments-view";
 import { NColumnsGrid } from "@/components/shared/n-columns-grid";
 import TeamNavLayout from "@/components/teams/team-nav";
+import TeamRequestHealthLevel from "@/components/teams/team-requests-health-level";
 import { PriorityDisplay } from "@/components/teams/team-requests-priority-display";
 import TeamRequestsTimelineHistory from "@/components/teams/team-requests-timeline-history";
 import { Badge } from "@/components/ui/badge";
@@ -31,7 +32,6 @@ import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
 import { useError } from "@/providers/error-provider";
 import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/team-requests";
-import TeamRequestHealthLevel from "@/components/teams/team-requests-health-level";
 
 const TeamRequestDetailView = ({
   teamRequestId,
