@@ -8,13 +8,13 @@ export type TeamRequestPriority =
   | "Trivial";
 
 // Define the TicketHealthLevel enum
-export const TicketHealthLevel = z.enum([
-  "Excellent",
-  "Good",
-  "Fair",
-  "Poor",
-  "Critical",
-]);
+export enum TicketHealthLevel {
+  Excellent = "Excellent",
+  Good = "Good",
+  Fair = "Fair",
+  Poor = "Poor",
+  Critical = "Critical",
+}
 
 const WatcherDTOSchema = z.object({
   id: z.number(),
@@ -32,7 +32,7 @@ export const TeamRequestConversationHealthDTOSchema = z.object({
   totalMessages: z.number().optional(),
   totalQuestions: z.number().optional(),
   resolvedQuestions: z.number().optional(),
-  healthLevel: TicketHealthLevel.optional(),
+  healthLevel: z.nativeEnum(TicketHealthLevel).optional(),
 });
 
 export const TeamRequestDTOSchema = z.object({

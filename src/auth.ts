@@ -59,6 +59,13 @@ export const { handlers, auth } = NextAuth({
         token.accessToken = account.access_token as string; //  Social token from the provider
         token.provider = account.provider as string; // e.g., "google"
       }
+
+      // Check if the token is expired
+      if (token.exp && Date.now() >= token.exp * 1000) {
+        // Clear the token to force re-login
+        return {};
+      }
+
       return token;
     },
     async session({ session, token }) {

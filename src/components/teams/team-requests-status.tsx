@@ -7,6 +7,7 @@ import { UserAvatar } from "@/components/shared/avatar-display";
 import { NColumnsGrid } from "@/components/shared/n-columns-grid";
 import TruncatedHtmlLabel from "@/components/shared/truncate-html-label";
 import TeamRequestDetailSheet from "@/components/teams/team-request-detail-sheet";
+import TeamRequestHealthLevel from "@/components/teams/team-requests-health-level";
 import { PriorityDisplay } from "@/components/teams/team-requests-priority-display";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -101,6 +102,11 @@ const TeamRequestsStatusView = ({ requests }: TeamRequestsStatusViewProps) => {
                   {request.requestTitle}
                 </Button>
               </div>
+              {request.conversationHealth?.healthLevel && (
+                <TeamRequestHealthLevel
+                  currentLevel={request.conversationHealth.healthLevel}
+                />
+              )}
 
               <TruncatedHtmlLabel
                 htmlContent={request.requestDescription!}
