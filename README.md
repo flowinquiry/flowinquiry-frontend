@@ -89,20 +89,27 @@ And Many More: FlowInquiry leverages various open-source components, including t
 
 ### Setup Instructions
 
-**1. Clone the repository:**
+#### 1. Clone the repository:
 
 ```bash
 git clone git@github.com:flowinquiry/flowinquiry-frontend.git
 cd flowinquiry-frontend
 ```
 
-**2. Install dependencies**
+#### 2. Install dependencies
 
 ```bash
 pnpm install
 ```
 
-**3. Configure application parameters**
+#### 3. Configure application parameters\*
+
+To run the FlowInquiry frontend, users need to provide their input in the local configuration file .env.local. FlowInquiry offers two options for creating this configuration file:
+
+Using Bash Scripts: Users can run provided Bash scripts, which prompt for inputs, validate the information, and then automatically generate the configuration file.
+Editing a Template Manually: A template configuration file (.env.local.example) is provided, allowing users to manually edit and create their .env.local file. This option is recommended for users who cannot run Bash scripts.
+
+##### 3.1 Creating config file using script
 
 Set up the application environment variables by running the following script:
 
@@ -117,6 +124,10 @@ BACK_END_URL=http://localhost:8080
 ```
 
 We recommend running the `scripts/all.sh` script, as it streamlines the process by checking your environment settings and performing all necessary configurations, removing the need to execute multiple scripts manually.
+
+##### 3.2 Edit config file manually
+
+Rename the file [.env.local.example](./.env.local.example) to .env.local, and edit the file content per instructions inline
 
 **4. Start the development server**
 
