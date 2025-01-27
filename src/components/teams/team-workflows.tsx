@@ -23,7 +23,6 @@ import {
 import { usePagePermission } from "@/hooks/use-page-permission";
 import {
   deleteTeamWorkflow,
-  deleteWorkflow,
   getWorkflowsByTeam,
 } from "@/lib/actions/workflows.action";
 import { obfuscate } from "@/lib/endecode";
