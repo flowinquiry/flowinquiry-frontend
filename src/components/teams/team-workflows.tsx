@@ -22,6 +22,7 @@ import {
 } from "@/components/ui/tooltip";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import {
+  deleteTeamWorkflow,
   deleteWorkflow,
   getWorkflowsByTeam,
 } from "@/lib/actions/workflows.action";
@@ -71,7 +72,7 @@ const TeamWorkflowsView = () => {
   };
 
   const deleteWorkflowFromTeam = async (workflow: WorkflowDTO) => {
-    await deleteWorkflow(workflow.id!, setError);
+    await deleteTeamWorkflow(team.id!, workflow.id!, setError);
     await fetchWorkflows();
   };
 

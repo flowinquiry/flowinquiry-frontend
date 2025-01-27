@@ -5,3 +5,7 @@ export const BACK_END_URL = process.env.BACK_END_URL;
 export const ENABLE_SOCIAL_LOGIN =
   process.env.NEXT_PUBLIC_ENABLE_SOCIAL_LOGIN?.toLowerCase() === "true" ||
   false;
+export const DEFAULT_EXPIRATION = parseInt(
+  process.env.DEFAULT_TOKEN_EXPIRATION || "86400",
+  10,
+);

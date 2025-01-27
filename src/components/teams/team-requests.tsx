@@ -8,6 +8,7 @@ import {
   Clock,
   UserCheck,
 } from "lucide-react";
+import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 import { Heading } from "@/components/heading";
@@ -261,7 +262,7 @@ const TeamRequestsView = () => {
                         <CaretDownIcon />
                       </Button>
                     </DropdownMenuTrigger>
-                    {workflows ? (
+                    {Array.isArray(workflows) && workflows.length > 0 ? (
                       <DropdownMenuContent>
                         {workflows.map((workflow) => (
                           <DropdownMenuItem
@@ -278,7 +279,26 @@ const TeamRequestsView = () => {
                       </DropdownMenuContent>
                     ) : (
                       <DropdownMenuContent>
-                        No workflow is available for team
+                        No workflow is available for team.{" "}
+                        {PermissionUtils.canWrite(permissionLevel) ||
+                        teamRole === "Manager" ? (
+                          <span>
+                            You can create a new workflow at{" "}
+                            <Button variant="link" className="px-0">
+                              {" "}
+                              <Link
+                                href={`/portal/teams/${obfuscate(team.id)}/workflows`}
+                              >
+                                here
+                              </Link>
+                            </Button>
+                            .
+                          </span>
+                        ) : (
+                          <span>
+                            Contact the team manager to create a new workflow.
+                          </span>
+                        )}
                       </DropdownMenuContent>
                     )}
                   </DropdownMenu>

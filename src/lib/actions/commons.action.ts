@@ -1,3 +1,5 @@
+import { signOut } from "next-auth/react";
+
 import { auth } from "@/auth";
 import { getAccessToken } from "@/lib/access-token-manager";
 import { BACK_END_URL, BASE_URL } from "@/lib/constants";
@@ -80,6 +82,13 @@ export const fetchData = async <TData, TResponse>(
         return undefined as unknown as TResponse;
       }
     } else {
+      if (
+        response.status === 401 &&
+        securityMode === SecurityMode.CLIENT_SECURE
+      ) {
+        await signOut();
+        return undefined as unknown as TResponse;
+      }
       // Handle error and return a meaningful error object
       const error = await handleError(response, url);
       if (setError) {

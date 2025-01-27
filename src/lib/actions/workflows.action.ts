@@ -120,3 +120,15 @@ export const deleteWorkflow = async (
 ) => {
   return deleteExec(`/api/workflows/${workflowId}`, undefined, setError);
 };
+
+export const deleteTeamWorkflow = async (
+  teamId: number,
+  workflowId: number,
+  setError?: (error: HttpError | string | null) => void,
+) => {
+  return deleteExec(
+    `/api/workflows/${workflowId}/teams/${teamId}`,
+    undefined,
+    setError,
+  );
+};

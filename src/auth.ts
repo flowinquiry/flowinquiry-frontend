@@ -4,7 +4,7 @@ import GoogleProvider from "next-auth/providers/google";
 
 import { submitSocialToken } from "@/lib/actions/users.action";
 import apiAuthSignIn from "@/lib/auth";
-import { BASE_URL } from "@/lib/constants";
+import { BASE_URL, DEFAULT_EXPIRATION } from "@/lib/constants";
 
 export const { handlers, auth } = NextAuth({
   providers: [
@@ -53,17 +53,20 @@ export const { handlers, auth } = NextAuth({
         token.accessToken = user.accessToken as string; // Credentials-based accessToken
         token.id = user.id as string; // User ID from either credentials or OAuth2
         token.user = user; // Full user object for credentials
-      }
-      // If account exists (OAuth2 flow)
-      if (account) {
-        token.accessToken = account.access_token as string; //  Social token from the provider
-        token.provider = account.provider as string; // e.g., "google"
+        token.exp = Math.floor(Date.now() / 1000) + DEFAULT_EXPIRATION;
+      } else if (account) {
+        // If an account exists (OAuth2 flow)
+        token.accessToken = account.access_token ?? null; // Social token from the provider
+        token.provider = account.provider ?? null; // e.g., "google"
+        token.exp =
+          account.expires_at ??
+          Math.floor(Date.now() / 1000) + DEFAULT_EXPIRATION;
       }
 
       // Check if the token is expired
       if (token.exp && Date.now() >= token.exp * 1000) {
         // Clear the token to force re-login
-        return {};
+        return { expired: true };
       }
 
       return token;

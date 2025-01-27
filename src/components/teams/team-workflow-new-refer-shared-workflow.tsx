@@ -130,26 +130,33 @@ const NewTeamWorkflowReferFromSharedOne = ({
                   <span className="text-destructive"> *</span>
                 </FormLabel>
                 <FormControl>
-                  <Select
-                    onValueChange={(value) =>
-                      field.onChange(parseInt(value, 10))
-                    }
-                    value={field.value?.toString()}
-                  >
-                    <SelectTrigger className="w-[20rem]">
-                      <SelectValue placeholder="Select a workflow" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {globalWorkflows.map((workflow) => (
-                        <SelectItem
-                          key={workflow.id!.toString()}
-                          value={workflow.id!.toString()}
-                        >
-                          {workflow.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  {Array.isArray(globalWorkflows) &&
+                  globalWorkflows.length > 0 ? (
+                    <Select
+                      onValueChange={(value) =>
+                        field.onChange(parseInt(value, 10))
+                      }
+                      value={field.value?.toString()}
+                    >
+                      <SelectTrigger className="w-[20rem]">
+                        <SelectValue placeholder="Select a workflow" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {globalWorkflows.map((workflow) => (
+                          <SelectItem
+                            key={workflow.id!.toString()}
+                            value={workflow.id!.toString()}
+                          >
+                            {workflow.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  ) : (
+                    <div className="text-sm text-muted-foreground">
+                      There are no global workflows available for selection.
+                    </div>
+                  )}
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -182,7 +189,12 @@ const NewTeamWorkflowReferFromSharedOne = ({
           />
 
           {/* Submit Button */}
-          <Button type="submit">
+          <Button
+            type="submit"
+            disabled={
+              !(Array.isArray(globalWorkflows) && globalWorkflows.length > 0)
+            }
+          >
             <Save /> Create Workflow
           </Button>
         </form>
