@@ -47,27 +47,39 @@ const WorkflowStateSelect = ({
   useEffect(() => {
     const loadWorkflowStates = async () => {
       setIsLoading(true);
-      getValidTargetStates(workflowId, workflowStateId, includeSelf, setError)
-        .then((data) => {
-          setWorkflowStates(data);
+      try {
+        const data = await getValidTargetStates(
+          workflowId,
+          workflowStateId,
+          includeSelf,
+          setError,
+        );
+        setWorkflowStates(data);
 
-          // Set initial value if field value matches one of the loaded states
-          if (!form.getValues(name) && data.length > 0) {
-            const initialState = data.find(
-              (state) => state.id === workflowStateId,
-            );
-            if (initialState) {
-              form.setValue(name, initialState.id); // Set the field value in the form
-            }
+        // Set the initial value if field value matches one of the loaded states
+        if (!form.getValues(name) && data.length > 0) {
+          const initialState = data.find(
+            (state) => state.id === workflowStateId,
+          );
+
+          if (initialState) {
+            form.setValue(name, initialState.id, { shouldValidate: true });
           }
-        })
-        .finally(() => setIsLoading(false));
+        }
+      } finally {
+        setIsLoading(false);
+      }
     };
 
     if (workflowId) {
       loadWorkflowStates();
     }
-  }, [workflowId, workflowStateId, includeSelf, form, name]);
+  }, [workflowId, workflowStateId, includeSelf, form, name, setError]);
+
+  // Derive the selected state's name for display in the placeholder
+  const selectedStateName =
+    workflowStates.find((state) => state.id === form.getValues(name))
+      ?.stateName || "Select a state";
 
   return (
     <FormField
@@ -90,9 +102,7 @@ const WorkflowStateSelect = ({
               disabled={isLoading || workflowStates.length === 0}
             >
               <SelectTrigger className={cn("w-[16rem]")}>
-                <SelectValue
-                  placeholder={isLoading ? "Loading..." : "Select a state"}
-                />
+                <SelectValue placeholder={selectedStateName} />
               </SelectTrigger>
               <SelectContent>
                 {workflowStates.map((state) => (
