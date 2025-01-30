@@ -30,6 +30,7 @@ import { navigateToRecord } from "@/lib/navigation-record";
 import { getSpecifiedColor, randomPair } from "@/lib/utils";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
 import { useError } from "@/providers/error-provider";
+import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/team-requests";
 
@@ -39,6 +40,7 @@ const TeamRequestDetailView = ({
   teamRequestId: number;
 }) => {
   const permissionLevel = usePagePermission();
+  const teamRole = useUserTeamRole().role;
   const router = useRouter();
 
   const [selectedTab, setSelectedTab] = useState("comments");
@@ -160,7 +162,9 @@ const TeamRequestDetailView = ({
               </div>
             </div>
 
-            {PermissionUtils.canWrite(permissionLevel) && (
+            {(PermissionUtils.canWrite(permissionLevel) ||
+              teamRole === "Manager" ||
+              teamRole === "Member") && (
               <Button
                 onClick={() =>
                   router.push(
