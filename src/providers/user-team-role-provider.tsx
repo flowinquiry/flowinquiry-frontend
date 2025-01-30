@@ -28,12 +28,8 @@ export const UserTeamRoleProvider: React.FC<{
   useEffect(() => {
     async function fetchTeamRole() {
       if (status === "authenticated" && userId) {
-        try {
-          const roleName = await getUserRoleInTeam(userId, teamId, setError);
-          setRole(roleName.role as TeamRole);
-        } catch (error) {
-          console.error("Failed to fetch team role:", error);
-        }
+        const roleName = await getUserRoleInTeam(userId, teamId, setError);
+        setRole(roleName.role as TeamRole);
       }
     }
     fetchTeamRole();
