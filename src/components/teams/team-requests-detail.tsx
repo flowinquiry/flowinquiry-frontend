@@ -1,9 +1,16 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Edit, Loader2 } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Edit,
+  Loader2,
+  MessageSquarePlus,
+} from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import AttachmentView from "@/components/shared/attachment-view";
 import AuditLogView from "@/components/shared/audit-log-view";
@@ -17,13 +24,22 @@ import TeamRequestsTimelineHistory from "@/components/teams/team-requests-timeli
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import {
   findNextTeamRequest,
   findPreviousTeamRequest,
   findRequestById,
+  updateTeamRequest,
 } from "@/lib/actions/teams-request.action";
+import { getValidTargetStates } from "@/lib/actions/workflows.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { navigateToRecord } from "@/lib/navigation-record";
@@ -33,6 +49,7 @@ import { useError } from "@/providers/error-provider";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/team-requests";
+import { WorkflowStateDTO } from "@/types/workflows";
 
 const TeamRequestDetailView = ({
   teamRequestId,
@@ -44,11 +61,16 @@ const TeamRequestDetailView = ({
   const router = useRouter();
 
   const [selectedTab, setSelectedTab] = useState("comments");
-  const [teamRequest, setTeamRequest] = useState<TeamRequestDTO | undefined>(
-    undefined,
+  const [teamRequest, setTeamRequest] = useState<TeamRequestDTO>(
+    {} as TeamRequestDTO,
   );
   const [loading, setLoading] = useState(true);
   const { setError } = useError();
+  const [workflowStates, setWorkflowStates] = useState<WorkflowStateDTO[]>([]);
+  const [currentRequestState, setCurrentRequestState] = useState<String>("");
+
+  // Create a reference for the CommentsView
+  const commentsViewRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     const fetchRequest = async () => {
@@ -59,12 +81,29 @@ const TeamRequestDetailView = ({
           throw new Error("Could not find the specified team request.");
         }
         setTeamRequest(data);
+        setCurrentRequestState(data.currentStateName!);
       } finally {
         setLoading(false);
       }
     };
     fetchRequest();
-  }, [teamRequestId]);
+  }, [teamRequestId, setError]);
+
+  useEffect(() => {
+    const loadWorkflowStates = async () => {
+      if (teamRequest?.workflowId && teamRequest?.currentStateId) {
+        const data = await getValidTargetStates(
+          teamRequest.workflowId,
+          teamRequest.currentStateId,
+          true,
+          setError,
+        );
+        setWorkflowStates(data);
+      }
+    };
+
+    loadWorkflowStates();
+  }, [teamRequest?.workflowId, teamRequest?.currentStateId]);
 
   const handleTabChange = (value: string) => {
     setSelectedTab(value);
@@ -90,6 +129,31 @@ const TeamRequestDetailView = ({
       setError,
     );
     setTeamRequest(nextTeamRequest);
+  };
+
+  const handleFocusComments = () => {
+    setSelectedTab("comments"); // Ensure the Comments tab is active
+
+    // Delay scrolling slightly to allow UI to update first
+    setTimeout(() => {
+      if (commentsViewRef.current) {
+        commentsViewRef.current.scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    }, 100);
+  };
+
+  const handleStateChangeRequest = async (state: WorkflowStateDTO) => {
+    const updatedRequest = {
+      ...teamRequest,
+      currentStateId: state.id,
+      currentStateName: state.stateName,
+    };
+    await updateTeamRequest(updatedRequest.id!, updatedRequest, setError);
+    setTeamRequest(updatedRequest);
+    setCurrentRequestState(state.stateName);
   };
 
   if (loading) {
@@ -161,11 +225,21 @@ const TeamRequestDetailView = ({
                 {teamRequest.requestTitle}
               </div>
             </div>
-
+            <Button
+              variant="outline"
+              className="h-6 w-6"
+              size="icon"
+              onClick={navigateToNextRecord}
+            >
+              <ChevronRight className="text-gray-400" />
+            </Button>
+          </div>
+          <div className="flex flex-row gap-4 w-full justify-end">
             {(PermissionUtils.canWrite(permissionLevel) ||
               teamRole === "Manager" ||
               teamRole === "Member") && (
               <Button
+                variant="secondary"
                 onClick={() =>
                   router.push(
                     `/portal/teams/${obfuscate(teamRequest.teamId)}/requests/${obfuscate(teamRequest.id)}/edit?${randomPair()}`,
@@ -175,14 +249,50 @@ const TeamRequestDetailView = ({
                 <Edit className="mr-2" /> Edit
               </Button>
             )}
-            <Button
-              variant="outline"
-              className="h-6 w-6"
-              size="icon"
-              onClick={navigateToNextRecord}
-            >
-              <ChevronRight className="text-gray-400" />
-            </Button>
+            {(PermissionUtils.canWrite(permissionLevel) ||
+              teamRole === "Manager" ||
+              teamRole === "Member" ||
+              teamRole === "Guest") && (
+              <Button variant="secondary" onClick={handleFocusComments}>
+                <MessageSquarePlus className="mr-2" /> Add comment
+              </Button>
+            )}
+            {(PermissionUtils.canWrite(permissionLevel) ||
+              teamRole === "Manager" ||
+              teamRole === "Member") && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button className="flex items-center gap-2">
+                    {currentRequestState}
+                    <ChevronDown className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56">
+                  <DropdownMenuGroup>
+                    {workflowStates
+                      .filter(
+                        (state) => state.id !== teamRequest.currentStateId,
+                      ) // Exclude the current state
+                      .map((state) => (
+                        <DropdownMenuItem
+                          key={state.id}
+                          onClick={() => handleStateChangeRequest(state)}
+                        >
+                          {state.stateName}
+                        </DropdownMenuItem>
+                      ))}
+
+                    {workflowStates.filter(
+                      (state) => state.id !== teamRequest.currentStateId,
+                    ).length === 0 && (
+                      <DropdownMenuItem disabled>
+                        No available states
+                      </DropdownMenuItem>
+                    )}
+                  </DropdownMenuGroup>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
           {teamRequest.conversationHealth?.healthLevel && (
             <TeamRequestHealthLevel
@@ -347,10 +457,12 @@ const TeamRequestDetailView = ({
                 </TabsList>
                 <TabsContent value="comments">
                   {selectedTab === "comments" && (
-                    <CommentsView
-                      entityType="Team_Request"
-                      entityId={teamRequest.id!}
-                    />
+                    <div ref={commentsViewRef}>
+                      <CommentsView
+                        entityType="Team_Request"
+                        entityId={teamRequest.id!}
+                      />
+                    </div>
                   )}
                 </TabsContent>
                 <TabsContent value="changes-history">
