@@ -55,6 +55,12 @@ const AuditLogView: React.FC<AuditLogViewProps> = ({
     return <div>No history available.</div>;
   }
 
+  const decodeHTML = (html: string) => {
+    const txt = document.createElement("textarea");
+    txt.innerHTML = html;
+    return txt.value;
+  };
+
   return (
     <div>
       {activityLogs.map((activityLog, index) => (
@@ -83,7 +89,7 @@ const AuditLogView: React.FC<AuditLogViewProps> = ({
           <div
             className="prose max-w-none table-consistent-width"
             dangerouslySetInnerHTML={{
-              __html: activityLog.content!,
+              __html: decodeHTML(activityLog.content!),
             }}
           />
           <small>
