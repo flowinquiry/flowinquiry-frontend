@@ -144,6 +144,11 @@ export const TeamList = () => {
     fetchData();
   };
 
+  const toggleUserTeamsFilter = (checked: boolean) => {
+    setFilterUserTeamsOnly(!!checked);
+    setCurrentPage(1); // Reset to first page
+  };
+
   return (
     <div className="grid grid-cols-1 gap-4">
       <div className="flex flex-row justify-between items-center">
@@ -167,7 +172,7 @@ export const TeamList = () => {
             <Checkbox
               id="user-teams-only"
               checked={filterUserTeamsOnly}
-              onCheckedChange={(checked) => setFilterUserTeamsOnly(!!checked)}
+              onCheckedChange={toggleUserTeamsFilter}
             />
             <label htmlFor="user-teams-only" className="text-sm">
               My Teams Only
