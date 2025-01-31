@@ -128,7 +128,7 @@ const TeamUsersView = () => {
                 </TooltipContent>
               </Tooltip>
               <Heading
-                title={`Team Members (${totalMembers})`}
+                title={`Members (${totalMembers})`}
                 description="Browse and manage the members of your team. View roles, contact information, and more"
               />
             </div>

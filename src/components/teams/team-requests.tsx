@@ -241,7 +241,7 @@ const TeamRequestsView = () => {
                 </TooltipContent>
               </Tooltip>
               <Heading
-                title={`Team Tickets (${totalElements})`}
+                title={`Tickets (${totalElements})`}
                 description="Monitor and handle your team's tickets. Stay on top of assignments and progress."
               />
             </div>

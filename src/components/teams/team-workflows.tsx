@@ -83,10 +83,22 @@ const TeamWorkflowsView = () => {
         <div className="grid grid-cols-1 gap-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <TeamAvatar imageUrl={team.logoUrl} size="w-20 h-20" />
+              <Tooltip>
+                <TooltipTrigger>
+                  <TeamAvatar imageUrl={team.logoUrl} size="w-20 h-20" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <div className="text-left">
+                    <p className="font-bold">{team.name}</p>
+                    <p className="text-sm text-gray-500">
+                      {team.slogan ?? "Stronger Together"}
+                    </p>
+                  </div>
+                </TooltipContent>
+              </Tooltip>
               <Heading
-                title={team.name}
-                description={team.slogan ?? "Stronger Together"}
+                title={`Workflows`}
+                description="All workflows are available in the team, allowing you to manage request processes, track progress, and automate transitions efficiently."
               />
             </div>
             {(PermissionUtils.canWrite(permissionLevel) ||

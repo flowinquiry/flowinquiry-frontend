@@ -58,7 +58,7 @@ const TeamDashboard = () => {
                 </TooltipContent>
               </Tooltip>
               <Heading
-                title="Team Dashboard"
+                title="Dashboard"
                 description="Overview of your team's performance and activities. Monitor team requests, progress, and key metrics at a glance"
               />
             </div>
