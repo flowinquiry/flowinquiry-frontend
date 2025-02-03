@@ -78,14 +78,21 @@ const GlobalWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
     <div className="grid grid-cols-1 gap-4">
       <Breadcrumbs items={breadcrumbItems} />
       {/* Header Section */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Heading
-            title={workflowDetail.name}
-            description={workflowDetail.description ?? ""}
-          />
+      <div className="flex flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Heading
+              title={workflowDetail.name}
+              description={workflowDetail.description ?? ""}
+            />
+          </div>
         </div>
-        <div className="flex items-center space-x-4">
+
+        <div className="text-sm text-muted-foreground">
+          Ticket type: {workflowDetail.requestName}
+        </div>
+        {/* Buttons Row */}
+        <div className="flex justify-end space-x-4">
           {PermissionUtils.canWrite(permissionLevel) && (
             <Button onClick={() => setIsEditing(!isEditing)}>
               {isEditing ? "Cancel Edit" : <Edit />} Customize Workflow
