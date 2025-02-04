@@ -14,10 +14,9 @@ const useWebSocket = (userId: string) => {
       brokerURL: "ws://localhost:8080/fiws",
       reconnectDelay: 5000,
       onConnect: () => {
-        console.log("connecting");
+        // Subscribe to the user's personal notification queue
         // Subscribe to the user's notification queue
         stompClient.subscribe(`/user/queue/notifications`, (message) => {
-          console.log("Recenive message", message);
           try {
             const notification: NotificationDTO = JSON.parse(message.body);
             setNotifications((prev) => [...prev, notification]);

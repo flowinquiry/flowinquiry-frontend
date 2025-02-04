@@ -47,8 +47,18 @@ export interface EntityValueDefinition {
 
 import { z } from "zod";
 
+export enum NotificationType {
+  INFO = "INFO",
+  WARNING = "WARNING",
+  ERROR = "ERROR",
+  SLA_BREACH = "SLA_BREACH",
+  SLA_WARNING = "SLA_WARNING",
+  ESCALATION_NOTICE = "ESCALATION_NOTICE",
+}
+
 export const NotificationDTOSchema = z.object({
   id: z.number().nullable(),
+  type: z.nativeEnum(NotificationType), // ✅ Enforcing the type from the enum
   content: z.string(),
   createdAt: z.string(),
   userId: z.number(),

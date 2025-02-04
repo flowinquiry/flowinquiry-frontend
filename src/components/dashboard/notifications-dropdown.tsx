@@ -20,6 +20,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import useWebSocket from "@/hooks/use-websocket";
 import {
   getUnReadNotificationsByUserId,
   markNotificationsAsRead,
@@ -36,6 +37,8 @@ const NotificationsDropdown = () => {
   const [notifications, setNotifications] = useState<Array<NotificationDTO>>(
     [],
   );
+
+  const { notifications: notificationsSocket } = useWebSocket(session?.user.id);
 
   useEffect(() => {
     async function fetchNotifications() {
