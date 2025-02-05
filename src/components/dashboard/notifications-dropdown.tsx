@@ -29,28 +29,55 @@ import { formatDateTime, formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { cn } from "@/lib/utils";
 import { useError } from "@/providers/error-provider";
 import { NotificationDTO } from "@/types/commons";
+import { useToast } from "@/components/ui/use-toast";
 
 const NotificationsDropdown = () => {
   const { data: session } = useSession();
   const { setError } = useError();
+  const { toast } = useToast();
 
-  const [notifications, setNotifications] = useState<Array<NotificationDTO>>(
-    [],
+  const [notifications, setNotifications] = useState<NotificationDTO[]>([]);
+
+  // Load WebSocket notifications
+  const { notifications: notificationsSocket } = useWebSocket(
+    session?.user?.id,
   );
 
-  const { notifications: notificationsSocket } = useWebSocket(session?.user.id);
-
+  // Load unread notifications from the database
   useEffect(() => {
     async function fetchNotifications() {
+      if (!session?.user?.id) return;
+
       const notificationsData = await getUnReadNotificationsByUserId(
-        Number(session?.user?.id),
+        Number(session.user.id),
         setError,
       );
       setNotifications(notificationsData);
     }
+
     fetchNotifications();
   }, [session]);
 
+  // Merge WebSocket notifications + show toast alerts
+  useEffect(() => {
+    if (notificationsSocket.length > 0) {
+      notificationsSocket.forEach((notification) => {
+        toast({
+          title: notification.content,
+        });
+      });
+
+      // Merge WebSocket notifications while avoiding duplicates
+      setNotifications((prev) => [
+        ...notificationsSocket,
+        ...prev.filter(
+          (n) => !notificationsSocket.some((socketN) => socketN.id === n.id),
+        ),
+      ]);
+    }
+  }, [notificationsSocket]);
+
+  // Mark notification as read when clicked
   const handleNotificationClick = async (notificationId: number) => {
     await markNotificationsAsRead([notificationId], setError);
 
@@ -62,6 +89,7 @@ const NotificationsDropdown = () => {
       ),
     );
 
+    // Remove the notification after a short delay
     setTimeout(() => {
       setNotifications((prevNotifications) =>
         prevNotifications.filter(
@@ -71,14 +99,14 @@ const NotificationsDropdown = () => {
     }, 500);
   };
 
+  // Mark all notifications as read
   const handleMarkAllRead = async () => {
     const notificationIds = notifications
-      .map((notification) => notification.id)
+      .map((n) => n.id)
       .filter((id): id is number => id !== null);
 
     await markNotificationsAsRead(notificationIds, setError);
-
-    setNotifications([]);
+    setNotifications([]); // Clear notifications from UI
   };
 
   return (
@@ -86,23 +114,18 @@ const NotificationsDropdown = () => {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" className="relative h-8 w-8 rounded-full">
           <BellDot className="animate-tada h-5 w-5" />
-          {notifications &&
-            notifications.filter((notification) => !notification.isRead)
-              .length > 0 && (
-              <div
-                className={cn(
-                  "absolute top-[2px] right-[2px] translate-x-1/2 translate-y-[-50%]",
-                  "w-5 h-5 text-[10px] rounded-full font-semibold flex items-center justify-center",
-                  "bg-red-400 text-white",
-                  "dark:bg-red-500 dark:text-white",
-                )}
-              >
-                {
-                  notifications.filter((notification) => !notification.isRead)
-                    .length
-                }
-              </div>
-            )}
+          {notifications.length > 0 && (
+            <div
+              className={cn(
+                "absolute top-[2px] right-[2px] translate-x-1/2 translate-y-[-50%]",
+                "w-5 h-5 text-[10px] rounded-full font-semibold flex items-center justify-center",
+                "bg-red-400 text-white",
+                "dark:bg-red-500 dark:text-white",
+              )}
+            >
+              {notifications.length}
+            </div>
+          )}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -114,7 +137,7 @@ const NotificationsDropdown = () => {
           "backdrop-blur-md backdrop-brightness-110 dark:backdrop-brightness-75 shadow-lg",
         )}
       >
-        {notifications && notifications.length > 0 ? (
+        {notifications.length > 0 ? (
           <>
             <DropdownMenuLabel>
               <div className="flex justify-between px-2 py-2">
