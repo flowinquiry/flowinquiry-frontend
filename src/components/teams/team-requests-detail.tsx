@@ -5,6 +5,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Edit,
+  Eye,
   Loader2,
   MessageSquarePlus,
 } from "lucide-react";
@@ -29,6 +30,7 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -51,6 +53,8 @@ import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/team-requests";
 import { WorkflowStateDTO } from "@/types/workflows";
 
+import WorkflowReviewDialog from "../workflows/workflow-review-dialog";
+
 const TeamRequestDetailView = ({
   teamRequestId,
 }: {
@@ -68,6 +72,7 @@ const TeamRequestDetailView = ({
   const { setError } = useError();
   const [workflowStates, setWorkflowStates] = useState<WorkflowStateDTO[]>([]);
   const [currentRequestState, setCurrentRequestState] = useState<String>("");
+  const [isWorkflowDialogOpen, setWorkflowDialogOpen] = useState(false);
 
   // Create a reference for the CommentsView
   const commentsViewRef = useRef<HTMLDivElement | null>(null);
@@ -104,6 +109,10 @@ const TeamRequestDetailView = ({
 
     loadWorkflowStates();
   }, [teamRequest?.workflowId, teamRequest?.currentStateId]);
+
+  const handleViewWorkflow = () => {
+    setWorkflowDialogOpen(true);
+  };
 
   const handleTabChange = (value: string) => {
     setSelectedTab(value);
@@ -260,38 +269,62 @@ const TeamRequestDetailView = ({
             {(PermissionUtils.canWrite(permissionLevel) ||
               teamRole === "Manager" ||
               teamRole === "Member") && (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button className="flex items-center gap-2">
-                    {currentRequestState}
-                    <ChevronDown className="w-4 h-4" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56">
-                  <DropdownMenuGroup>
-                    {workflowStates
-                      .filter(
-                        (state) => state.id !== teamRequest.currentStateId,
-                      ) // Exclude the current state
-                      .map((state) => (
-                        <DropdownMenuItem
-                          key={state.id}
-                          onClick={() => handleStateChangeRequest(state)}
-                        >
-                          {state.stateName}
-                        </DropdownMenuItem>
-                      ))}
+              <div>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button className="flex items-center gap-2">
+                      {currentRequestState}
+                      <ChevronDown className="w-4 h-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56">
+                    <DropdownMenuGroup>
+                      {workflowStates
+                        .filter(
+                          (state) => state.id !== teamRequest.currentStateId,
+                        ) // Exclude the current state
+                        .map((state) => (
+                          <DropdownMenuItem
+                            key={state.id}
+                            onClick={() => handleStateChangeRequest(state)}
+                            className="cursor-pointer"
+                          >
+                            {state.stateName}
+                          </DropdownMenuItem>
+                        ))}
 
-                    {workflowStates.filter(
-                      (state) => state.id !== teamRequest.currentStateId,
-                    ).length === 0 && (
-                      <DropdownMenuItem disabled>
-                        No available states
-                      </DropdownMenuItem>
-                    )}
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                      {workflowStates.filter(
+                        (state) => state.id !== teamRequest.currentStateId,
+                      ).length === 0 && (
+                        <DropdownMenuItem disabled>
+                          No available states
+                        </DropdownMenuItem>
+                      )}
+                      {/* Add a separator before the "View Workflow" button */}
+                      {(PermissionUtils.canWrite(permissionLevel) ||
+                        teamRole === "Manager" ||
+                        teamRole === "Member" ||
+                        teamRole === "Guest") && (
+                        <>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={handleViewWorkflow}
+                            className="cursor-pointer"
+                          >
+                            <Eye className="mr-2" /> View Workflow
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+                {/* Workflow Dialog */}
+                <WorkflowReviewDialog
+                  workflowId={teamRequest.workflowId!}
+                  open={isWorkflowDialogOpen}
+                  onClose={() => setWorkflowDialogOpen(false)}
+                />
+              </div>
             )}
           </div>
           {teamRequest.conversationHealth?.healthLevel && (
