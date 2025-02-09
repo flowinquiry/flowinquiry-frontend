@@ -1,7 +1,15 @@
 "use client";
 
 import { AnimatePresence, motion } from "framer-motion";
-import { BellDot } from "lucide-react";
+import {
+  AlertTriangle,
+  ArrowUpCircle,
+  Bell,
+  BellDot,
+  Clock,
+  Timer,
+  XCircle,
+} from "lucide-react";
 import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 
@@ -20,6 +28,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { useToast } from "@/components/ui/use-toast";
 import useWebSocket from "@/hooks/use-websocket";
 import {
   getUnReadNotificationsByUserId,
@@ -28,8 +37,7 @@ import {
 import { formatDateTime, formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { cn } from "@/lib/utils";
 import { useError } from "@/providers/error-provider";
-import { NotificationDTO } from "@/types/commons";
-import { useToast } from "@/components/ui/use-toast";
+import { NotificationDTO, NotificationType } from "@/types/commons";
 
 const NotificationsDropdown = () => {
   const { data: session } = useSession();
@@ -39,9 +47,7 @@ const NotificationsDropdown = () => {
   const [notifications, setNotifications] = useState<NotificationDTO[]>([]);
 
   // Load WebSocket notifications
-  const { notifications: notificationsSocket } = useWebSocket(
-    session?.user?.id,
-  );
+  const { notifications: notificationsSocket } = useWebSocket();
 
   // Load unread notifications from the database
   useEffect(() => {
@@ -107,6 +113,33 @@ const NotificationsDropdown = () => {
 
     await markNotificationsAsRead(notificationIds, setError);
     setNotifications([]); // Clear notifications from UI
+  };
+
+  const getNotificationIcon = (type: NotificationType) => {
+    switch (type) {
+      case NotificationType.INFO:
+        return <Bell className="text-blue-500 dark:text-blue-400 w-5 h-5" />;
+      case NotificationType.WARNING:
+        return (
+          <AlertTriangle className="text-yellow-500 dark:text-yellow-400 w-5 h-5" />
+        );
+      case NotificationType.ERROR:
+        return <XCircle className="text-red-500 dark:text-red-400 w-5 h-5" />;
+      case NotificationType.SLA_BREACH:
+        return (
+          <Clock className="text-orange-500 dark:text-orange-400 w-5 h-5" />
+        );
+      case NotificationType.SLA_WARNING:
+        return (
+          <Timer className="text-purple-500 dark:text-purple-400 w-5 h-5" />
+        );
+      case NotificationType.ESCALATION_NOTICE:
+        return (
+          <ArrowUpCircle className="text-green-500 dark:text-green-400 w-5 h-5" />
+        );
+      default:
+        return <Bell className="text-gray-500 dark:text-gray-400 w-5 h-5" />;
+    }
   };
 
   return (
@@ -178,15 +211,21 @@ const NotificationsDropdown = () => {
                         )}
                         onClick={() => handleNotificationClick(item.id!)}
                       >
-                        <div className="flex items-start gap-2 flex-1">
-                          <div className="flex-1 flex flex-col gap-0.5">
+                        <div className="flex items-start gap-3 flex-1">
+                          {/* ✅ Wrap icon in a fixed-width div to prevent shifting */}
+                          <div className="w-6 flex items-center justify-center">
+                            {getNotificationIcon(item.type)}
+                          </div>
+
+                          {/* ✅ Wrap content and date inside the same flex container */}
+                          <div className="flex-1 flex flex-col gap-0.5 -mx-4">
                             <div className="html-display">
                               <TruncatedHtmlLabel
                                 htmlContent={item.content}
                                 wordLimit={400}
                               />
                             </div>
-                            <div>
+                            <div className="text-sm text-gray-500 dark:text-gray-400">
                               <Tooltip>
                                 <TooltipTrigger>
                                   {formatDateTimeDistanceToNow(
