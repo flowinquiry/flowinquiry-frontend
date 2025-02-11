@@ -127,3 +127,10 @@ export const getTeamRequestStateChangesHistory = async (
     setError,
   );
 };
+
+export const checkTeamHasAnyManager = async (
+  teamId: number,
+  setError?: (error: HttpError | string | null) => void,
+) => {
+  return get<{ result: boolean }>(`/api/teams/${teamId}/has-manager`, setError);
+};

@@ -205,7 +205,11 @@ export const TeamForm = ({ teamId }: { teamId: number | undefined }) => {
                 label={submitText}
                 labelWhileLoading={submitTextWhileLoading}
               />
-              <Button variant="secondary" onClick={() => router.back()}>
+              <Button
+                variant="secondary"
+                type="button"
+                onClick={() => router.back()}
+              >
                 Discard
               </Button>
             </div>

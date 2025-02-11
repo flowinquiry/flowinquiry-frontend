@@ -2,10 +2,11 @@
 
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { Heading } from "@/components/heading";
 import { TeamAvatar } from "@/components/shared/avatar-display";
+import AddUserToTeamDialog from "@/components/teams/team-add-user-dialog";
 import TeamDashboardTopSection from "@/components/teams/team-dashboard-kpis";
 import RecentTeamActivities from "@/components/teams/team-dashboard-recent-activities";
 import TeamNavLayout from "@/components/teams/team-nav";
@@ -22,6 +23,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { usePagePermission } from "@/hooks/use-page-permission";
+import { checkTeamHasAnyManager } from "@/lib/actions/teams.action";
 import { obfuscate } from "@/lib/endecode";
 import { cn } from "@/lib/utils";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
@@ -31,6 +33,21 @@ import { PermissionUtils } from "@/types/resources";
 const TeamDashboard = () => {
   const team = useTeam();
   const permissionLevel = usePagePermission();
+  const [isDialogOpen, setDialogOpen] = useState(false);
+  const [checkingManager, setCheckingManager] = useState(true);
+
+  useEffect(() => {
+    const fetchManagerStatus = async () => {
+      setCheckingManager(true);
+      const response = await checkTeamHasAnyManager(team.id!);
+      if (!response.result) {
+        setDialogOpen(true);
+      }
+      setCheckingManager(false);
+    };
+
+    fetchManagerStatus();
+  }, [team.id]);
 
   const breadcrumbItems = [
     { title: "Dashboard", link: "/portal" },
@@ -102,6 +119,16 @@ const TeamDashboard = () => {
           </div>
         </div>
       </TeamNavLayout>
+
+      {/* Show Dialog If No Manager Exists */}
+      {!checkingManager && isDialogOpen && (
+        <AddUserToTeamDialog
+          open={isDialogOpen}
+          setOpen={setDialogOpen}
+          teamEntity={team}
+          onSaveSuccess={() => setDialogOpen(false)}
+        />
+      )}
     </BreadcrumbProvider>
   );
 };
