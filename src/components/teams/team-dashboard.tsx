@@ -127,6 +127,7 @@ const TeamDashboard = () => {
           setOpen={setDialogOpen}
           teamEntity={team}
           onSaveSuccess={() => setDialogOpen(false)}
+          forceManagerAssignment={true}
         />
       )}
     </BreadcrumbProvider>

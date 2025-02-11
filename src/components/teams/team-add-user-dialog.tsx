@@ -32,6 +32,7 @@ type AddUserToTeamDialogProps = {
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   teamEntity: TeamDTO;
   onSaveSuccess: () => void;
+  forceManagerAssignment?: boolean;
 };
 
 const optionSchema = z.object({
@@ -50,6 +51,7 @@ const AddUserToTeamDialog: React.FC<AddUserToTeamDialogProps> = ({
   setOpen,
   teamEntity,
   onSaveSuccess,
+  forceManagerAssignment = false,
 }) => {
   const { setError } = useError();
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -79,10 +81,15 @@ const AddUserToTeamDialog: React.FC<AddUserToTeamDialogProps> = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Add user to team {teamEntity.name} </DialogTitle>
+          <DialogTitle>
+            {forceManagerAssignment
+              ? `This team requires at least one manager`
+              : `Add a user to team ${teamEntity.name}`}{" "}
+          </DialogTitle>
           <DialogDescription>
-            Add a user to this team by searching for them. Begin typing to see
-            suggestions that match your input
+            {forceManagerAssignment
+              ? `This team currently has no managers. You must assign at least one manager before proceeding. Begin typing to search for users.`
+              : `Add a user to this team by searching for them. Begin typing to see suggestions that match your input.`}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
