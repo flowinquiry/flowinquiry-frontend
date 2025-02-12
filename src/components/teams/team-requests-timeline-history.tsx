@@ -18,7 +18,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { getTeamRequestStateChangesHistory } from "@/lib/actions/teams.action";
-import { formatDateTimeDistanceToNow } from "@/lib/datetime";
+import { formatDateTime, formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { useError } from "@/providers/error-provider";
 import { TransitionItemCollectionDTO } from "@/types/teams";
 
@@ -78,15 +78,56 @@ const TeamRequestsTimelineHistory = ({ teamId }: { teamId: number }) => {
                     </span>
                   </TooltipTrigger>
                   <TooltipContent>
-                    {new Date(transition.transitionDate).toLocaleString()}{" "}
+                    {formatDateTime(new Date(transition.transitionDate))}
                   </TooltipContent>
                 </Tooltip>
               </TimelineTitle>
             </TimelineHeader>
             <TimelineContent>
               <TimelineDescription>
-                {transition.fromState} to {transition.toState}
+                <strong>{transition.fromState}</strong> →{" "}
+                <strong>{transition.toState}</strong>
               </TimelineDescription>
+
+              {/* Show SLA if present */}
+              {transition.slaDueDate && (
+                <div className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                  SLA Due:{" "}
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <span className="cursor-pointer text-red-500 dark:text-red-400">
+                        {formatDateTime(new Date(transition.slaDueDate))}
+                      </span>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      SLA Deadline:{" "}
+                      {formatDateTime(new Date(transition.slaDueDate))}
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+              )}
+
+              {/* Show Status Only for Specific Cases */}
+              {["Completed", "Overdue", "Escalated"].includes(
+                transition.status,
+              ) && (
+                <div className="mt-1 text-sm font-medium">
+                  Status:{" "}
+                  <span
+                    className={
+                      transition.status === "Escalated"
+                        ? "text-orange-500 dark:text-orange-400"
+                        : transition.status === "Completed"
+                          ? "text-green-500 dark:text-green-400"
+                          : transition.status === "Overdue"
+                            ? "text-red-500 dark:text-red-400"
+                            : "text-gray-500 dark:text-gray-400"
+                    }
+                  >
+                    {transition.status}
+                  </span>
+                </div>
+              )}
             </TimelineContent>
           </TimelineItem>
         ))}
