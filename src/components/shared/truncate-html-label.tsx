@@ -10,7 +10,10 @@ const TruncatedHtmlLabel = ({
   if (htmlContent.length <= wordLimit) {
     return (
       <div className="px-4">
-        <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
+        <div
+          className="prose prose-blue dark:prose-invert max-w-none"
+          dangerouslySetInnerHTML={{ __html: htmlContent }}
+        />
       </div>
     );
   }
@@ -20,10 +23,11 @@ const TruncatedHtmlLabel = ({
   return (
     <div className="px-4">
       <div
-        className="prose max-w-none"
+        className="prose prose-blue dark:prose-invert max-w-none"
         dangerouslySetInnerHTML={{ __html: truncatedContent }}
       />
     </div>
   );
 };
+
 export default TruncatedHtmlLabel;
