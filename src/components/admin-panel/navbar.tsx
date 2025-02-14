@@ -1,7 +1,6 @@
 import { SheetMenu } from "@/components/admin-panel/sheet-menu";
 import { UserNav } from "@/components/admin-panel/user-nav";
 import NotificationsDropdown from "@/components/dashboard/notifications-dropdown";
-import { ModeToggle } from "@/components/mode-toggle";
 
 interface NavbarProps {
   title: string;
@@ -17,7 +16,6 @@ export function Navbar({ title }: NavbarProps) {
         </div>
         <div className="flex flex-1 items-center gap-2 justify-end">
           <NotificationsDropdown />
-          <ModeToggle />
           <UserNav />
         </div>
       </div>

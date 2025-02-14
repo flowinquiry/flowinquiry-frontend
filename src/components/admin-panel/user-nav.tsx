@@ -35,6 +35,7 @@ import { BASE_URL } from "@/lib/constants";
 export function UserNav() {
   const { data: session } = useSession();
 
+  console.log(`Session ${JSON.stringify(session)}`);
   return (
     <Dialog>
       <DropdownMenu>
