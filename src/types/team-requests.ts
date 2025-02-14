@@ -105,6 +105,19 @@ export type TicketChannel =
   | "System-generated"
   | "Internal";
 
+export const ticketChannels = [
+  "Email",
+  "Phone",
+  "Web Portal",
+  "Chat",
+  "Social Media",
+  "In-person",
+  "Mobile App",
+  "API",
+  "System-generated",
+  "Internal",
+] as const;
+
 export type TicketDistributionDTO = {
   userId: number | null; // Null for unassigned tickets
   userName: string | null; // Null for unassigned tickets

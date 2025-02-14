@@ -48,7 +48,7 @@ export function UserNav() {
                 >
                   <UserAvatar
                     imageUrl={session?.user?.imageUrl}
-                    size="h-8 w-8"
+                    size="h-10 w-10"
                   />
                 </Button>
               </DropdownMenuTrigger>

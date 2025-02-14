@@ -175,8 +175,8 @@ const NotificationsDropdown = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="relative h-8 w-8 rounded-full">
-          <BellDot className="animate-tada h-5 w-5" />
+        <Button variant="outline" className="relative h-10 w-10 rounded-full">
+          <BellDot className="animate-tada h-8 w-8" />
           {notifications.length > 0 && (
             <div className="absolute top-[2px] right-[2px] translate-x-1/2 translate-y-[-50%] w-5 h-5 text-[10px] rounded-full font-semibold flex items-center justify-center bg-red-400 text-white dark:bg-red-500 dark:text-white">
               {notifications.length}
