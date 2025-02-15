@@ -1,6 +1,6 @@
 "use client";
 
-import { ClipboardList } from "lucide-react";
+import { CheckCircle, ClipboardList, FileText } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import {
 
 export function UserQuickAction() {
   const router = useRouter();
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -21,27 +22,21 @@ export function UserQuickAction() {
           className="flex items-center gap-2 cursor-pointer"
         >
           <ClipboardList className="w-5 h-5" />
-          <span>My Actions</span>
+          <span>My Tickets</span>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem
-          className="cursor-pointer"
-          onSelect={() => router.push("/portal/my/tickets")}
+          className="cursor-pointer flex items-center gap-2"
+          onSelect={() => router.push("/portal/my/tickets?ticketType=reported")}
         >
-          My reported tickets
+          <FileText className="w-4 h-4" /> My Reported Tickets
         </DropdownMenuItem>
         <DropdownMenuItem
-          className="cursor-pointer"
-          onSelect={() => console.log("Navigate to My Open Tickets")}
+          className="cursor-pointer flex items-center gap-2"
+          onSelect={() => router.push("/portal/my/tickets?ticketType=assigned")}
         >
-          My open tickets
-        </DropdownMenuItem>
-        <DropdownMenuItem
-          className="cursor-pointer"
-          onSelect={() => console.log("Navigate to My Closed Tickets")}
-        >
-          My closed tickets
+          <CheckCircle className="w-4 h-4" /> My Assigned Tickets
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>

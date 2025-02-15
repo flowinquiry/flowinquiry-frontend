@@ -4,7 +4,7 @@ import { Plus, Search, Trash } from "lucide-react";
 import React, { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import {
@@ -20,6 +20,7 @@ import { ticketChannels } from "@/types/team-requests";
 const fieldDefinitions = [
   { name: "requestTitle", label: "Title", type: "text" },
   { name: "requestDescription", label: "Description", type: "text" },
+  { name: "isCompleted", label: "Completed", type: "boolean" },
   {
     name: "channel",
     label: "Channel",
@@ -167,6 +168,13 @@ const DynamicQueryBuilder = ({
 
   return (
     <Card className="w-[500px] flex flex-col h-full">
+      <CardHeader>
+        <h2 className="text-lg font-semibold">Build Your Search Query</h2>
+        <p className="text-sm text-gray-500">
+          Select fields, choose operators, and enter values to refine your
+          search.
+        </p>
+      </CardHeader>
       <CardContent className="p-4 flex flex-col space-y-4 h-full">
         <div className="flex flex-col space-y-2 overflow-auto">
           {filters.map((filter, index) => {
