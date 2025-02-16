@@ -35,7 +35,7 @@ export const NColumnsGrid: React.FC<NColumnsGridProps> = ({
             field.colSpan === 2 ? "sm:col-span-2" : ""
           } flex items-start gap-2`}
         >
-          <span className="text-sm font-medium text-neutral-500 dark:text-neutral-400 w-1/3 text-right">
+          <span className="text-sm font-medium w-1/3 text-right">
             {field.label}
           </span>
           <div className="text-sm w-2/3 text-left">

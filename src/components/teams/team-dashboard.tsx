@@ -108,11 +108,11 @@ const TeamDashboard = () => {
                 <TeamOverdueTickets teamId={team.id!} />
               </div>
             </div>
-            <div className="flex flex-wrap justify-center gap-4">
-              <div className="flex-1 min-w-[400px] max-w-[600px]">
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="w-full h-full flex">
                 <TicketDistributionChart teamId={team.id!} />
               </div>
-              <div className="flex-1 min-w-[400px] max-w-[600px]">
+              <div className="w-full h-full flex">
                 <TicketPriorityPieChart teamId={team.id!} />
               </div>
             </div>

@@ -17,6 +17,7 @@ import AttachmentView from "@/components/shared/attachment-view";
 import AuditLogView from "@/components/shared/audit-log-view";
 import { UserAvatar } from "@/components/shared/avatar-display";
 import CommentsView from "@/components/shared/comments-view";
+import EntityWatchers from "@/components/shared/entity-watchers";
 import { NColumnsGrid } from "@/components/shared/n-columns-grid";
 import TeamNavLayout from "@/components/teams/team-nav";
 import TeamRequestHealthLevel from "@/components/teams/team-requests-health-level";
@@ -465,9 +466,18 @@ const TeamRequestDetailView = ({
                 />
 
                 {(teamRequest.numberAttachments ?? 0) > 0 && (
-                  <div className="w-full flex text-sm font-medium text-neutral-500 dark:text-neutral-400 gap-2">
-                    <span>Attachments</span>
+                  <div className="col-span-1 sm:col-span-2 text-sm font-medium flex items-start">
+                    <span className="pt-1">Attachments</span>
                     <AttachmentView
+                      entityType="Team_Request"
+                      entityId={teamRequest.id!}
+                    />
+                  </div>
+                )}
+                {(teamRequest.numberWatchers ?? 0) > 0 && (
+                  <div className="col-span-1 sm:col-span-2 text-sm font-medium flex items-start gap-4">
+                    <span className="pt-1">Watchers</span>
+                    <EntityWatchers
                       entityType="Team_Request"
                       entityId={teamRequest.id!}
                     />

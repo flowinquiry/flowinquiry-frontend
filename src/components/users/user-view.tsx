@@ -135,7 +135,7 @@ export const UserView = ({ userId }: { userId: number }) => {
         </Card>
 
         {/* Right Panel */}
-        <Card className="w-full md:w-[56rem]">
+        <Card className="w-full md:flex-1">
           <CardHeader>
             <div className="flex justify-between items-center">
               <div className="flex-1">

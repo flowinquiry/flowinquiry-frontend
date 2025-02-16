@@ -16,14 +16,6 @@ export enum TicketHealthLevel {
   Critical = "Critical",
 }
 
-const WatcherDTOSchema = z.object({
-  id: z.number(),
-  firstName: z.string(),
-  lastName: z.string(),
-  imageUrl: z.string().optional(), // Optional field in case it's null/undefined
-  email: z.string().email(),
-});
-
 export const TeamRequestConversationHealthDTOSchema = z.object({
   id: z.number().optional(),
   teamRequestId: z.number().optional(),
@@ -82,8 +74,8 @@ export const TeamRequestDTOSchema = z.object({
     return value;
   }, z.date().nullish()),
   channel: z.string().nullish(),
-  watchers: z.array(WatcherDTOSchema).optional(),
   numberAttachments: z.onumber(),
+  numberWatchers: z.onumber(),
   conversationHealth: TeamRequestConversationHealthDTOSchema.optional(),
 });
 
@@ -91,7 +83,6 @@ export type TeamRequestConversationHealthDTO = z.infer<
   typeof TeamRequestConversationHealthDTOSchema
 >;
 export type TeamRequestDTO = z.infer<typeof TeamRequestDTOSchema>;
-export type WatcherDTO = z.infer<typeof WatcherDTOSchema>;
 
 export type TicketChannel =
   | "Email"

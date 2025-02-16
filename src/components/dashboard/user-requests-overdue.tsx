@@ -113,7 +113,7 @@ const UserTeamsOverdueTickets = () => {
       {!collapsed && (
         <CardContent>
           {loading ? (
-            <div className="flex justify-center items-center h-[200px]">
+            <div className="flex justify-center items-center">
               <Spinner className="h-8 w-8">
                 <span>Loading data ...</span>
               </Spinner>

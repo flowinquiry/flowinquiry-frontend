@@ -29,7 +29,7 @@ export interface PageableResult<Entity> {
   content: Entity[];
 }
 
-export interface EntityAttachmentDTO {
+export type EntityAttachmentDTO = {
   id: number;
   entityType: EntityType;
   entityId: number;
@@ -38,7 +38,7 @@ export interface EntityAttachmentDTO {
   fileSize: number | null;
   fileUrl: string;
   uploadedAt: string;
-}
+};
 
 export interface EntityValueDefinition {
   value: string;
@@ -81,3 +81,14 @@ export const CommentDTOSchema = z.object({
 export type CommentDTO = z.infer<typeof CommentDTOSchema>;
 
 export type EntityType = "Team_Request" | "Team" | "Comment";
+
+export type EntityWatcherDTO = {
+  id: number;
+  entityType: EntityType;
+  entityId: number;
+  watchUserId: number;
+  watchUserName: string;
+  watcherImageUrl: string;
+  createdAt: string; // ISO 8601 format
+  createdBy: number;
+};

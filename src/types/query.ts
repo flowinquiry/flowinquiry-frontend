@@ -27,7 +27,6 @@ export type Pagination = {
 };
 
 // Zod schema for filters
-
 const filterSchema = z.object({
   field: z.string(),
   operator: z.enum(["eq", "gt", "lt", "lk", "in"]),

@@ -47,7 +47,7 @@ const TicketPriorityPieChart = ({ teamId }: { teamId: number }) => {
   };
 
   return (
-    <Card className="w-full max-w-[600px] mx-auto">
+    <Card className="w-full mx-auto">
       {/* Header with Chevron Icon and Title */}
       <CardHeader>
         <div className="flex items-center gap-2">
