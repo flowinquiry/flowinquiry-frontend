@@ -11,8 +11,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { getEntityWatchers } from "@/lib/actions/entity-watchers.action";
+import { findUsers } from "@/lib/actions/users.action";
 import { useError } from "@/providers/error-provider";
-import { EntityType, EntityWatcherDTO } from "@/types/commons";
+import { EntityType } from "@/types/commons";
+import { QueryDTO } from "@/types/query";
 
 export interface Option {
   value: string;
@@ -28,7 +30,8 @@ interface EntityWatchersProps {
 }
 
 const EntityWatchers = ({ entityType, entityId }: EntityWatchersProps) => {
-  const [watchers, setWatchers] = useState<EntityWatcherDTO[]>([]);
+  const [initialWatchers, setInitialWatchers] = useState<Option[]>([]);
+  const [selectedWatchers, setSelectedWatchers] = useState<Option[]>([]);
   const { setError } = useError();
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -36,7 +39,24 @@ const EntityWatchers = ({ entityType, entityId }: EntityWatchersProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const searchUsers = async (userTerm: string) => {
-    // Handle user search logic
+    const query: QueryDTO = {
+      groups: [
+        {
+          logicalOperator: "OR",
+          filters: [
+            { field: "email", operator: "lk", value: `%${userTerm}%` },
+            { field: "firstName", operator: "lk", value: `%${userTerm}%` },
+            { field: "lastName", operator: "lk", value: `%${userTerm}%` },
+          ],
+        },
+      ],
+    };
+
+    const users = await findUsers(query, { page: 1, size: 10 }, setError);
+    return users.content.map((user) => ({
+      value: `${user.id}`,
+      label: `${user.firstName} ${user.lastName}`,
+    }));
   };
 
   useEffect(() => {
@@ -44,7 +64,12 @@ const EntityWatchers = ({ entityType, entityId }: EntityWatchersProps) => {
       try {
         setLoading(true);
         const data = await getEntityWatchers(entityType, entityId, setError);
-        setWatchers(data);
+        const formattedWatchers = data.map((watcher) => ({
+          value: watcher.id.toString(),
+          label: watcher.watchUserName,
+        }));
+        setInitialWatchers(formattedWatchers);
+        setSelectedWatchers(formattedWatchers);
       } finally {
         setLoading(false);
       }
@@ -59,6 +84,7 @@ const EntityWatchers = ({ entityType, entityId }: EntityWatchersProps) => {
         containerRef.current &&
         !containerRef.current.contains(event.target as Node)
       ) {
+        handleUpdateWatchers();
         setIsEditing(false);
       }
     };
@@ -78,6 +104,44 @@ const EntityWatchers = ({ entityType, entityId }: EntityWatchersProps) => {
     setIsEditing(true);
   };
 
+  const handleWatcherChange = (newSelection: Option[]) => {
+    setSelectedWatchers(newSelection);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key === "Enter") {
+      handleUpdateWatchers();
+      setIsEditing(false);
+    }
+  };
+
+  const handleUpdateWatchers = async () => {
+    const initialIds = new Set(initialWatchers.map((w) => w.value));
+    const selectedIds = new Set(selectedWatchers.map((w) => w.value));
+
+    const addedWatchers = selectedWatchers.filter(
+      (w) => !initialIds.has(w.value),
+    );
+    const removedWatchers = initialWatchers.filter(
+      (w) => !selectedIds.has(w.value),
+    );
+
+    if (addedWatchers.length > 0) {
+      await Promise.all(
+        addedWatchers.map((w) => addWatcher(entityId, w.value, setError)),
+      );
+    }
+
+    if (removedWatchers.length > 0) {
+      await Promise.all(
+        removedWatchers.map((w) => removeWatcher(entityId, w.value, setError)),
+      );
+    }
+
+    // Update initialWatchers to reflect the current state
+    setInitialWatchers([...selectedWatchers]);
+  };
+
   const getInitials = (fullName: string) => {
     const words = fullName.trim().split(" ");
     return words.length > 1
@@ -89,12 +153,6 @@ const EntityWatchers = ({ entityType, entityId }: EntityWatchersProps) => {
     return name.length > maxLength ? `${name.slice(0, maxLength)}…` : name;
   };
 
-  // Convert watchers to defaultOptions for MultipleSelector
-  const defaultOptions: Option[] = watchers.map((watcher) => ({
-    value: watcher.id.toString(),
-    label: watcher.watchUserName,
-  }));
-
   return (
     <div
       ref={containerRef}
@@ -104,10 +162,13 @@ const EntityWatchers = ({ entityType, entityId }: EntityWatchersProps) => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
       onClick={handleWatcherEdit}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
     >
       {isEditing ? (
         <MultipleSelector
-          value={defaultOptions}
+          value={selectedWatchers}
+          onChange={handleWatcherChange}
           onSearch={searchUsers}
           placeholder="Add watcher..."
           emptyIndicator={
@@ -120,22 +181,27 @@ const EntityWatchers = ({ entityType, entityId }: EntityWatchersProps) => {
         <Tooltip>
           <TooltipTrigger asChild>
             <div className="flex flex-wrap gap-2 items-center cursor-pointer">
-              {watchers.map((watcher) => (
+              {selectedWatchers.map((watcher) => (
                 <Badge
-                  key={watcher.id}
+                  key={watcher.value}
                   className="flex items-center gap-2 px-2 py-1 max-w-[150px] truncate"
                 >
                   <Avatar className="w-6 h-6">
                     <AvatarImage
-                      src={watcher.watcherImageUrl ?? ""}
-                      alt={watcher.watchUserName}
+                      src={
+                        String(
+                          initialWatchers.find((w) => w.value === watcher.value)
+                            ?.watcherImageUrl,
+                        ) || ""
+                      }
+                      alt={watcher.label}
                     />
                     <AvatarFallback>
-                      {getInitials(watcher.watchUserName)}
+                      {getInitials(watcher.label)}
                     </AvatarFallback>
                   </Avatar>
                   <span className="truncate">
-                    {truncateName(watcher.watchUserName)}
+                    {truncateName(watcher.label)}
                   </span>
                 </Badge>
               ))}

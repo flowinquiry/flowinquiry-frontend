@@ -44,8 +44,8 @@ import { usePagePermission } from "@/hooks/use-page-permission";
 import { useToast } from "@/hooks/use-toast";
 import {
   deleteUser,
+  findUsers,
   resendActivationEmail,
-  searchUsers,
 } from "@/lib/actions/users.action";
 import { obfuscate } from "@/lib/endecode";
 import { cn, safeFormatDistanceToNow } from "@/lib/utils";
@@ -91,7 +91,7 @@ export const UserList = () => {
         : [],
     };
 
-    searchUsers(
+    findUsers(
       query,
       {
         page: currentPage,

@@ -32,7 +32,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { searchUsers } from "@/lib/actions/users.action";
+import { findUsers } from "@/lib/actions/users.action";
 import { cn } from "@/lib/utils";
 import { useError } from "@/providers/error-provider";
 import { QueryDTO } from "@/types/query";
@@ -72,7 +72,7 @@ export const UserSelectField = ({
               ]
             : [],
         };
-        const data = await searchUsers(
+        const data = await findUsers(
           query,
           {
             page: 1,

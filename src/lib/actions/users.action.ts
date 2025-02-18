@@ -13,7 +13,7 @@ import { Permission } from "@/providers/permissions-provider";
 import { Pagination, QueryDTO } from "@/types/query";
 import { UserDTO, UserHierarchyDTO } from "@/types/users";
 
-export async function searchUsers(
+export async function findUsers(
   query: QueryDTO,
   pagination: Pagination,
   setError?: (error: HttpError | string | null) => void,
