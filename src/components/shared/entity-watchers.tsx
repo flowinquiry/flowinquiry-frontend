@@ -4,25 +4,21 @@ import React, { useEffect, useRef, useState } from "react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import MultipleSelector from "@/components/ui/multi-select-dynamic";
+import MultipleSelector, { Option } from "@/components/ui/multi-select-dynamic";
 import {
   Tooltip,
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { getEntityWatchers } from "@/lib/actions/entity-watchers.action";
+import {
+  addWatchers,
+  deleteWatchers,
+  getEntityWatchers,
+} from "@/lib/actions/entity-watchers.action";
 import { findUsers } from "@/lib/actions/users.action";
 import { useError } from "@/providers/error-provider";
 import { EntityType } from "@/types/commons";
 import { QueryDTO } from "@/types/query";
-
-export interface Option {
-  value: string;
-  label: string;
-  disable?: boolean;
-  fixed?: boolean;
-  [key: string]: string | boolean | undefined;
-}
 
 interface EntityWatchersProps {
   entityType: EntityType;
@@ -30,14 +26,76 @@ interface EntityWatchersProps {
 }
 
 const EntityWatchers = ({ entityType, entityId }: EntityWatchersProps) => {
-  const [initialWatchers, setInitialWatchers] = useState<Option[]>([]);
-  const [selectedWatchers, setSelectedWatchers] = useState<Option[]>([]);
+  const [initialWatchers, setInitialWatchers] = useState<Option[]>([]); // Stores the original list of watchers fetched from the backend when the component loads.
+  const [selectedWatchers, setSelectedWatchers] = useState<Option[]>([]); // Stores the current selection of watchers (including user changes)
+  const [watcherImages, setWatcherImages] = useState<Map<string, string>>(
+    new Map(),
+  ); // Store image URLs separately
   const { setError } = useError();
   const [loading, setLoading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Fetch watchers on component mount
+  useEffect(() => {
+    const fetchWatchers = async () => {
+      try {
+        setLoading(true);
+        const data = await getEntityWatchers(entityType, entityId, setError);
+
+        const imageMap = new Map<string, string>();
+        const formattedWatchers = data.map((watcher) => {
+          imageMap.set(
+            watcher.watchUserId.toString(),
+            watcher.watcherImageUrl || "",
+          ); // Store image URLs
+          return {
+            value: watcher.watchUserId.toString(),
+            label: watcher.watchUserName,
+          }; // Ensure Option type
+        });
+
+        setWatcherImages(imageMap);
+        setInitialWatchers(formattedWatchers);
+        setSelectedWatchers(formattedWatchers);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchWatchers();
+  }, [entityType, entityId, setError]);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsEditing(false);
+      }
+    };
+
+    if (isEditing) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isEditing]);
+
+  // Trigger `handleUpdateWatchers` when exiting edit mode
+  useEffect(() => {
+    if (!isEditing) {
+      handleUpdateWatchers();
+    }
+  }, [isEditing]);
+
+  // Fetch users when searching
   const searchUsers = async (userTerm: string) => {
     const query: QueryDTO = {
       groups: [
@@ -59,47 +117,6 @@ const EntityWatchers = ({ entityType, entityId }: EntityWatchersProps) => {
     }));
   };
 
-  useEffect(() => {
-    const fetchWatchers = async () => {
-      try {
-        setLoading(true);
-        const data = await getEntityWatchers(entityType, entityId, setError);
-        const formattedWatchers = data.map((watcher) => ({
-          value: watcher.id.toString(),
-          label: watcher.watchUserName,
-        }));
-        setInitialWatchers(formattedWatchers);
-        setSelectedWatchers(formattedWatchers);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchWatchers();
-  }, [entityType, entityId, setError]);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (
-        containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
-      ) {
-        handleUpdateWatchers();
-        setIsEditing(false);
-      }
-    };
-
-    if (isEditing) {
-      document.addEventListener("mousedown", handleClickOutside);
-    } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isEditing]);
-
   const handleWatcherEdit = () => {
     setIsEditing(true);
   };
@@ -110,54 +127,43 @@ const EntityWatchers = ({ entityType, entityId }: EntityWatchersProps) => {
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     if (event.key === "Enter") {
-      handleUpdateWatchers();
       setIsEditing(false);
     }
   };
 
   const handleUpdateWatchers = async () => {
-    const initialIds = new Set(initialWatchers.map((w) => w.value));
-    const selectedIds = new Set(selectedWatchers.map((w) => w.value));
+    const initialIds = new Set(initialWatchers.map((w) => Number(w.value)));
+    const selectedIds = new Set(selectedWatchers.map((w) => Number(w.value)));
 
-    const addedWatchers = selectedWatchers.filter(
-      (w) => !initialIds.has(w.value),
+    const addedWatcherIds = [...selectedIds].filter(
+      (id) => !initialIds.has(id),
     );
-    const removedWatchers = initialWatchers.filter(
-      (w) => !selectedIds.has(w.value),
+    const removedWatcherIds = [...initialIds].filter(
+      (id) => !selectedIds.has(id),
     );
 
-    if (addedWatchers.length > 0) {
-      await Promise.all(
-        addedWatchers.map((w) => addWatcher(entityId, w.value, setError)),
-      );
+    if (addedWatcherIds.length === 0 && removedWatcherIds.length === 0) {
+      return; // No changes, skip API call
     }
 
-    if (removedWatchers.length > 0) {
-      await Promise.all(
-        removedWatchers.map((w) => removeWatcher(entityId, w.value, setError)),
-      );
+    if (addedWatcherIds.length > 0) {
+      await addWatchers(entityType, entityId, addedWatcherIds, setError);
     }
 
-    // Update initialWatchers to reflect the current state
-    setInitialWatchers([...selectedWatchers]);
-  };
+    if (removedWatcherIds.length > 0) {
+      await deleteWatchers(entityType, entityId, removedWatcherIds, setError);
+    }
 
-  const getInitials = (fullName: string) => {
-    const words = fullName.trim().split(" ");
-    return words.length > 1
-      ? words[0][0].toUpperCase() + words[1][0].toUpperCase()
-      : words[0][0].toUpperCase();
-  };
-
-  const truncateName = (name: string, maxLength = 12) => {
-    return name.length > maxLength ? `${name.slice(0, maxLength)}…` : name;
+    setInitialWatchers([...selectedWatchers]); // Update state after sync
   };
 
   return (
     <div
       ref={containerRef}
       className={`space-y-2 p-2 w-full rounded-md transition-all duration-200 ${
-        isHovered ? "border border-dotted border-gray-400" : ""
+        isHovered
+          ? "border border-dotted border-gray-400"
+          : "border-transparent"
       }`}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -188,21 +194,14 @@ const EntityWatchers = ({ entityType, entityId }: EntityWatchersProps) => {
                 >
                   <Avatar className="w-6 h-6">
                     <AvatarImage
-                      src={
-                        String(
-                          initialWatchers.find((w) => w.value === watcher.value)
-                            ?.watcherImageUrl,
-                        ) || ""
-                      }
+                      src={watcherImages.get(watcher.value) || ""} // Use stored image map
                       alt={watcher.label}
                     />
                     <AvatarFallback>
-                      {getInitials(watcher.label)}
+                      {watcher.label.slice(0, 2).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="truncate">
-                    {truncateName(watcher.label)}
-                  </span>
+                  <span className="truncate">{watcher.label}</span>
                 </Badge>
               ))}
             </div>
