@@ -98,7 +98,7 @@ const TeamUnresolvedTicketsPriorityDistributionChart = () => {
       {/* Collapsible Content */}
       {!collapsed && (
         <CardContent>
-          <ResponsiveContainer width="100%">
+          <ResponsiveContainer width="100%" height={400}>
             {loading ? (
               <div className="flex justify-center items-center">
                 <Spinner />

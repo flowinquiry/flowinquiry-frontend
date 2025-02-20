@@ -474,15 +474,14 @@ const TeamRequestDetailView = ({
                     />
                   </div>
                 )}
-                {(teamRequest.numberWatchers ?? 0) > 0 && (
-                  <div className="col-span-1 sm:col-span-2 text-sm font-medium flex items-start gap-4">
-                    <span className="pt-1">Watchers</span>
-                    <EntityWatchers
-                      entityType="Team_Request"
-                      entityId={teamRequest.id!}
-                    />
-                  </div>
-                )}
+
+                <div className="col-span-1 sm:col-span-2 text-sm font-medium flex items-start gap-4">
+                  <span className="pt-1">Watchers</span>
+                  <EntityWatchers
+                    entityType="Team_Request"
+                    entityId={teamRequest.id!}
+                  />
+                </div>
               </div>
               <Tabs
                 defaultValue="comments"

@@ -186,24 +186,34 @@ const EntityWatchers = ({ entityType, entityId }: EntityWatchersProps) => {
       ) : (
         <Tooltip>
           <TooltipTrigger asChild>
-            <div className="flex flex-wrap gap-2 items-center cursor-pointer">
-              {selectedWatchers.map((watcher) => (
-                <Badge
-                  key={watcher.value}
-                  className="flex items-center gap-2 px-2 py-1 max-w-[150px] truncate"
-                >
-                  <Avatar className="w-6 h-6">
-                    <AvatarImage
-                      src={watcherImages.get(watcher.value) || ""} // Use stored image map
-                      alt={watcher.label}
-                    />
-                    <AvatarFallback>
-                      {watcher.label.slice(0, 2).toUpperCase()}
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="truncate">{watcher.label}</span>
-                </Badge>
-              ))}
+            <div
+              className={`flex flex-wrap gap-2 items-center cursor-pointer ${
+                selectedWatchers.length === 0 ? "text-gray-500 italic" : ""
+              }`}
+            >
+              {selectedWatchers.length > 0 ? (
+                selectedWatchers.map((watcher) => (
+                  <Badge
+                    key={watcher.value}
+                    className="flex items-center gap-2 px-2 py-1 max-w-[150px] truncate"
+                  >
+                    <Avatar className="w-6 h-6">
+                      <AvatarImage
+                        src={watcherImages.get(watcher.value) || ""}
+                        alt={watcher.label}
+                      />
+                      <AvatarFallback>
+                        {watcher.label.slice(0, 2).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <span className="truncate">{watcher.label}</span>
+                  </Badge>
+                ))
+              ) : (
+                <span className="text-gray-500 italic">
+                  Click to add watcher
+                </span>
+              )}
             </div>
           </TooltipTrigger>
           <TooltipContent>Click to edit watchers</TooltipContent>

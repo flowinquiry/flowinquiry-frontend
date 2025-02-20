@@ -2,16 +2,17 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import useSWR from "swr";
 
 import DynamicQueryBuilder from "@/components/my/ticket-query-component";
 import PaginationExt from "@/components/shared/pagination-ext";
 import TeamRequestsStatusView from "@/components/teams/team-requests-status";
+import { Skeleton } from "@/components/ui/skeleton";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { searchTeamRequests } from "@/lib/actions/teams-request.action";
 import { useError } from "@/providers/error-provider";
 import { Filter, Operator, Pagination, QueryDTO } from "@/types/query";
-import { TeamRequestDTO } from "@/types/team-requests";
 
 const validTicketTypes = ["reported", "assigned"] as const;
 type TicketType = (typeof validTicketTypes)[number];
@@ -29,7 +30,7 @@ const MyTeamRequestsView = () => {
   );
 
   // Watch for changes in search params and update state
-  useEffect(() => {
+  React.useEffect(() => {
     if (validTicketTypes.includes(ticketTypeParam)) {
       setTicketType(ticketTypeParam);
     } else {
@@ -39,10 +40,6 @@ const MyTeamRequestsView = () => {
 
   // State for search query and pagination
   const [query, setQuery] = useState<QueryDTO | null>(null);
-  const [requests, setRequests] = useState<TeamRequestDTO[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalElements, setTotalElements] = useState(0);
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
     size: 10,
@@ -55,47 +52,32 @@ const MyTeamRequestsView = () => {
     setPagination((prev) => ({ ...prev, page: 1 })); // Reset to page 1 on new search
   };
 
-  // Fetch tickets based on query and pagination
-  const fetchTickets = async () => {
-    if (!session?.user?.id) return;
-
-    setLoading(true);
-    try {
-      // Inject appropriate user filter based on ticket type selection
-      const userFilter: Filter = {
-        field: ticketType === "reported" ? "requestUser.id" : "assignUser.id",
-        operator: "eq" as Operator, // Ensure correct type
-        value: session.user.id,
-      };
-
-      const combinedQuery: QueryDTO = {
-        groups: [
-          {
-            logicalOperator: "AND",
-            filters: [userFilter], // Inject user filter dynamically
-            groups: query?.groups || [],
-          },
-        ],
-      };
-
-      const pageResult = await searchTeamRequests(
-        combinedQuery,
-        pagination,
-        setError,
-      );
-
-      setRequests(pageResult.content);
-      setTotalElements(pageResult.totalElements);
-      setTotalPages(pageResult.totalPages);
-    } finally {
-      setLoading(false);
-    }
+  // Construct query for API call
+  const userFilter: Filter = {
+    field: ticketType === "reported" ? "requestUser.id" : "assignUser.id",
+    operator: "eq" as Operator,
+    value: session?.user?.id ?? "",
   };
 
-  // Fetch tickets when query, pagination, or sorting changes
-  useEffect(() => {
-    fetchTickets();
-  }, [query, pagination, ticketType]); // Update when ticketType changes
+  // Ensure `combinedQuery` always includes `userFilter`, even if `query` is null
+  const combinedQuery: QueryDTO = {
+    groups: [
+      {
+        logicalOperator: "AND",
+        filters: [userFilter], // Always include user filter
+        groups: query?.groups || [], // Merge with other filters if available
+      },
+    ],
+  };
+
+  // Fetch team requests using SWR
+  const { data, isLoading } = useSWR(
+    session?.user?.id && combinedQuery
+      ? [`/api/team-requests`, combinedQuery, pagination]
+      : null,
+    async () => searchTeamRequests(combinedQuery!, pagination, setError),
+    { keepPreviousData: true },
+  );
 
   // Handle ticket type change and update URL param
   const handleTicketTypeChange = (newType: TicketType) => {
@@ -134,14 +116,25 @@ const MyTeamRequestsView = () => {
 
         {/* Tickets View & Pagination (Expands on Right) */}
         <div className="flex-1 flex flex-col space-y-4">
-          <TeamRequestsStatusView requests={requests} />
-          <PaginationExt
-            currentPage={pagination.page}
-            totalPages={totalPages}
-            onPageChange={(page) =>
-              setPagination((prev) => ({ ...prev, page }))
-            }
-          />
+          {isLoading ? (
+            // 🔥 Skeleton UI while fetching data
+            <>
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+              <Skeleton className="h-8 w-full" />
+            </>
+          ) : (
+            <>
+              <TeamRequestsStatusView requests={data?.content || []} />
+              <PaginationExt
+                currentPage={pagination.page}
+                totalPages={data?.totalPages || 0}
+                onPageChange={(page) =>
+                  setPagination((prev) => ({ ...prev, page }))
+                }
+              />
+            </>
+          )}
         </div>
       </div>
     </>
