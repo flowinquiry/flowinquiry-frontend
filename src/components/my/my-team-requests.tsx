@@ -59,7 +59,6 @@ const MyTeamRequestsView = () => {
     value: session?.user?.id ?? "",
   };
 
-  // Ensure `combinedQuery` always includes `userFilter`, even if `query` is null
   const combinedQuery: QueryDTO = {
     groups: [
       {
@@ -72,12 +71,14 @@ const MyTeamRequestsView = () => {
 
   // Fetch team requests using SWR
   const { data, isLoading } = useSWR(
-    session?.user?.id && combinedQuery
+    session?.user?.id
       ? [`/api/team-requests`, combinedQuery, pagination]
       : null,
-    async () => searchTeamRequests(combinedQuery!, pagination, setError),
+    async () => searchTeamRequests(combinedQuery, pagination, setError),
     { keepPreviousData: true },
   );
+
+  const totalPages = data?.totalPages ?? 1; // Default to 1 to prevent invalid pagination
 
   // Handle ticket type change and update URL param
   const handleTicketTypeChange = (newType: TicketType) => {
@@ -128,7 +129,7 @@ const MyTeamRequestsView = () => {
               <TeamRequestsStatusView requests={data?.content || []} />
               <PaginationExt
                 currentPage={pagination.page}
-                totalPages={data?.totalPages || 0}
+                totalPages={totalPages}
                 onPageChange={(page) =>
                   setPagination((prev) => ({ ...prev, page }))
                 }

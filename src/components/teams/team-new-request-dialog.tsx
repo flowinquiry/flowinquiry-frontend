@@ -46,7 +46,7 @@ type NewRequestToTeamDialogProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   teamEntity: TeamDTO;
-  workflow: WorkflowDTO | null; // Updated to allow null
+  workflow: WorkflowDTO | null;
   onSaveSuccess: () => void;
 };
 
@@ -66,20 +66,37 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
     defaultValues: {
       teamId: teamEntity.id!,
       priority: "Medium",
-      workflowId: workflow?.id!,
-      requestUserId: Number(session?.user?.id!),
+      workflowId: workflow?.id ?? null,
+      requestUserId: Number(session?.user?.id ?? 0),
+      requestTitle: "",
+      requestDescription: "",
+      assignUserId: undefined,
+      estimatedCompletionDate: null,
+      actualCompletionDate: null,
     },
   });
 
+  /** ✅ Reset form values when the dialog opens with a new workflow */
   useEffect(() => {
-    if (workflow) {
-      form.setValue("workflowId", workflow.id!);
+    if (open) {
+      form.reset({
+        teamId: teamEntity.id!,
+        priority: "Medium",
+        workflowId: workflow?.id ?? null,
+        requestUserId: Number(session?.user?.id ?? 0),
+        requestTitle: "",
+        requestDescription: "",
+        assignUserId: undefined,
+        estimatedCompletionDate: null,
+        actualCompletionDate: null,
+      });
+      setFiles([]); // Reset file state
     }
-  }, [workflow, form]);
+  }, [open, workflow, form, teamEntity.id, session]);
 
   const onSubmit = async (data: TeamRequestDTO) => {
     const savedTeamRequest = await createTeamRequest(data, setError);
-    if (savedTeamRequest?.id && files?.length > 0) {
+    if (savedTeamRequest?.id && files.length > 0) {
       uploadAttachmentsForEntity("Team_Request", savedTeamRequest.id, files);
     }
     setOpen(false);
