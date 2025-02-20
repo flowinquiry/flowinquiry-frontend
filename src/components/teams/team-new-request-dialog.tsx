@@ -66,7 +66,7 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
     defaultValues: {
       teamId: teamEntity.id!,
       priority: "Medium",
-      workflowId: workflow?.id ?? null,
+      workflowId: workflow?.id !== undefined ? workflow.id : undefined,
       requestUserId: Number(session?.user?.id ?? 0),
       requestTitle: "",
       requestDescription: "",
@@ -82,7 +82,7 @@ const NewRequestToTeamDialog: React.FC<NewRequestToTeamDialogProps> = ({
       form.reset({
         teamId: teamEntity.id!,
         priority: "Medium",
-        workflowId: workflow?.id ?? null,
+        workflowId: workflow?.id !== undefined ? workflow.id : undefined,
         requestUserId: Number(session?.user?.id ?? 0),
         requestTitle: "",
         requestDescription: "",
