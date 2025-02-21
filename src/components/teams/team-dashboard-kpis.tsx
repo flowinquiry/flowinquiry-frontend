@@ -1,7 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import React, { useEffect, useState } from "react";
+import React from "react";
+import useSWR from "swr";
 
 import {
   Card,
@@ -10,6 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Tooltip,
   TooltipContent,
@@ -20,34 +22,37 @@ import {
   getTicketStatisticsByTeamId,
 } from "@/lib/actions/teams-request.action";
 import { useError } from "@/providers/error-provider";
+import { useTimeRange } from "@/providers/time-range-provider";
 
 const TeamDashboardTopSection = ({ teamId }: { teamId: number }) => {
   const router = useRouter();
-  const [totalTickets, setTotalTickets] = useState(0);
-  const [pendingTickets, setPendingTickets] = useState(0);
-  const [completedTickets, setCompletedTickets] = useState(0);
-  const [overDueTickets, setOverdueTickets] = useState(0);
   const { setError } = useError();
+  const { timeRange, customDates } = useTimeRange();
 
-  useEffect(() => {
-    async function fetchStatisticData() {
-      getTicketStatisticsByTeamId(teamId, setError).then((data) => {
-        setTotalTickets(data.totalTickets);
-        setPendingTickets(data.pendingTickets);
-        setCompletedTickets(data.completedTickets);
-      });
-      getCountOverdueTicketsByTeamId(teamId, setError).then((data) =>
-        setOverdueTickets(data),
-      );
-    }
-    fetchStatisticData();
-  }, [teamId]);
+  // Convert time range into API parameters
+  const dateParams =
+    timeRange === "custom"
+      ? { from: customDates?.from, to: customDates?.to }
+      : { range: timeRange };
 
+  // Fetch ticket statistics using time range
+  const { data: ticketStats } = useSWR(
+    ["fetchTicketStatisticsByTeamId", teamId, dateParams],
+    async () => getTicketStatisticsByTeamId(teamId, dateParams, setError),
+  );
+
+  // Fetch overdue ticket count using time range
+  const { data: overdueTickets } = useSWR(
+    ["fetchOverdueTicketsCountByTeamId", teamId, dateParams],
+    async () => getCountOverdueTicketsByTeamId(teamId, dateParams, setError),
+  );
+
+  // Metrics configuration
   const metrics = [
     {
       title: "Total Tickets",
       description: "All tickets received",
-      value: totalTickets ?? 0,
+      value: ticketStats?.totalTickets,
       color: "text-gray-700 dark:text-gray-300",
       link: "#",
       tooltip: "View all team tickets.",
@@ -55,7 +60,7 @@ const TeamDashboardTopSection = ({ teamId }: { teamId: number }) => {
     {
       title: "Pending Tickets",
       description: "Tickets yet to be addressed",
-      value: pendingTickets ?? 0,
+      value: ticketStats?.pendingTickets,
       color: "text-yellow-500",
       link: "#",
       tooltip: "View tickets that are still pending.",
@@ -63,7 +68,7 @@ const TeamDashboardTopSection = ({ teamId }: { teamId: number }) => {
     {
       title: "Completed Tickets",
       description: "Successfully resolved tickets",
-      value: completedTickets ?? 0,
+      value: ticketStats?.completedTickets,
       color: "text-green-500",
       link: "#",
       tooltip: "View tickets that have been resolved.",
@@ -71,7 +76,7 @@ const TeamDashboardTopSection = ({ teamId }: { teamId: number }) => {
     {
       title: "Overdue Tickets",
       description: "Tickets past their deadline",
-      value: overDueTickets ?? 0,
+      value: overdueTickets,
       color: "text-red-500",
       link: "#",
       tooltip: "View overdue tickets that need attention.",
@@ -92,7 +97,11 @@ const TeamDashboardTopSection = ({ teamId }: { teamId: number }) => {
                 <CardDescription>{metric.description}</CardDescription>
               </CardHeader>
               <CardContent className={`text-3xl font-bold ${metric.color}`}>
-                {metric.value}
+                {metric.value !== undefined ? (
+                  metric.value
+                ) : (
+                  <Skeleton className="h-8 w-16" />
+                )}
               </CardContent>
             </Card>
           </TooltipTrigger>

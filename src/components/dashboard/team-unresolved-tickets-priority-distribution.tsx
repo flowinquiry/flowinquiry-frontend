@@ -18,6 +18,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { getTeamTicketPriorityDistributionForUser } from "@/lib/actions/teams-request.action";
 import { useError } from "@/providers/error-provider";
+import { useTimeRange } from "@/providers/time-range-provider";
 import { TeamRequestPriority } from "@/types/team-requests";
 
 const PRIORITY_COLORS: Record<TeamRequestPriority, string> = {
@@ -32,6 +33,14 @@ const TeamUnresolvedTicketsPriorityDistributionChart = () => {
   const { data: session } = useSession();
   const userId = Number(session?.user?.id!);
 
+  const { timeRange, customDates } = useTimeRange();
+
+  // Convert time range into API parameters
+  const dateParams =
+    timeRange === "custom"
+      ? { from: customDates?.from, to: customDates?.to }
+      : { range: timeRange };
+
   const [data, setData] = useState<
     Record<string, Record<TeamRequestPriority, number>>
   >({});
@@ -44,6 +53,7 @@ const TeamUnresolvedTicketsPriorityDistributionChart = () => {
       try {
         const result = await getTeamTicketPriorityDistributionForUser(
           userId,
+          dateParams,
           setError,
         );
         const chartData = result.reduce(

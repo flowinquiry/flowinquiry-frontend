@@ -6,6 +6,7 @@ import React, { useEffect, useState } from "react";
 
 import { Heading } from "@/components/heading";
 import { TeamAvatar } from "@/components/shared/avatar-display";
+import TimeRangeSelector from "@/components/shared/time-range-selector";
 import AddUserToTeamDialog from "@/components/teams/team-add-user-dialog";
 import TeamDashboardTopSection from "@/components/teams/team-dashboard-kpis";
 import RecentTeamActivities from "@/components/teams/team-dashboard-recent-activities";
@@ -59,36 +60,43 @@ const TeamDashboard = () => {
     <BreadcrumbProvider items={breadcrumbItems}>
       <TeamNavLayout teamId={team.id!}>
         <div className="grid grid-cols-1 gap-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Tooltip>
-                <TooltipTrigger>
-                  <TeamAvatar imageUrl={team.logoUrl} size="w-20 h-20" />
-                </TooltipTrigger>
-                <TooltipContent>
-                  <div className="text-left">
-                    <p className="font-bold">{team.name}</p>
-                    <p className="text-sm text-gray-500">
-                      {team.slogan ?? "Stronger Together"}
-                    </p>
-                  </div>
-                </TooltipContent>
-              </Tooltip>
-              <Heading
-                title="Dashboard"
-                description="Overview of your team's performance and activities. Monitor team requests, progress, and key metrics at a glance"
-              />
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Tooltip>
+                  <TooltipTrigger>
+                    <TeamAvatar imageUrl={team.logoUrl} size="w-20 h-20" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <div className="text-left">
+                      <p className="font-bold">{team.name}</p>
+                      <p className="text-sm text-gray-500">
+                        {team.slogan ?? "Stronger Together"}
+                      </p>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+                <Heading
+                  title="Dashboard"
+                  description="Overview of your team's performance and activities. Monitor team requests, progress, and key metrics at a glance"
+                />
+              </div>
+              {PermissionUtils.canWrite(permissionLevel) && (
+                <Link
+                  href={`/portal/teams/${obfuscate(team.id)}/edit`}
+                  className={cn(buttonVariants({ variant: "default" }))}
+                >
+                  <Plus className="mr-2 h-4 w-4" /> Edit Team
+                </Link>
+              )}
             </div>
-            {PermissionUtils.canWrite(permissionLevel) && (
-              <Link
-                href={`/portal/teams/${obfuscate(team.id)}/edit`}
-                className={cn(buttonVariants({ variant: "default" }))}
-              >
-                <Plus className="mr-2 h-4 w-4" /> Edit Team
-              </Link>
-            )}
+            <div className="flex items-start">
+              <TimeRangeSelector />
+            </div>
           </div>
+
           <Separator />
+
           <div className="space-y-8">
             <TeamDashboardTopSection teamId={team.id!} />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">

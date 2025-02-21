@@ -1,4 +1,5 @@
 import { doAdvanceSearch, get, post, put } from "@/lib/actions/commons.action";
+import { formatDateParams } from "@/lib/datetime";
 import { HttpError } from "@/lib/errors";
 import { PageableResult } from "@/types/commons";
 import { Pagination, QueryDTO } from "@/types/query";
@@ -121,20 +122,22 @@ export const getOverdueTicketsByTeam = async (
 
 export const getTicketStatisticsByTeamId = async (
   teamId: number,
+  dateParams: { range?: string; from?: Date; to?: Date },
   setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<TicketStatisticsDTO>(
-    `/api/team-requests/teams/${teamId}/statistics`,
+    `/api/team-requests/teams/${teamId}/statistics?${new URLSearchParams(dateParams as any).toString()}`,
     setError,
   );
 };
 
 export const getCountOverdueTicketsByTeamId = async (
   teamId: number,
+  dateParams: { range?: string; from?: Date; to?: Date },
   setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<number>(
-    `/api/team-requests/teams/${teamId}/overdue-tickets/count`,
+    `/api/team-requests/teams/${teamId}/overdue-tickets/count?${formatDateParams(dateParams)}`,
     setError,
   );
 };
@@ -165,10 +168,11 @@ export const getOverdueTicketsByUser = async (
 
 export const getTeamTicketPriorityDistributionForUser = async (
   userId: number,
+  dateParams: { range?: string; from?: Date; to?: Date },
   setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<Array<TeamTicketPriorityDistributionDTO>>(
-    `/api/team-requests/users/${userId}/team-tickets-priority-distribution`,
+    `/api/team-requests/users/${userId}/team-tickets-priority-distribution?${new URLSearchParams(dateParams as any).toString()}`,
     setError,
   );
 };
