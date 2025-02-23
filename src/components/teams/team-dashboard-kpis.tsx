@@ -51,7 +51,7 @@ const TeamDashboardTopSection = ({ teamId }: { teamId: number }) => {
     {
       title: "Total Tickets",
       description: "All tickets received",
-      value: ticketStats?.totalTickets,
+      value: ticketStats?.totalTickets ?? 0,
       color: "text-gray-700 dark:text-gray-300",
       link: "#",
       tooltip: "View all team tickets.",
@@ -59,7 +59,7 @@ const TeamDashboardTopSection = ({ teamId }: { teamId: number }) => {
     {
       title: "Pending Tickets",
       description: "Tickets yet to be addressed",
-      value: ticketStats?.pendingTickets,
+      value: ticketStats?.pendingTickets ?? 0,
       color: "text-yellow-500",
       link: "#",
       tooltip: "View tickets that are still pending.",
@@ -67,7 +67,7 @@ const TeamDashboardTopSection = ({ teamId }: { teamId: number }) => {
     {
       title: "Completed Tickets",
       description: "Successfully resolved tickets",
-      value: ticketStats?.completedTickets,
+      value: ticketStats?.completedTickets ?? 0,
       color: "text-green-500",
       link: "#",
       tooltip: "View tickets that have been resolved.",
@@ -75,7 +75,7 @@ const TeamDashboardTopSection = ({ teamId }: { teamId: number }) => {
     {
       title: "Overdue Tickets",
       description: "Tickets past their deadline",
-      value: overdueTickets,
+      value: overdueTickets ?? 0,
       color: "text-red-500",
       link: "#",
       tooltip: "View overdue tickets that need attention.",

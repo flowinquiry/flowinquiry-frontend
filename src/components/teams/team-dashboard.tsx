@@ -2,7 +2,8 @@
 
 import { Plus } from "lucide-react";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import useSWR from "swr";
 
 import { Heading } from "@/components/heading";
 import { TeamAvatar } from "@/components/shared/avatar-display";
@@ -35,20 +36,18 @@ const TeamDashboard = () => {
   const team = useTeam();
   const permissionLevel = usePagePermission();
   const [isDialogOpen, setDialogOpen] = useState(false);
-  const [checkingManager, setCheckingManager] = useState(true);
 
-  useEffect(() => {
-    const fetchManagerStatus = async () => {
-      setCheckingManager(true);
-      const response = await checkTeamHasAnyManager(team.id!);
-      if (!response.result) {
-        setDialogOpen(true);
-      }
-      setCheckingManager(false);
-    };
-
-    fetchManagerStatus();
-  }, [team.id]);
+  const { data: hasManager, isValidating } = useSWR(
+    team.id ? ["checkTeamManager", team.id] : null,
+    () => checkTeamHasAnyManager(team.id!),
+    {
+      onSuccess: (response) => {
+        if (!response.result) {
+          setDialogOpen(true);
+        }
+      },
+    },
+  );
 
   const breadcrumbItems = [
     { title: "Dashboard", link: "/portal" },
@@ -101,9 +100,8 @@ const TeamDashboard = () => {
             <TeamDashboardTopSection teamId={team.id!} />
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div className="flex flex-col">
-                <TicketCreationByDaySeriesChart teamId={team.id!} days={7} />
+                <TicketCreationByDaySeriesChart teamId={team.id!} />
               </div>
-
               <div className="flex flex-col">
                 <RecentTeamActivities teamId={team.id!} />
               </div>
@@ -128,8 +126,7 @@ const TeamDashboard = () => {
         </div>
       </TeamNavLayout>
 
-      {/* Show Dialog If No Manager Exists */}
-      {!checkingManager && isDialogOpen && (
+      {!isValidating && !hasManager?.result && (
         <AddUserToTeamDialog
           open={isDialogOpen}
           setOpen={setDialogOpen}

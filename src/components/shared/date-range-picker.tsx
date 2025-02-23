@@ -14,12 +14,12 @@ import {
 
 interface DatePickerWithRangeProps {
   value?: DateRange;
-  onChange: (dates: DateRange) => void;
+  onChangeAction: (dates: DateRange) => void;
 }
 
 export const DatePickerWithRange = ({
   value,
-  onChange,
+  onChangeAction,
 }: DatePickerWithRangeProps) => {
   const [dates, setDates] = useState<DateRange>(
     value || { from: new Date(), to: new Date() },
@@ -40,7 +40,7 @@ export const DatePickerWithRange = ({
           onSelect={(range) => {
             if (range?.from && range?.to) {
               setDates(range);
-              onChange(range);
+              onChangeAction?.(range); // Call the renamed prop
             }
           }}
         />

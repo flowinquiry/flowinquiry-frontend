@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronDown, ChevronRight } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useMemo, useState } from "react";
 import {
   CartesianGrid,
   Legend,
@@ -12,46 +12,54 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import useSWR from "swr";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { getTicketCreationDaySeries } from "@/lib/actions/teams-request.action";
 import { useError } from "@/providers/error-provider";
-import { TicketActionCountByDateDTO } from "@/types/teams";
+import { useTimeRange } from "@/providers/time-range-provider";
 
-const TicketCreationByDaySeriesChart = ({
-  teamId,
-  days = 7,
-}: {
-  teamId: number;
-  days: number;
-}) => {
-  const [data, setData] = useState<
-    (TicketActionCountByDateDTO & { displayDay: string })[]
-  >([]);
-  const [loading, setLoading] = useState(true);
-  const [collapsed, setCollapsed] = useState(false);
+const TicketCreationByDaySeriesChart = ({ teamId }: { teamId: number }) => {
   const { setError } = useError();
+  const { timeRange, customDates } = useTimeRange();
+  const [collapsed, setCollapsed] = useState(false);
 
-  useEffect(() => {
-    async function fetchData() {
-      setLoading(true);
-      getTicketCreationDaySeries(teamId, days, setError)
-        .then((data) => {
-          const formattedData = data.map((item, index) => ({
-            ...item,
-            displayDay: `Day ${index + 1}`,
-          }));
-          setData(formattedData);
-        })
-        .finally(() => setLoading(false));
+  // Calculate `days` dynamically based on timeRange selection
+  const days = useMemo(() => {
+    if (timeRange === "custom" && customDates?.from && customDates?.to) {
+      const diff = Math.ceil(
+        (customDates.to.getTime() - customDates.from.getTime()) /
+          (1000 * 60 * 60 * 24),
+      );
+      return diff > 0 ? diff : 1; // Ensure at least 1 day
     }
-    fetchData();
-  }, [teamId, days]);
+
+    const predefinedRanges: Record<string, number> = {
+      "7d": 7,
+      "30d": 30,
+      "90d": 90,
+    };
+
+    return predefinedRanges[timeRange] ?? 7; // Default to 7 days if invalid
+  }, [timeRange, customDates]);
+
+  const { data, isValidating } = useSWR(
+    teamId ? ["getTicketCreationDaySeries", teamId, days] : null,
+    () => getTicketCreationDaySeries(teamId, days, setError),
+  );
+
+  const formattedData = useMemo(
+    () =>
+      data?.map((item, index) => ({
+        ...item,
+        displayDay: `Day ${index + 1}`,
+      })) || [],
+    [data],
+  );
 
   return (
     <Card className="w-full">
-      {/* Header with Chevron Icon and Title */}
       <CardHeader>
         <div className="flex items-center gap-2">
           <button
@@ -70,36 +78,36 @@ const TicketCreationByDaySeriesChart = ({
         </div>
       </CardHeader>
 
-      {/* Collapsible Content */}
       {!collapsed && (
         <CardContent className="h-[400px] flex items-center justify-center">
-          {loading ? (
+          {isValidating ? (
             <div className="flex flex-col items-center justify-center">
               <Spinner className="mb-4">
                 <span>Loading chart data...</span>
               </Spinner>
             </div>
+          ) : formattedData.length === 0 ? (
+            <p className="text-center">No ticket data available.</p>
           ) : (
             <ResponsiveContainer width="100%" height="100%">
               <LineChart
-                data={data}
+                data={formattedData}
                 margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
               >
                 <CartesianGrid strokeDasharray="3 3" />
-                <XAxis
-                  dataKey="displayDay" // Use "Day 1", "Day 2", etc., for better readability
-                  tick={{ fontSize: 12 }}
-                />
+                <XAxis dataKey="displayDay" tick={{ fontSize: 12 }} />
                 <YAxis />
                 <Tooltip
                   formatter={(value: number, name: string) => [
                     `${value}`,
-                    name === "Created Tickets"
-                      ? `Created Tickets`
-                      : `Closed Tickets`,
+                    name === "createdCount"
+                      ? "Created Tickets"
+                      : "Closed Tickets",
                   ]}
                   labelFormatter={(label: string) => {
-                    const date = data.find((d) => d.displayDay === label)?.date;
+                    const date = formattedData.find(
+                      (d) => d.displayDay === label,
+                    )?.date;
                     return <span>{date || "Unknown Date"}</span>;
                   }}
                 />

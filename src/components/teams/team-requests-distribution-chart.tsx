@@ -1,7 +1,6 @@
 "use client";
 
 import { ChevronDown, ChevronRight } from "lucide-react";
-import Link from "next/link";
 import React, { useState } from "react";
 import {
   Bar,
@@ -18,7 +17,6 @@ import useSWR from "swr";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { getTicketsAssignmentDistributionByTeam } from "@/lib/actions/teams-request.action";
-import { obfuscate } from "@/lib/endecode";
 import { useError } from "@/providers/error-provider";
 import { useTimeRange } from "@/providers/time-range-provider";
 import { TicketDistributionDTO } from "@/types/team-requests";
@@ -63,8 +61,6 @@ const TicketDistributionChart: React.FC<TicketDistributionChartProps> = ({
     y: number;
     payload: { value: string };
   }) => {
-    const user = chartData.find((item) => item.name === payload.value);
-
     return (
       <text
         x={x - 10}
@@ -72,19 +68,9 @@ const TicketDistributionChart: React.FC<TicketDistributionChartProps> = ({
         dy={4}
         textAnchor="end"
         fill="currentColor"
-        style={{ color: "inherit" }}
+        className="dark:fill-white fill-black"
       >
-        {user?.userId ? (
-          <Link
-            href={`/portal/users/${obfuscate(user.userId)}`}
-            key={user.userId}
-            style={{ textDecoration: "underline", color: "inherit" }}
-          >
-            {payload.value}
-          </Link>
-        ) : (
-          <tspan>{payload.value}</tspan>
-        )}
+        <tspan>{payload.value}</tspan>
       </text>
     );
   };

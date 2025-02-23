@@ -23,7 +23,7 @@ const TimeRangeSelector = () => {
       {timeRange === "custom" && (
         <DatePickerWithRange
           value={customDates}
-          onChange={(dates) => setTimeRange("custom", dates)}
+          onChangeAction={(dates) => setTimeRange("custom", dates)}
         />
       )}
     </div>

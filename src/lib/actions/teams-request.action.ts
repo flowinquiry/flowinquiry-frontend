@@ -90,7 +90,6 @@ export const getTicketsPriorityDistributionByTeam = async (
   dateParams: { range?: string; from?: Date; to?: Date },
   setError?: (error: HttpError | string | null) => void,
 ) => {
-  console.log("Date", formatDateParams(dateParams));
   return get<PriorityDistributionDTO[]>(
     `/api/team-requests/teams/${teamId}/priority-distribution?${formatDateParams(dateParams)}`,
     setError,
