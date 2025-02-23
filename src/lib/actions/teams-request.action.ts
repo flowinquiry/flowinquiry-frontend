@@ -76,20 +76,23 @@ export const findNextTeamRequest = async (
 
 export const getTicketsAssignmentDistributionByTeam = async (
   teamId: number,
+  dateParams: { range?: string; from?: Date; to?: Date },
   setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<TicketDistributionDTO[]>(
-    `/api/team-requests/teams/${teamId}/ticket-distribution`,
+    `/api/team-requests/teams/${teamId}/ticket-distribution?${formatDateParams(dateParams)}`,
     setError,
   );
 };
 
 export const getTicketsPriorityDistributionByTeam = async (
   teamId: number,
+  dateParams: { range?: string; from?: Date; to?: Date },
   setError?: (error: HttpError | string | null) => void,
 ) => {
+  console.log("Date", formatDateParams(dateParams));
   return get<PriorityDistributionDTO[]>(
-    `/api/team-requests/teams/${teamId}/priority-distribution`,
+    `/api/team-requests/teams/${teamId}/priority-distribution?${formatDateParams(dateParams)}`,
     setError,
   );
 };
@@ -126,7 +129,7 @@ export const getTicketStatisticsByTeamId = async (
   setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<TicketStatisticsDTO>(
-    `/api/team-requests/teams/${teamId}/statistics?${new URLSearchParams(dateParams as any).toString()}`,
+    `/api/team-requests/teams/${teamId}/statistics?${formatDateParams(dateParams)}`,
     setError,
   );
 };
@@ -168,11 +171,10 @@ export const getOverdueTicketsByUser = async (
 
 export const getTeamTicketPriorityDistributionForUser = async (
   userId: number,
-  dateParams: { range?: string; from?: Date; to?: Date },
   setError?: (error: HttpError | string | null) => void,
 ) => {
   return get<Array<TeamTicketPriorityDistributionDTO>>(
-    `/api/team-requests/users/${userId}/team-tickets-priority-distribution?${new URLSearchParams(dateParams as any).toString()}`,
+    `/api/team-requests/users/${userId}/team-tickets-priority-distribution`,
     setError,
   );
 };

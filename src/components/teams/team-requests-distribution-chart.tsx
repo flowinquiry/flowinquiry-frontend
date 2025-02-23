@@ -2,7 +2,7 @@
 
 import { ChevronDown, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import {
   Bar,
   BarChart,
@@ -13,12 +13,14 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import useSWR from "swr";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { getTicketsAssignmentDistributionByTeam } from "@/lib/actions/teams-request.action";
 import { obfuscate } from "@/lib/endecode";
 import { useError } from "@/providers/error-provider";
+import { useTimeRange } from "@/providers/time-range-provider";
 import { TicketDistributionDTO } from "@/types/team-requests";
 
 interface TicketDistributionChartProps {
@@ -30,23 +32,23 @@ const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff6f61", "#d0ed57"];
 const TicketDistributionChart: React.FC<TicketDistributionChartProps> = ({
   teamId,
 }) => {
-  const [data, setData] = useState<TicketDistributionDTO[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
   const [collapsed, setCollapsed] = useState(false);
   const { setError } = useError();
+  const { timeRange, customDates } = useTimeRange();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      getTicketsAssignmentDistributionByTeam(teamId, setError)
-        .then((data) => setData(data))
-        .finally(() => setLoading(false));
-    };
+  // Generate date parameters
+  const dateParams =
+    timeRange === "custom"
+      ? { from: customDates?.from, to: customDates?.to }
+      : { range: timeRange };
 
-    fetchData();
-  }, [teamId]);
+  // Use SWR for automatic re-fetching
+  const { data = [], isValidating } = useSWR(
+    ["fetchTicketsAssignmentDistributionByTeam", teamId, dateParams],
+    () => getTicketsAssignmentDistributionByTeam(teamId, dateParams, setError),
+  );
 
-  const chartData = data.map((item) => ({
+  const chartData = data.map((item: TicketDistributionDTO) => ({
     name: item.userName || "Unassigned",
     value: item.ticketCount,
     userId: item.userId,
@@ -76,10 +78,7 @@ const TicketDistributionChart: React.FC<TicketDistributionChartProps> = ({
           <Link
             href={`/portal/users/${obfuscate(user.userId)}`}
             key={user.userId}
-            style={{
-              textDecoration: "underline",
-              color: "inherit",
-            }}
+            style={{ textDecoration: "underline", color: "inherit" }}
           >
             {payload.value}
           </Link>
@@ -92,7 +91,6 @@ const TicketDistributionChart: React.FC<TicketDistributionChartProps> = ({
 
   return (
     <Card className="w-full max-w-[800px] mx-auto">
-      {/* Header with Chevron Icon and Title */}
       <CardHeader>
         <div className="flex items-center gap-2">
           <button
@@ -112,7 +110,7 @@ const TicketDistributionChart: React.FC<TicketDistributionChartProps> = ({
       {/* Collapsible Content */}
       {!collapsed && (
         <CardContent className="p-4">
-          {loading ? (
+          {isValidating ? (
             <div className="flex flex-col items-center justify-center h-64">
               <Spinner className="h-8 w-8 mb-4" />
               <span>Loading chart data...</span>

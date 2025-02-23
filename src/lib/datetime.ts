@@ -30,8 +30,8 @@ export const formatDateParams = (dateParams: {
   const params = new URLSearchParams();
 
   if (dateParams.range) params.append("range", dateParams.range);
-  if (dateParams.from) params.append("from", dateParams.from.toISOString());
-  if (dateParams.to) params.append("to", dateParams.to.toISOString());
+  if (dateParams.from) params.append("fromDate", dateParams.from.toISOString());
+  if (dateParams.to) params.append("toDate", dateParams.to.toISOString());
 
   return params.toString();
 };

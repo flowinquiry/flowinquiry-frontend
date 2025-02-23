@@ -29,7 +29,6 @@ const TeamDashboardTopSection = ({ teamId }: { teamId: number }) => {
   const { setError } = useError();
   const { timeRange, customDates } = useTimeRange();
 
-  // Convert time range into API parameters
   const dateParams =
     timeRange === "custom"
       ? { from: customDates?.from, to: customDates?.to }

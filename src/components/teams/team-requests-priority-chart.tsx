@@ -1,7 +1,8 @@
 "use client";
 
 import { ChevronDown, ChevronRight } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import useSWR from "swr";
 import {
   Cell,
   Legend,
@@ -15,27 +16,27 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { getTicketsPriorityDistributionByTeam } from "@/lib/actions/teams-request.action";
 import { useError } from "@/providers/error-provider";
-import { PriorityDistributionDTO } from "@/types/team-requests";
-import { TeamRequestPriority } from "@/types/team-requests";
+import { useTimeRange } from "@/providers/time-range-provider";
+import {
+  PriorityDistributionDTO,
+  TeamRequestPriority,
+} from "@/types/team-requests";
 
 const TicketPriorityPieChart = ({ teamId }: { teamId: number }) => {
-  const [priorityData, setPriorityData] = useState<PriorityDistributionDTO[]>(
-    [],
-  );
-  const [loading, setLoading] = useState(true);
   const [collapsed, setCollapsed] = useState(false);
   const { setError } = useError();
+  const { timeRange, customDates } = useTimeRange();
 
-  useEffect(() => {
-    const fetchPriorityData = async () => {
-      setLoading(true);
-      getTicketsPriorityDistributionByTeam(teamId, setError)
-        .then((data) => setPriorityData(data))
-        .finally(() => setLoading(false));
-    };
+  // Generate date parameters
+  const dateParams =
+    timeRange === "custom"
+      ? { from: customDates?.from, to: customDates?.to }
+      : { range: timeRange };
 
-    fetchPriorityData();
-  }, [teamId]);
+  const { data: priorityData = [], isValidating } = useSWR(
+    ["fetchTicketsPriorityDistributionByTeam", teamId, dateParams],
+    () => getTicketsPriorityDistributionByTeam(teamId, dateParams, setError),
+  );
 
   // Define colors for the pie chart
   const COLORS: Record<TeamRequestPriority, string> = {
@@ -68,11 +69,10 @@ const TicketPriorityPieChart = ({ teamId }: { teamId: number }) => {
       {/* Collapsible Content */}
       {!collapsed && (
         <CardContent className="p-4">
-          {loading ? (
+          {isValidating ? (
             <div className="flex flex-col items-center justify-center h-64">
-              <Spinner className="h-8 w-8 mb-4">
-                <span>Loading chart data...</span>
-              </Spinner>
+              <Spinner className="h-8 w-8 mb-4" />
+              <span>Loading chart data...</span>
             </div>
           ) : priorityData.length === 0 ? (
             <p className="text-center">No data available.</p>

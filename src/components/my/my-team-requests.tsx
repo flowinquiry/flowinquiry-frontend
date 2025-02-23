@@ -38,7 +38,6 @@ const MyTeamRequestsView = () => {
     }
   }, [ticketTypeParam]);
 
-  // State for search query and pagination
   const [query, setQuery] = useState<QueryDTO | null>(null);
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
@@ -49,7 +48,7 @@ const MyTeamRequestsView = () => {
   // Handles search updates
   const handleSearch = (newQuery: QueryDTO) => {
     setQuery(newQuery);
-    setPagination((prev) => ({ ...prev, page: 1 })); // Reset to page 1 on new search
+    setPagination((prev) => ({ ...prev, page: 1 }));
   };
 
   // Construct query for API call
@@ -80,7 +79,6 @@ const MyTeamRequestsView = () => {
 
   const totalPages = data?.totalPages ?? 1; // Default to 1 to prevent invalid pagination
 
-  // Handle ticket type change and update URL param
   const handleTicketTypeChange = (newType: TicketType) => {
     if (newType !== ticketType) {
       setTicketType(newType);
@@ -108,9 +106,7 @@ const MyTeamRequestsView = () => {
         </ToggleGroup>
       </div>
 
-      {/* Responsive Layout */}
       <div className="flex flex-col md:flex-row gap-4">
-        {/* Query Builder (Fixed Width, Prevent Shrinking) */}
         <div className="w-[500px] flex-none min-h-[250px] overflow-hidden">
           <DynamicQueryBuilder onSearch={handleSearch} />
         </div>
@@ -118,7 +114,6 @@ const MyTeamRequestsView = () => {
         {/* Tickets View & Pagination (Expands on Right) */}
         <div className="flex-1 flex flex-col space-y-4">
           {isLoading ? (
-            // 🔥 Skeleton UI while fetching data
             <>
               <Skeleton className="h-8 w-full" />
               <Skeleton className="h-8 w-full" />
