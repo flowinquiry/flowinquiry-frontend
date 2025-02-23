@@ -2,7 +2,6 @@
 
 import { ChevronDown, ChevronRight } from "lucide-react";
 import React, { useState } from "react";
-import useSWR from "swr";
 import {
   Cell,
   Legend,
@@ -11,16 +10,14 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
+import useSWR from "swr";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Spinner } from "@/components/ui/spinner";
 import { getTicketsPriorityDistributionByTeam } from "@/lib/actions/teams-request.action";
 import { useError } from "@/providers/error-provider";
 import { useTimeRange } from "@/providers/time-range-provider";
-import {
-  PriorityDistributionDTO,
-  TeamRequestPriority,
-} from "@/types/team-requests";
+import { TeamRequestPriority } from "@/types/team-requests";
 
 const TicketPriorityPieChart = ({ teamId }: { teamId: number }) => {
   const [collapsed, setCollapsed] = useState(false);
