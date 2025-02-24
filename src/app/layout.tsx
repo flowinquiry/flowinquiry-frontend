@@ -23,7 +23,9 @@ const RootLayout = async ({ children }: { children: React.ReactNode }) => {
     <html suppressHydrationWarning={true} lang="en">
       <head>
         <PublicEnvScript />
-        <title>FlowInquiry - Ticket Management</title>
+        <title>
+          FlowInquiry - The Ultimate Ticket Management Solution for Teams
+        </title>
         <link rel="icon" type="image/x-icon" href="/favicon.ico" />
         <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />

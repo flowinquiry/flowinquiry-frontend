@@ -7,6 +7,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import AttachmentView from "@/components/shared/attachment-view";
 import { UserAvatar } from "@/components/shared/avatar-display";
 import CommentsView from "@/components/shared/comments-view";
+import EntityWatchers from "@/components/shared/entity-watchers";
 import { NColumnsGrid } from "@/components/shared/n-columns-grid";
 import TeamRequestHealthLevel from "@/components/teams/team-requests-health-level";
 import { PriorityDisplay } from "@/components/teams/team-requests-priority-display";
@@ -215,15 +216,21 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
                   },
                 ]}
               />
-              {(teamRequest.numberAttachments ?? 0) > 0 && (
-                <div className="w-full flex text-sm font-medium text-neutral-500 dark:text-neutral-400 gap-2">
-                  <span>Attachments</span>
-                  <AttachmentView
-                    entityType="Team_Request"
-                    entityId={teamRequest.id!}
-                  />
-                </div>
-              )}
+              <div className="col-span-1 sm:col-span-2 text-sm font-medium flex items-start gap-4">
+                <span className="pt-1">Attachments</span>
+                <AttachmentView
+                  entityType="Team_Request"
+                  entityId={teamRequest.id!}
+                />
+              </div>
+
+              <div className="col-span-1 sm:col-span-2 text-sm font-medium flex items-start gap-4">
+                <span className="pt-1">Watchers</span>
+                <EntityWatchers
+                  entityType="Team_Request"
+                  entityId={teamRequest.id!}
+                />
+              </div>
             </div>
 
             <CommentsView

@@ -75,7 +75,6 @@ const TeamRequestDetailView = ({
   const [currentRequestState, setCurrentRequestState] = useState<String>("");
   const [isWorkflowDialogOpen, setWorkflowDialogOpen] = useState(false);
 
-  // Create a reference for the CommentsView
   const commentsViewRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -301,7 +300,7 @@ const TeamRequestDetailView = ({
                           No available states
                         </DropdownMenuItem>
                       )}
-                      {/* Add a separator before the "View Workflow" button */}
+
                       {(PermissionUtils.canWrite(permissionLevel) ||
                         teamRole === "Manager" ||
                         teamRole === "Member" ||
@@ -319,7 +318,6 @@ const TeamRequestDetailView = ({
                     </DropdownMenuGroup>
                   </DropdownMenuContent>
                 </DropdownMenu>
-                {/* Workflow Dialog */}
                 <WorkflowReviewDialog
                   workflowId={teamRequest.workflowId!}
                   open={isWorkflowDialogOpen}
@@ -465,15 +463,13 @@ const TeamRequestDetailView = ({
                   ]}
                 />
 
-                {(teamRequest.numberAttachments ?? 0) > 0 && (
-                  <div className="col-span-1 sm:col-span-2 text-sm font-medium flex items-start">
-                    <span className="pt-1">Attachments</span>
-                    <AttachmentView
-                      entityType="Team_Request"
-                      entityId={teamRequest.id!}
-                    />
-                  </div>
-                )}
+                <div className="col-span-1 sm:col-span-2 text-sm font-medium flex items-start gap-4">
+                  <span className="pt-1">Attachments</span>
+                  <AttachmentView
+                    entityType="Team_Request"
+                    entityId={teamRequest.id!}
+                  />
+                </div>
 
                 <div className="col-span-1 sm:col-span-2 text-sm font-medium flex items-start gap-4">
                   <span className="pt-1">Watchers</span>

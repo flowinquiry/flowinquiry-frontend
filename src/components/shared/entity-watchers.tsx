@@ -10,6 +10,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { usePagePermission } from "@/hooks/use-page-permission";
 import {
   addWatchers,
   deleteWatchers,
@@ -17,8 +18,10 @@ import {
 } from "@/lib/actions/entity-watchers.action";
 import { findUsers } from "@/lib/actions/users.action";
 import { useError } from "@/providers/error-provider";
+import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { EntityType } from "@/types/commons";
 import { QueryDTO } from "@/types/query";
+import { PermissionUtils } from "@/types/resources";
 
 interface EntityWatchersProps {
   entityType: EntityType;
@@ -36,6 +39,14 @@ const EntityWatchers = ({ entityType, entityId }: EntityWatchersProps) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const permissionLevel = usePagePermission();
+  const teamRole = useUserTeamRole().role;
+
+  // ✅ Define write permissions
+  const canWrite =
+    PermissionUtils.canWrite(permissionLevel) ||
+    teamRole === "Manager" ||
+    teamRole === "Member";
 
   // Fetch watchers on component mount
   useEffect(() => {
@@ -90,7 +101,7 @@ const EntityWatchers = ({ entityType, entityId }: EntityWatchersProps) => {
 
   // Trigger `handleUpdateWatchers` when exiting edit mode
   useEffect(() => {
-    if (!isEditing) {
+    if (!isEditing && canWrite) {
       handleUpdateWatchers();
     }
   }, [isEditing]);
@@ -118,10 +129,12 @@ const EntityWatchers = ({ entityType, entityId }: EntityWatchersProps) => {
   };
 
   const handleWatcherEdit = () => {
+    if (!canWrite) return;
     setIsEditing(true);
   };
 
   const handleWatcherChange = (newSelection: Option[]) => {
+    if (!canWrite) return;
     setSelectedWatchers(newSelection);
   };
 
@@ -132,6 +145,8 @@ const EntityWatchers = ({ entityType, entityId }: EntityWatchersProps) => {
   };
 
   const handleUpdateWatchers = async () => {
+    if (!canWrite) return; // ✅ Skip API calls if the user can't modify
+
     const initialIds = new Set(initialWatchers.map((w) => Number(w.value)));
     const selectedIds = new Set(selectedWatchers.map((w) => Number(w.value)));
 
@@ -172,17 +187,19 @@ const EntityWatchers = ({ entityType, entityId }: EntityWatchersProps) => {
       tabIndex={0}
     >
       {isEditing ? (
-        <MultipleSelector
-          value={selectedWatchers}
-          onChange={handleWatcherChange}
-          onSearch={searchUsers}
-          placeholder="Add watcher..."
-          emptyIndicator={
-            <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
-              No results found.
-            </p>
-          }
-        />
+        canWrite ? (
+          <MultipleSelector
+            value={selectedWatchers}
+            onChange={handleWatcherChange}
+            onSearch={searchUsers}
+            placeholder="Add watcher..."
+            emptyIndicator={
+              <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
+                No results found.
+              </p>
+            }
+          />
+        ) : null // If user can't write, hide selector
       ) : (
         <Tooltip>
           <TooltipTrigger asChild>
