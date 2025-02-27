@@ -31,7 +31,7 @@ import { useError } from "@/providers/error-provider";
 import { UiAttributes } from "@/types/ui-components";
 import { WorkflowDTO } from "@/types/workflows";
 
-const WorkflowSelectField = ({
+const WorkflowForTicketSelectField = ({
   form,
   fieldName,
   label,
@@ -41,7 +41,7 @@ const WorkflowSelectField = ({
   const { setError } = useError();
   useEffect(() => {
     async function fetchWorkflows() {
-      const workflowData = await getWorkflowsByTeam(teamId, setError);
+      const workflowData = await getWorkflowsByTeam(teamId, false, setError);
       setWorkflows(workflowData);
     }
     fetchWorkflows();
@@ -119,4 +119,4 @@ const WorkflowSelectField = ({
   );
 };
 
-export default WorkflowSelectField;
+export default WorkflowForTicketSelectField;

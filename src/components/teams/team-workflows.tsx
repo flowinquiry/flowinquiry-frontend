@@ -52,7 +52,7 @@ const TeamWorkflowsView = () => {
   const fetchWorkflows = async () => {
     setLoading(true);
     try {
-      const result = await getWorkflowsByTeam(team.id!, setError);
+      const result = await getWorkflowsByTeam(team.id!, undefined, setError);
       setWorkflows(result);
     } finally {
       setLoading(false);
@@ -135,33 +135,34 @@ const TeamWorkflowsView = () => {
                   {workflow.description}
                 </div>
                 {(PermissionUtils.canWrite(permissionLevel) ||
-                  teamRole === "Manager") && (
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Ellipsis className="cursor-pointer absolute top-2 right-2 text-gray-400" />
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-[14rem]">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger>
-                            <DropdownMenuItem
-                              className="cursor-pointer"
-                              onClick={() => deleteWorkflowFromTeam(workflow)}
-                            >
-                              <Trash /> Delete workflow
-                            </DropdownMenuItem>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>
-                              This action will remove workflow {workflow.name}{" "}
-                              out of the team {team.name}
-                            </p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                )}
+                  teamRole === "Manager") &&
+                  !workflow.useForProject && (
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Ellipsis className="cursor-pointer absolute top-2 right-2 text-gray-400" />
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent className="w-[14rem]">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger>
+                              <DropdownMenuItem
+                                className="cursor-pointer"
+                                onClick={() => deleteWorkflowFromTeam(workflow)}
+                              >
+                                <Trash /> Delete workflow
+                              </DropdownMenuItem>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>
+                                This action will remove workflow {workflow.name}{" "}
+                                out of the team {team.name}
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  )}
               </div>
             ))}
           </div>

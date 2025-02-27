@@ -51,7 +51,7 @@ export type Pagination = {
   sort?: { field: string; direction: "asc" | "desc" }[];
 };
 
-const TeamRequestsView = () => {
+const TicketListView = () => {
   const team = useTeam();
   const breadcrumbItems = [
     { title: "Dashboard", link: "/portal" },
@@ -176,7 +176,9 @@ const TeamRequestsView = () => {
 
   useEffect(() => {
     const fetchWorkflows = () => {
-      getWorkflowsByTeam(team.id!, setError).then((data) => setWorkflows(data));
+      getWorkflowsByTeam(team.id!, false, setError).then((data) =>
+        setWorkflows(data),
+      );
     };
     fetchWorkflows();
   }, [team.id]);
@@ -389,4 +391,4 @@ const TeamRequestsView = () => {
   );
 };
 
-export default TeamRequestsView;
+export default TicketListView;

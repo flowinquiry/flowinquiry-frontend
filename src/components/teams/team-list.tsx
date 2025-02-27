@@ -11,7 +11,8 @@ import {
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useSession } from "next-auth/react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import useSWR from "swr";
 
 import { Heading } from "@/components/heading";
 import { TeamAvatar } from "@/components/shared/avatar-display";
@@ -48,73 +49,64 @@ export const TeamList = () => {
   const router = useRouter();
   const { setError } = useError();
   const { data: session } = useSession();
-  const [items, setItems] = useState<Array<TeamDTO>>([]);
+
   const [teamSearchTerm, setTeamSearchTerm] = useState<string | undefined>(
     undefined,
   );
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalElements, setTotalElements] = useState(0);
-  const [loading, setLoading] = useState(false);
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [filterUserTeamsOnly, setFilterUserTeamsOnly] = useState(false);
-
   const [isDialogOpen, setDialogOpen] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<TeamDTO | null>(null);
 
   const searchParams = useSearchParams();
   const { replace } = useRouter();
   const pathname = usePathname();
-
   const permissionLevel = usePagePermission();
 
-  const fetchData = async () => {
-    setLoading(true);
-    try {
-      const filters: Filter[] = [];
-      if (teamSearchTerm) {
-        filters.push({
-          field: "name",
-          operator: "lk",
-          value: teamSearchTerm,
-        });
-      }
-      if (filterUserTeamsOnly) {
-        filters.push({
-          field: "users.id",
-          operator: "eq",
-          value: Number(session?.user?.id!),
-        });
-      }
-
-      const query: QueryDTO = {
-        filters,
-      };
-
-      const pageResult = await searchTeams(
-        query,
-        {
-          page: currentPage,
-          size: 10,
-          sort: [
-            {
-              field: "name",
-              direction: sortDirection,
-            },
-          ],
-        },
-        setError,
-      );
-      if (pageResult) {
-        setItems(pageResult.content);
-        setTotalElements(pageResult.totalElements);
-        setTotalPages(pageResult.totalPages);
-      }
-    } finally {
-      setLoading(false);
+  // **SWF Fetcher Function**
+  const fetchTeams = async () => {
+    const filters: Filter[] = [];
+    if (teamSearchTerm) {
+      filters.push({ field: "name", operator: "lk", value: teamSearchTerm });
     }
+    if (filterUserTeamsOnly) {
+      filters.push({
+        field: "users.id",
+        operator: "eq",
+        value: Number(session?.user?.id!),
+      });
+    }
+
+    const query: QueryDTO = { filters };
+    return searchTeams(
+      query,
+      {
+        page: currentPage,
+        size: 10,
+        sort: [{ field: "name", direction: sortDirection }],
+      },
+      setError,
+    );
   };
 
+  // **Use SWR to Fetch Data**
+  const { data, error, isLoading, mutate } = useSWR(
+    [
+      `/api/teams`,
+      teamSearchTerm,
+      currentPage,
+      sortDirection,
+      filterUserTeamsOnly,
+    ],
+    fetchTeams,
+  );
+
+  const teams = data?.content ?? [];
+  const totalElements = data?.totalElements ?? 0;
+  const totalPages = data?.totalPages ?? 0;
+
+  // **Handle Search with Debouncing**
   const handleSearchTeams = useDebouncedCallback((teamName: string) => {
     const params = new URLSearchParams(searchParams);
     if (teamName) {
@@ -126,27 +118,20 @@ export const TeamList = () => {
     replace(`${pathname}?${params.toString()}`);
   }, 2000);
 
-  const toggleSortDirection = () => {
+  // **Toggle Sorting**
+  const toggleSortDirection = () =>
     setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
-  };
 
-  useEffect(() => {
-    fetchData();
-  }, [teamSearchTerm, currentPage, sortDirection, filterUserTeamsOnly]);
-
+  // **Show Delete Confirmation**
   const showDeleteTeamConfirmationDialog = (team: TeamDTO) => {
     setSelectedTeam(team);
     setDialogOpen(true);
   };
 
+  // **Delete Team and Refresh Data**
   const deleteTeam = async (ids: number[]) => {
     await deleteTeams(ids, setError);
-    fetchData();
-  };
-
-  const toggleUserTeamsFilter = (checked: boolean) => {
-    setFilterUserTeamsOnly(!!checked);
-    setCurrentPage(1); // Reset to first page
+    mutate(); // Refresh data after deletion
   };
 
   return (
@@ -160,9 +145,7 @@ export const TeamList = () => {
           <Input
             className="w-[18rem]"
             placeholder="Search teams ..."
-            onChange={(e) => {
-              handleSearchTeams(e.target.value);
-            }}
+            onChange={(e) => handleSearchTeams(e.target.value)}
             defaultValue={searchParams.get("name")?.toString()}
           />
           <Button variant="outline" onClick={toggleSortDirection}>
@@ -172,7 +155,7 @@ export const TeamList = () => {
             <Checkbox
               id="user-teams-only"
               checked={filterUserTeamsOnly}
-              onCheckedChange={toggleUserTeamsFilter}
+              onCheckedChange={(checked) => setFilterUserTeamsOnly(!!checked)}
             />
             <label htmlFor="user-teams-only" className="text-sm">
               My Teams Only
@@ -180,7 +163,7 @@ export const TeamList = () => {
           </div>
           {PermissionUtils.canWrite(permissionLevel) && (
             <Link
-              href={"/portal/teams/new/edit"}
+              href="/portal/teams/new/edit"
               className={cn(buttonVariants({ variant: "default" }))}
             >
               <Plus className="mr-2 h-4 w-4" /> New Team
@@ -189,14 +172,14 @@ export const TeamList = () => {
         </div>
       </div>
       <Separator />
-      {loading ? (
+      {isLoading ? (
         <div className="flex justify-center py-4">
           <LoadingPlaceHolder message="Loading teams ..." />
         </div>
       ) : (
         <>
           <div className="flex flex-row flex-wrap gap-4">
-            {items?.map((team) => (
+            {teams.map((team) => (
               <div
                 key={team.id}
                 className="relative w-[24rem] flex flex-row gap-4 border border-gray-200 rounded-2xl"
@@ -208,7 +191,6 @@ export const TeamList = () => {
                         <TeamAvatar
                           size="w-24 h-24"
                           className="cursor-pointer"
-                          key={team.id}
                           imageUrl={team.logoUrl}
                         />
                       </TooltipTrigger>
@@ -231,24 +213,19 @@ export const TeamList = () => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-[14rem]">
                       <DropdownMenuItem
-                        className="cursor-pointer"
                         onClick={() =>
                           router.push(
                             `/portal/teams/${obfuscate(team.id)}/edit`,
                           )
                         }
                       >
-                        <Pencil />
-                        Edit
+                        <Pencil /> Edit
                       </DropdownMenuItem>
-                      {PermissionUtils.canAccess(permissionLevel) && (
-                        <DropdownMenuItem
-                          className="cursor-pointer"
-                          onClick={() => showDeleteTeamConfirmationDialog(team)}
-                        >
-                          <Trash /> Delete
-                        </DropdownMenuItem>
-                      )}
+                      <DropdownMenuItem
+                        onClick={() => showDeleteTeamConfirmationDialog(team)}
+                      >
+                        <Trash /> Delete
+                      </DropdownMenuItem>
                     </DropdownMenuContent>
                   </DropdownMenu>
                 )}
@@ -258,9 +235,7 @@ export const TeamList = () => {
           <PaginationExt
             currentPage={currentPage}
             totalPages={totalPages}
-            onPageChange={(page) => {
-              setCurrentPage(page);
-            }}
+            onPageChange={setCurrentPage}
           />
         </>
       )}
@@ -271,10 +246,6 @@ export const TeamList = () => {
           deleteEntitiesFn={deleteTeam}
           isOpen={isDialogOpen}
           onOpenChange={setDialogOpen}
-          onSuccess={() => {
-            setDialogOpen(false);
-          }}
-          onClose={() => setDialogOpen(false)}
         />
       )}
     </div>

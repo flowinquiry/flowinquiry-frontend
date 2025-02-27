@@ -2,11 +2,12 @@
 
 import { Ellipsis, Plus, Trash } from "lucide-react";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import useSWR from "swr";
 
 import { Heading } from "@/components/heading";
 import { TeamAvatar, UserAvatar } from "@/components/shared/avatar-display";
-import LoadingPlaceHolder from "@/components/shared/loading-place-holder"; // Import your spinner component
+import LoadingPlaceHolder from "@/components/shared/loading-place-holder";
 import AddUserToTeamDialog from "@/components/teams/team-add-user-dialog";
 import TeamNavLayout from "@/components/teams/team-nav";
 import {
@@ -46,39 +47,29 @@ import { UserWithTeamRoleDTO } from "@/types/users";
 
 const TeamUsersView = () => {
   const team = useTeam();
-  const breadcrumbItems = [
-    { title: "Dashboard", link: "/portal" },
-    { title: "Teams", link: "/portal/teams" },
-    { title: team.name, link: `/portal/teams/${obfuscate(team.id)}` },
-    { title: "Members", link: "#" },
-  ];
-
   const permissionLevel = usePagePermission();
   const teamRole = useUserTeamRole().role;
+  const { setError } = useError();
+
   const [open, setOpen] = useState(false);
   const [notDeleteOnlyManagerDialogOpen, setNotDeleteOnlyManagerDialogOpen] =
     useState(false);
-  const [items, setItems] = useState<Array<UserWithTeamRoleDTO>>([]);
-  const [totalMembers, setTotalMembers] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const { setError } = useError();
 
-  const fetchUsers = async () => {
-    setLoading(true);
-    findMembersByTeamId(team.id!, setError)
-      .then((data) => {
-        setItems(data);
-        setTotalMembers(data.length);
-      })
-      .finally(() => setLoading(false));
-  };
+  // SWR fetcher
+  const {
+    data: items = [],
+    error,
+    isLoading,
+    mutate,
+  } = useSWR(team.id ? `/api/team/${team.id}/members` : null, async () =>
+    findMembersByTeamId(team.id!, setError),
+  );
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+  if (error) {
+    return <p className="text-red-500">Failed to load team members.</p>;
+  }
 
   const removeUserOutTeam = async (user: UserWithTeamRoleDTO) => {
-    // Check if the user is the only Manager
     const isOnlyManager =
       user.teamRole === "Manager" &&
       items.filter((u) => u.teamRole === "Manager").length === 1;
@@ -89,24 +80,29 @@ const TeamUsersView = () => {
     }
 
     await deleteUserFromTeam(team.id!, user.id!, setError);
-    await fetchUsers();
+    await mutate(); // Re-fetch the team members after deletion
   };
 
   // Group users by role
   const groupedUsers = items.reduce<Record<string, UserWithTeamRoleDTO[]>>(
     (groups, user) => {
       const role = user.teamRole || "Unassigned";
-      if (!groups[role]) {
-        groups[role] = [];
-      }
+      if (!groups[role]) groups[role] = [];
       groups[role].push(user);
       return groups;
     },
     {},
   );
 
-  // Define the order of roles
+  // Define role order
   const roleOrder = ["Manager", "Member", "Guest", "Unassigned"];
+
+  const breadcrumbItems = [
+    { title: "Dashboard", link: "/portal" },
+    { title: "Teams", link: "/portal/teams" },
+    { title: team.name, link: `/portal/teams/${obfuscate(team.id)}` },
+    { title: "Members", link: "#" },
+  ];
 
   return (
     <BreadcrumbProvider items={breadcrumbItems}>
@@ -128,7 +124,7 @@ const TeamUsersView = () => {
                 </TooltipContent>
               </Tooltip>
               <Heading
-                title={`Members (${totalMembers})`}
+                title={`Members (${items.length})`}
                 description="Browse and manage the members of your team. View roles, contact information, and more"
               />
             </div>
@@ -142,13 +138,13 @@ const TeamUsersView = () => {
                   open={open}
                   setOpen={setOpen}
                   teamEntity={team}
-                  onSaveSuccess={() => fetchUsers()}
+                  onSaveSuccess={() => mutate()} // Trigger SWR re-fetch
                 />
               </div>
             )}
           </div>
 
-          {loading ? (
+          {isLoading ? (
             <LoadingPlaceHolder message="Load members ..." />
           ) : (
             roleOrder.map(
@@ -199,18 +195,21 @@ const TeamUsersView = () => {
                               <DropdownMenuContent className="w-[14rem]">
                                 <TooltipProvider>
                                   <Tooltip>
-                                    <TooltipTrigger>
-                                      <DropdownMenuItem
-                                        className="cursor-pointer"
-                                        onClick={() => removeUserOutTeam(user)}
-                                      >
-                                        <Trash /> Remove user
-                                      </DropdownMenuItem>
-                                    </TooltipTrigger>
+                                    <DropdownMenuItem
+                                      className="w-full flex items-center gap-2 cursor-pointer px-4 py-2"
+                                      onClick={() => removeUserOutTeam(user)}
+                                    >
+                                      <TooltipTrigger className="w-full flex items-center gap-2">
+                                        <Trash className="w-4 h-4 flex-shrink-0" />
+                                        <span className="flex-1 text-left">
+                                          Remove user
+                                        </span>
+                                      </TooltipTrigger>
+                                    </DropdownMenuItem>
                                     <TooltipContent>
                                       <p>
                                         This action will remove user{" "}
-                                        {user.firstName} {user.lastName} out of
+                                        {user.firstName} {user.lastName} from
                                         team {team.name}
                                       </p>
                                     </TooltipContent>

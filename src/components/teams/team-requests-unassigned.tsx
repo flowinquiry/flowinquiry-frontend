@@ -2,7 +2,8 @@
 
 import { ChevronDown, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import useSWR from "swr";
 
 import PaginationExt from "@/components/shared/pagination-ext";
 import TruncatedHtmlLabel from "@/components/shared/truncate-html-label";
@@ -19,39 +20,44 @@ import { getUnassignedTickets } from "@/lib/actions/teams-request.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { useError } from "@/providers/error-provider";
-import { TeamRequestDTO, TeamRequestPriority } from "@/types/team-requests";
+import { TeamRequestPriority } from "@/types/team-requests";
 
 const UnassignedTickets = ({ teamId }: { teamId: number }) => {
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [totalTickets, setTotalTickets] = useState<number>(0);
-  const [tickets, setTickets] = useState<TeamRequestDTO[]>([]);
-  const [loading, setLoading] = useState(false);
-
-  const [sortBy, setSortBy] = useState("priority");
+  const [sortBy] = useState("priority");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [collapsed, setCollapsed] = useState(false);
   const { setError } = useError();
 
-  const [collapsed, setCollapsed] = useState(false);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      getUnassignedTickets(teamId, currentPage, sortBy, sortDirection, setError)
-        .then((data) => {
-          setTickets(data.content);
-          setTotalPages(data.totalPages);
-          setTotalTickets(data.totalElements);
-        })
-        .finally(() => setLoading(false));
-    };
-
-    fetchData();
-  }, [teamId, currentPage, sortBy, sortDirection]);
-
-  const toggleSortDirection = () => {
-    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+  // **SWR Fetcher Function**
+  const fetchTickets = async () => {
+    return getUnassignedTickets(
+      teamId,
+      currentPage,
+      sortBy,
+      sortDirection,
+      setError,
+    );
   };
+
+  // **Use SWR for Fetching**
+  const { data, error, isLoading, mutate } = useSWR(
+    [
+      `/api/team/${teamId}/unassigned-tickets`,
+      currentPage,
+      sortBy,
+      sortDirection,
+    ],
+    fetchTickets,
+  );
+
+  const tickets = data?.content ?? [];
+  const totalPages = data?.totalPages ?? 0;
+  const totalTickets = data?.totalElements ?? 0;
+
+  // **Toggle Sorting**
+  const toggleSortDirection = () =>
+    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
 
   return (
     <Card>
@@ -107,12 +113,14 @@ const UnassignedTickets = ({ teamId }: { teamId: number }) => {
       {/* Collapsible Content */}
       {!collapsed && (
         <CardContent>
-          {loading ? (
+          {isLoading ? (
             <div className="flex justify-center items-center h-[200px]">
               <Spinner className="h-8 w-8">
                 <span>Loading data ...</span>
               </Spinner>
             </div>
+          ) : error ? (
+            <p className="text-sm text-red-500">Failed to load tickets.</p>
           ) : (
             <div className="space-y-4">
               {tickets.length > 0 ? (
@@ -179,7 +187,7 @@ const UnassignedTickets = ({ teamId }: { teamId: number }) => {
           <PaginationExt
             currentPage={currentPage}
             totalPages={totalPages}
-            onPageChange={(page) => setCurrentPage(page)}
+            onPageChange={setCurrentPage}
             className="pt-2"
           />
         </CardContent>

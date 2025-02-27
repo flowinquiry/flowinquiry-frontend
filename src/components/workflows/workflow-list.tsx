@@ -216,34 +216,35 @@ const WorkflowsView = () => {
                 <Badge variant="secondary">{workflow.requestName}</Badge>
               </div>
               <div className="text-sm">{workflow.description}</div>
-              {PermissionUtils.canWrite(permissionLevel) && (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Ellipsis className="cursor-pointer absolute top-2 right-2 text-gray-400" />
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="w-[14rem]">
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger>
-                          <DropdownMenuItem
-                            className="cursor-pointer"
-                            onClick={() =>
-                              deleteWorkflowOutOfWorkspace(workflow)
-                            }
-                          >
-                            <Trash /> Delete workflow
-                          </DropdownMenuItem>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>
-                            This action will remove workflow {workflow.name}
-                          </p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              )}
+              {PermissionUtils.canWrite(permissionLevel) &&
+                !workflow.useForProject && (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Ellipsis className="cursor-pointer absolute top-2 right-2 text-gray-400" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-[14rem]">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger>
+                            <DropdownMenuItem
+                              className="cursor-pointer"
+                              onClick={() =>
+                                deleteWorkflowOutOfWorkspace(workflow)
+                              }
+                            >
+                              <Trash /> Delete workflow
+                            </DropdownMenuItem>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>
+                              This action will remove workflow {workflow.name}
+                            </p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                )}
             </div>
           ))}
         </div>

@@ -1,7 +1,7 @@
 import React from "react";
 
 import { ContentLayout } from "@/components/admin-panel/content-layout";
-import TeamRequestDetailView from "@/components/teams/team-requests-detail";
+import TeamRequestDetailView from "@/components/teams/ticket-detail";
 import { deobfuscateToNumber } from "@/lib/endecode";
 
 interface RequestDetailsProps {

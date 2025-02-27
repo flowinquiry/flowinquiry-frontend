@@ -22,7 +22,7 @@ import { formatDateTime, formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { useError } from "@/providers/error-provider";
 import { TransitionItemCollectionDTO } from "@/types/teams";
 
-const TeamRequestsTimelineHistory = ({ teamId }: { teamId: number }) => {
+const TicketTimelineHistory = ({ teamId }: { teamId: number }) => {
   const [transitionItemCollection, setTransitionItemCollection] =
     useState<TransitionItemCollectionDTO | null>(null);
   const [loading, setLoading] = useState(true);
@@ -136,4 +136,4 @@ const TeamRequestsTimelineHistory = ({ teamId }: { teamId: number }) => {
   );
 };
 
-export default TeamRequestsTimelineHistory;
+export default TicketTimelineHistory;

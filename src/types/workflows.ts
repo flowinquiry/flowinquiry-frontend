@@ -14,6 +14,7 @@ export const WorkflowDTOSchema = z.object({
   level2EscalationTimeout: z.number().nullish(),
   level3EscalationTimeout: z.number().nullish(),
   tags: z.string().nullish(),
+  useForProject: z.oboolean(),
 });
 
 export type WorkflowDTO = z.infer<typeof WorkflowDTOSchema>;

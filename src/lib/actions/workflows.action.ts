@@ -15,9 +15,15 @@ import {
 
 export const getWorkflowsByTeam = (
   teamId: number,
+  useForProject?: boolean,
   setError?: (error: HttpError | string | null) => void,
 ) => {
-  return get<Array<WorkflowDTO>>(`/api/workflows/teams/${teamId}`, setError);
+  const url =
+    useForProject !== undefined
+      ? `/api/workflows/teams/${teamId}?used_for_project=${useForProject}`
+      : `/api/workflows/teams/${teamId}`;
+
+  return get<Array<WorkflowDTO>>(url, setError);
 };
 
 export const getGlobalWorkflowHasNotLinkedWithTeam = (

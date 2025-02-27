@@ -1,7 +1,8 @@
 "use client";
 
 import { ChevronDown, ChevronRight } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import useSWR from "swr";
 
 import PaginationExt from "@/components/shared/pagination-ext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,28 +15,25 @@ import {
 import { getActivityLogs } from "@/lib/actions/activity-logs.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { useError } from "@/providers/error-provider";
-import { ActivityLogDTO } from "@/types/activity-logs";
 
 const RecentTeamActivities = ({ teamId }: { teamId: number }) => {
-  const [activityLogs, setActivityLogs] = useState<ActivityLogDTO[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [collapsed, setCollapsed] = useState(false); // State to toggle collapse
+  const [collapsed, setCollapsed] = useState(false); // Toggle collapse
   const { setError } = useError();
 
-  useEffect(() => {
-    async function fetchActivityLogs() {
-      setLoading(true);
-      getActivityLogs("Team", teamId, currentPage, 5, setError)
-        .then((data) => {
-          setActivityLogs(data.content);
-          setTotalPages(data.totalPages);
-        })
-        .finally(() => setLoading(false));
-    }
-    fetchActivityLogs();
-  }, [teamId, currentPage]);
+  // **SWF Fetcher Function**
+  const fetchActivityLogs = async () => {
+    return getActivityLogs("Team", teamId, currentPage, 5, setError);
+  };
+
+  // **Use SWR for Fetching**
+  const { data, error, isLoading, mutate } = useSWR(
+    [`/api/team/${teamId}/activities`, currentPage],
+    fetchActivityLogs,
+  );
+
+  const activityLogs = data?.content ?? [];
+  const totalPages = data?.totalPages ?? 0;
 
   return (
     <Card>
@@ -55,13 +53,17 @@ const RecentTeamActivities = ({ teamId }: { teamId: number }) => {
 
       {!collapsed && (
         <CardContent>
-          {loading ? (
+          {isLoading ? (
             <div className="flex justify-center items-center h-[150px]">
               <Spinner className="h-8 w-8">
                 <span>Loading data ...</span>
               </Spinner>
             </div>
-          ) : activityLogs && activityLogs.length > 0 ? (
+          ) : error ? (
+            <p className="text-sm text-red-500">
+              Failed to load activity logs.
+            </p>
+          ) : activityLogs.length > 0 ? (
             <div className="space-y-2">
               {activityLogs.map((activityLog, index) => (
                 <div

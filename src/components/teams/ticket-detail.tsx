@@ -22,7 +22,7 @@ import { NColumnsGrid } from "@/components/shared/n-columns-grid";
 import TeamNavLayout from "@/components/teams/team-nav";
 import TeamRequestHealthLevel from "@/components/teams/team-requests-health-level";
 import { PriorityDisplay } from "@/components/teams/team-requests-priority-display";
-import TeamRequestsTimelineHistory from "@/components/teams/team-requests-timeline-history";
+import TicketTimelineHistory from "@/components/teams/ticket-timeline-history";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -513,7 +513,7 @@ const TeamRequestDetailView = ({
                 </TabsContent>
                 <TabsContent value="timeline-history">
                   {selectedTab === "timeline-history" && (
-                    <TeamRequestsTimelineHistory teamId={teamRequest.id!} />
+                    <TicketTimelineHistory teamId={teamRequest.id!} />
                   )}
                 </TabsContent>
               </Tabs>

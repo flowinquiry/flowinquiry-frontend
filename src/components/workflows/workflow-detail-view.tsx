@@ -98,14 +98,15 @@ const GlobalWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
               {isEditing ? "Cancel Edit" : <Edit />} Customize Workflow
             </Button>
           )}
-          {PermissionUtils.canAccess(permissionLevel) && (
-            <Button
-              variant="destructive"
-              onClick={() => removeWorkflow(workflowDetail)}
-            >
-              <Trash /> Delete
-            </Button>
-          )}
+          {PermissionUtils.canAccess(permissionLevel) &&
+            !workflowDetail.useForProject && (
+              <Button
+                variant="destructive"
+                onClick={() => removeWorkflow(workflowDetail)}
+              >
+                <Trash /> Delete
+              </Button>
+            )}
         </div>
       </div>
 
