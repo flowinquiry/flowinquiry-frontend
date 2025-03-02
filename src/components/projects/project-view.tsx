@@ -8,6 +8,7 @@ import {
 } from "@dnd-kit/core";
 import React, { useEffect, useState } from "react";
 
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import TaskSheet, {
   TaskBoard,
 } from "@/components/projects/project-ticket-new-sheet";
@@ -21,7 +22,9 @@ import {
   searchTeamRequests,
   updateTeamRequestState,
 } from "@/lib/actions/teams-request.action";
+import { obfuscate } from "@/lib/endecode";
 import { useError } from "@/providers/error-provider";
+import { useTeam } from "@/providers/team-provider";
 import { ProjectDTO } from "@/types/projects";
 import { Pagination, QueryDTO } from "@/types/query";
 import { TeamRequestDTO } from "@/types/team-requests";
@@ -42,13 +45,8 @@ const getColumnColor = (stateId: number): string => {
   return colors[stateId % colors.length];
 };
 
-export const ProjectView = ({
-  teamId,
-  projectId,
-}: {
-  teamId: number;
-  projectId: number;
-}) => {
+export const ProjectView = ({ projectId }: { projectId: number }) => {
+  const team = useTeam();
   const [project, setProject] = useState<ProjectDTO | null>(null);
   const [workflow, setWorkflow] = useState<WorkflowDetailDTO | null>(null);
   const [tasks, setTasks] = useState<TaskBoard>({});
@@ -73,7 +71,7 @@ export const ProjectView = ({
         setProject(projectData);
 
         // Fetch Workflow
-        const workflowData = await findProjectWorkflowByTeam(teamId, setError);
+        const workflowData = await findProjectWorkflowByTeam(team.id, setError);
         setWorkflow(workflowData);
 
         if (workflowData) {
@@ -122,7 +120,7 @@ export const ProjectView = ({
     };
 
     fetchProjectData();
-  }, [teamId, projectId]);
+  }, [team, projectId]);
 
   // ✅ Handle Drag Start
   const handleDragStart = (event: any) => {
@@ -199,12 +197,21 @@ export const ProjectView = ({
     });
   };
 
+  const breadcrumbItems = [
+    { title: "Dashboard", link: "/portal" },
+    { title: "Teams", link: "/portal/teams" },
+    { title: team.name, link: `/portal/teams/${obfuscate(team.id)}` },
+    { title: "Projects", link: `/portal/teams/${obfuscate(team.id)}/projects` },
+    { title: project?.name, link: "#" },
+  ];
+
   return (
     <div className="p-6 h-screen flex flex-col">
       {loading ? (
         <p className="text-lg font-semibold">Loading project...</p>
       ) : project ? (
         <>
+          <Breadcrumbs items={breadcrumbItems} />
           <h1 className="text-2xl font-bold mb-2">{project.name}</h1>
           <div
             className="text-gray-600 dark:text-gray-300 text-sm mb-4"

@@ -9,10 +9,9 @@ interface ProjectDetailPageProps {
 
 const ProjectDetailPage = async (props: ProjectDetailPageProps) => {
   const params = await props.params;
-  const teamId = deobfuscateToNumber(params.teamId);
   const projectId = deobfuscateToNumber(params.projectId);
 
-  return <ProjectView teamId={teamId} projectId={projectId} />;
+  return <ProjectView projectId={projectId} />;
 };
 
 export default ProjectDetailPage;
