@@ -17,8 +17,10 @@ import {
   findProjectById,
   findProjectWorkflowByTeam,
 } from "@/lib/actions/project.action";
+import { searchTeamRequests } from "@/lib/actions/teams-request.action";
 import { useError } from "@/providers/error-provider";
 import { ProjectDTO } from "@/types/projects";
+import { Pagination, QueryDTO } from "@/types/query";
 import { TeamRequestDTO } from "@/types/team-requests";
 import { WorkflowDetailDTO, WorkflowStateDTO } from "@/types/workflows";
 
@@ -44,13 +46,22 @@ export const ProjectView = ({
   teamId: number;
   projectId: number;
 }) => {
-  // ✅ Project & Workflow State
   const [project, setProject] = useState<ProjectDTO | null>(null);
   const [workflow, setWorkflow] = useState<WorkflowDetailDTO | null>(null);
+  const [tasks, setTasks] = useState<TaskBoard>({});
   const [loading, setLoading] = useState(true);
   const { setError } = useError();
 
-  // ✅ Fetch Project & Workflow Data
+  // Track Dragging Task
+  const [activeTask, setActiveTask] = useState<TeamRequestDTO | null>(null);
+  // Track Selected Task
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  // Track Add Task Sheet State
+  const [selectedWorkflowState, setSelectedWorkflowState] =
+    useState<WorkflowStateDTO | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
+
+  // ✅ Fetch Project, Workflow & Tasks
   useEffect(() => {
     const fetchProjectData = async () => {
       setLoading(true);
@@ -61,6 +72,32 @@ export const ProjectView = ({
         // Fetch Workflow
         const workflowData = await findProjectWorkflowByTeam(teamId, setError);
         setWorkflow(workflowData);
+
+        // Fetch Tasks
+        if (workflowData) {
+          const query: QueryDTO = {
+            filters: [
+              { field: "project.id", value: projectId, operator: "eq" },
+            ],
+          };
+          const pagination: Pagination = { page: 1, size: 100 };
+
+          const tasksData = await searchTeamRequests(
+            query,
+            pagination,
+            setError,
+          );
+
+          // ✅ Allocate Tasks to Columns based on Workflow States
+          const newTasks: TaskBoard = {};
+          workflowData.states.forEach((state) => {
+            newTasks[state.id!.toString()] = tasksData.content.filter(
+              (task) => task.currentStateId === state.id,
+            );
+          });
+
+          setTasks(newTasks);
+        }
       } finally {
         setLoading(false);
       }
@@ -68,18 +105,6 @@ export const ProjectView = ({
 
     fetchProjectData();
   }, [teamId, projectId]);
-
-  // ✅ Dynamic Task Board (Tasks categorized by Workflow State ID)
-  const [tasks, setTasks] = useState<TaskBoard>({});
-
-  // Track Dragging Task
-  const [activeTask, setActiveTask] = useState<TeamRequestDTO | null>(null);
-  // Track Selected Task
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
-  // Track Add Task Sheet State
-  const [selectedWorkflowState, setSelectedWorkflowState] =
-    useState<WorkflowStateDTO | null>(null);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   // ✅ Handle Drag Start
   const handleDragStart = (event: any) => {
@@ -203,6 +228,7 @@ export const ProjectView = ({
         selectedWorkflowState={selectedWorkflowState}
         setTasks={setTasks}
         teamId={project?.teamId!}
+        projectId={projectId}
         projectWorkflowId={workflow?.id!}
       />
     </div>

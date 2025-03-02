@@ -31,7 +31,8 @@ export const TeamRequestDTOSchema = z.object({
   id: z.number().optional(),
   teamId: z.number().optional(),
   teamName: z.string().optional(),
-  workflowId: z.number().optional(),
+  workflowId: z.onumber(),
+  projectId: z.onumber(),
   workflowName: z.string().nullish(),
   workflowRequestName: z.string().nullish(),
   priority: z

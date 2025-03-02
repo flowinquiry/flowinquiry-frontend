@@ -47,6 +47,7 @@ const TaskSheet = ({
   setIsOpen,
   selectedWorkflowState,
   setTasks,
+  projectId,
   projectWorkflowId,
   teamId,
 }: {
@@ -54,6 +55,7 @@ const TaskSheet = ({
   setIsOpen: (open: boolean) => void;
   selectedWorkflowState: WorkflowStateDTO | null;
   setTasks: React.Dispatch<React.SetStateAction<TaskBoard>>;
+  projectId: number;
   projectWorkflowId: number;
   teamId: number;
 }) => {
@@ -70,6 +72,7 @@ const TaskSheet = ({
       priority: "Medium" as TeamRequestPriority,
       assignUserId: null,
       teamId: teamId,
+      projectId: projectId,
       workflowId: projectWorkflowId,
       currentStateId: selectedWorkflowState?.id ?? null,
       requestUserId: Number(session?.user?.id ?? 0),
@@ -87,6 +90,7 @@ const TaskSheet = ({
         priority: "Medium",
         assignUserId: null,
         teamId: teamId,
+        projectId: projectId,
         workflowId: projectWorkflowId,
         currentStateId: selectedWorkflowState?.id ?? null,
         requestUserId: Number(session?.user?.id ?? 0),
