@@ -71,7 +71,10 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
         setProject(projectData);
 
         // Fetch Workflow
-        const workflowData = await findProjectWorkflowByTeam(team.id, setError);
+        const workflowData = await findProjectWorkflowByTeam(
+          team.id!,
+          setError,
+        );
         setWorkflow(workflowData);
 
         if (workflowData) {
@@ -202,7 +205,7 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
     { title: "Teams", link: "/portal/teams" },
     { title: team.name, link: `/portal/teams/${obfuscate(team.id)}` },
     { title: "Projects", link: `/portal/teams/${obfuscate(team.id)}/projects` },
-    { title: project?.name, link: "#" },
+    { title: project?.name!, link: "#" },
   ];
 
   return (
