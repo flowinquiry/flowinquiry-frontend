@@ -48,6 +48,16 @@ export const getValidTargetStates = async (
   );
 };
 
+export const getInitialStates = async (
+  workflowId: number,
+  setError?: (error: HttpError | string | null) => void,
+) => {
+  return get<Array<WorkflowStateDTO>>(
+    `/api/workflows/${workflowId}/initial-states`,
+    setError,
+  );
+};
+
 export async function searchWorkflows(
   query: QueryDTO,
   pagination: Pagination,

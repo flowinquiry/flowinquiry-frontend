@@ -16,7 +16,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { getValidTargetStates } from "@/lib/actions/workflows.action";
+import {
+  getInitialStates,
+  getValidTargetStates,
+} from "@/lib/actions/workflows.action";
 import { cn } from "@/lib/utils";
 import { useError } from "@/providers/error-provider";
 import { WorkflowStateDTO } from "@/types/workflows";
@@ -26,7 +29,7 @@ type WorkflowStateSelectProps = {
   name: string;
   label?: string;
   workflowId: number;
-  workflowStateId: number;
+  workflowStateId?: number;
   includeSelf?: boolean;
   required?: boolean;
 };
@@ -48,12 +51,19 @@ const WorkflowStateSelect = ({
     const loadWorkflowStates = async () => {
       setIsLoading(true);
       try {
-        const data = await getValidTargetStates(
-          workflowId,
-          workflowStateId,
-          includeSelf,
-          setError,
-        );
+        let data: WorkflowStateDTO[];
+
+        if (workflowStateId !== undefined) {
+          data = await getValidTargetStates(
+            workflowId,
+            workflowStateId,
+            includeSelf,
+            setError,
+          );
+        } else {
+          data = await getInitialStates(workflowId, setError);
+        }
+
         setWorkflowStates(data);
       } finally {
         setIsLoading(false);
@@ -75,6 +85,7 @@ const WorkflowStateSelect = ({
           const initialState =
             workflowStates.find((state) => state.id === workflowStateId) ||
             workflowStates[0];
+
           if (initialState) {
             form.setValue(name, initialState.id, { shouldValidate: true });
           }

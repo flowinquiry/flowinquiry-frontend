@@ -2,6 +2,7 @@ import { doAdvanceSearch, get, post } from "@/lib/actions/commons.action";
 import { HttpError } from "@/lib/errors";
 import { ProjectDTO } from "@/types/projects";
 import { Pagination, QueryDTO } from "@/types/query";
+import { WorkflowDetailDTO } from "@/types/workflows";
 
 export const createProject = async (
   project: ProjectDTO,
@@ -17,15 +18,25 @@ export const findProjectById = async (
   return get<ProjectDTO>(`/api/projects/${projectId}`, setError);
 };
 
-export async function searchProjects(
+export const searchProjects = async (
   query: QueryDTO,
   pagination: Pagination,
   setError?: (error: HttpError | string | null) => void,
-) {
+) => {
   return doAdvanceSearch<ProjectDTO>(
     `/api/projects/search`,
     query,
     pagination,
     setError,
   );
-}
+};
+
+export const findProjectWorkflowByTeam = async (
+  teamId: number,
+  setError?: (error: HttpError | string | null) => void,
+) => {
+  return get<WorkflowDetailDTO>(
+    `/api/workflows/teams/${teamId}/project-workflow`,
+    setError,
+  );
+};

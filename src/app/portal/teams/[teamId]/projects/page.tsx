@@ -1,7 +1,7 @@
 import React from "react";
 
 import { ContentLayout } from "@/components/admin-panel/content-layout";
-import ProjectListView from "@/components/teams/project-list-view";
+import ProjectListView from "@/components/projects/project-list-view";
 
 const Page = () => {
   return (

@@ -5,9 +5,9 @@ import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 import { Heading } from "@/components/heading";
+import NewProjectDialog from "@/components/projects/project-new-dialog";
 import { TeamAvatar } from "@/components/shared/avatar-display";
 import PaginationExt from "@/components/shared/pagination-ext";
-import NewProjectDialog from "@/components/teams/project-new-dialog";
 import TeamNavLayout from "@/components/teams/team-nav";
 import { Button } from "@/components/ui/button";
 import {
