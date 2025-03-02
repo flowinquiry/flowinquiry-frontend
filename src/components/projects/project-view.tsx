@@ -17,7 +17,10 @@ import {
   findProjectById,
   findProjectWorkflowByTeam,
 } from "@/lib/actions/project.action";
-import { searchTeamRequests } from "@/lib/actions/teams-request.action";
+import {
+  searchTeamRequests,
+  updateTeamRequestState,
+} from "@/lib/actions/teams-request.action";
 import { useError } from "@/providers/error-provider";
 import { ProjectDTO } from "@/types/projects";
 import { Pagination, QueryDTO } from "@/types/query";
@@ -73,25 +76,40 @@ export const ProjectView = ({
         const workflowData = await findProjectWorkflowByTeam(teamId, setError);
         setWorkflow(workflowData);
 
-        // Fetch Tasks
         if (workflowData) {
-          const query: QueryDTO = {
-            filters: [
-              { field: "project.id", value: projectId, operator: "eq" },
-            ],
-          };
-          const pagination: Pagination = { page: 1, size: 100 };
+          // ✅ Fetch All Tasks Iteratively
+          let allTasks: TeamRequestDTO[] = [];
+          let currentPage = 1;
+          const pageSize = 100;
+          let totalElements = 0;
 
-          const tasksData = await searchTeamRequests(
-            query,
-            pagination,
-            setError,
-          );
+          do {
+            const query: QueryDTO = {
+              filters: [
+                { field: "project.id", value: projectId, operator: "eq" },
+              ],
+            };
+            const pagination: Pagination = {
+              page: currentPage,
+              size: pageSize,
+              sort: [{ field: "id", direction: "desc" }], // ✅ Ensure order consistency
+            };
+
+            const tasksData = await searchTeamRequests(
+              query,
+              pagination,
+              setError,
+            );
+            allTasks = [...allTasks, ...tasksData.content];
+            totalElements = tasksData.totalElements;
+
+            currentPage++;
+          } while (allTasks.length < totalElements); // ✅ Fetch until we get all tasks
 
           // ✅ Allocate Tasks to Columns based on Workflow States
           const newTasks: TaskBoard = {};
           workflowData.states.forEach((state) => {
-            newTasks[state.id!.toString()] = tasksData.content.filter(
+            newTasks[state.id!.toString()] = allTasks.filter(
               (task) => task.currentStateId === state.id,
             );
           });
@@ -125,8 +143,7 @@ export const ProjectView = ({
     }
   };
 
-  // ✅ Handle Drag End
-  const handleDragEnd = (event: DragEndEvent) => {
+  const handleDragEnd = async (event: DragEndEvent) => {
     setActiveTask(null);
     const { active, over } = event;
     if (!over) return;
@@ -134,34 +151,48 @@ export const ProjectView = ({
     const activeId = active.id.toString();
     const overId = over.id.toString();
 
+    // ✅ Check if dragging over a column or a task inside a column
+    const targetColumn = workflow?.states.find(
+      (state) =>
+        state.id!.toString() === overId ||
+        tasks[state.id!.toString()]?.some(
+          (task) => task.id!.toString() === overId,
+        ),
+    );
+
+    if (!targetColumn) return;
+
+    // ✅ Find source column
     const sourceColumn = workflow?.states.find((state) =>
       tasks[state.id!.toString()]?.some(
-        (task) => task.id?.toString() === activeId,
+        (task) => task.id!.toString() === activeId,
       ),
     );
 
-    const targetColumn = workflow?.states.find(
-      (state) => state.id!.toString() === overId,
+    if (!sourceColumn || sourceColumn.id === targetColumn.id) return;
+
+    // ✅ Get moved task
+    const movedTask = tasks[sourceColumn.id!.toString()]?.find(
+      (task) => task.id!.toString() === activeId,
     );
 
-    if (!sourceColumn || !targetColumn || sourceColumn.id === targetColumn.id)
-      return;
+    if (!movedTask) return;
 
+    await updateTeamRequestState(movedTask.id!, targetColumn.id!, setError);
+
+    // ✅ Update local state
     setTasks((prevTasks) => {
       const updatedTasks = { ...prevTasks };
 
-      const taskToMove = updatedTasks[sourceColumn.id!.toString()]?.find(
-        (task) => task.id?.toString() === activeId,
-      );
-      if (!taskToMove) return prevTasks;
-
+      // Remove task from source column
       updatedTasks[sourceColumn.id!.toString()] = updatedTasks[
         sourceColumn.id!.toString()
-      ]?.filter((task) => task.id?.toString() !== activeId);
+      ]?.filter((task) => task.id!.toString() !== activeId);
 
+      // Add task to target column
       updatedTasks[targetColumn.id!.toString()] = [
         ...(updatedTasks[targetColumn.id!.toString()] || []),
-        taskToMove,
+        { ...movedTask, currentStateId: targetColumn.id! },
       ];
 
       return updatedTasks;
@@ -189,7 +220,7 @@ export const ProjectView = ({
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        {/* 🛠 Fix: Full height scrollable container */}
+        {/* ✅ Full height scrollable container */}
         <div className="flex flex-grow overflow-x-auto gap-4 pb-2">
           {workflow?.states
             .sort((a, b) => {

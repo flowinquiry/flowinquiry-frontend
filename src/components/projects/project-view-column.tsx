@@ -1,8 +1,12 @@
 "use client";
 
 import { useDroppable } from "@dnd-kit/core";
-import { SortableContext } from "@dnd-kit/sortable";
+import {
+  SortableContext,
+  verticalListSortingStrategy,
+} from "@dnd-kit/sortable";
 import clsx from "clsx";
+import { motion } from "framer-motion"; // 🎯 Import Framer Motion
 import { Plus } from "lucide-react";
 
 import Task from "@/components/projects/project-view-task";
@@ -28,25 +32,39 @@ const Column = ({
   const { setNodeRef } = useDroppable({ id: workflowState.id!.toString() });
 
   return (
-    <div
+    <motion.div
       ref={setNodeRef}
       className={clsx(
         "flex flex-col flex-grow min-w-[28rem] max-w-[36rem] p-4 rounded shadow border",
         columnColor,
       )}
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: -20 }}
+      transition={{ duration: 0.3, ease: "easeInOut" }}
     >
       <h2 className="text-lg font-bold mb-4 capitalize">
         {workflowState.stateName}
       </h2>
-      <div className="flex-grow overflow-y-auto">
-        <SortableContext items={tasks.map((task) => task.id!.toString())}>
+
+      {/* ✅ Sortable Context with Animated Task List */}
+      <SortableContext
+        id={workflowState.id!.toString()}
+        items={tasks.map((task) => task.id!.toString())}
+        strategy={verticalListSortingStrategy}
+      >
+        <motion.div
+          className="flex-grow overflow-y-auto"
+          layout // 🎯 Enables smooth reordering animations
+          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        >
           {tasks.map((task) => (
             <Task key={task.id} id={task.id!} title={task.requestTitle} />
           ))}
-        </SortableContext>
-      </div>
+        </motion.div>
+      </SortableContext>
 
-      <button
+      <motion.button
         onClick={() => {
           setSelectedWorkflowState(workflowState);
           setIsSheetOpen(true);
@@ -55,10 +73,12 @@ const Column = ({
           "mt-2 w-full flex items-center justify-center gap-2 py-2 border rounded-lg text-white font-semibold transition",
           BUTTON_COLOR,
         )}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
       >
         <Plus className="w-5 h-5" /> Add item
-      </button>
-    </div>
+      </motion.button>
+    </motion.div>
   );
 };
 

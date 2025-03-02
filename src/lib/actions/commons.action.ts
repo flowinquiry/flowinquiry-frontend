@@ -37,7 +37,7 @@ export const getSecureBlobResource = async (
 
 export const fetchData = async <TData, TResponse>(
   url: string,
-  method: "GET" | "POST" | "PUT" | "DELETE",
+  method: "GET" | "POST" | "PUT" | "PATCH" | "DELETE",
   data?: TData,
   setError?: (error: HttpError | string | null) => void,
   securityMode: SecurityMode = SecurityMode.CLIENT_SECURE,
@@ -98,6 +98,7 @@ export const fetchData = async <TData, TResponse>(
       throw error; // Re-throw to propagate the error
     }
   } catch (error: any) {
+    console.log(`Error ${error}`);
     // Only handle network-related errors here
     if (!error.handled && setError) {
       setError(`There was a network issue ${error}. Please try again.`);
@@ -139,6 +140,15 @@ export const put = async <TData, TResponse>(
   securityMode: SecurityMode = SecurityMode.CLIENT_SECURE,
 ): Promise<TResponse> => {
   return fetchData(url, "PUT", data, setError, securityMode);
+};
+
+export const patch = async <TData, TResponse>(
+  url: string,
+  data?: TData,
+  setError?: (error: HttpError | string | null) => void,
+  securityMode: SecurityMode = SecurityMode.CLIENT_SECURE,
+): Promise<TResponse> => {
+  return fetchData(url, "PATCH", data, setError, securityMode);
 };
 
 export const deleteExec = async <TData, TResponse>(

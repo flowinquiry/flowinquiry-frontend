@@ -1,4 +1,10 @@
-import { doAdvanceSearch, get, post, put } from "@/lib/actions/commons.action";
+import {
+  doAdvanceSearch,
+  get,
+  patch,
+  post,
+  put,
+} from "@/lib/actions/commons.action";
 import { formatDateParams } from "@/lib/datetime";
 import { HttpError } from "@/lib/errors";
 import { PageableResult } from "@/types/commons";
@@ -174,6 +180,18 @@ export const getTeamTicketPriorityDistributionForUser = async (
 ) => {
   return get<Array<TeamTicketPriorityDistributionDTO>>(
     `/api/team-requests/users/${userId}/team-tickets-priority-distribution`,
+    setError,
+  );
+};
+
+export const updateTeamRequestState = (
+  ticketId: number,
+  newStateId: number,
+  setError?: (error: HttpError | string | null) => void,
+) => {
+  return patch<any, TeamRequestDTO>(
+    `/api/team-requests/${ticketId}/state`,
+    { newStateId: newStateId },
     setError,
   );
 };
