@@ -227,6 +227,7 @@ export const UserList = () => {
                   </Link>
                 </Button>
                 <div>Email: {user.email}</div>
+                <div>Title: {user.title}</div>
               </div>
             </div>
           ))}

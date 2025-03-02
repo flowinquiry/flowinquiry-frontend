@@ -115,7 +115,7 @@ const TaskSheet = ({
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetContent side="right">
+      <SheetContent side="right" className="w-[56rem] max-w-[64rem]">
         <SheetHeader>
           <SheetTitle>Add New Task</SheetTitle>
         </SheetHeader>

@@ -5,17 +5,14 @@ import {
   DndContext,
   DragEndEvent,
   DragOverlay,
-  useDroppable,
 } from "@dnd-kit/core";
-import { SortableContext, useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import clsx from "clsx";
-import { Plus } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 import TaskSheet, {
   TaskBoard,
 } from "@/components/projects/project-ticket-new-sheet";
+import Column from "@/components/projects/project-view-column";
+import Task from "@/components/projects/project-view-task";
 import {
   findProjectById,
   findProjectWorkflowByTeam,
@@ -25,25 +22,20 @@ import { ProjectDTO } from "@/types/projects";
 import { TeamRequestDTO } from "@/types/team-requests";
 import { WorkflowDetailDTO } from "@/types/workflows";
 
-// ✅ Dynamic Column Order
-const COLUMN_ORDER: string[] = [
-  "backlog",
-  "ready",
-  "inProgress",
-  "review",
-  "done",
-];
-const COLUMN_COLORS: Record<string, string> = {
-  backlog: "bg-gray-300 dark:bg-gray-700",
-  ready: "bg-blue-300 dark:bg-blue-700",
-  inProgress: "bg-yellow-300 dark:bg-yellow-600",
-  review: "bg-purple-300 dark:bg-purple-700",
-  done: "bg-green-300 dark:bg-green-700",
+// ✅ Function to generate unique colors for workflow states
+const getColumnColor = (stateId: number): string => {
+  const colors = [
+    "bg-gray-300 dark:bg-gray-700",
+    "bg-blue-300 dark:bg-blue-700",
+    "bg-yellow-300 dark:bg-yellow-600",
+    "bg-purple-300 dark:bg-purple-700",
+    "bg-green-300 dark:bg-green-700",
+    "bg-red-300 dark:bg-red-700",
+    "bg-teal-300 dark:bg-teal-700",
+    "bg-pink-300 dark:bg-pink-700",
+  ];
+  return colors[stateId % colors.length];
 };
-
-// ✅ Add Item Button Colors
-const BUTTON_BG_LIGHT = "bg-gray-200 hover:bg-gray-300";
-const BUTTON_BG_DARK = "dark:bg-gray-900 dark:hover:bg-gray-800";
 
 export const ProjectView = ({
   teamId,
@@ -52,13 +44,11 @@ export const ProjectView = ({
   teamId: number;
   projectId: number;
 }) => {
-  // ✅ Project State
+  // ✅ Project & Workflow State
   const [project, setProject] = useState<ProjectDTO | null>(null);
+  const [workflow, setWorkflow] = useState<WorkflowDetailDTO | null>(null);
   const [loading, setLoading] = useState(true);
   const { setError } = useError();
-
-  // ✅ Workflow State
-  const [workflow, setWorkflow] = useState<WorkflowDetailDTO | null>(null);
 
   // ✅ Fetch Project & Workflow Data
   useEffect(() => {
@@ -79,7 +69,7 @@ export const ProjectView = ({
     fetchProjectData();
   }, [teamId, projectId]);
 
-  // ✅ Dynamic Task Board
+  // ✅ Dynamic Task Board (Tasks categorized by Workflow State ID)
   const [tasks, setTasks] = useState<TaskBoard>({});
 
   // Track Dragging Task
@@ -95,12 +85,14 @@ export const ProjectView = ({
     const activeId = event.active.id.toString();
     setSelectedTaskId(activeId);
 
-    const column = COLUMN_ORDER.find((key) =>
-      tasks[key]?.some((task) => task.id?.toString() === activeId),
+    const column = workflow?.states.find((state) =>
+      tasks[state.id!.toString()]?.some(
+        (task) => task.id?.toString() === activeId,
+      ),
     );
 
     if (column) {
-      const task = tasks[column]?.find(
+      const task = tasks[column.id!.toString()]?.find(
         (task) => task.id?.toString() === activeId,
       );
       if (task) setActiveTask(task);
@@ -116,26 +108,33 @@ export const ProjectView = ({
     const activeId = active.id.toString();
     const overId = over.id.toString();
 
-    const sourceColumn = COLUMN_ORDER.find((key) =>
-      tasks[key]?.some((task) => task.id?.toString() === activeId),
+    const sourceColumn = workflow?.states.find((state) =>
+      tasks[state.id!.toString()]?.some(
+        (task) => task.id?.toString() === activeId,
+      ),
     );
-    const targetColumn = COLUMN_ORDER.includes(overId) ? overId : undefined;
 
-    if (!sourceColumn || !targetColumn || sourceColumn === targetColumn) return;
+    const targetColumn = workflow?.states.find(
+      (state) => state.id!.toString() === overId,
+    );
+
+    if (!sourceColumn || !targetColumn || sourceColumn.id === targetColumn.id)
+      return;
 
     setTasks((prevTasks) => {
       const updatedTasks = { ...prevTasks };
 
-      const taskToMove = updatedTasks[sourceColumn]?.find(
+      const taskToMove = updatedTasks[sourceColumn.id!.toString()]?.find(
         (task) => task.id?.toString() === activeId,
       );
       if (!taskToMove) return prevTasks;
 
-      updatedTasks[sourceColumn] = updatedTasks[sourceColumn]?.filter(
-        (task) => task.id?.toString() !== activeId,
-      );
-      updatedTasks[targetColumn] = [
-        ...(updatedTasks[targetColumn] || []),
+      updatedTasks[sourceColumn.id!.toString()] = updatedTasks[
+        sourceColumn.id!.toString()
+      ]?.filter((task) => task.id?.toString() !== activeId);
+
+      updatedTasks[targetColumn.id!.toString()] = [
+        ...(updatedTasks[targetColumn.id!.toString()] || []),
         taskToMove,
       ];
 
@@ -144,8 +143,7 @@ export const ProjectView = ({
   };
 
   return (
-    <div className="p-6 h-screen flex flex-col overflow-hidden">
-      {/* ✅ Display Project Header */}
+    <div className="p-6 h-screen flex flex-col">
       {loading ? (
         <p className="text-lg font-semibold">Loading project...</p>
       ) : project ? (
@@ -165,17 +163,26 @@ export const ProjectView = ({
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        <div className="flex flex-grow gap-4 overflow-auto">
-          {COLUMN_ORDER.map((column) => (
-            <Column
-              key={column}
-              id={column}
-              title={column}
-              tasks={tasks[column] || []}
-              setIsSheetOpen={setIsSheetOpen}
-              setSelectedColumn={setSelectedColumn}
-            />
-          ))}
+        {/* 🛠 Fix: Full height scrollable container */}
+        <div className="flex flex-grow overflow-x-auto gap-4 pb-2">
+          {workflow?.states
+            .sort((a, b) => {
+              if (a.isInitial && !b.isInitial) return -1;
+              if (!a.isInitial && b.isInitial) return 1;
+              if (a.isFinal && !b.isFinal) return 1;
+              if (!a.isFinal && b.isFinal) return -1;
+              return 0;
+            })
+            .map((state) => (
+              <Column
+                key={state.id}
+                workflowState={state}
+                tasks={tasks[state.id!.toString()] || []}
+                setIsSheetOpen={setIsSheetOpen}
+                setSelectedColumn={setSelectedColumn}
+                columnColor={getColumnColor(state.id!)}
+              />
+            ))}
         </div>
 
         <DragOverlay>
@@ -189,7 +196,6 @@ export const ProjectView = ({
         </DragOverlay>
       </DndContext>
 
-      {/* ✅ Task Sheet */}
       <TaskSheet
         isOpen={isSheetOpen}
         setIsOpen={setIsSheetOpen}
@@ -198,86 +204,6 @@ export const ProjectView = ({
         teamId={project?.teamId!}
         projectWorkflowId={workflow?.id!}
       />
-    </div>
-  );
-};
-
-// ✅ Task Component
-const Task = ({
-  id,
-  title,
-  isDragging = false,
-}: {
-  id: number;
-  title: string;
-  isDragging?: boolean;
-}) => {
-  const { attributes, listeners, setNodeRef, transform } = useSortable({
-    id: id.toString(),
-  });
-
-  return (
-    <div
-      ref={setNodeRef}
-      style={{
-        transform: CSS.Transform.toString(transform),
-        cursor: isDragging ? "grabbing" : "pointer",
-      }}
-      {...attributes}
-      {...listeners}
-      className="p-2 rounded-lg shadow-md mb-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
-    >
-      {title}
-    </div>
-  );
-};
-
-// ✅ Column Component
-const Column = ({
-  id,
-  title,
-  tasks,
-  setIsSheetOpen,
-  setSelectedColumn,
-}: {
-  id: string;
-  title: string;
-  tasks: TeamRequestDTO[];
-  setIsSheetOpen: (open: boolean) => void;
-  setSelectedColumn: (column: string | null) => void;
-}) => {
-  const { setNodeRef } = useDroppable({ id });
-
-  return (
-    <div
-      ref={setNodeRef}
-      className={clsx(
-        "flex flex-col flex-grow h-full p-4 rounded shadow border border-gray-400 dark:border-gray-600",
-        COLUMN_COLORS[id],
-      )}
-    >
-      <h2 className="text-lg font-bold mb-4 capitalize">{title}</h2>
-      <div className="flex-grow overflow-y-auto scroll-smooth">
-        <SortableContext items={tasks.map((task) => task.id!.toString())}>
-          {tasks.map((task) => (
-            <Task key={task.id} id={task.id!} title={task.requestTitle} />
-          ))}
-        </SortableContext>
-      </div>
-      {/* ✅ Add Item Button */}
-      <button
-        onClick={() => {
-          setSelectedColumn(id);
-          setIsSheetOpen(true);
-        }}
-        className={clsx(
-          "mt-2 w-full flex items-center justify-center gap-2 py-2 border rounded-lg",
-          BUTTON_BG_LIGHT,
-          BUTTON_BG_DARK,
-        )}
-      >
-        <Plus className="w-5 h-5" /> Add item
-      </button>
     </div>
   );
 };
