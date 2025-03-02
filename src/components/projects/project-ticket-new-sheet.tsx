@@ -38,28 +38,28 @@ import {
   TeamRequestDTOSchema,
   TeamRequestPriority,
 } from "@/types/team-requests";
+import { WorkflowStateDTO } from "@/types/workflows";
 
-// ✅ Define TaskBoard type explicitly
 export type TaskBoard = Record<string, TeamRequestDTO[]>;
 
 const TaskSheet = ({
   isOpen,
   setIsOpen,
-  selectedColumn,
+  selectedWorkflowState,
   setTasks,
   projectWorkflowId,
   teamId,
 }: {
   isOpen: boolean;
   setIsOpen: (open: boolean) => void;
-  selectedColumn: string | null;
+  selectedWorkflowState: WorkflowStateDTO | null;
   setTasks: React.Dispatch<React.SetStateAction<TaskBoard>>;
   projectWorkflowId: number;
   teamId: number;
 }) => {
   const { setError } = useError();
-  const { data: session } = useSession();
   const [files, setFiles] = useState<File[]>([]);
+  const { data: session } = useSession();
 
   // ✅ Initialize Form
   const form = useForm({
@@ -68,34 +68,38 @@ const TaskSheet = ({
       requestTitle: "",
       requestDescription: "",
       priority: "Medium" as TeamRequestPriority,
-      requestUserId: Number(session?.user?.id ?? 0),
       assignUserId: null,
       teamId: teamId,
       workflowId: projectWorkflowId,
+      currentStateId: selectedWorkflowState?.id ?? null,
+      requestUserId: Number(session?.user?.id ?? 0),
       estimatedCompletionDate: null,
       actualCompletionDate: null,
     },
   });
 
-  // ✅ Ensure workflowId updates when projectWorkflowId changes
+  // ✅ Ensure default values persist when modal opens
   useEffect(() => {
-    form.reset({
-      ...form.getValues(),
-      requestTitle: "",
-      requestDescription: "",
-      priority: "Medium" as TeamRequestPriority,
-      requestUserId: Number(session?.user?.id ?? 0),
-      assignUserId: null,
-      teamId: teamId,
-      workflowId: projectWorkflowId,
-      estimatedCompletionDate: null,
-      actualCompletionDate: null,
-    });
-  }, [projectWorkflowId, teamId, session]);
+    if (isOpen) {
+      form.reset({
+        requestTitle: "",
+        requestDescription: "",
+        priority: "Medium",
+        assignUserId: null,
+        teamId: teamId,
+        workflowId: projectWorkflowId,
+        currentStateId: selectedWorkflowState?.id ?? null,
+        requestUserId: Number(session?.user?.id ?? 0),
+        estimatedCompletionDate: null,
+        actualCompletionDate: null,
+      });
+    }
+  }, [isOpen, form, teamId, projectWorkflowId, selectedWorkflowState]);
 
   // ✅ Handle Form Submission
   const onSubmit = async (data: TeamRequestDTO) => {
-    if (!selectedColumn) return;
+    console.log(`Data submitted: ${JSON.stringify(data)}`);
+    if (!selectedWorkflowState) return;
 
     const newTask = await createTeamRequest(data, setError);
     if (newTask?.id && files.length > 0) {
@@ -105,7 +109,10 @@ const TaskSheet = ({
     // ✅ Update Tasks State
     setTasks((prev) => ({
       ...prev,
-      [selectedColumn]: [...(prev[selectedColumn] || []), newTask],
+      [selectedWorkflowState.id!.toString()]: [
+        ...(prev[selectedWorkflowState.id!.toString()] || []),
+        newTask,
+      ],
     }));
 
     // Reset Form & Close Sheet
@@ -115,12 +122,13 @@ const TaskSheet = ({
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetContent side="right" className="w-[56rem] max-w-[64rem]">
+      <SheetContent side="right" className="w-[90vw] sm:w-[42rem] lg:w-[56rem]">
         <SheetHeader>
-          <SheetTitle>Add New Task</SheetTitle>
+          <SheetTitle>
+            Add New Task to {selectedWorkflowState?.stateName}
+          </SheetTitle>
         </SheetHeader>
 
-        {/* ✅ Form */}
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
@@ -166,7 +174,15 @@ const TaskSheet = ({
                   <FileUploader
                     maxFileCount={8}
                     maxSize={8 * 1024 * 1024}
-                    accept={{ "*/*": [] }}
+                    accept={{
+                      "application/pdf": [],
+                      "text/plain": [],
+                      "image/png": [],
+                      "image/jpeg": [],
+                      "image/jpg": [],
+                      "image/gif": [],
+                      "image/webp": [],
+                    }}
                     onValueChange={setFiles}
                   />
                 </div>
@@ -191,7 +207,6 @@ const TaskSheet = ({
                   )}
                 />
 
-                {/* ✅ Assignee Select */}
                 <TeamUserSelectField
                   form={form}
                   fieldName="assignUserId"
@@ -199,7 +214,6 @@ const TaskSheet = ({
                   teamId={teamId}
                 />
 
-                {/* ✅ Estimated Completion Date */}
                 <DatePickerField
                   form={form}
                   fieldName="estimatedCompletionDate"
@@ -207,7 +221,6 @@ const TaskSheet = ({
                   placeholder="Select a date"
                 />
 
-                {/* ✅ Actual Completion Date */}
                 <DatePickerField
                   form={form}
                   fieldName="actualCompletionDate"
@@ -215,24 +228,27 @@ const TaskSheet = ({
                   placeholder="Select a date"
                 />
 
-                {/* ✅ Ticket Channel Select */}
                 <TicketChannelSelectField form={form} />
 
-                {/* ✅ Workflow State Select */}
                 <WorkflowStateSelect
                   form={form}
                   name="currentStateId"
                   label="State"
                   required
                   workflowId={projectWorkflowId}
-                  includeSelf
                 />
               </div>
             </div>
 
-            {/* ✅ Submit Button */}
-            <div className="pt-4">
+            <div className="pt-4 flex gap-4">
               <SubmitButton label="Save" labelWhileLoading="Saving ..." />
+              <button
+                type="button"
+                className="px-4 py-2 border rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700"
+                onClick={() => setIsOpen(false)}
+              >
+                Discard
+              </button>
             </div>
           </form>
         </Form>

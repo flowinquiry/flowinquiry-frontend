@@ -1,44 +1,62 @@
+"use client";
+
+import { useDroppable } from "@dnd-kit/core";
+import { SortableContext } from "@dnd-kit/sortable";
+import clsx from "clsx";
+import { Plus } from "lucide-react";
+
 import Task from "@/components/projects/project-view-task";
 import { TeamRequestDTO } from "@/types/team-requests";
 import { WorkflowStateDTO } from "@/types/workflows";
 
-type ColumnProps = {
-  workflowState: WorkflowStateDTO;
-  tasks: TeamRequestDTO[];
-  setIsSheetOpen: (open: boolean) => void;
-  setSelectedColumn: (column: string | null) => void;
-  columnColor: string; // ✅ Ensure it's a single string
-};
+const BUTTON_COLOR =
+  "bg-gray-400 dark:bg-gray-800 hover:bg-gray-500 dark:hover:bg-gray-900";
 
-const Column: React.FC<ColumnProps> = ({
+const Column = ({
   workflowState,
   tasks,
   setIsSheetOpen,
-  setSelectedColumn,
+  setSelectedWorkflowState,
   columnColor,
+}: {
+  workflowState: WorkflowStateDTO;
+  tasks: TeamRequestDTO[];
+  setIsSheetOpen: (open: boolean) => void;
+  setSelectedWorkflowState: (state: WorkflowStateDTO) => void;
+  columnColor: string;
 }) => {
+  const { setNodeRef } = useDroppable({ id: workflowState.id!.toString() });
+
   return (
     <div
-      className={`flex flex-col flex-shrink-0 w-64 min-w-[30rem] max-w-[36rem] h-full p-4 rounded shadow border border-gray-400 dark:border-gray-600 ${columnColor}`}
+      ref={setNodeRef}
+      className={clsx(
+        "flex flex-col flex-grow min-w-[28rem] max-w-[36rem] p-4 rounded shadow border",
+        columnColor,
+      )}
     >
       <h2 className="text-lg font-bold mb-4 capitalize">
         {workflowState.stateName}
       </h2>
-      <div className="flex-grow overflow-y-auto scroll-smooth">
-        {tasks.map((task) => (
-          <Task key={task.id} id={task.id!} title={task.requestTitle} />
-        ))}
+      <div className="flex-grow overflow-y-auto">
+        <SortableContext items={tasks.map((task) => task.id!.toString())}>
+          {tasks.map((task) => (
+            <Task key={task.id} id={task.id!} title={task.requestTitle} />
+          ))}
+        </SortableContext>
       </div>
 
-      {/* ✅ Add Task Button at the bottom */}
       <button
         onClick={() => {
-          setSelectedColumn(workflowState.id!.toString());
+          setSelectedWorkflowState(workflowState);
           setIsSheetOpen(true);
         }}
-        className="mt-2 w-full flex items-center justify-center gap-2 py-2 border rounded-lg bg-gray-200 hover:bg-gray-300 dark:bg-gray-900 dark:hover:bg-gray-800"
+        className={clsx(
+          "mt-2 w-full flex items-center justify-center gap-2 py-2 border rounded-lg text-white font-semibold transition",
+          BUTTON_COLOR,
+        )}
       >
-        + Add Item
+        <Plus className="w-5 h-5" /> Add item
       </button>
     </div>
   );

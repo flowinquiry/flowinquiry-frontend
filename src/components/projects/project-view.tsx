@@ -20,7 +20,7 @@ import {
 import { useError } from "@/providers/error-provider";
 import { ProjectDTO } from "@/types/projects";
 import { TeamRequestDTO } from "@/types/team-requests";
-import { WorkflowDetailDTO } from "@/types/workflows";
+import { WorkflowDetailDTO, WorkflowStateDTO } from "@/types/workflows";
 
 // ✅ Function to generate unique colors for workflow states
 const getColumnColor = (stateId: number): string => {
@@ -77,7 +77,8 @@ export const ProjectView = ({
   // Track Selected Task
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   // Track Add Task Sheet State
-  const [selectedColumn, setSelectedColumn] = useState<string | null>(null);
+  const [selectedWorkflowState, setSelectedWorkflowState] =
+    useState<WorkflowStateDTO | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   // ✅ Handle Drag Start
@@ -179,7 +180,7 @@ export const ProjectView = ({
                 workflowState={state}
                 tasks={tasks[state.id!.toString()] || []}
                 setIsSheetOpen={setIsSheetOpen}
-                setSelectedColumn={setSelectedColumn}
+                setSelectedWorkflowState={() => setSelectedWorkflowState(state)}
                 columnColor={getColumnColor(state.id!)}
               />
             ))}
@@ -199,7 +200,7 @@ export const ProjectView = ({
       <TaskSheet
         isOpen={isSheetOpen}
         setIsOpen={setIsSheetOpen}
-        selectedColumn={selectedColumn}
+        selectedWorkflowState={selectedWorkflowState}
         setTasks={setTasks}
         teamId={project?.teamId!}
         projectWorkflowId={workflow?.id!}
