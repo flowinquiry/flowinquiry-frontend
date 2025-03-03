@@ -6,28 +6,32 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
 import clsx from "clsx";
-import { motion } from "framer-motion"; // 🎯 Import Framer Motion
+import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
 
-import Task from "@/components/projects/project-view-task";
+import TaskBlock from "@/components/projects/task-block";
 import { TeamRequestDTO } from "@/types/team-requests";
 import { WorkflowStateDTO } from "@/types/workflows";
 
 const BUTTON_COLOR =
   "bg-gray-400 dark:bg-gray-800 hover:bg-gray-500 dark:hover:bg-gray-900";
 
-const Column = ({
-  workflowState,
-  tasks,
-  setIsSheetOpen,
-  setSelectedWorkflowState,
-  columnColor,
-}: {
+type ColumnProps = {
   workflowState: WorkflowStateDTO;
   tasks: TeamRequestDTO[];
   setIsSheetOpen: (open: boolean) => void;
   setSelectedWorkflowState: (state: WorkflowStateDTO) => void;
   columnColor: string;
+  onTaskClick?: (task: TeamRequestDTO) => void; // ✅ Added prop
+};
+
+const StateColumn: React.FC<ColumnProps> = ({
+  workflowState,
+  tasks,
+  setIsSheetOpen,
+  setSelectedWorkflowState,
+  columnColor,
+  onTaskClick,
 }) => {
   const { setNodeRef } = useDroppable({ id: workflowState.id!.toString() });
 
@@ -55,11 +59,20 @@ const Column = ({
       >
         <motion.div
           className="flex-grow overflow-y-auto"
-          layout // 🎯 Enables smooth reordering animations
+          layout
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          onPointerDownCapture={(e) => e.stopPropagation()} // ✅ Prevent SortableContext from blocking clicks
         >
           {tasks.map((task) => (
-            <Task key={task.id} id={task.id!} title={task.requestTitle} />
+            <div
+              key={task.id}
+              onClick={() => {
+                onTaskClick?.(task);
+              }}
+              className="cursor-pointer"
+            >
+              <TaskBlock id={task.id!} title={task.requestTitle} />
+            </div>
           ))}
         </motion.div>
       </SortableContext>
@@ -82,4 +95,4 @@ const Column = ({
   );
 };
 
-export default Column;
+export default StateColumn;

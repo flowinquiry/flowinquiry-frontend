@@ -1,7 +1,6 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -61,7 +60,7 @@ const TaskSheet = ({
 }) => {
   const { setError } = useError();
   const [files, setFiles] = useState<File[]>([]);
-  const { data: session } = useSession();
+  // const { data: session } = useSession();
 
   // ✅ Initialize Form
   const form = useForm({
@@ -75,7 +74,7 @@ const TaskSheet = ({
       projectId: projectId,
       workflowId: projectWorkflowId,
       currentStateId: selectedWorkflowState?.id ?? null,
-      requestUserId: Number(session?.user?.id ?? 0),
+      // requestUserId: Number(session?.user?.id ?? 0),
       estimatedCompletionDate: null,
       actualCompletionDate: null,
     },
@@ -93,7 +92,7 @@ const TaskSheet = ({
         projectId: projectId,
         workflowId: projectWorkflowId,
         currentStateId: selectedWorkflowState?.id ?? null,
-        requestUserId: Number(session?.user?.id ?? 0),
+        // requestUserId: Number(session?.user?.id ?? 0),
         estimatedCompletionDate: null,
         actualCompletionDate: null,
       });
@@ -102,7 +101,6 @@ const TaskSheet = ({
 
   // ✅ Handle Form Submission
   const onSubmit = async (data: TeamRequestDTO) => {
-    console.log(`Data submitted: ${JSON.stringify(data)}`);
     if (!selectedWorkflowState) return;
 
     const newTask = await createTeamRequest(data, setError);

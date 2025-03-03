@@ -12,8 +12,9 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import TaskSheet, {
   TaskBoard,
 } from "@/components/projects/project-ticket-new-sheet";
-import Column from "@/components/projects/project-view-column";
-import Task from "@/components/projects/project-view-task";
+import StateColumn from "@/components/projects/state-column";
+import TaskBlock from "@/components/projects/task-block";
+import TaskDetailSheet from "@/components/projects/task-detail";
 import {
   findProjectById,
   findProjectWorkflowByTeam,
@@ -55,8 +56,9 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
 
   // Track Dragging Task
   const [activeTask, setActiveTask] = useState<TeamRequestDTO | null>(null);
-  // Track Selected Task
-  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  // ✅ Add state for tracking the selected task
+  const [selectedTask, setSelectedTask] = useState<TeamRequestDTO | null>(null);
+  const [isTaskDetailOpen, setIsTaskDetailOpen] = useState(false); // ✅ State to control sheet visibility
   // Track Add Task Sheet State
   const [selectedWorkflowState, setSelectedWorkflowState] =
     useState<WorkflowStateDTO | null>(null);
@@ -128,7 +130,6 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
   // ✅ Handle Drag Start
   const handleDragStart = (event: any) => {
     const activeId = event.active.id.toString();
-    setSelectedTaskId(activeId);
 
     const column = workflow?.states.find((state) =>
       tasks[state.id!.toString()]?.some(
@@ -241,20 +242,24 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
               return 0;
             })
             .map((state) => (
-              <Column
+              <StateColumn
                 key={state.id}
                 workflowState={state}
                 tasks={tasks[state.id!.toString()] || []}
                 setIsSheetOpen={setIsSheetOpen}
                 setSelectedWorkflowState={() => setSelectedWorkflowState(state)}
                 columnColor={getColumnColor(state.id!)}
+                onTaskClick={(task) => {
+                  setSelectedTask(task);
+                  setIsTaskDetailOpen(true);
+                }}
               />
             ))}
         </div>
 
         <DragOverlay>
           {activeTask ? (
-            <Task
+            <TaskBlock
               id={activeTask.id!}
               title={activeTask.requestTitle}
               isDragging
@@ -271,6 +276,11 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
         teamId={project?.teamId!}
         projectId={projectId}
         projectWorkflowId={workflow?.id!}
+      />
+      <TaskDetailSheet
+        isOpen={isTaskDetailOpen}
+        setIsOpen={setIsTaskDetailOpen}
+        task={selectedTask}
       />
     </div>
   );

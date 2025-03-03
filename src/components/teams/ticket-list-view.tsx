@@ -107,6 +107,17 @@ const TicketListView = () => {
     const groups: GroupFilter[] = [];
     let assignedGroupFilter: GroupFilter | undefined = undefined;
 
+    groups.push({
+      filters: [
+        {
+          field: "project.id",
+          operator: "eq",
+          value: null, // filter project ticker out which is managed by project
+        },
+      ],
+      logicalOperator: "AND",
+    });
+
     const statusFilters: Filter[] = [];
     if (statuses.includes("New")) {
       statusFilters.push({

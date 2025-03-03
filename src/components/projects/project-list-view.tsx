@@ -1,17 +1,19 @@
 "use client";
 
-import { Loader, MoreHorizontal } from "lucide-react";
+import { Loader, MoreHorizontal, Pencil, Trash } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
 import { Heading } from "@/components/heading";
-import NewProjectDialog from "@/components/projects/project-new-dialog";
+import ProjectEditDialog from "@/components/projects/project-edit-dialog";
 import { TeamAvatar } from "@/components/shared/avatar-display";
 import PaginationExt from "@/components/shared/pagination-ext";
 import TeamNavLayout from "@/components/teams/team-nav";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
@@ -30,7 +32,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { usePagePermission } from "@/hooks/use-page-permission";
-import { searchProjects } from "@/lib/actions/project.action";
+import { deleteProject, searchProjects } from "@/lib/actions/project.action";
 import { obfuscate } from "@/lib/endecode";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
 import { useError } from "@/providers/error-provider";
@@ -52,36 +54,37 @@ const ProjectListView = () => {
   const permissionLevel = usePagePermission();
   const teamRole = useUserTeamRole().role;
 
-  const [open, setOpen] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
   const [projects, setProjects] = useState<ProjectDTO[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState(""); // Debounced value
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const [statusFilter, setStatusFilter] = useState("Active");
   const { setError } = useError();
 
-  // Debounce search input (wait 300ms before updating debouncedSearch)
+  // Delete confirmation state
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedProject, setSelectedProject] = useState<ProjectDTO | null>(
+    null,
+  );
+
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(searchQuery);
     }, 300);
-
-    return () => clearTimeout(handler); // Cleanup function
+    return () => clearTimeout(handler);
   }, [searchQuery]);
 
   const fetchProjects = async () => {
     setLoading(true);
-
     try {
-      // Build filters dynamically
       const filters: Filter[] = [
         { field: "team.id", operator: "eq", value: team.id! },
         { field: "status", operator: "eq", value: statusFilter },
       ];
-
       if (debouncedSearch.trim()) {
         filters.push({
           field: "name",
@@ -90,10 +93,7 @@ const ProjectListView = () => {
         });
       }
 
-      const query: QueryDTO = {
-        groups: [{ logicalOperator: "AND", filters }],
-      };
-
+      const query: QueryDTO = { groups: [{ logicalOperator: "AND", filters }] };
       const pageResult = await searchProjects(
         query,
         {
@@ -118,25 +118,26 @@ const ProjectListView = () => {
     fetchProjects();
   }, [currentPage, statusFilter, debouncedSearch]);
 
-  const onCreatedProjectSuccess = () => {
-    fetchProjects(); // Refresh project list after new project creation
+  const onCreatedOrUpdatedProjectSuccess = () => {
+    fetchProjects();
   };
 
-  const handleEdit = (project: ProjectDTO) => {
-    console.log("Edit project:", project);
-    // TODO: Implement edit functionality
+  const confirmDelete = (project: ProjectDTO) => {
+    setSelectedProject(project);
+    setDeleteDialogOpen(true);
   };
 
-  const handleDelete = (project: ProjectDTO) => {
-    console.log("Delete project:", project);
-    // TODO: Implement delete functionality
+  const handleDelete = async () => {
+    if (!selectedProject) return;
+    await deleteProject(selectedProject.id!);
+    setDeleteDialogOpen(false);
+    fetchProjects();
   };
 
   return (
     <BreadcrumbProvider items={breadcrumbItems}>
       <TeamNavLayout teamId={team.id!}>
         <div className="grid grid-cols-1 gap-4">
-          {/* Header */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <Tooltip>
@@ -161,12 +162,20 @@ const ProjectListView = () => {
               teamRole === "Manager" ||
               teamRole === "Member") && (
               <div className="flex items-center">
-                <Button onClick={() => setOpen(true)}>New Project</Button>
-                <NewProjectDialog
-                  open={open}
-                  setOpen={setOpen}
+                <Button
+                  onClick={() => {
+                    setSelectedProject(null);
+                    setOpenDialog(true);
+                  }}
+                >
+                  New Project
+                </Button>
+                <ProjectEditDialog
+                  open={openDialog}
+                  setOpen={setOpenDialog}
                   teamEntity={team}
-                  onSaveSuccess={onCreatedProjectSuccess}
+                  project={selectedProject}
+                  onSaveSuccess={onCreatedOrUpdatedProjectSuccess}
                 />
               </div>
             )}
@@ -191,7 +200,6 @@ const ProjectListView = () => {
             </ToggleGroup>
           </div>
 
-          {/* Project List */}
           <div className="bg-white dark:bg-gray-900 p-4 rounded-lg shadow">
             {loading ? (
               <Loader />
@@ -212,32 +220,14 @@ const ProjectListView = () => {
                     {projects.map((project) => (
                       <TableRow key={project.id}>
                         <TableCell>
-                          <Tooltip>
-                            <TooltipTrigger asChild>
-                              <Link
-                                href={`/portal/teams/${obfuscate(team.id)}/projects/${obfuscate(project.id)}`}
-                                className="text-blue-500 hover:underline"
-                              >
-                                {project.name}
-                              </Link>
-                            </TooltipTrigger>
-                            <TooltipContent>
-                              <div
-                                dangerouslySetInnerHTML={{
-                                  __html:
-                                    project.description ||
-                                    "No description available",
-                                }}
-                                className="text-sm text-gray-300"
-                              />
-                            </TooltipContent>
-                          </Tooltip>
+                          <Link
+                            href={`/portal/teams/${obfuscate(team.id)}/projects/${obfuscate(project.id)}`}
+                            className="text-blue-500 hover:underline"
+                          >
+                            {project.name}
+                          </Link>
                         </TableCell>
-                        <TableCell>
-                          <span className="px-2 py-1 rounded-md bg-blue-500 text-white text-xs">
-                            {project.status}
-                          </span>
-                        </TableCell>
+                        <TableCell>{project.status}</TableCell>
                         <TableCell>
                           {project.startDate
                             ? new Date(project.startDate).toLocaleDateString()
@@ -260,6 +250,22 @@ const ProjectListView = () => {
                                 <MoreHorizontal className="w-5 h-5" />
                               </Button>
                             </DropdownMenuTrigger>
+                            <DropdownMenuContent>
+                              <DropdownMenuItem
+                                onClick={() => {
+                                  setSelectedProject(project);
+                                  setOpenDialog(true);
+                                }}
+                              >
+                                <Pencil className="w-4 h-4 mr-2" /> Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuItem
+                                onClick={() => confirmDelete(project)}
+                                className="text-red-600"
+                              >
+                                <Trash className="w-4 h-4 mr-2" /> Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
                       </TableRow>
