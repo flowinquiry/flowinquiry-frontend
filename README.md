@@ -1,6 +1,8 @@
 # FlowInquiry Client
 
 [![Build status](https://github.com/flowinquiry/flowinquiry-frontend/actions/workflows/node.js.yml/badge.svg)](https://github.com/flowinquiry/flowinquiry-frontend/actions/workflows/node.js.yml)
+[![Contributors](https://img.shields.io/github/contributors/flowinquiry/flowinquiry-frontend.svg)](https://github.com/flowinquiry/flowinquiry-frontend/graphs/contributors)
+[![Docker Pulls](https://img.shields.io/docker/pulls/flowinquiry/flowinquiry-frontend)](https://hub.docker.com/r/flowinquiry/flowinquiry-frontend)
 ![License](https://img.shields.io/badge/License-AGPLv3-blue)
 
 <div style="display: flex; justify-content: center; align-items: center;">

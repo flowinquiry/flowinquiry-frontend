@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 
@@ -26,22 +26,24 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { createProject } from "@/lib/actions/project.action";
+import { createProject, updateProject } from "@/lib/actions/project.action";
 import { useError } from "@/providers/error-provider";
 import { ProjectDTO, ProjectSchema } from "@/types/projects";
 import { TeamDTO } from "@/types/teams";
 
-type NewRProjectDialogProps = {
+type ProjectDialogProps = {
   open: boolean;
   setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   teamEntity: TeamDTO;
+  project?: ProjectDTO | null;
   onSaveSuccess: () => void;
 };
 
-const NewProjectDialog: React.FC<NewRProjectDialogProps> = ({
+const ProjectEditDialog: React.FC<ProjectDialogProps> = ({
   open,
   setOpen,
   teamEntity,
+  project,
   onSaveSuccess,
 }) => {
   const { setError } = useError();
@@ -50,13 +52,44 @@ const NewProjectDialog: React.FC<NewRProjectDialogProps> = ({
     resolver: zodResolver(ProjectSchema),
     defaultValues: {
       teamId: teamEntity.id!,
+      name: "",
+      description: "",
       status: "Active",
+      startDate: null,
+      endDate: null,
     },
   });
 
+  // Populate form when editing an existing project
+  useEffect(() => {
+    if (project) {
+      form.reset({
+        teamId: teamEntity.id!,
+        name: project.name || "",
+        description: project.description || "",
+        status: project.status || "Active",
+        startDate: project.startDate || null,
+        endDate: project.endDate || null,
+      });
+    } else {
+      form.reset({
+        teamId: teamEntity.id!,
+        name: "",
+        description: "",
+        status: "Active",
+        startDate: null,
+        endDate: null,
+      });
+    }
+  }, [project, teamEntity.id, open]);
+
   const onSubmit = async (data: ProjectDTO) => {
-    await createProject(data, setError);
-    console.log(`Project ${JSON.stringify(data)}`);
+    if (project) {
+      await updateProject(project.id!, data, setError);
+    } else {
+      await createProject(data, setError);
+    }
+
     setOpen(false);
     onSaveSuccess();
   };
@@ -65,9 +98,11 @@ const NewProjectDialog: React.FC<NewRProjectDialogProps> = ({
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="sm:max-w-[56rem] max-h-[90vh] p-4 sm:p-6 flex flex-col overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>New Project</DialogTitle>
+          <DialogTitle>{project ? "Edit Project" : "New Project"}</DialogTitle>
           <DialogDescription>
-            Every great project starts with a first step. Let's begin!
+            {project
+              ? "Modify the project details."
+              : "Every great project starts with a first step. Let's begin!"}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -133,7 +168,10 @@ const NewProjectDialog: React.FC<NewRProjectDialogProps> = ({
 
             {/* Submit Button */}
             <div className="pt-4">
-              <SubmitButton label="Save" labelWhileLoading="Saving ..." />
+              <SubmitButton
+                label={project ? "Save Changes" : "Save"}
+                labelWhileLoading="Saving ..."
+              />
             </div>
           </form>
         </Form>
@@ -142,4 +180,4 @@ const NewProjectDialog: React.FC<NewRProjectDialogProps> = ({
   );
 };
 
-export default NewProjectDialog;
+export default ProjectEditDialog;

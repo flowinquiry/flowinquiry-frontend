@@ -11,7 +11,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip"; // 📌 ShadCN Tooltip
 
-const Task = ({
+const TaskBlock = ({
   id,
   title,
   isDragging = false,
@@ -60,4 +60,4 @@ const Task = ({
   );
 };
 
-export default Task;
+export default TaskBlock;

@@ -1,11 +1,11 @@
 import { z } from "zod";
 
-export type Operator = "gt" | "lt" | "eq" | "in" | "lk";
+export type Operator = "gt" | "lt" | "eq" | "ne" | "in" | "lk";
 
 export type Filter = {
   field: string;
   operator: Operator;
-  value: string | number | boolean | (string | number | boolean)[];
+  value: string | number | boolean | null | (string | number | boolean)[];
 };
 
 export type GroupFilter = {
@@ -29,11 +29,12 @@ export type Pagination = {
 // Zod schema for filters
 const filterSchema = z.object({
   field: z.string(),
-  operator: z.enum(["eq", "gt", "lt", "lk", "in"]),
+  operator: z.enum(["eq", "ne", "gt", "lt", "lk", "in"]),
   value: z.union([
     z.string(),
     z.number(),
     z.boolean(),
+    z.null(),
     z.array(z.union([z.string(), z.number(), z.boolean()])),
   ]),
 });
