@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ExtInputField, ExtTextAreaField } from "@/components/ui/ext-form";
 import { Form } from "@/components/ui/form";
-import WorkflowStatesSelect from "@/components/workflows/workflow-states-select";
+import WorkflowStatesSelectField from "@/components/workflows/workflow-states-select-field";
 import { WorkflowDetailDTO, WorkflowDetailSchema } from "@/types/workflows";
 
 let temporaryIdCounter = -1;
@@ -162,7 +162,7 @@ const WorkflowEditForm = ({
                 className="flex items-center gap-4 mb-4"
               >
                 <div className="flex-1">
-                  <WorkflowStatesSelect
+                  <WorkflowStatesSelectField
                     fieldName={`transitions.${index}.sourceStateId`}
                     form={form}
                     label="Source State"
@@ -175,7 +175,7 @@ const WorkflowEditForm = ({
                   />
                 </div>
                 <div className="flex-1">
-                  <WorkflowStatesSelect
+                  <WorkflowStatesSelectField
                     fieldName={`transitions.${index}.targetStateId`}
                     form={form}
                     label="Target State"

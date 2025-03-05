@@ -80,10 +80,11 @@ export const TeamRequestDTOSchema = z.object({
   conversationHealth: TeamRequestConversationHealthDTOSchema.optional(),
 });
 
+export type TeamRequestDTO = z.infer<typeof TeamRequestDTOSchema>;
+
 export type TeamRequestConversationHealthDTO = z.infer<
   typeof TeamRequestConversationHealthDTOSchema
 >;
-export type TeamRequestDTO = z.infer<typeof TeamRequestDTOSchema>;
 
 export type TicketChannel =
   | "Email"

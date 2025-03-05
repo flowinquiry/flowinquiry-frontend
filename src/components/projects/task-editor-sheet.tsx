@@ -1,13 +1,14 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useSession } from "next-auth/react";
 import React, { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
 import RichTextEditor from "@/components/shared/rich-text-editor";
 import { TeamRequestPrioritySelect } from "@/components/teams/team-requests-priority-select";
 import TicketChannelSelectField from "@/components/teams/team-ticket-channel-select";
-import TeamUserSelectField from "@/components/teams/team-users-select";
+import TeamUserSelectField from "@/components/teams/team-users-select-field";
 import {
   DatePickerField,
   ExtInputField,
@@ -41,7 +42,7 @@ import { WorkflowStateDTO } from "@/types/workflows";
 
 export type TaskBoard = Record<string, TeamRequestDTO[]>;
 
-const TaskSheet = ({
+const TaskEditorSheet = ({
   isOpen,
   setIsOpen,
   selectedWorkflowState,
@@ -60,7 +61,12 @@ const TaskSheet = ({
 }) => {
   const { setError } = useError();
   const [files, setFiles] = useState<File[]>([]);
-  // const { data: session } = useSession();
+  const { data: session } = useSession();
+
+  // Track the current state name when it changes
+  const [currentStateName, setCurrentStateName] = useState<string | null>(
+    selectedWorkflowState?.stateName || null,
+  );
 
   // ✅ Initialize Form
   const form = useForm({
@@ -74,7 +80,7 @@ const TaskSheet = ({
       projectId: projectId,
       workflowId: projectWorkflowId,
       currentStateId: selectedWorkflowState?.id ?? null,
-      // requestUserId: Number(session?.user?.id ?? 0),
+      requestUserId: Number(session?.user?.id ?? 0),
       estimatedCompletionDate: null,
       actualCompletionDate: null,
     },
@@ -83,6 +89,9 @@ const TaskSheet = ({
   // ✅ Ensure default values persist when modal opens
   useEffect(() => {
     if (isOpen) {
+      // Reset the current state name when the sheet opens
+      setCurrentStateName(selectedWorkflowState?.stateName || null);
+
       form.reset({
         requestTitle: "",
         requestDescription: "",
@@ -92,30 +101,50 @@ const TaskSheet = ({
         projectId: projectId,
         workflowId: projectWorkflowId,
         currentStateId: selectedWorkflowState?.id ?? null,
-        // requestUserId: Number(session?.user?.id ?? 0),
+        requestUserId: Number(session?.user?.id ?? 0),
         estimatedCompletionDate: null,
         actualCompletionDate: null,
       });
     }
   }, [isOpen, form, teamId, projectWorkflowId, selectedWorkflowState]);
 
+  // Handler for when workflow state changes in the form
+  const handleWorkflowStateChange = (stateId: number, stateName: string) => {
+    // Update the form value
+    form.setValue("currentStateId", stateId);
+
+    // Save the state name for later use
+    setCurrentStateName(stateName);
+  };
+
   // ✅ Handle Form Submission
   const onSubmit = async (data: TeamRequestDTO) => {
-    if (!selectedWorkflowState) return;
+    // Create the task with the state name included
+    const taskWithStateName = {
+      ...data,
+      currentStateName: currentStateName,
+    };
 
-    const newTask = await createTeamRequest(data, setError);
+    // Create the new task
+    const newTask = await createTeamRequest(taskWithStateName, setError);
     if (newTask?.id && files.length > 0) {
       await uploadAttachmentsForEntity("Team_Request", newTask.id, files);
     }
 
-    // ✅ Update Tasks State
-    setTasks((prev) => ({
-      ...prev,
-      [selectedWorkflowState.id!.toString()]: [
-        ...(prev[selectedWorkflowState.id!.toString()] || []),
-        newTask,
-      ],
-    }));
+    // Get the final state ID from the submitted form data
+    const finalStateId = data.currentStateId?.toString();
+
+    if (finalStateId) {
+      // Update Tasks State using the final state ID
+      setTasks((prev) => ({
+        ...prev,
+        [finalStateId]: [
+          ...(prev[finalStateId] || []),
+          // Make sure the task in the UI has the state name
+          { ...newTask, currentStateName },
+        ],
+      }));
+    }
 
     // Reset Form & Close Sheet
     form.reset();
@@ -232,13 +261,20 @@ const TaskSheet = ({
 
                 <TicketChannelSelectField form={form} />
 
-                <WorkflowStateSelect
-                  form={form}
-                  name="currentStateId"
-                  label="State"
-                  required
-                  workflowId={projectWorkflowId}
-                />
+                {/* Modified workflow state field to capture state name changes */}
+                <FormItem>
+                  <FormLabel>
+                    State <span className="text-destructive">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <WorkflowStateSelect
+                      workflowId={projectWorkflowId}
+                      currentStateId={form.getValues("currentStateId") || 0}
+                      onChange={handleWorkflowStateChange}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
               </div>
             </div>
 
@@ -259,4 +295,4 @@ const TaskSheet = ({
   );
 };
 
-export default TaskSheet;
+export default TaskEditorSheet;

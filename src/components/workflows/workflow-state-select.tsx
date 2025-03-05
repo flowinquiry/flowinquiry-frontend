@@ -1,14 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { UseFormReturn } from "react-hook-form";
+import React, { useEffect, useState } from "react";
 
-import {
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-} from "@/components/ui/form";
 import {
   Select,
   SelectContent,
@@ -16,33 +9,29 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  getInitialStates,
-  getValidTargetStates,
-} from "@/lib/actions/workflows.action";
-import { cn } from "@/lib/utils";
+import { getValidTargetStates } from "@/lib/actions/workflows.action";
 import { useError } from "@/providers/error-provider";
 import { WorkflowStateDTO } from "@/types/workflows";
 
 type WorkflowStateSelectProps = {
-  form: UseFormReturn<any>;
-  name: string;
-  label?: string;
   workflowId: number;
-  workflowStateId?: number;
-  includeSelf?: boolean;
-  required?: boolean;
+  currentStateId?: number;
+  onChange: (stateId: number, stateName: string) => void;
+  disabled?: boolean;
 };
 
-const WorkflowStateSelect = ({
-  form,
-  name,
-  label = "Select Workflow State",
+/**
+ * A component for selecting workflow states
+ *
+ * This component loads the valid target states for a workflow and state,
+ * and provides a select dropdown to choose a new state.
+ */
+const WorkflowStateSelect: React.FC<WorkflowStateSelectProps> = ({
   workflowId,
-  workflowStateId,
-  includeSelf = false,
-  required = false,
-}: WorkflowStateSelectProps) => {
+  currentStateId,
+  onChange,
+  disabled = false,
+}) => {
   const [workflowStates, setWorkflowStates] = useState<WorkflowStateDTO[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { setError } = useError();
@@ -51,94 +40,58 @@ const WorkflowStateSelect = ({
     const loadWorkflowStates = async () => {
       setIsLoading(true);
       try {
-        let data: WorkflowStateDTO[];
-
-        if (workflowStateId !== undefined) {
-          data = await getValidTargetStates(
+        if (workflowId && currentStateId) {
+          const data = await getValidTargetStates(
             workflowId,
-            workflowStateId,
-            includeSelf,
+            currentStateId,
+            true, // includeSelf
             setError,
           );
-        } else {
-          data = await getInitialStates(workflowId, setError);
+          setWorkflowStates(data);
         }
-
-        setWorkflowStates(data);
+      } catch (error) {
+        console.error("Failed to load workflow states:", error);
       } finally {
         setIsLoading(false);
       }
     };
 
-    if (workflowId) {
-      loadWorkflowStates();
+    loadWorkflowStates();
+  }, [workflowId, currentStateId, setError]);
+
+  const selectedState = workflowStates.find(
+    (state) => state.id === currentStateId,
+  );
+
+  const handleStateChange = (value: string) => {
+    const stateId = Number(value);
+    const newState = workflowStates.find((state) => state.id === stateId);
+
+    if (newState) {
+      // Pass both the ID and the name to the parent component
+      onChange(stateId, newState.stateName);
     }
-  }, [workflowId, workflowStateId, includeSelf, setError]);
-
-  useEffect(() => {
-    if (workflowStates.length > 0) {
-      const currentValue = form.getValues(name);
-
-      // ✅ Ensure the Select component reflects the correct value
-      if (
-        !currentValue ||
-        !workflowStates.some((state) => state.id === currentValue)
-      ) {
-        const defaultState =
-          workflowStates.find((state) => state.id === workflowStateId) ||
-          workflowStates[0];
-
-        if (defaultState) {
-          form.setValue(name, defaultState.id, {
-            shouldValidate: true,
-            shouldDirty: true,
-          });
-        }
-      }
-    }
-  }, [workflowStates, workflowStateId, form, name]);
+  };
 
   return (
-    <FormField
-      control={form.control}
-      name={name}
-      render={({ field }) => {
-        const selectedState = workflowStates.find(
-          (state) => state.id === field.value,
-        );
-
-        return (
-          <FormItem>
-            <FormLabel>
-              {label}
-              {required && <span className="text-destructive"> *</span>}
-            </FormLabel>
-            <FormControl>
-              <Select
-                value={field.value ? String(field.value) : ""}
-                onValueChange={(value) =>
-                  field.onChange(value ? Number(value) : null)
-                }
-                disabled={isLoading || workflowStates.length === 0}
-              >
-                <SelectTrigger className={cn("w-[16rem]")}>
-                  <SelectValue
-                    placeholder={selectedState?.stateName || "Select a state"}
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  {workflowStates.map((state) => (
-                    <SelectItem key={state.id} value={String(state.id)}>
-                      {state.stateName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </FormControl>
-          </FormItem>
-        );
-      }}
-    />
+    <Select
+      value={currentStateId ? String(currentStateId) : ""}
+      onValueChange={handleStateChange}
+      disabled={disabled || isLoading || workflowStates.length === 0}
+    >
+      <SelectTrigger className="w-full">
+        <SelectValue placeholder="Select a state">
+          {selectedState?.stateName || "Loading states..."}
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        {workflowStates.map((state) => (
+          <SelectItem key={state.id} value={String(state.id!)}>
+            {state.stateName}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 };
 

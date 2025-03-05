@@ -1,5 +1,6 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 import {
@@ -44,7 +45,7 @@ export default function WorkflowReviewDialog({
 
       fetchWorkflowDetail();
     }
-  }, [open, workflowId]);
+  }, [open, workflowId, setError]);
 
   /**
    * Finds state name by state ID
@@ -58,64 +59,74 @@ export default function WorkflowReviewDialog({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="w-full max-w-[80vw] h-full max-h-[80vh] flex flex-col">
-        <DialogHeader>
+      <DialogContent className="w-full max-w-[85vw] h-[85vh] max-h-[85vh] p-0 flex flex-col">
+        <DialogHeader className="px-6 py-4 border-b">
           <DialogTitle>Review Workflow: {workflowDetail?.name}</DialogTitle>
         </DialogHeader>
 
         {/* Layout: Left -> Diagram | Right -> Transitions List */}
-        <div className="flex flex-grow gap-4 p-4">
-          {/* Left: Workflow Diagram (Scrollable) */}
-          <div className="flex-grow border border-gray-200 rounded-lg overflow-hidden">
+        <div className="flex flex-grow h-full overflow-hidden">
+          {/* Left: Workflow Diagram */}
+          <div className="flex-grow h-full overflow-hidden border-r">
             {loading ? (
               <div className="flex items-center justify-center h-full">
-                Loading...
+                <Loader2 className="h-8 w-8 animate-spin" />
+                <span className="ml-2">Loading workflow diagram...</span>
               </div>
             ) : (
               workflowDetail && (
-                <ScrollArea className="w-full h-full">
-                  <div className="w-full h-full overflow-auto flex justify-center items-center">
-                    <div className="max-w-[1000px] max-h-[600px] w-full h-full">
-                      <WorkflowDiagram workflowDetails={workflowDetail} />
-                    </div>
-                  </div>
-                </ScrollArea>
+                <div className="w-full h-full">
+                  <WorkflowDiagram workflowDetails={workflowDetail} />
+                </div>
               )
             )}
           </div>
 
-          {/* Right: Transitions & SLA Info (Scrollable) */}
-          <div className="w-[350px] border border-gray-200 rounded-lg p-4 bg-gray-50 dark:bg-gray-900">
-            <h3 className="text-lg font-semibold mb-2">State Transitions</h3>
-            <ScrollArea className="h-[calc(80vh-150px)]">
-              {workflowDetail?.transitions.length ? (
-                workflowDetail.transitions.map(
-                  (transition: WorkflowTransitionDTO) => (
-                    <div
-                      key={transition.id}
-                      className="p-2 border-b border-gray-300 last:border-b-0"
-                    >
-                      <p className="text-sm">
-                        <strong>[{transition.eventName}]</strong>{" "}
-                        {getStateName(transition.sourceStateId!)} →{" "}
-                        {getStateName(transition.targetStateId!)}
-                      </p>
-                      <p className="text-xs text-gray-600 dark:text-gray-400">
-                        SLA:{" "}
-                        {transition.slaDuration
-                          ? `${transition.slaDuration} hours`
-                          : "No SLA"}{" "}
-                        | Escalated:{" "}
-                        {transition.escalateOnViolation ? "Yes" : "No"}
-                      </p>
-                    </div>
-                  ),
-                )
-              ) : (
-                <p className="text-sm text-gray-500">
-                  No transitions available.
-                </p>
-              )}
+          {/* Right: Transitions & SLA Info */}
+          <div className="w-[350px] bg-muted/30 flex flex-col h-full">
+            <div className="p-4 border-b">
+              <h3 className="text-lg font-semibold">State Transitions</h3>
+            </div>
+            <ScrollArea className="flex-grow p-4">
+              <div className="space-y-2">
+                {workflowDetail?.transitions.length ? (
+                  workflowDetail.transitions.map(
+                    (transition: WorkflowTransitionDTO) => (
+                      <div
+                        key={transition.id}
+                        className="p-3 rounded-md bg-background border"
+                      >
+                        <p className="text-sm font-medium">
+                          <span className="inline-block px-2 py-0.5 bg-primary/10 text-primary rounded-md mb-1">
+                            {transition.eventName}
+                          </span>
+                        </p>
+                        <p className="text-sm">
+                          {getStateName(transition.sourceStateId!)} →{" "}
+                          {getStateName(transition.targetStateId!)}
+                        </p>
+                        <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                          <span className="inline-flex items-center">
+                            SLA:{" "}
+                            {transition.slaDuration
+                              ? `${transition.slaDuration} hours`
+                              : "No SLA"}
+                          </span>
+                          <span className="inline-block h-1 w-1 rounded-full bg-muted-foreground"></span>
+                          <span className="inline-flex items-center">
+                            Escalated:{" "}
+                            {transition.escalateOnViolation ? "Yes" : "No"}
+                          </span>
+                        </div>
+                      </div>
+                    ),
+                  )
+                ) : (
+                  <p className="text-sm text-muted-foreground py-4">
+                    No transitions available.
+                  </p>
+                )}
+              </div>
             </ScrollArea>
           </div>
         </div>

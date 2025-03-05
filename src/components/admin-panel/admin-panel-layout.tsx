@@ -15,24 +15,21 @@ export default function AdminPanelLayout({
   if (!sidebar) return null;
   const { getOpenState, settings } = sidebar;
   return (
-    <>
+    <div className="flex h-screen overflow-hidden">
       <Sidebar />
-      <main
+      <div
         className={cn(
-          "min-h-[calc(100vh_-_56px)] bg-zinc-50 dark:bg-zinc-900 transition-[margin-left] ease-in-out duration-300",
+          "flex flex-col w-full h-full transition-[margin-left] ease-in-out duration-300",
           !settings.disabled && (!getOpenState() ? "lg:ml-[90px]" : "lg:ml-72"),
         )}
       >
-        {children}
-      </main>
-      <footer
-        className={cn(
-          "transition-[margin-left] ease-in-out duration-300",
-          !settings.disabled && (!getOpenState() ? "lg:ml-[90px]" : "lg:ml-72"),
-        )}
-      >
-        <Footer />
-      </footer>
-    </>
+        <main className="flex-1 overflow-auto bg-zinc-50 dark:bg-zinc-900">
+          {children}
+        </main>
+        <footer>
+          <Footer />
+        </footer>
+      </div>
+    </div>
   );
 }

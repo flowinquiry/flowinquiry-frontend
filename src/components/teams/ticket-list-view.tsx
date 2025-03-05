@@ -1,13 +1,6 @@
 "use client";
 
 import { CaretDownIcon } from "@radix-ui/react-icons";
-import {
-  ArrowDown,
-  ArrowUp,
-  CheckCircle,
-  Clock,
-  UserCheck,
-} from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
@@ -18,6 +11,7 @@ import PaginationExt from "@/components/shared/pagination-ext";
 import TeamNavLayout from "@/components/teams/team-nav";
 import NewRequestToTeamDialog from "@/components/teams/team-new-request-dialog";
 import TeamRequestsStatusView from "@/components/teams/team-requests-status";
+import TicketAdvancedSearch from "@/components/teams/ticket-advanced-search";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -25,8 +19,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
-import { Toggle } from "@/components/ui/toggle";
 import {
   Tooltip,
   TooltipContent,
@@ -40,7 +32,7 @@ import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
 import { useError } from "@/providers/error-provider";
 import { useTeam } from "@/providers/team-provider";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
-import { Filter, GroupFilter, QueryDTO } from "@/types/query";
+import { QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/team-requests";
 import { WorkflowDTO } from "@/types/workflows";
@@ -65,6 +57,7 @@ const TicketListView = () => {
 
   const [open, setOpen] = useState(false);
 
+  // Basic state management
   const [searchText, setSearchText] = useState("");
   const [debouncedSearchText, setDebouncedSearchText] = useState("");
   const [isAscending, setIsAscending] = useState(false);
@@ -80,6 +73,10 @@ const TicketListView = () => {
   const [statuses, setStatuses] = useState<string[]>(["New", "Assigned"]);
   const { setError } = useError();
 
+  // Enhanced state for advanced search
+  const [fullQuery, setFullQuery] = useState<QueryDTO | null>(null);
+
+  // Pagination state
   const [pagination, setPagination] = useState<Pagination>({
     page: 1,
     size: 10,
@@ -91,81 +88,8 @@ const TicketListView = () => {
     ],
   });
 
-  const toggleStatus = (status: string) => {
-    if (statuses.includes(status)) {
-      if (statuses.length === 1) return;
-      setStatuses(statuses.filter((s) => s !== status));
-    } else {
-      setStatuses([...statuses, status]);
-    }
-  };
-
-  // Construct QueryDTO based on search parameters
-  const [query, setQuery] = useState<QueryDTO>({ filters: [] });
-
+  // Update sort direction when isAscending changes
   useEffect(() => {
-    const groups: GroupFilter[] = [];
-    let assignedGroupFilter: GroupFilter | undefined = undefined;
-
-    groups.push({
-      filters: [
-        {
-          field: "project.id",
-          operator: "eq",
-          value: null, // filter project ticker out which is managed by project
-        },
-      ],
-      logicalOperator: "AND",
-    });
-
-    const statusFilters: Filter[] = [];
-    if (statuses.includes("New")) {
-      statusFilters.push({
-        field: "isNew",
-        operator: "eq",
-        value: true,
-      });
-    }
-    if (statuses.includes("Completed")) {
-      statusFilters.push({
-        field: "isCompleted",
-        operator: "eq",
-        value: true,
-      });
-    }
-    if (statuses.includes("Assigned")) {
-      assignedGroupFilter = {
-        logicalOperator: "AND",
-        filters: [
-          { field: "isCompleted", operator: "eq", value: false },
-          { field: "isNew", operator: "eq", value: false },
-        ],
-      };
-    }
-
-    if (statusFilters.length > 0 || assignedGroupFilter) {
-      groups.push({
-        filters: statusFilters,
-        groups: assignedGroupFilter ? [assignedGroupFilter] : [],
-        logicalOperator: "OR",
-      });
-    }
-
-    if (debouncedSearchText.trim() !== "") {
-      groups.push({
-        filters: [
-          {
-            field: "requestTitle",
-            operator: "lk",
-            value: `%${debouncedSearchText}%`,
-          },
-        ],
-        logicalOperator: "AND",
-      });
-    }
-
-    setQuery({ groups });
-
     setPagination((prev) => ({
       ...prev,
       sort: [
@@ -175,16 +99,18 @@ const TicketListView = () => {
         },
       ],
     }));
-  }, [debouncedSearchText, statuses, isAscending]);
+  }, [isAscending]);
 
+  // Debounce the search text input
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearchText(searchText);
-    }, 3000);
+    }, 800); // Using a shorter debounce time for better responsiveness
 
     return () => clearTimeout(handler);
   }, [searchText]);
 
+  // Fetch team workflows
   useEffect(() => {
     const fetchWorkflows = () => {
       getWorkflowsByTeam(team.id!, false, setError).then((data) =>
@@ -194,16 +120,24 @@ const TicketListView = () => {
     fetchWorkflows();
   }, [team.id]);
 
+  // Handle filter changes from TicketAdvancedSearch
+  const handleFilterChange = (query: QueryDTO) => {
+    setFullQuery(query);
+  };
+
+  // Fetch tickets with the full query
   const fetchTickets = async () => {
     setLoading(true);
 
     try {
+      // Create a combined query that includes team ID filter
       const combinedQuery: QueryDTO = {
         groups: [
           {
             logicalOperator: "AND",
             filters: [{ field: "team.id", operator: "eq", value: team.id! }],
-            groups: query.groups || [],
+            // Include all groups from the fullQuery if it exists
+            groups: fullQuery?.groups || [],
           },
         ],
       };
@@ -226,10 +160,12 @@ const TicketListView = () => {
     }
   };
 
+  // Fetch tickets when query parameters change
   useEffect(() => {
     fetchTickets();
-  }, [currentPage, query]);
+  }, [fullQuery, currentPage, pagination.sort]);
 
+  // Handle successful ticket creation
   const onCreatedTeamRequestSuccess = () => {
     fetchTickets();
   };
@@ -326,59 +262,17 @@ const TicketListView = () => {
               </div>
             )}
           </div>
-          <div className="flex items-center gap-4 p-4 bg-gray-50 dark:bg-gray-900 rounded-lg shadow-md border border-gray-300 dark:border-gray-700">
-            <Input
-              type="text"
-              placeholder="Search tickets"
-              value={searchText}
-              onChange={(e) => setSearchText(e.target.value)}
-              className="w-full border border-gray-300 dark:border-gray-700"
-            />
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Toggle
-                  pressed={isAscending}
-                  onPressedChange={setIsAscending}
-                  className="flex items-center justify-center p-2 border border-gray-300 dark:border-gray-700 rounded-md"
-                  aria-label="Sort Order"
-                >
-                  {isAscending ? (
-                    <ArrowUp className="w-5 h-5" />
-                  ) : (
-                    <ArrowDown className="w-5 h-5" />
-                  )}
-                </Toggle>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>
-                  Sort by Created Date (
-                  {isAscending ? "Ascending" : "Descending"})
-                </p>
-              </TooltipContent>
-            </Tooltip>
-            <div className="flex items-center gap-2">
-              {[
-                { label: "New", icon: Clock },
-                { label: "Assigned", icon: UserCheck },
-                { label: "Completed", icon: CheckCircle },
-              ].map(({ label, icon: Icon }) => (
-                <Tooltip key={label}>
-                  <TooltipTrigger asChild>
-                    <Button
-                      variant={statuses.includes(label) ? "default" : "outline"}
-                      className="p-2 flex items-center justify-center"
-                      onClick={() => toggleStatus(label)}
-                    >
-                      <Icon className="w-5 h-5" />
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>{`Filter by ${label} status`}</p>
-                  </TooltipContent>
-                </Tooltip>
-              ))}
-            </div>
-          </div>
+
+          {/* Using the new TicketAdvancedSearch component */}
+          <TicketAdvancedSearch
+            searchText={searchText}
+            setSearchText={setSearchText}
+            statuses={statuses}
+            setStatuses={setStatuses}
+            isAscending={isAscending}
+            setIsAscending={setIsAscending}
+            onFilterChange={handleFilterChange}
+          />
 
           {loading ? (
             <div className="flex justify-center py-4">

@@ -5,22 +5,28 @@ import {
   DndContext,
   DragEndEvent,
   DragOverlay,
+  DragStartEvent,
 } from "@dnd-kit/core";
-import React, { useEffect, useState } from "react";
+import { Edit } from "lucide-react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import TaskSheet, {
-  TaskBoard,
-} from "@/components/projects/project-ticket-new-sheet";
+import ProjectEditDialog from "@/components/projects/project-edit-dialog";
 import StateColumn from "@/components/projects/state-column";
 import TaskBlock from "@/components/projects/task-block";
-import TaskDetailSheet from "@/components/projects/task-detail";
+import TaskDetailSheet from "@/components/projects/task-detail-sheet";
+import TaskEditorSheet, {
+  TaskBoard,
+} from "@/components/projects/task-editor-sheet";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   findProjectById,
   findProjectWorkflowByTeam,
 } from "@/lib/actions/project.action";
 import {
   searchTeamRequests,
+  updateTeamRequest,
   updateTeamRequestState,
 } from "@/lib/actions/teams-request.action";
 import { obfuscate } from "@/lib/endecode";
@@ -31,19 +37,48 @@ import { Pagination, QueryDTO } from "@/types/query";
 import { TeamRequestDTO } from "@/types/team-requests";
 import { WorkflowDetailDTO, WorkflowStateDTO } from "@/types/workflows";
 
-// ✅ Function to generate unique colors for workflow states
-const getColumnColor = (stateId: number): string => {
-  const colors = [
-    "bg-gray-300 dark:bg-gray-700",
-    "bg-blue-300 dark:bg-blue-700",
-    "bg-yellow-300 dark:bg-yellow-600",
-    "bg-purple-300 dark:bg-purple-700",
-    "bg-green-300 dark:bg-green-700",
-    "bg-red-300 dark:bg-red-700",
-    "bg-teal-300 dark:bg-teal-700",
-    "bg-pink-300 dark:bg-pink-700",
-  ];
-  return colors[stateId % colors.length];
+// Function to generate a constant background color for workflow states.
+const getColumnColor = (_: number): string => "bg-[hsl(var(--card))]";
+
+// Helper function to determine badge color based on status
+const getStatusVariant = (
+  status: string,
+): "default" | "secondary" | "destructive" | "outline" => {
+  switch (status.toLowerCase()) {
+    case "active":
+    case "in progress":
+      return "default"; // Primary color
+    case "completed":
+    case "done":
+      return "secondary"; // Success color
+    case "on hold":
+    case "blocked":
+      return "destructive"; // Warning/error color
+    default:
+      return "outline"; // Neutral color
+  }
+};
+
+// Helper function to calculate duration between dates
+const calculateDuration = (
+  startDate: string | Date,
+  endDate: string | Date,
+): string => {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  // Calculate difference in days
+  const diffTime = Math.abs(end.getTime() - start.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  // Format as weeks + days or just days
+  if (diffDays >= 7) {
+    const weeks = Math.floor(diffDays / 7);
+    const days = diffDays % 7;
+    return `${weeks} week${weeks !== 1 ? "s" : ""}${days > 0 ? `, ${days} day${days !== 1 ? "s" : ""}` : ""}`;
+  } else {
+    return `${diffDays} day${diffDays !== 1 ? "s" : ""}`;
+  }
 };
 
 export const ProjectView = ({ projectId }: { projectId: number }) => {
@@ -54,106 +89,210 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
   const [loading, setLoading] = useState(true);
   const { setError } = useError();
 
-  // Track Dragging Task
+  // State for drag and click management.
   const [activeTask, setActiveTask] = useState<TeamRequestDTO | null>(null);
-  // ✅ Add state for tracking the selected task
+  // State for tracking the selected task and its detail view.
   const [selectedTask, setSelectedTask] = useState<TeamRequestDTO | null>(null);
-  const [isTaskDetailOpen, setIsTaskDetailOpen] = useState(false); // ✅ State to control sheet visibility
-  // Track Add Task Sheet State
+  const [isTaskDetailOpen, setIsTaskDetailOpen] = useState(false);
+  // Track Add Task Sheet State.
   const [selectedWorkflowState, setSelectedWorkflowState] =
     useState<WorkflowStateDTO | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  // State for Project Edit Dialog visibility.
+  const [isProjectEditDialogOpen, setIsProjectEditDialogOpen] = useState(false);
+  // Track if dragging is in progress
+  const [isDragging, setIsDragging] = useState(false);
+  // Track the time when drag starts
+  const [dragStartTime, setDragStartTime] = useState<number | null>(null);
 
-  // ✅ Fetch Project, Workflow & Tasks
+  // Extracted fetchProjectData so we can use it on mount and after saving a project.
+  const fetchProjectData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const projectData = await findProjectById(projectId, setError);
+      setProject(projectData);
+
+      // Fetch Workflow.
+      const workflowData = await findProjectWorkflowByTeam(team.id!, setError);
+      setWorkflow(workflowData);
+
+      if (workflowData) {
+        let allTasks: TeamRequestDTO[] = [];
+        let currentPage = 1;
+        const pageSize = 100;
+        let totalElements = 0;
+
+        do {
+          const query: QueryDTO = {
+            filters: [
+              { field: "project.id", value: projectId, operator: "eq" },
+            ],
+          };
+          const pagination: Pagination = {
+            page: currentPage,
+            size: pageSize,
+            sort: [{ field: "id", direction: "desc" }],
+          };
+
+          const tasksData = await searchTeamRequests(
+            query,
+            pagination,
+            setError,
+          );
+          allTasks = [...allTasks, ...tasksData.content];
+          totalElements = tasksData.totalElements;
+          currentPage++;
+        } while (allTasks.length < totalElements);
+
+        // Allocate tasks to columns based on workflow states.
+        const newTasks: TaskBoard = {};
+        workflowData.states.forEach((state) => {
+          newTasks[state.id!.toString()] = allTasks.filter(
+            (task) => task.currentStateId === state.id,
+          );
+        });
+
+        setTasks(newTasks);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [projectId, team.id, setError]);
+
   useEffect(() => {
-    const fetchProjectData = async () => {
-      setLoading(true);
-      try {
-        const projectData = await findProjectById(projectId, setError);
-        setProject(projectData);
+    fetchProjectData();
+  }, [fetchProjectData]);
 
-        // Fetch Workflow
-        const workflowData = await findProjectWorkflowByTeam(
-          team.id!,
-          setError,
-        );
-        setWorkflow(workflowData);
+  // Handler for updating task details, including state changes
+  const handleTaskUpdate = async (updatedTask: TeamRequestDTO) => {
+    if (!updatedTask.id) return;
 
-        if (workflowData) {
-          // ✅ Fetch All Tasks Iteratively
-          let allTasks: TeamRequestDTO[] = [];
-          let currentPage = 1;
-          const pageSize = 100;
-          let totalElements = 0;
+    try {
+      // Check if state has changed
+      const oldTask = Object.values(tasks)
+        .flat()
+        .find((t) => t.id === updatedTask.id);
 
-          do {
-            const query: QueryDTO = {
-              filters: [
-                { field: "project.id", value: projectId, operator: "eq" },
-              ],
-            };
-            const pagination: Pagination = {
-              page: currentPage,
-              size: pageSize,
-              sort: [{ field: "id", direction: "desc" }], // ✅ Ensure order consistency
-            };
+      const stateChanged =
+        oldTask && oldTask.currentStateId !== updatedTask.currentStateId;
 
-            const tasksData = await searchTeamRequests(
-              query,
-              pagination,
-              setError,
+      // If state has changed, we need to move the task between columns
+      if (stateChanged) {
+        setTasks((prevTasks) => {
+          const newTasks = { ...prevTasks };
+
+          // Remove the task from its current column
+          const oldStateId = oldTask?.currentStateId?.toString();
+          if (oldStateId && newTasks[oldStateId]) {
+            newTasks[oldStateId] = newTasks[oldStateId].filter(
+              (task) => task.id !== updatedTask.id,
             );
-            allTasks = [...allTasks, ...tasksData.content];
-            totalElements = tasksData.totalElements;
+          }
 
-            currentPage++;
-          } while (allTasks.length < totalElements); // ✅ Fetch until we get all tasks
+          // Add the task to its new column
+          const newStateId = updatedTask.currentStateId?.toString();
+          if (newStateId) {
+            if (!newTasks[newStateId]) {
+              newTasks[newStateId] = [];
+            }
+            newTasks[newStateId] = [...newTasks[newStateId], updatedTask];
+          }
 
-          // ✅ Allocate Tasks to Columns based on Workflow States
-          const newTasks: TaskBoard = {};
-          workflowData.states.forEach((state) => {
-            newTasks[state.id!.toString()] = allTasks.filter(
-              (task) => task.currentStateId === state.id,
+          return newTasks;
+        });
+      } else {
+        // If state hasn't changed, update the task in its current column
+        setTasks((prevTasks) => {
+          const newTasks = { ...prevTasks };
+
+          // Find which column contains the task
+          Object.keys(newTasks).forEach((columnId) => {
+            const columnTasks = newTasks[columnId];
+            const taskIndex = columnTasks.findIndex(
+              (task) => task.id === updatedTask.id,
             );
+
+            if (taskIndex !== -1) {
+              // Update the task in the column
+              newTasks[columnId] = [
+                ...columnTasks.slice(0, taskIndex),
+                updatedTask,
+                ...columnTasks.slice(taskIndex + 1),
+              ];
+            }
           });
 
-          setTasks(newTasks);
-        }
-      } finally {
-        setLoading(false);
+          return newTasks;
+        });
       }
-    };
 
-    fetchProjectData();
-  }, [team, projectId]);
+      // Also update the selected task if it's the one being edited
+      if (selectedTask?.id === updatedTask.id) {
+        setSelectedTask(updatedTask);
+      }
 
-  // ✅ Handle Drag Start
-  const handleDragStart = (event: any) => {
+      // Add current date as modifiedDate
+      const taskWithModifiedDate = {
+        ...updatedTask,
+        modifiedAt: new Date(),
+      };
+
+      // Then call the API to update on the server
+      await updateTeamRequest(
+        taskWithModifiedDate.id!,
+        taskWithModifiedDate,
+        setError,
+      );
+    } catch (error) {
+      console.error("Failed to update task:", error);
+      // If something goes wrong, re-fetch all data to sync with server
+      fetchProjectData();
+    }
+  };
+
+  // Improved dragStart
+  const handleDragStart = (event: DragStartEvent) => {
     const activeId = event.active.id.toString();
 
-    const column = workflow?.states.find((state) =>
-      tasks[state.id!.toString()]?.some(
-        (task) => task.id?.toString() === activeId,
-      ),
-    );
+    // Set dragging state
+    setIsDragging(true);
+    // Record drag start time
+    setDragStartTime(Date.now());
 
-    if (column) {
-      const task = tasks[column.id!.toString()]?.find(
+    // Find the task being dragged
+    let foundTask: TeamRequestDTO | null = null;
+    Object.keys(tasks).forEach((columnId) => {
+      const task = tasks[columnId].find(
         (task) => task.id?.toString() === activeId,
       );
-      if (task) setActiveTask(task);
+      if (task) {
+        foundTask = task;
+      }
+    });
+
+    if (foundTask) {
+      setActiveTask(foundTask);
     }
   };
 
   const handleDragEnd = async (event: DragEndEvent) => {
+    // Reset task state
     setActiveTask(null);
+
+    // Calculate drag duration
+    const dragDuration = dragStartTime ? Date.now() - dragStartTime : 0;
+
+    // Reset drag tracking state
+    setIsDragging(false);
+    setDragStartTime(null);
+
     const { active, over } = event;
     if (!over) return;
 
     const activeId = active.id.toString();
     const overId = over.id.toString();
 
-    // ✅ Check if dragging over a column or a task inside a column
+    // Check if dragging over a column or a task inside a column.
     const targetColumn = workflow?.states.find(
       (state) =>
         state.id!.toString() === overId ||
@@ -164,25 +303,49 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
 
     if (!targetColumn) return;
 
-    // ✅ Find source column
+    // Find source column.
     const sourceColumn = workflow?.states.find((state) =>
       tasks[state.id!.toString()]?.some(
         (task) => task.id!.toString() === activeId,
       ),
     );
 
-    if (!sourceColumn || sourceColumn.id === targetColumn.id) return;
+    if (!sourceColumn || sourceColumn.id === targetColumn.id) {
+      // If drag was very short and in the same column, treat as a click
+      if (dragDuration < 200 && sourceColumn) {
+        // Find the task
+        const clickedTask = tasks[sourceColumn.id!.toString()]?.find(
+          (task) => task.id!.toString() === activeId,
+        );
 
-    // ✅ Get moved task
+        if (clickedTask) {
+          // Handle as a click
+          setSelectedTask(clickedTask);
+          setIsTaskDetailOpen(true);
+        }
+      }
+      return;
+    }
+
+    // Get moved task.
     const movedTask = tasks[sourceColumn.id!.toString()]?.find(
       (task) => task.id!.toString() === activeId,
     );
 
     if (!movedTask) return;
 
+    // Update task state on the server
     await updateTeamRequestState(movedTask.id!, targetColumn.id!, setError);
 
-    // ✅ Update local state
+    // Create updated task with new state information
+    const updatedTask = {
+      ...movedTask,
+      currentStateId: targetColumn.id!,
+      currentStateName: targetColumn.stateName,
+      modifiedAt: new Date(),
+    };
+
+    // Update local state to move the task between columns
     setTasks((prevTasks) => {
       const updatedTasks = { ...prevTasks };
 
@@ -194,7 +357,7 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
       // Add task to target column
       updatedTasks[targetColumn.id!.toString()] = [
         ...(updatedTasks[targetColumn.id!.toString()] || []),
-        { ...movedTask, currentStateId: targetColumn.id! },
+        updatedTask,
       ];
 
       return updatedTasks;
@@ -216,11 +379,71 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
       ) : project ? (
         <>
           <Breadcrumbs items={breadcrumbItems} />
-          <h1 className="text-2xl font-bold mb-2">{project.name}</h1>
+          {/* Header row: project name on the left, Edit button on the right */}
+          <div className="flex items-center justify-between mb-2">
+            <h1 className="text-3xl font-bold">{project.name}</h1>
+            <Button
+              onClick={() => setIsProjectEditDialogOpen(true)}
+              variant="default"
+              className="flex items-center gap-2"
+            >
+              <Edit className="w-4 h-4" />
+              Edit project
+            </Button>
+          </div>
+
+          {/* Description */}
           <div
             className="text-gray-600 dark:text-gray-300 text-sm mb-4"
             dangerouslySetInnerHTML={{ __html: project.description ?? "" }}
           />
+
+          {/* Project metadata: status, dates */}
+          <div className="flex flex-wrap items-center gap-4 mb-6">
+            {project.status && (
+              <div className="flex items-center">
+                <span className="text-sm font-medium text-gray-500 dark:text-gray-400 mr-2">
+                  Status:
+                </span>
+                <Badge variant={getStatusVariant(project.status)}>
+                  {project.status}
+                </Badge>
+              </div>
+            )}
+
+            {project.startDate && (
+              <div className="flex items-center">
+                <span className="text-sm font-medium text-gray-500 dark:text-gray-400 mr-2">
+                  Start:
+                </span>
+                <span className="text-sm">
+                  {new Date(project.startDate).toLocaleDateString()}
+                </span>
+              </div>
+            )}
+
+            {project.endDate && (
+              <div className="flex items-center">
+                <span className="text-sm font-medium text-gray-500 dark:text-gray-400 mr-2">
+                  End:
+                </span>
+                <span className="text-sm">
+                  {new Date(project.endDate).toLocaleDateString()}
+                </span>
+              </div>
+            )}
+
+            {project.startDate && project.endDate && (
+              <div className="flex items-center">
+                <span className="text-sm font-medium text-gray-500 dark:text-gray-400 mr-2">
+                  Duration:
+                </span>
+                <span className="text-sm">
+                  {calculateDuration(project.startDate, project.endDate)}
+                </span>
+              </div>
+            )}
+          </div>
         </>
       ) : (
         <p className="text-red-500">Project not found.</p>
@@ -231,7 +454,7 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        {/* ✅ Full height scrollable container */}
+        {/* Full height scrollable container */}
         <div className="flex flex-grow overflow-x-auto gap-4 pb-2">
           {workflow?.states
             .sort((a, b) => {
@@ -249,26 +472,17 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
                 setIsSheetOpen={setIsSheetOpen}
                 setSelectedWorkflowState={() => setSelectedWorkflowState(state)}
                 columnColor={getColumnColor(state.id!)}
-                onTaskClick={(task) => {
-                  setSelectedTask(task);
-                  setIsTaskDetailOpen(true);
-                }}
+                // We handle clicks in handleDragEnd now
               />
             ))}
         </div>
 
         <DragOverlay>
-          {activeTask ? (
-            <TaskBlock
-              id={activeTask.id!}
-              title={activeTask.requestTitle}
-              isDragging
-            />
-          ) : null}
+          {activeTask ? <TaskBlock task={activeTask} isDragging /> : null}
         </DragOverlay>
       </DndContext>
 
-      <TaskSheet
+      <TaskEditorSheet
         isOpen={isSheetOpen}
         setIsOpen={setIsSheetOpen}
         selectedWorkflowState={selectedWorkflowState}
@@ -281,6 +495,19 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
         isOpen={isTaskDetailOpen}
         setIsOpen={setIsTaskDetailOpen}
         task={selectedTask}
+        onTaskUpdate={handleTaskUpdate}
+      />
+
+      {/* Project Edit Dialog */}
+      <ProjectEditDialog
+        open={isProjectEditDialogOpen}
+        setOpen={setIsProjectEditDialogOpen}
+        teamEntity={team}
+        project={project}
+        onSaveSuccess={async () => {
+          setIsProjectEditDialogOpen(false);
+          await fetchProjectData();
+        }}
       />
     </div>
   );

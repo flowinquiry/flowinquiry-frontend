@@ -10,7 +10,7 @@ import { Heading } from "@/components/heading";
 import RichTextEditor from "@/components/shared/rich-text-editor";
 import { TeamRequestPrioritySelect } from "@/components/teams/team-requests-priority-select";
 import TicketChannelSelectField from "@/components/teams/team-ticket-channel-select";
-import TeamUserSelectField from "@/components/teams/team-users-select";
+import TeamUserSelectField from "@/components/teams/team-users-select-field";
 import { Button } from "@/components/ui/button";
 import {
   DatePickerField,
@@ -26,7 +26,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Spinner } from "@/components/ui/spinner";
-import WorkflowStateSelect from "@/components/workflows/workflow-state-select";
+import WorkflowStateSelectField from "@/components/workflows/workflow-state-select-field";
 import {
   findRequestById,
   updateTeamRequest,
@@ -221,7 +221,7 @@ export const TeamRequestForm = ({
           />
 
           <TicketChannelSelectField form={form} />
-          <WorkflowStateSelect
+          <WorkflowStateSelectField
             form={form}
             name="currentStateId"
             label="State"

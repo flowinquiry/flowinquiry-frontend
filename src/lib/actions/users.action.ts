@@ -1,5 +1,3 @@
-import { unstable_noStore as noStore } from "next/dist/server/web/spec-extension/unstable-no-store";
-
 import {
   deleteExec,
   doAdvanceSearch,
@@ -18,11 +16,20 @@ export async function findUsers(
   pagination: Pagination,
   setError?: (error: HttpError | string | null) => void,
 ) {
-  noStore();
   return doAdvanceSearch<UserDTO>(
     `/api/users/search`,
     query,
     pagination,
+    setError,
+  );
+}
+
+export async function findUsersByTerm(
+  userTerm: string,
+  setError?: (error: HttpError | string | null) => void,
+) {
+  return get<Array<UserDTO>>(
+    `/api/users/search-by-term?term=${userTerm}`,
     setError,
   );
 }

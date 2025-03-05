@@ -138,6 +138,7 @@ const ProjectEditDialog: React.FC<ProjectDialogProps> = ({
                           <RichTextEditor
                             value={field.value}
                             onChange={field.onChange}
+                            key={`editor-${Date.now()}`}
                           />
                         </FormControl>
                         <FormMessage />

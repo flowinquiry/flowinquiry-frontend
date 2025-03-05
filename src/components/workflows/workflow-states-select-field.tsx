@@ -18,7 +18,7 @@ interface WorkflowStatesSelectProps {
   required?: boolean;
 }
 
-const WorkflowStatesSelect = ({
+const WorkflowStatesSelectField = ({
   fieldName,
   form,
   label,
@@ -70,4 +70,4 @@ const WorkflowStatesSelect = ({
   );
 };
 
-export default WorkflowStatesSelect;
+export default WorkflowStatesSelectField;

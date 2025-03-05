@@ -9,7 +9,7 @@ import clsx from "clsx";
 import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
 
-import TaskBlock from "@/components/projects/task-block";
+import { DraggableTaskWrapper } from "@/components/projects/draggable-task-wrapper";
 import { TeamRequestDTO } from "@/types/team-requests";
 import { WorkflowStateDTO } from "@/types/workflows";
 
@@ -22,7 +22,7 @@ type ColumnProps = {
   setIsSheetOpen: (open: boolean) => void;
   setSelectedWorkflowState: (state: WorkflowStateDTO) => void;
   columnColor: string;
-  onTaskClick?: (task: TeamRequestDTO) => void; // ✅ Added prop
+  onTaskClick?: (task: TeamRequestDTO) => void;
 };
 
 const StateColumn: React.FC<ColumnProps> = ({
@@ -33,7 +33,15 @@ const StateColumn: React.FC<ColumnProps> = ({
   columnColor,
   onTaskClick,
 }) => {
-  const { setNodeRef } = useDroppable({ id: workflowState.id!.toString() });
+  const { isOver, setNodeRef } = useDroppable({
+    id: workflowState.id!.toString(),
+    data: {
+      type: "column",
+      stateId: workflowState.id,
+    },
+  });
+
+  const taskIds = tasks.map((task) => task.id!.toString());
 
   return (
     <motion.div
@@ -41,6 +49,8 @@ const StateColumn: React.FC<ColumnProps> = ({
       className={clsx(
         "flex flex-col flex-grow min-w-[28rem] max-w-[36rem] p-4 rounded shadow border",
         columnColor,
+        "min-h-[200px]",
+        isOver ? "bg-green-50 dark:bg-green-900/20" : "",
       )}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -51,28 +61,22 @@ const StateColumn: React.FC<ColumnProps> = ({
         {workflowState.stateName}
       </h2>
 
-      {/* ✅ Sortable Context with Animated Task List */}
       <SortableContext
         id={workflowState.id!.toString()}
-        items={tasks.map((task) => task.id!.toString())}
+        items={taskIds}
         strategy={verticalListSortingStrategy}
       >
         <motion.div
-          className="flex-grow overflow-y-auto"
+          className="flex-grow overflow-y-auto min-h-[100px]"
           layout
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          onPointerDownCapture={(e) => e.stopPropagation()} // ✅ Prevent SortableContext from blocking clicks
         >
           {tasks.map((task) => (
-            <div
+            <DraggableTaskWrapper
               key={task.id}
-              onClick={() => {
-                onTaskClick?.(task);
-              }}
-              className="cursor-pointer"
-            >
-              <TaskBlock id={task.id!} title={task.requestTitle} />
-            </div>
+              task={task}
+              onClick={() => onTaskClick?.(task)}
+            />
           ))}
         </motion.div>
       </SortableContext>

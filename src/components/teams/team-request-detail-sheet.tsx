@@ -1,32 +1,84 @@
 "use client";
 
+import {
+  AlertCircle,
+  CheckCircle,
+  Clock,
+  Eye,
+  FileText,
+  Paperclip,
+  User,
+} from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
+import { Controller, FormProvider, useForm } from "react-hook-form";
 
 import AttachmentView from "@/components/shared/attachment-view";
 import { UserAvatar } from "@/components/shared/avatar-display";
 import CommentsView from "@/components/shared/comments-view";
 import EntityWatchers from "@/components/shared/entity-watchers";
-import { NColumnsGrid } from "@/components/shared/n-columns-grid";
+import RichTextEditor from "@/components/shared/rich-text-editor";
 import TeamRequestHealthLevel from "@/components/teams/team-requests-health-level";
 import { PriorityDisplay } from "@/components/teams/team-requests-priority-display";
-import TeamUserSelectField from "@/components/teams/team-users-select";
+import { TeamRequestPrioritySelect } from "@/components/teams/team-requests-priority-select";
+import TicketChannelSelectField from "@/components/teams/team-ticket-channel-select";
+import TeamUserSelectField from "@/components/teams/team-users-select-field";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import WorkflowStateSelectField from "@/components/workflows/workflow-state-select-field";
 import { updateTeamRequest } from "@/lib/actions/teams-request.action";
-import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
-import { getSpecifiedColor } from "@/lib/utils";
+import { cn, getSpecifiedColor } from "@/lib/utils";
 import { useError } from "@/providers/error-provider";
 import { TeamRequestDTO } from "@/types/team-requests";
+
+const EditableSection = ({
+  children,
+  onEdit,
+  editableClassName,
+}: {
+  children: React.ReactNode;
+  onEdit: () => void;
+  editableClassName?: string;
+}) => {
+  const handleClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    onEdit();
+  };
+
+  return (
+    <div
+      className={cn(
+        "group relative",
+        "hover:border-dashed hover:border-2 hover:border-gray-300",
+        "hover:rounded-lg",
+        "hover:bg-gray-50 hover:dark:bg-gray-800",
+        editableClassName,
+      )}
+      onClick={handleClick}
+    >
+      <TooltipProvider delayDuration={300}>
+        <Tooltip>
+          <TooltipTrigger className="absolute inset-0 z-10 cursor-pointer" />
+          <TooltipContent side="bottom">
+            <p>Click to edit</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+      {children}
+    </div>
+  );
+};
 
 type RequestDetailsProps = {
   open: boolean;
@@ -42,201 +94,626 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
   const [teamRequest, setTeamRequest] = useState<TeamRequestDTO>(request);
   const workflowColor = getSpecifiedColor(request.workflowRequestName!);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [isEditingTitle, setIsEditingTitle] = useState(false);
+  const [isEditingDescription, setIsEditingDescription] = useState(false);
+  const [isEditingStatus, setIsEditingStatus] = useState(false);
+  const [isEditingPriority, setIsEditingPriority] = useState(false);
+  const [isEditingChannel, setIsEditingChannel] = useState(false);
+  const [isEditingCompletionDate, setIsEditingCompletionDate] = useState(false);
+  const [isEditingAssignment, setIsEditingAssignment] = useState(false);
   const { setError } = useError();
 
-  const form = useForm<TeamRequestDTO>({
-    defaultValues: teamRequest,
+  const form = useForm<TeamRequestDTOWithStringDates>({
+    defaultValues: teamRequest as unknown as TeamRequestDTOWithStringDates,
   });
 
-  const onSubmit = async (data: TeamRequestDTO) => {
+  const onSubmit = async (formData: TeamRequestDTOWithStringDates) => {
     setSubmitting(true);
-    await updateTeamRequest(teamRequest.id!, data, setError)
-      .then((data) => setTeamRequest(data))
-      .finally(() => setSubmitting(false));
+    try {
+      // Convert to TeamRequestDTO for the backend
+      const data = {
+        ...formData,
+        // Handle date conversions if needed
+        estimatedCompletionDate: formData.estimatedCompletionDate,
+      } as unknown as TeamRequestDTO;
+
+      const updatedRequest = await updateTeamRequest(
+        teamRequest.id!,
+        data,
+        setError,
+      );
+
+      // Important: Update the local state with the server response
+      setTeamRequest(updatedRequest);
+
+      // Close edit modes
+      setIsEditingTitle(false);
+      setIsEditingDescription(false);
+      setIsEditingStatus(false);
+      setIsEditingPriority(false);
+      setIsEditingChannel(false);
+      setIsEditingCompletionDate(false);
+    } catch (err) {
+      console.error("Failed to update request", err);
+    } finally {
+      setSubmitting(false);
+    }
   };
+
+  interface TeamRequestDTOWithStringDates
+    extends Omit<TeamRequestDTO, "estimatedCompletionDate"> {
+    estimatedCompletionDate?: string | null;
+  }
+
+  // Helper function to format date for input
+  const formatDateForInput = (
+    dateString: string | null | undefined,
+  ): string => {
+    if (!dateString) return "";
+    // Extract the date part from ISO string
+    return dateString.split("T")[0];
+  };
+
+  // Determine request status
+  const currentDate = new Date();
+  const estimatedCompletionDate = request.estimatedCompletionDate
+    ? new Date(request.estimatedCompletionDate)
+    : null;
+
+  const getRequestStatusIcon = () => {
+    if (request.isCompleted) {
+      return <CheckCircle className="w-5 h-5 text-green-500" />;
+    }
+    if (estimatedCompletionDate && estimatedCompletionDate < currentDate) {
+      return <AlertCircle className="w-5 h-5 text-red-500" />;
+    }
+    return <Clock className="w-5 h-5 text-blue-500" />;
+  };
+
+  // Priority options
+  // Using TeamRequestPrioritySelect component instead
+
+  // Using the TicketChannel type from the imported component
+
+  // Status options
+  // Using WorkflowStateSelectField component instead
 
   return (
     <FormProvider {...form}>
       <Sheet open={open} onOpenChange={onClose}>
         <SheetContent className="w-full sm:w-[64rem] h-full">
           <ScrollArea className="h-full px-4">
-            <SheetHeader>
-              <SheetTitle>
-                <div className="w-full flex gap-2 items-start pt-4">
-                  <span
-                    className=" inline-block px-2 py-1 text-xs font-semibold rounded-md"
-                    style={{
-                      backgroundColor: workflowColor.background,
-                      color: workflowColor.text,
-                    }}
-                  >
-                    {request.workflowRequestName}
-                  </span>
-                  <Button
-                    variant="link"
-                    className={`px-0 text-2xl ${request.isCompleted ? "line-through" : ""}`}
-                  >
-                    <Link
-                      href={`/portal/teams/${obfuscate(teamRequest.teamId)}/requests/${obfuscate(
-                        teamRequest.id,
-                      )}`}
-                      className="break-words whitespace-normal text-left"
-                    >
-                      {teamRequest.requestTitle}
-                    </Link>
-                  </Button>
-                </div>
-                {request.conversationHealth?.healthLevel && (
-                  <TeamRequestHealthLevel
-                    currentLevel={request.conversationHealth.healthLevel}
-                  />
-                )}
-              </SheetTitle>
-            </SheetHeader>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pb-4">
-              <div className="col-span-1 md:col-span-2 pt-4">
-                <label className="text-sm font-medium">Description</label>
-                <div
-                  className="prose max-w-none"
-                  dangerouslySetInnerHTML={{
-                    __html: teamRequest.requestDescription!,
+            {/* Header Section */}
+            <SheetHeader className="mb-6">
+              <div className="flex items-center gap-4 mb-2">
+                <span
+                  className="inline-block px-2 py-1 text-xs font-semibold rounded-md"
+                  style={{
+                    backgroundColor: workflowColor.background,
+                    color: workflowColor.text,
                   }}
-                />
+                >
+                  {request.workflowRequestName}
+                </span>
+
+                {/* Editable Title */}
+                {isEditingTitle ? (
+                  <form
+                    onSubmit={form.handleSubmit(onSubmit)}
+                    className="flex items-center gap-2 flex-grow"
+                  >
+                    <Controller
+                      name="requestTitle"
+                      control={form.control}
+                      render={({ field }) => (
+                        <Input
+                          {...field}
+                          className="text-xl"
+                          placeholder="Enter request title"
+                          autoFocus
+                        />
+                      )}
+                    />
+                    <div className="flex gap-2">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          form.handleSubmit(onSubmit)();
+                          setIsEditingTitle(false);
+                        }}
+                      >
+                        Save
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setIsEditingTitle(false)}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
+                  </form>
+                ) : (
+                  <div className="flex-grow">
+                    <Button
+                      variant="link"
+                      className={`px-0 text-xl flex-grow text-left ${request.isCompleted ? "line-through" : ""}`}
+                      onClick={(e) => {
+                        // Allow the link navigation to proceed (don't call preventDefault)
+                      }}
+                      onDoubleClick={(e) => {
+                        // Double-click to edit
+                        e.preventDefault();
+                        setIsEditingTitle(true);
+                      }}
+                    >
+                      <Link
+                        href={`/portal/teams/${obfuscate(teamRequest.teamId)}/requests/${obfuscate(
+                          teamRequest.id,
+                        )}`}
+                        className="break-words whitespace-normal text-left"
+                      >
+                        {teamRequest.requestTitle || request.requestTitle}
+                      </Link>
+                    </Button>
+                  </div>
+                )}
               </div>
 
-              <NColumnsGrid
-                columns={2}
-                gap="4"
-                className="col-span-1 md:col-span-2"
-                fields={[
-                  {
-                    label: "Created",
-                    value: formatDateTimeDistanceToNow(
-                      new Date(request.createdAt!),
-                    ),
-                    colSpan: 1,
-                  },
-                  {
-                    label: "Modified",
-                    value: formatDateTimeDistanceToNow(
-                      new Date(request.modifiedAt!),
-                    ),
-                    colSpan: 1,
-                  },
+              {request.conversationHealth?.healthLevel && (
+                <TeamRequestHealthLevel
+                  currentLevel={request.conversationHealth.healthLevel}
+                />
+              )}
+            </SheetHeader>
 
-                  {
-                    label: "Requested User",
-                    value:
-                      teamRequest.requestUserId !== null ? (
-                        <div className="flex items-center gap-2">
-                          <UserAvatar
-                            imageUrl={teamRequest.requestUserImageUrl}
-                          />
-                          <Button
-                            variant="link"
-                            className="p-0 text-left w-auto h-auto"
-                            style={{ display: "block", textAlign: "left" }}
-                          >
-                            <Link
-                              href={`/portal/users/${obfuscate(teamRequest.requestUserId)}`}
+            {/* Main Content Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Left Column - Description and Details */}
+              <div className="md:col-span-2 space-y-6">
+                {/* Description Section */}
+                <div
+                  className={cn(
+                    "p-4 rounded-lg border",
+                    "bg-white dark:bg-gray-900",
+                    "border-gray-200 dark:border-gray-700",
+                  )}
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <FileText className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      Description
+                    </h3>
+                  </div>
+
+                  {isEditingDescription ? (
+                    <div
+                      className="relative z-50"
+                      onClick={(e) => {
+                        // Prevent the click from bubbling up and potentially closing the editor
+                        e.stopPropagation();
+                      }}
+                    >
+                      <RichTextEditor
+                        key="description-editor"
+                        value={teamRequest.requestDescription}
+                        onChange={(content: string) => {
+                          form.setValue("requestDescription", content, {
+                            shouldValidate: false,
+                            shouldDirty: true,
+                          });
+                        }}
+                        onBlur={() => {
+                          form.handleSubmit(onSubmit)();
+                          setIsEditingDescription(false);
+                        }}
+                        // Explicitly prevent mode switching during mention selection
+                        onMentionSelect={() => false}
+                      />
+                    </div>
+                  ) : (
+                    <EditableSection
+                      onEdit={() => setIsEditingDescription(true)}
+                    >
+                      <div
+                        className="prose max-w-none text-gray-700 dark:text-gray-300"
+                        dangerouslySetInnerHTML={{
+                          __html: teamRequest.requestDescription!,
+                        }}
+                      />
+                    </EditableSection>
+                  )}
+                </div>
+
+                {/* Status and Priority Section */}
+                <div
+                  className={cn(
+                    "p-4 rounded-lg border",
+                    "bg-white dark:bg-gray-900",
+                    "border-gray-200 dark:border-gray-700",
+                  )}
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <div>{getRequestStatusIcon()}</div>
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      Status and Priority
+                    </h3>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    {/* Status - Editable */}
+                    <div>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 block mb-1">
+                        Current Status
+                      </span>
+                      {isEditingStatus ? (
+                        <div
+                          onClick={(e) => e.stopPropagation()}
+                          className="py-2"
+                        >
+                          <div className="w-[16rem]">
+                            <WorkflowStateSelectField
+                              form={form}
+                              name="currentStateId"
+                              label=""
+                              workflowId={request.workflowId!}
+                              workflowStateId={request.currentStateId!}
+                              includeSelf={true}
+                              required={false}
+                            />
+                          </div>
+                          <div className="flex justify-end gap-2 mt-2">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                form.handleSubmit(onSubmit)();
+                                setIsEditingStatus(false);
+                              }}
                             >
-                              {teamRequest.requestUserName}
-                            </Link>
-                          </Button>
+                              Save
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setIsEditingStatus(false)}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
                         </div>
                       ) : (
-                        <span>No requested user</span>
-                      ),
-                    colSpan: 1,
-                  },
+                        <EditableSection
+                          onEdit={() => setIsEditingStatus(true)}
+                        >
+                          <Badge variant="outline">
+                            {teamRequest.currentStateName ||
+                              request.currentStateName}
+                          </Badge>
+                        </EditableSection>
+                      )}
+                    </div>
 
-                  {
-                    label: "Assigned User",
-                    value: (
-                      <form>
-                        <div className="grid gap-4">
+                    {/* Priority - Editable */}
+                    <div>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 block mb-1">
+                        Priority
+                      </span>
+                      {isEditingPriority ? (
+                        <div
+                          onClick={(e) => e.stopPropagation()}
+                          className="py-2"
+                        >
+                          <Controller
+                            name="priority"
+                            control={form.control}
+                            render={({ field }) => (
+                              <TeamRequestPrioritySelect
+                                value={field.value as any}
+                                onChange={(value) => {
+                                  field.onChange(value);
+                                }}
+                              />
+                            )}
+                          />
+                          <div className="flex justify-end gap-2 mt-2">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                form.handleSubmit(onSubmit)();
+                                setIsEditingPriority(false);
+                              }}
+                            >
+                              Save
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setIsEditingPriority(false)}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <EditableSection
+                          onEdit={() => setIsEditingPriority(true)}
+                        >
+                          <PriorityDisplay
+                            priority={teamRequest.priority || request.priority}
+                          />
+                        </EditableSection>
+                      )}
+                    </div>
+
+                    {/* Channel - Editable */}
+                    <div>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 block mb-1">
+                        Channel
+                      </span>
+                      {isEditingChannel ? (
+                        <div
+                          onClick={(e) => e.stopPropagation()}
+                          className="py-2"
+                        >
+                          <div className="w-[16rem]">
+                            <TicketChannelSelectField form={form} />
+                          </div>
+                          <div className="flex justify-end gap-2 mt-2">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                form.handleSubmit(onSubmit)();
+                                setIsEditingChannel(false);
+                              }}
+                            >
+                              Save
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setIsEditingChannel(false)}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        </div>
+                      ) : (
+                        <EditableSection
+                          onEdit={() => setIsEditingChannel(true)}
+                        >
+                          <Badge variant="outline">
+                            {teamRequest.channel ||
+                              request.channel ||
+                              "Internal"}
+                          </Badge>
+                        </EditableSection>
+                      )}
+                    </div>
+
+                    {/* Target Completion - Editable */}
+                    <div>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 block mb-1">
+                        Target Completion
+                      </span>
+                      {isEditingCompletionDate ? (
+                        <div
+                          onClick={(e) => e.stopPropagation()}
+                          className="py-2"
+                        >
+                          <Controller
+                            name="estimatedCompletionDate"
+                            control={form.control}
+                            render={({ field }) => (
+                              <Input
+                                type="date"
+                                value={formatDateForInput(field.value)}
+                                onChange={(e) => {
+                                  const value = e.target.value || null;
+                                  field.onChange(value);
+                                }}
+                                className="w-full"
+                                autoFocus
+                                onBlur={() => {
+                                  form.handleSubmit(onSubmit)();
+                                  setIsEditingCompletionDate(false);
+                                }}
+                              />
+                            )}
+                          />
+                        </div>
+                      ) : (
+                        <EditableSection
+                          onEdit={() => setIsEditingCompletionDate(true)}
+                        >
+                          <p className="text-sm p-1">
+                            {teamRequest.estimatedCompletionDate
+                              ? new Date(
+                                  teamRequest.estimatedCompletionDate,
+                                ).toLocaleDateString()
+                              : "N/A"}
+                          </p>
+                        </EditableSection>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Attachments Section */}
+                <div
+                  className={cn(
+                    "p-4 rounded-lg border",
+                    "bg-white dark:bg-gray-900",
+                    "border-gray-200 dark:border-gray-700",
+                  )}
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <Paperclip className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      Attachments
+                    </h3>
+                  </div>
+                  <AttachmentView
+                    entityType="Team_Request"
+                    entityId={teamRequest.id!}
+                  />
+                </div>
+              </div>
+
+              {/* Right Column - People and Watchers */}
+              <div className="space-y-6">
+                {/* People and Assignment */}
+                <div
+                  className={cn(
+                    "p-4 rounded-lg border",
+                    "bg-white dark:bg-gray-900",
+                    "border-gray-200 dark:border-gray-700",
+                  )}
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <User className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      People and Assignment
+                    </h3>
+                  </div>
+                  <div className="space-y-4">
+                    {/* Requested By */}
+                    <div>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 block mb-1">
+                        Requested By
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <UserAvatar
+                          imageUrl={teamRequest.requestUserImageUrl}
+                          size="w-8 h-8"
+                        />
+                        <Link
+                          href={`/portal/users/${obfuscate(teamRequest.requestUserId)}`}
+                          className="text-sm hover:underline"
+                        >
+                          {teamRequest.requestUserName}
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* Assigned To - Editable */}
+                    <div>
+                      <span className="text-xs text-gray-500 dark:text-gray-400 block mb-1">
+                        Assigned To
+                      </span>
+                      {isEditingAssignment ? (
+                        <div
+                          onClick={(e) => e.stopPropagation()}
+                          className="py-2"
+                        >
                           <TeamUserSelectField
                             form={form}
                             fieldName="assignUserId"
                             label=""
                             teamId={teamRequest.teamId!}
-                            onUserSelect={(user) =>
-                              form.handleSubmit(onSubmit)()
-                            }
                           />
+                          <div className="flex justify-end gap-2 mt-2">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                form.handleSubmit(onSubmit)();
+                                setIsEditingAssignment(false);
+                              }}
+                            >
+                              Save
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setIsEditingAssignment(false)}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
                         </div>
-                      </form>
-                    ),
-                    colSpan: 1,
-                  },
+                      ) : (
+                        <EditableSection
+                          onEdit={() => setIsEditingAssignment(true)}
+                        >
+                          <div className="flex items-center gap-2">
+                            {teamRequest.assignUserId ||
+                            request.assignUserId ? (
+                              <>
+                                <UserAvatar
+                                  imageUrl={
+                                    teamRequest.assignUserImageUrl ||
+                                    request.assignUserImageUrl
+                                  }
+                                  size="w-8 h-8"
+                                />
+                                <Link
+                                  href={`/portal/users/${obfuscate(teamRequest.assignUserId || request.assignUserId!)}`}
+                                  className="text-sm hover:underline"
+                                >
+                                  {teamRequest.assignUserName ||
+                                    request.assignUserName}
+                                </Link>
+                              </>
+                            ) : (
+                              <span className="text-sm text-gray-500">
+                                Unassigned
+                              </span>
+                            )}
+                          </div>
+                        </EditableSection>
+                      )}
+                    </div>
+                  </div>
+                </div>
 
-                  {
-                    label: "Type",
-                    value: (
-                      <Badge variant="outline">
-                        {request.workflowRequestName}
-                      </Badge>
-                    ),
-                    colSpan: 1,
-                  },
-                  {
-                    label: "Priority",
-                    value: <PriorityDisplay priority={request.priority} />,
-                    colSpan: 1,
-                  },
-                  {
-                    label: "State",
-                    value: (
-                      <Badge variant="outline">
-                        {request.currentStateName}
-                      </Badge>
-                    ),
-                    colSpan: 1,
-                  },
-                  {
-                    label: "Channel",
-                    value: request.channel && (
-                      <Badge variant="outline">{request.channel}</Badge>
-                    ),
-                    colSpan: 1,
-                  },
-                  {
-                    label: "Target Completion Date",
-                    value: request.estimatedCompletionDate
-                      ? new Date(request.estimatedCompletionDate).toDateString()
-                      : "N/A",
-                    colSpan: 1,
-                  },
-                  {
-                    label: "Actual Completion Date",
-                    value: request.actualCompletionDate
-                      ? new Date(request.actualCompletionDate).toDateString()
-                      : "N/A",
-                    colSpan: 1,
-                  },
-                ]}
-              />
-              <div className="col-span-1 sm:col-span-2 text-sm font-medium flex items-start gap-4">
-                <span className="pt-1">Attachments</span>
-                <AttachmentView
-                  entityType="Team_Request"
-                  entityId={teamRequest.id!}
-                />
+                {/* Watchers Section */}
+                <div
+                  className={cn(
+                    "p-4 rounded-lg border",
+                    "bg-white dark:bg-gray-900",
+                    "border-gray-200 dark:border-gray-700",
+                  )}
+                >
+                  <div className="flex items-center gap-3 mb-3">
+                    <Eye className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      Watchers
+                    </h3>
+                  </div>
+                  <EntityWatchers
+                    entityType="Team_Request"
+                    entityId={teamRequest.id!}
+                  />
+                </div>
               </div>
-
-              <div className="col-span-1 sm:col-span-2 text-sm font-medium flex items-start gap-4">
-                <span className="pt-1">Watchers</span>
-                <EntityWatchers
-                  entityType="Team_Request"
-                  entityId={teamRequest.id!}
-                />
+              <div className="md:col-span-3 mt-2">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-3">
+                    <User className="w-5 h-5 text-gray-600 dark:text-gray-300" />
+                    <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-200">
+                      Comments
+                    </h3>
+                  </div>
+                  <CommentsView
+                    entityType="Team_Request"
+                    entityId={teamRequest.id!}
+                  />
+                </div>
               </div>
             </div>
-
-            <CommentsView
-              entityType="Team_Request"
-              entityId={teamRequest.id!}
-            />
           </ScrollArea>
         </SheetContent>
       </Sheet>

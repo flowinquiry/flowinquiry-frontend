@@ -132,3 +132,21 @@ h3.tiptap-heading + h2.tiptap-heading {
   margin: 1.5rem 0;
   padding-left: 1rem;
 }
+
+.mention-dropdown-container {
+  position: fixed !important;
+  z-index: 9999 !important;
+}
+
+.ProseMirror .mention {
+  border-radius: 0.25rem;
+  padding: 0.125rem 0.25rem;
+  background-color: #e0f2fe;
+  color: #0369a1;
+  white-space: nowrap;
+}
+
+.dark .ProseMirror .mention {
+  background-color: #075985;
+  color: #bae6fd;
+}

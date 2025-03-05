@@ -8,8 +8,10 @@ import {
   Background,
   Connection,
   ConnectionLineType,
+  Controls,
   Edge,
   Node,
+  Panel,
   ReactFlow,
   ReactFlowProvider,
   useEdgesState,
@@ -68,6 +70,9 @@ const convertStatesToNodes = (workflowDetails: WorkflowDetailDTO): Node[] => {
       color: "var(--node-text-color)", // Text color
       border: "1px solid var(--node-border-color)", // Border color
       borderRadius: "6px",
+      padding: "6px 12px",
+      fontSize: "0.875rem",
+      fontWeight: "500",
     },
     position: { x: 0, y: 0 },
     type: "default",
@@ -94,10 +99,22 @@ const convertTransitionsToEdges = (
       source: transition.sourceStateId!.toString(),
       target: transition.targetStateId!.toString(),
       label: transition.eventName,
+      labelStyle: {
+        fill: "var(--edge-label-color)",
+        fontWeight: "500",
+        fontSize: "0.75rem",
+      },
+      labelBgStyle: {
+        fill: "var(--edge-label-bg)",
+        rx: 4,
+        ry: 4,
+      },
+      labelBgPadding: [4, 4],
       type: ConnectionLineType.SmoothStep,
       animated: true,
       style: {
         stroke: "var(--edge-color)", // Edge color
+        strokeWidth: 2,
       },
     }));
 };
@@ -138,7 +155,7 @@ export const WorkflowDiagram: React.FC<{
       setEdges(layoutedEdges);
     }
     initNodesAndEdges();
-  }, [workflowDetails]);
+  }, [workflowDetails, setNodes, setEdges]);
 
   const onConnect = useCallback(
     (params: Connection) =>
@@ -159,7 +176,9 @@ export const WorkflowDiagram: React.FC<{
           "--intermediate-node-bg": "#64B5F6",
           "--node-text-color": "#F9FAFB",
           "--node-border-color": "#4B5563",
-          "--edge-color": "#FFFFFF",
+          "--edge-color": "#94A3B8",
+          "--edge-label-color": "#F9FAFB",
+          "--edge-label-bg": "#334155",
           "--background-color": "#1E293B",
           "--grid-color": "#374151",
         }
@@ -167,17 +186,19 @@ export const WorkflowDiagram: React.FC<{
           "--initial-node-bg": "#4CAF50",
           "--final-node-bg": "#FF5722",
           "--intermediate-node-bg": "#2196F3",
-          "--node-text-color": "#000000",
+          "--node-text-color": "#FFFFFF",
           "--node-border-color": "#D1D5DB",
-          "--edge-color": "#9CA3AF",
-          "--background-color": "#F7F9FB",
-          "--grid-color": "#E5E7EB",
+          "--edge-color": "#64748B",
+          "--edge-label-color": "#1E293B",
+          "--edge-label-bg": "#F1F5F9",
+          "--background-color": "#F8FAFC",
+          "--grid-color": "#E2E8F0",
         };
 
   return (
     <ReactFlowProvider>
       <div
-        className="workflow-container w-full h-[50rem]"
+        className="workflow-container w-full h-full"
         style={{ ...styles, backgroundColor: "var(--background-color)" }}
       >
         <ReactFlow
@@ -188,12 +209,42 @@ export const WorkflowDiagram: React.FC<{
           onConnect={onConnect}
           connectionLineType={ConnectionLineType.SmoothStep}
           fitView
+          attributionPosition="bottom-right"
         >
           <Background
             gap={16}
             size={1}
             color="var(--grid-color)" // Grid color
           />
+          <Controls position="top-right" showInteractive={false} />
+          <Panel
+            position="top-left"
+            className="bg-background/80 p-2 rounded-md shadow-sm backdrop-blur-sm"
+          >
+            <div className="flex items-center gap-3 text-xs">
+              <div className="flex items-center">
+                <div
+                  className="w-3 h-3 rounded-sm mr-1"
+                  style={{ backgroundColor: "var(--initial-node-bg)" }}
+                ></div>
+                <span>Initial</span>
+              </div>
+              <div className="flex items-center">
+                <div
+                  className="w-3 h-3 rounded-sm mr-1"
+                  style={{ backgroundColor: "var(--intermediate-node-bg)" }}
+                ></div>
+                <span>Intermediate</span>
+              </div>
+              <div className="flex items-center">
+                <div
+                  className="w-3 h-3 rounded-sm mr-1"
+                  style={{ backgroundColor: "var(--final-node-bg)" }}
+                ></div>
+                <span>Final</span>
+              </div>
+            </div>
+          </Panel>
         </ReactFlow>
       </div>
     </ReactFlowProvider>
