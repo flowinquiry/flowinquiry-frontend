@@ -379,7 +379,6 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
       ) : project ? (
         <>
           <Breadcrumbs items={breadcrumbItems} />
-          {/* Header row: project name on the left, Edit button on the right */}
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-3xl font-bold">{project.name}</h1>
             <Button
@@ -454,7 +453,7 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
       >
-        {/* Full height scrollable container */}
+        {/* Full height scrollable container with an extra div at the end */}
         <div className="flex flex-grow overflow-x-auto gap-4 pb-2">
           {workflow?.states
             .sort((a, b) => {
@@ -474,6 +473,10 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
                 columnColor={getColumnColor(state.id!)}
               />
             ))}
+          {/* Add an extra padding div that matches column width */}
+          <div className="min-w-[28rem] flex-shrink-0 opacity-0 pointer-events-none">
+            {/* This invisible column ensures there's enough space at the end */}
+          </div>
         </div>
 
         <DragOverlay>

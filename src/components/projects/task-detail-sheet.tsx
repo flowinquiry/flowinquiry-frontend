@@ -25,8 +25,8 @@ import { Separator } from "@/components/ui/separator";
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
+  SheetTitle,
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
@@ -321,55 +321,54 @@ const TaskDetailSheet: React.FC<TaskDetailSheetProps> = ({
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
       <SheetContent side="right" className="w-[90vw] sm:w-[42rem] lg:w-[56rem]">
         <SheetHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex-1">
-              {isEditingTitle ? (
-                <div>
-                  <Input
-                    ref={titleInputRef}
-                    value={editedTitle}
-                    onChange={(e) => setEditedTitle(e.target.value)}
-                    onBlur={handleTitleBlur}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter") {
-                        handleTitleBlur();
-                      }
-                    }}
-                    className="text-xl font-semibold"
-                  />
-                </div>
-              ) : (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <h2
-                        className={`text-xl font-semibold px-1 py-1 ${editableClass}`}
-                        onClick={canEdit ? handleEditTitle : undefined}
-                      >
-                        {task.requestTitle}
-                      </h2>
-                    </TooltipTrigger>
-                    {canEdit && (
-                      <TooltipContent>
-                        <p>Click to edit title</p>
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                </TooltipProvider>
-              )}
+          <SheetTitle>
+            <div className="flex items-center justify-between">
+              <div className="flex-1">
+                {isEditingTitle ? (
+                  <div>
+                    <Input
+                      ref={titleInputRef}
+                      value={editedTitle}
+                      onChange={(e) => setEditedTitle(e.target.value)}
+                      onBlur={handleTitleBlur}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          handleTitleBlur();
+                        }
+                      }}
+                      className="text-xl font-semibold"
+                    />
+                  </div>
+                ) : (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <h2
+                          className={`text-xl font-semibold px-1 py-1 ${editableClass}`}
+                          onClick={canEdit ? handleEditTitle : undefined}
+                        >
+                          {task.requestTitle}
+                        </h2>
+                      </TooltipTrigger>
+                      {canEdit && (
+                        <TooltipContent>
+                          <p>Click to edit title</p>
+                        </TooltipContent>
+                      )}
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="flex items-center gap-1"
+                onClick={handleFocusComments}
+              >
+                <MessageSquarePlus className="h-4 w-4" /> Add comment
+              </Button>
             </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="flex items-center gap-1"
-              onClick={handleFocusComments}
-            >
-              <MessageSquarePlus className="h-4 w-4" /> Add comment
-            </Button>
-          </div>
-          <SheetDescription>
-            <span>Task #{task.id}</span>
-          </SheetDescription>
+          </SheetTitle>
         </SheetHeader>
 
         <ScrollArea className="h-[calc(100vh-200px)] mt-6">
