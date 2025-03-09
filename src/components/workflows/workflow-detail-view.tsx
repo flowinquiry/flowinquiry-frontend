@@ -131,7 +131,7 @@ const GlobalWorkflowDetailView = ({ workflowId }: { workflowId: number }) => {
 
       {/* Workflow Diagram */}
       {previewWorkflowDetail && !loading && (
-        <div className="w-full min-h-[45rem]">
+        <div className="w-full">
           <WorkflowDiagram workflowDetails={previewWorkflowDetail} />
         </div>
       )}

@@ -128,6 +128,8 @@ export const WorkflowDiagram: React.FC<{
   );
   const [nodes, setNodes, onNodesChange] = useNodesState([] as Node[]);
   const [edges, setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
+  const [diagramHeight, setDiagramHeight] = useState("40rem");
+  const [diagramDirection, setDiagramDirection] = useState<"TB" | "LR">("TB");
 
   useEffect(() => {
     // Observe changes in the dark class
@@ -145,12 +147,48 @@ export const WorkflowDiagram: React.FC<{
     return () => observer.disconnect();
   }, []);
 
+  // Re-layout the graph when direction changes
+  useEffect(() => {
+    if (nodes.length > 0 && edges.length > 0) {
+      const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutElements(
+        nodes,
+        edges,
+        diagramDirection,
+      );
+      setNodes(layoutedNodes);
+      setEdges(layoutedEdges);
+    }
+  }, [diagramDirection]);
+
   useEffect(() => {
     function initNodesAndEdges() {
+      const initialNodes = convertStatesToNodes(workflowDetails);
+      const initialEdges = convertTransitionsToEdges(workflowDetails);
+
+      // Calculate optimal height based on number of nodes
+      const nodeCount = initialNodes.length;
+      let calculatedHeight = "40rem"; // Default height
+
+      // Adjust height based on node count
+      if (nodeCount > 20) {
+        calculatedHeight = "60rem";
+      } else if (nodeCount > 10) {
+        calculatedHeight = "50rem";
+      }
+
+      // Switch to horizontal layout if there are many nodes in a sequence
+      const shouldUseHorizontalLayout =
+        nodeCount > 8 && initialEdges.length < nodeCount * 1.5;
+      const direction = shouldUseHorizontalLayout ? "LR" : "TB";
+
       const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutElements(
-        convertStatesToNodes(workflowDetails),
-        convertTransitionsToEdges(workflowDetails),
+        initialNodes,
+        initialEdges,
+        direction,
       );
+
+      setDiagramDirection(direction);
+      setDiagramHeight(calculatedHeight);
       setNodes(layoutedNodes);
       setEdges(layoutedEdges);
     }
@@ -198,8 +236,12 @@ export const WorkflowDiagram: React.FC<{
   return (
     <ReactFlowProvider>
       <div
-        className="workflow-container w-full h-[40rem]"
-        style={{ ...styles, backgroundColor: "var(--background-color)" }}
+        className="workflow-container w-full"
+        style={{
+          ...styles,
+          backgroundColor: "var(--background-color)",
+          height: diagramHeight,
+        }}
       >
         <ReactFlow
           nodes={nodes}
@@ -209,6 +251,10 @@ export const WorkflowDiagram: React.FC<{
           onConnect={onConnect}
           connectionLineType={ConnectionLineType.SmoothStep}
           fitView
+          fitViewOptions={{ padding: 0.2 }}
+          minZoom={0.1}
+          maxZoom={1.5}
+          defaultViewport={{ x: 0, y: 0, zoom: 0.8 }}
           attributionPosition="bottom-right"
         >
           <Background
@@ -221,27 +267,42 @@ export const WorkflowDiagram: React.FC<{
             position="top-left"
             className="bg-background/80 p-2 rounded-md shadow-sm backdrop-blur-sm"
           >
-            <div className="flex items-center gap-3 text-xs">
-              <div className="flex items-center">
-                <div
-                  className="w-3 h-3 rounded-sm mr-1"
-                  style={{ backgroundColor: "var(--initial-node-bg)" }}
-                ></div>
-                <span>Initial</span>
+            <div className="flex flex-col gap-2">
+              <div className="flex items-center gap-3 text-xs">
+                <div className="flex items-center">
+                  <div
+                    className="w-3 h-3 rounded-sm mr-1"
+                    style={{ backgroundColor: "var(--initial-node-bg)" }}
+                  ></div>
+                  <span>Initial</span>
+                </div>
+                <div className="flex items-center">
+                  <div
+                    className="w-3 h-3 rounded-sm mr-1"
+                    style={{ backgroundColor: "var(--intermediate-node-bg)" }}
+                  ></div>
+                  <span>Intermediate</span>
+                </div>
+                <div className="flex items-center">
+                  <div
+                    className="w-3 h-3 rounded-sm mr-1"
+                    style={{ backgroundColor: "var(--final-node-bg)" }}
+                  ></div>
+                  <span>Final</span>
+                </div>
               </div>
-              <div className="flex items-center">
-                <div
-                  className="w-3 h-3 rounded-sm mr-1"
-                  style={{ backgroundColor: "var(--intermediate-node-bg)" }}
-                ></div>
-                <span>Intermediate</span>
-              </div>
-              <div className="flex items-center">
-                <div
-                  className="w-3 h-3 rounded-sm mr-1"
-                  style={{ backgroundColor: "var(--final-node-bg)" }}
-                ></div>
-                <span>Final</span>
+
+              <div className="flex items-center gap-2 text-xs">
+                <button
+                  onClick={() =>
+                    setDiagramDirection(diagramDirection === "TB" ? "LR" : "TB")
+                  }
+                  className="px-2 py-1 bg-background border border-border rounded-md text-xs hover:bg-accent"
+                >
+                  {diagramDirection === "TB"
+                    ? "Horizontal Layout"
+                    : "Vertical Layout"}
+                </button>
               </div>
             </div>
           </Panel>
