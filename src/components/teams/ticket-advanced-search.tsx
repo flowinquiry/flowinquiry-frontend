@@ -1,7 +1,6 @@
 "use client";
 
 import {
-  AlertTriangle,
   ArrowUpDown,
   CalendarIcon,
   CheckCircle,
@@ -37,6 +36,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  getPriorityClassNames,
+  PRIORITIES_ORDERED,
+  PRIORITY_CODES,
+  PRIORITY_CONFIG,
+} from "@/lib/constants/ticket-priorities";
 import { Filter, GroupFilter, QueryDTO } from "@/types/query";
 import { TeamRequestPriority } from "@/types/team-requests";
 
@@ -44,13 +49,6 @@ import { TeamRequestPriority } from "@/types/team-requests";
 interface DateRange {
   from: Date | undefined;
   to: Date | undefined;
-}
-
-interface PriorityConfig {
-  [key: string]: {
-    icon: React.ReactNode;
-    color: string;
-  };
 }
 
 interface StatusIcons {
@@ -70,14 +68,6 @@ interface TicketAdvancedSearchProps {
 // Utility function to join class names with conditional logic
 const classNames = (...classes: (string | boolean | undefined)[]) => {
   return classes.filter(Boolean).join(" ");
-};
-
-const priorityCodes: Record<TeamRequestPriority, number> = {
-  Critical: 0,
-  High: 1,
-  Medium: 2,
-  Low: 3,
-  Trivial: 4,
 };
 
 const TicketAdvancedSearch: React.FC<TicketAdvancedSearchProps> = ({
@@ -107,32 +97,6 @@ const TicketAdvancedSearch: React.FC<TicketAdvancedSearchProps> = ({
     New: <Clock className="h-4 w-4" />,
     Assigned: <UserCheck className="h-4 w-4" />,
     Completed: <CheckCircle className="h-4 w-4" />,
-  };
-
-  // Priority icons and colors
-  const priorityConfig: PriorityConfig = {
-    Critical: {
-      icon: <AlertTriangle className="h-4 w-4 text-red-500" />,
-      color: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300",
-    },
-    High: {
-      icon: <AlertTriangle className="h-4 w-4 text-orange-500" />,
-      color:
-        "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300",
-    },
-    Medium: {
-      icon: <AlertTriangle className="h-4 w-4 text-yellow-500" />,
-      color:
-        "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300",
-    },
-    Low: {
-      icon: <AlertTriangle className="h-4 w-4 text-blue-500" />,
-      color: "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300",
-    },
-    Trivial: {
-      icon: <AlertTriangle className="h-4 w-4 text-gray-500" />,
-      color: "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300",
-    },
   };
 
   // Format date without external dependencies
@@ -244,13 +208,13 @@ const TicketAdvancedSearch: React.FC<TicketAdvancedSearchProps> = ({
     if (priority !== "") {
       // Type assertion to ensure priority is a valid key
       const priorityKey = priority as TeamRequestPriority;
-      if (priorityKey in priorityCodes) {
+      if (priorityKey in PRIORITY_CODES) {
         groups.push({
           filters: [
             {
               field: "priority",
               operator: "eq",
-              value: priorityCodes[priorityKey], // Correctly typed access
+              value: PRIORITY_CODES[priorityKey], // Use shared priority codes
             },
           ],
           logicalOperator: "AND",
@@ -403,26 +367,18 @@ const TicketAdvancedSearch: React.FC<TicketAdvancedSearchProps> = ({
                   <DropdownMenuRadioItem value="">
                     Any Priority
                   </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="Critical">
-                    <AlertTriangle className="mr-2 h-4 w-4 text-red-500" />
-                    Critical
-                  </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="High">
-                    <AlertTriangle className="mr-2 h-4 w-4 text-orange-500" />
-                    High
-                  </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="Medium">
-                    <AlertTriangle className="mr-2 h-4 w-4 text-yellow-500" />
-                    Medium
-                  </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="Low">
-                    <AlertTriangle className="mr-2 h-4 w-4 text-blue-500" />
-                    Low
-                  </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="Trivial">
-                    <AlertTriangle className="mr-2 h-4 w-4 text-gray-500" />
-                    Trivial
-                  </DropdownMenuRadioItem>
+                  {/* Map through priorities from shared constants */}
+                  {PRIORITIES_ORDERED.map((priorityKey) => (
+                    <DropdownMenuRadioItem
+                      key={priorityKey}
+                      value={priorityKey}
+                    >
+                      <span className={PRIORITY_CONFIG[priorityKey].iconColor}>
+                        {PRIORITY_CONFIG[priorityKey].icon}
+                      </span>
+                      <span className="ml-2">{priorityKey}</span>
+                    </DropdownMenuRadioItem>
+                  ))}
                 </DropdownMenuRadioGroup>
 
                 <DropdownMenuSeparator />
@@ -550,16 +506,22 @@ const TicketAdvancedSearch: React.FC<TicketAdvancedSearchProps> = ({
             </Badge>
           ))}
 
-          {/* Priority filter */}
+          {/* Priority filter - Updated to use shared utilities */}
           {priority && (
             <Badge
               variant="secondary"
               className={classNames(
                 "flex items-center gap-1",
-                priority ? priorityConfig[priority]?.color : "",
+                getPriorityClassNames(priority as TeamRequestPriority),
               )}
             >
-              {priorityConfig[priority]?.icon}
+              <span
+                className={
+                  PRIORITY_CONFIG[priority as TeamRequestPriority].iconColor
+                }
+              >
+                {PRIORITY_CONFIG[priority as TeamRequestPriority].icon}
+              </span>
               {priority}
               <button onClick={() => setPriority("")} className="ml-1">
                 <X className="h-3 w-3" />

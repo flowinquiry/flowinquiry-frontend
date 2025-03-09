@@ -1,12 +1,5 @@
 "use client";
 
-import {
-  AlertCircle,
-  ArrowDownCircle,
-  ArrowRightCircle,
-  ArrowUpCircle,
-  Circle,
-} from "lucide-react";
 import React from "react";
 
 import {
@@ -16,49 +9,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  PRIORITIES_ORDERED,
+  PRIORITY_CONFIG,
+} from "@/lib/constants/ticket-priorities";
 import { TeamRequestPriority } from "@/types/team-requests";
-
-const priorities: TeamRequestPriority[] = [
-  "Critical",
-  "High",
-  "Medium",
-  "Low",
-  "Trivial",
-];
-
-const getPriorityIcon = (priority: TeamRequestPriority) => {
-  switch (priority) {
-    case "Critical":
-      return <AlertCircle className="text-red-600" />;
-    case "High":
-      return <ArrowUpCircle className="text-orange-500" />;
-    case "Medium":
-      return <ArrowRightCircle className="text-yellow-500" />;
-    case "Low":
-      return <ArrowDownCircle className="text-green-500" />;
-    case "Trivial":
-      return <Circle className="text-gray-400" />;
-    default:
-      return <Circle className="text-neutral-400" />;
-  }
-};
-
-const getPriorityStyle = (priority: TeamRequestPriority) => {
-  switch (priority) {
-    case "Critical":
-      return "text-red-600 font-bold";
-    case "High":
-      return "text-orange-500 font-medium";
-    case "Medium":
-      return "text-yellow-500";
-    case "Low":
-      return "text-green-500";
-    case "Trivial":
-      return "text-gray-400";
-    default:
-      return "text-neutral-500";
-  }
-};
 
 export const TeamRequestPrioritySelect = ({
   value,
@@ -66,28 +21,39 @@ export const TeamRequestPrioritySelect = ({
 }: {
   value: TeamRequestPriority;
   onChange: (value: TeamRequestPriority) => void;
-}) => (
-  <Select
-    value={value}
-    onValueChange={(value: TeamRequestPriority) => onChange(value)}
-  >
-    <SelectTrigger className="w-[16rem]">
-      <SelectValue>
-        <div className="flex items-center gap-2">
-          {getPriorityIcon(value)}
-          <span className={getPriorityStyle(value)}>{value}</span>
-        </div>
-      </SelectValue>
-    </SelectTrigger>
-    <SelectContent>
-      {priorities.map((priority) => (
-        <SelectItem key={priority} value={priority}>
-          <div className="flex items-center gap-2">
-            {getPriorityIcon(priority)}
-            <span className={getPriorityStyle(priority)}>{priority}</span>
-          </div>
-        </SelectItem>
-      ))}
-    </SelectContent>
-  </Select>
-);
+}) => {
+  const priorityKey = value as TeamRequestPriority;
+
+  // Create a PriorityItem component for consistent rendering
+  const PriorityItem = ({ priority }: { priority: TeamRequestPriority }) => {
+    const itemConfig = PRIORITY_CONFIG[priority];
+    return (
+      <div className="flex items-center gap-2">
+        <span className={itemConfig.iconColor}>{itemConfig.icon}</span>
+        <span className={`${itemConfig.textColor} font-medium`}>
+          {priority}
+        </span>
+      </div>
+    );
+  };
+
+  return (
+    <Select
+      value={value}
+      onValueChange={(value: TeamRequestPriority) => onChange(value)}
+    >
+      <SelectTrigger className="w-[16rem]">
+        <SelectValue>
+          <PriorityItem priority={priorityKey} />
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent>
+        {PRIORITIES_ORDERED.map((priority) => (
+          <SelectItem key={priority} value={priority}>
+            <PriorityItem priority={priority} />
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
+  );
+};
