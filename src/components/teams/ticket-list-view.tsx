@@ -59,7 +59,6 @@ const TicketListView = () => {
 
   // Basic state management
   const [searchText, setSearchText] = useState("");
-  const [debouncedSearchText, setDebouncedSearchText] = useState("");
   const [isAscending, setIsAscending] = useState(false);
   const [workflows, setWorkflows] = useState<WorkflowDTO[]>([]);
   const [selectedWorkflow, setSelectedWorkflow] = useState<WorkflowDTO | null>(
@@ -101,15 +100,6 @@ const TicketListView = () => {
     }));
   }, [isAscending]);
 
-  // Debounce the search text input
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearchText(searchText);
-    }, 800); // Using a shorter debounce time for better responsiveness
-
-    return () => clearTimeout(handler);
-  }, [searchText]);
-
   // Fetch team workflows
   useEffect(() => {
     const fetchWorkflows = () => {
@@ -123,6 +113,7 @@ const TicketListView = () => {
   // Handle filter changes from TicketAdvancedSearch
   const handleFilterChange = (query: QueryDTO) => {
     setFullQuery(query);
+    setCurrentPage(1);
   };
 
   // Fetch tickets with the full query
@@ -130,14 +121,23 @@ const TicketListView = () => {
     setLoading(true);
 
     try {
+      if (!fullQuery) {
+        setRequests([]);
+        setTotalElements(0);
+        setTotalPages(0);
+        return;
+      }
+
       // Create a combined query that includes team ID filter
       const combinedQuery: QueryDTO = {
         groups: [
           {
             logicalOperator: "AND",
-            filters: [{ field: "team.id", operator: "eq", value: team.id! }],
-            // Include all groups from the fullQuery if it exists
-            groups: fullQuery?.groups || [],
+            filters: [
+              { field: "team.id", operator: "eq", value: team.id! },
+              { field: "project", operator: "eq", value: null },
+            ],
+            groups: fullQuery.groups || [],
           },
         ],
       };
@@ -263,7 +263,6 @@ const TicketListView = () => {
             )}
           </div>
 
-          {/* Using the new TicketAdvancedSearch component */}
           <TicketAdvancedSearch
             searchText={searchText}
             setSearchText={setSearchText}

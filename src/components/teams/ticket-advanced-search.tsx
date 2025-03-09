@@ -14,7 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { useSession } from "next-auth/react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -45,7 +45,6 @@ import {
 import { Filter, GroupFilter, QueryDTO } from "@/types/query";
 import { TeamRequestPriority } from "@/types/team-requests";
 
-// Type definitions
 interface DateRange {
   from: Date | undefined;
   to: Date | undefined;
@@ -65,7 +64,6 @@ interface TicketAdvancedSearchProps {
   onFilterChange?: (query: QueryDTO) => void;
 }
 
-// Utility function to join class names with conditional logic
 const classNames = (...classes: (string | boolean | undefined)[]) => {
   return classes.filter(Boolean).join(" ");
 };
@@ -79,7 +77,6 @@ const TicketAdvancedSearch: React.FC<TicketAdvancedSearchProps> = ({
   setIsAscending,
   onFilterChange = () => {},
 }) => {
-  // Basic filters state
   const [priority, setPriority] = useState<string>("");
   const [assignee, setAssignee] = useState<string>("");
   const [dateRange, setDateRange] = useState<DateRange>({
@@ -90,9 +87,15 @@ const TicketAdvancedSearch: React.FC<TicketAdvancedSearchProps> = ({
     statuses?.length || 0,
   );
 
+  // Add internal search state for immediate input update
+  const [internalSearchText, setInternalSearchText] =
+    useState<string>(searchText);
+
+  // Add debounce timer reference
+  const searchDebounceTimer = useRef<NodeJS.Timeout | null>(null);
+
   const { data: session } = useSession();
 
-  // Status icon mapping
   const statusIcons: StatusIcons = {
     New: <Clock className="h-4 w-4" />,
     Assigned: <UserCheck className="h-4 w-4" />,
@@ -122,7 +125,37 @@ const TicketAdvancedSearch: React.FC<TicketAdvancedSearchProps> = ({
     return "";
   };
 
-  // Update count of active filters
+  // Handle search with debounce
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>): void => {
+    const value = e.target.value;
+    setInternalSearchText(value); // Update the input field immediately
+
+    // Clear any existing timer
+    if (searchDebounceTimer.current) {
+      clearTimeout(searchDebounceTimer.current);
+    }
+
+    // Set a new timer - only update the actual search text after 2 seconds of inactivity
+    searchDebounceTimer.current = setTimeout(() => {
+      setSearchText(value);
+    }, 2000);
+  };
+
+  // Clean up timer on component unmount
+  useEffect(() => {
+    return () => {
+      if (searchDebounceTimer.current) {
+        clearTimeout(searchDebounceTimer.current);
+      }
+    };
+  }, []);
+
+  useEffect(() => {
+    // Build and send the initial query when component mounts
+    buildQueryDTO();
+  }, []); // Empty dependency array ensures this runs only once on mount
+
+  // Update count of active filters and build query
   useEffect(() => {
     let count = 0;
     if (statuses?.length > 0) count += 1;
@@ -132,9 +165,8 @@ const TicketAdvancedSearch: React.FC<TicketAdvancedSearchProps> = ({
 
     setActiveFilterCount(count);
 
-    // Call the filter change callback with all filter values
     buildQueryDTO();
-  }, [statuses, priority, assignee, dateRange]);
+  }, [statuses, priority, assignee, dateRange, searchText]);
 
   // Status toggle handler
   const toggleStatus = (status: string): void => {
@@ -157,28 +189,23 @@ const TicketAdvancedSearch: React.FC<TicketAdvancedSearchProps> = ({
     setPriority("");
     setAssignee("");
     setDateRange({ from: undefined, to: undefined });
-  };
-
-  // Handle search
-  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>): void => {
-    setSearchText(e.target.value);
+    setInternalSearchText("");
+    setSearchText("");
+    if (searchDebounceTimer.current) {
+      clearTimeout(searchDebounceTimer.current);
+    }
   };
 
   // Build QueryDTO from all filters
   const buildQueryDTO = (): QueryDTO => {
     const groups: GroupFilter[] = [];
 
-    // Status filters
+    // Status filters - retain original logic but make it clearer
     if (statuses?.length > 0) {
       const statusFilters: Filter[] = [];
-      const assignedGroupFilter: GroupFilter = {
-        logicalOperator: "AND",
-        filters: [
-          { field: "isCompleted", operator: "eq", value: false },
-          { field: "isNew", operator: "eq", value: false },
-        ],
-      };
+      let includeAssignedStatus = false;
 
+      // Check for New status
       if (statuses.includes("New")) {
         statusFilters.push({
           field: "isNew",
@@ -187,6 +214,7 @@ const TicketAdvancedSearch: React.FC<TicketAdvancedSearchProps> = ({
         });
       }
 
+      // Check for Completed status
       if (statuses.includes("Completed")) {
         statusFilters.push({
           field: "isCompleted",
@@ -195,18 +223,36 @@ const TicketAdvancedSearch: React.FC<TicketAdvancedSearchProps> = ({
         });
       }
 
+      // Check for Assigned status
+      if (statuses.includes("Assigned")) {
+        includeAssignedStatus = true;
+      }
+
+      // Create the status group
       const statusGroup: GroupFilter = {
         filters: statusFilters,
-        groups: statuses.includes("Assigned") ? [assignedGroupFilter] : [],
+        groups: [],
         logicalOperator: "OR",
       };
+
+      // If Assigned is selected, use a safer approach to add the assigned condition
+      if (includeAssignedStatus) {
+        statusGroup.groups = statusGroup.groups || [];
+        statusGroup.groups.push({
+          logicalOperator: "AND",
+          filters: [
+            { field: "isCompleted", operator: "eq", value: false },
+            { field: "isNew", operator: "eq", value: false },
+          ],
+          groups: [],
+        });
+      }
 
       groups.push(statusGroup);
     }
 
     // Priority filter
     if (priority !== "") {
-      // Type assertion to ensure priority is a valid key
       const priorityKey = priority as TeamRequestPriority;
       if (priorityKey in PRIORITY_CODES) {
         groups.push({
@@ -214,9 +260,10 @@ const TicketAdvancedSearch: React.FC<TicketAdvancedSearchProps> = ({
             {
               field: "priority",
               operator: "eq",
-              value: PRIORITY_CODES[priorityKey], // Use shared priority codes
+              value: PRIORITY_CODES[priorityKey],
             },
           ],
+          groups: [],
           logicalOperator: "AND",
         });
       }
@@ -224,20 +271,7 @@ const TicketAdvancedSearch: React.FC<TicketAdvancedSearchProps> = ({
 
     // Assignee filter
     if (assignee !== "") {
-      if (assignee === "unassigned") {
-        groups.push({
-          filters: [
-            {
-              field: "assignUser.id",
-              operator: "eq",
-              value: null,
-            },
-          ],
-          logicalOperator: "AND",
-        });
-      } else if (assignee === "me") {
-        // Assuming there's a current user ID available
-        // Would need to be passed in as a prop
+      if (assignee === "me") {
         groups.push({
           filters: [
             {
@@ -246,6 +280,7 @@ const TicketAdvancedSearch: React.FC<TicketAdvancedSearchProps> = ({
               value: session?.user?.id,
             },
           ],
+          groups: [],
           logicalOperator: "AND",
         });
       }
@@ -273,6 +308,7 @@ const TicketAdvancedSearch: React.FC<TicketAdvancedSearchProps> = ({
 
       groups.push({
         filters: dateFilters,
+        groups: [],
         logicalOperator: "AND",
       });
     }
@@ -286,8 +322,14 @@ const TicketAdvancedSearch: React.FC<TicketAdvancedSearchProps> = ({
             operator: "lk",
             value: `%${searchText}%`,
           },
+          {
+            field: "requestDescription",
+            operator: "lk",
+            value: `%${searchText}%`,
+          },
         ],
-        logicalOperator: "AND",
+        groups: [],
+        logicalOperator: "OR",
       });
     }
 
@@ -308,8 +350,8 @@ const TicketAdvancedSearch: React.FC<TicketAdvancedSearchProps> = ({
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500 dark:text-gray-400" />
             <Input
               type="text"
-              placeholder="Search ticket title, description, or ID..."
-              value={searchText}
+              placeholder="Search ticket title, description..."
+              value={internalSearchText}
               onChange={handleSearch}
               className="pl-10 w-full"
             />
@@ -392,10 +434,6 @@ const TicketAdvancedSearch: React.FC<TicketAdvancedSearchProps> = ({
                   <DropdownMenuRadioItem value="me">
                     <User className="mr-2 h-4 w-4" />
                     Assigned to me
-                  </DropdownMenuRadioItem>
-                  <DropdownMenuRadioItem value="unassigned">
-                    <Inbox className="mr-2 h-4 w-4" />
-                    Unassigned
                   </DropdownMenuRadioItem>
                 </DropdownMenuRadioGroup>
 
