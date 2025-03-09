@@ -198,7 +198,7 @@ export const WorkflowDiagram: React.FC<{
   return (
     <ReactFlowProvider>
       <div
-        className="workflow-container w-full h-full"
+        className="workflow-container w-full h-[40rem]"
         style={{ ...styles, backgroundColor: "var(--background-color)" }}
       >
         <ReactFlow
