@@ -88,10 +88,11 @@ const TeamRequestsStatusView = ({ requests }: TeamRequestsStatusViewProps) => {
 
             return (
               <div
+                key={request.id}
                 className={cn(
                   "relative rounded-lg shadow-sm overflow-hidden",
-                  "border border-gray-300 dark:border-gray-700", // Extracted border style
-                  "bg-white dark:bg-gray-900", // Kept existing background
+                  "border border-gray-300 dark:border-gray-700",
+                  "bg-white dark:bg-gray-900",
                   "hover:shadow-md transition-all duration-300",
                   request.isCompleted ? "opacity-70" : "",
                 )}
