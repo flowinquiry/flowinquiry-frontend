@@ -71,7 +71,6 @@ const CommentsView: React.FC<CommentsViewProps> = ({
 
   return (
     <div>
-      {/* Add a Comment Section */}
       <div className="pt-4">
         <h3 className="text-lg font-semibold mb-2">Add a Comment</h3>
 
@@ -88,7 +87,6 @@ const CommentsView: React.FC<CommentsViewProps> = ({
         </Button>
       </div>
 
-      {/* Display Comments Section */}
       <div className="pt-4">
         <h3 className="text-lg font-semibold mb-2">Comments</h3>
         {loading ? (
@@ -96,17 +94,22 @@ const CommentsView: React.FC<CommentsViewProps> = ({
         ) : comments.length > 0 ? (
           <ul className="space-y-4">
             {comments.map((comment) => (
-              <li key={comment.id} className="flex items-start gap-4 w-full">
-                <div className="relative">
+              <li key={comment.id} className="flex items-start gap-4">
+                <div className="pt-3">
                   <UserAvatar imageUrl={comment.createdByImageUrl} />
                 </div>
 
-                {/* Bubble with Curved Tail */}
-                <div className="relative bg-gray-100 dark:bg-gray-800 text-sm p-4 rounded-lg shadow-md max-w-full flex-1 before:content-[''] before:absolute before:-left-5 before:top-3 before:w-6 before:h-6 before:bg-gray-100 before:dark:bg-gray-800 before:rounded-tl-full before:rounded-br-full before:shadow-md">
-                  <div>
+                <div
+                  className="relative bg-gray-100 dark:bg-gray-800 p-4 rounded-lg shadow-sm flex-1
+                                before:absolute before:-left-3 before:top-6 before:w-0 before:h-0
+                                before:border-t-[6px] before:border-b-[6px] before:border-r-[12px]
+                                before:border-t-transparent before:border-b-transparent
+                                before:border-r-gray-100 before:dark:border-r-gray-800"
+                >
+                  <div className="flex items-baseline gap-2 mb-2 pb-2">
                     <Button
                       variant="link"
-                      className="px-0 h-0 text-sm font-medium"
+                      className="px-0 h-6 text-sm font-medium"
                     >
                       <a
                         href={`/portal/users/${obfuscate(comment.createdById)}`}
@@ -114,23 +117,23 @@ const CommentsView: React.FC<CommentsViewProps> = ({
                         {comment.createdByName}
                       </a>
                     </Button>
-                  </div>
 
-                  <div className="text-gray-600 dark:text-gray-400 text-xs mb-1">
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <span>
-                          {formatDateTimeDistanceToNow(
-                            new Date(comment.createdAt!),
-                          )}
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <span>
-                          {new Date(comment.createdAt!).toLocaleString()}
-                        </span>
-                      </TooltipContent>
-                    </Tooltip>
+                    <div className="text-gray-500 dark:text-gray-400 text-xs">
+                      <Tooltip>
+                        <TooltipTrigger>
+                          <span>
+                            {formatDateTimeDistanceToNow(
+                              new Date(comment.createdAt!),
+                            )}
+                          </span>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <span>
+                            {new Date(comment.createdAt!).toLocaleString()}
+                          </span>
+                        </TooltipContent>
+                      </Tooltip>
+                    </div>
                   </div>
 
                   <div

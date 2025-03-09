@@ -1,6 +1,6 @@
 "use client";
 
-import { Loader, MoreHorizontal, Pencil, Trash } from "lucide-react";
+import { Archive, Loader, MoreHorizontal, Pencil, Trash } from "lucide-react";
 import Link from "next/link";
 import React, { useEffect, useState } from "react";
 
@@ -9,6 +9,16 @@ import ProjectEditDialog from "@/components/projects/project-edit-dialog";
 import { TeamAvatar } from "@/components/shared/avatar-display";
 import PaginationExt from "@/components/shared/pagination-ext";
 import TeamNavLayout from "@/components/teams/team-nav";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -32,13 +42,17 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { usePagePermission } from "@/hooks/use-page-permission";
-import { deleteProject, searchProjects } from "@/lib/actions/project.action";
+import {
+  deleteProject,
+  searchProjects,
+  updateProject,
+} from "@/lib/actions/project.action";
 import { obfuscate } from "@/lib/endecode";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
 import { useError } from "@/providers/error-provider";
 import { useTeam } from "@/providers/team-provider";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
-import { ProjectDTO } from "@/types/projects";
+import { ProjectDTO, ProjectStatus } from "@/types/projects";
 import { Filter, QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 
@@ -62,7 +76,7 @@ const ProjectListView = () => {
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [statusFilter, setStatusFilter] = useState("Active");
+  const [statusFilter, setStatusFilter] = useState<ProjectStatus>("Active");
   const { setError } = useError();
 
   // Delete confirmation state
@@ -129,8 +143,18 @@ const ProjectListView = () => {
 
   const handleDelete = async () => {
     if (!selectedProject) return;
+
     await deleteProject(selectedProject.id!);
     setDeleteDialogOpen(false);
+    fetchProjects();
+  };
+
+  const handleStatusChange = async (
+    project: ProjectDTO,
+    newStatus: ProjectStatus,
+  ) => {
+    const updatedProject = { ...project, status: newStatus };
+    await updateProject(project.id!, updatedProject, setError);
     fetchProjects();
   };
 
@@ -193,7 +217,11 @@ const ProjectListView = () => {
             <ToggleGroup
               type="single"
               value={statusFilter}
-              onValueChange={(value) => setStatusFilter(value)}
+              onValueChange={(value) => {
+                if (value && (value === "Active" || value === "Closed")) {
+                  setStatusFilter(value as ProjectStatus);
+                }
+              }}
             >
               <ToggleGroupItem value="Active">Active</ToggleGroupItem>
               <ToggleGroupItem value="Closed">Closed</ToggleGroupItem>
@@ -202,7 +230,9 @@ const ProjectListView = () => {
 
           <div className="bg-white dark:bg-gray-900 p-4 rounded-lg shadow">
             {loading ? (
-              <Loader />
+              <div className="flex items-center justify-center p-6">
+                <Loader className="w-6 h-6 animate-spin" />
+              </div>
             ) : projects.length > 0 ? (
               <>
                 <Table>
@@ -227,7 +257,17 @@ const ProjectListView = () => {
                             {project.name}
                           </Link>
                         </TableCell>
-                        <TableCell>{project.status}</TableCell>
+                        <TableCell>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-medium ${
+                              project.status === "Active"
+                                ? "bg-green-100 text-green-800"
+                                : "bg-gray-100 text-gray-800"
+                            }`}
+                          >
+                            {project.status}
+                          </span>
+                        </TableCell>
                         <TableCell>
                           {project.startDate
                             ? new Date(project.startDate).toLocaleDateString()
@@ -252,6 +292,7 @@ const ProjectListView = () => {
                             </DropdownMenuTrigger>
                             <DropdownMenuContent>
                               <DropdownMenuItem
+                                className="cursor-pointer"
                                 onClick={() => {
                                   setSelectedProject(project);
                                   setOpenDialog(true);
@@ -259,9 +300,30 @@ const ProjectListView = () => {
                               >
                                 <Pencil className="w-4 h-4 mr-2" /> Edit
                               </DropdownMenuItem>
+                              {project.status === "Active" ? (
+                                <DropdownMenuItem
+                                  className="cursor-pointer"
+                                  onClick={() =>
+                                    handleStatusChange(project, "Closed")
+                                  }
+                                >
+                                  <Archive className="w-4 h-4 mr-2" /> Close
+                                  Project
+                                </DropdownMenuItem>
+                              ) : (
+                                <DropdownMenuItem
+                                  className="cursor-pointer"
+                                  onClick={() =>
+                                    handleStatusChange(project, "Active")
+                                  }
+                                >
+                                  <Archive className="w-4 h-4 mr-2" /> Reopen
+                                  Project
+                                </DropdownMenuItem>
+                              )}
                               <DropdownMenuItem
+                                className="cursor-pointer text-red-600"
                                 onClick={() => confirmDelete(project)}
-                                className="text-red-600"
                               >
                                 <Trash className="w-4 h-4 mr-2" /> Delete
                               </DropdownMenuItem>
@@ -283,6 +345,28 @@ const ProjectListView = () => {
             )}
           </div>
         </div>
+
+        {/* Delete Confirmation Dialog */}
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Confirm Project Deletion</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete the project "
+                {selectedProject?.name}"? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={handleDelete}
+                className="bg-red-600 hover:bg-red-700 text-white"
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </TeamNavLayout>
     </BreadcrumbProvider>
   );

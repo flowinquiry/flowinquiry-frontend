@@ -26,9 +26,16 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { createProject, updateProject } from "@/lib/actions/project.action";
 import { useError } from "@/providers/error-provider";
-import { ProjectDTO, ProjectSchema } from "@/types/projects";
+import { ProjectDTO, ProjectSchema, ProjectStatus } from "@/types/projects";
 import { TeamDTO } from "@/types/teams";
 
 type ProjectDialogProps = {
@@ -54,7 +61,7 @@ const ProjectEditDialog: React.FC<ProjectDialogProps> = ({
       teamId: teamEntity.id!,
       name: "",
       description: "",
-      status: "Active",
+      status: "Active" as ProjectStatus,
       startDate: null,
       endDate: null,
     },
@@ -147,7 +154,38 @@ const ProjectEditDialog: React.FC<ProjectDialogProps> = ({
                   />
                 </div>
 
-                {/* Start Date in first column, End Date in second column */}
+                <div className="col-span-1">
+                  <FormField
+                    control={form.control}
+                    name="status"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>
+                          Status <span className="text-destructive">*</span>
+                        </FormLabel>
+                        <Select
+                          onValueChange={field.onChange}
+                          defaultValue={field.value}
+                          value={field.value}
+                        >
+                          <FormControl>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a status" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent>
+                            <SelectItem value="Active">Active</SelectItem>
+                            <SelectItem value="Closed">Closed</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="col-span-1"></div>
+
                 <div className="col-span-1">
                   <DatePickerField
                     form={form}
@@ -167,7 +205,6 @@ const ProjectEditDialog: React.FC<ProjectDialogProps> = ({
               </div>
             </div>
 
-            {/* Submit Button */}
             <div className="pt-4">
               <SubmitButton
                 label={project ? "Save Changes" : "Save"}

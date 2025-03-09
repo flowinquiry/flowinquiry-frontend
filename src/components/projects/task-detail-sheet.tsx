@@ -1,15 +1,7 @@
 "use client";
 
 import { formatDistanceToNow } from "date-fns";
-import {
-  AlertCircle,
-  ArrowDownCircle,
-  ArrowRightCircle,
-  ArrowUpCircle,
-  Circle,
-  Edit2,
-  MessageSquarePlus,
-} from "lucide-react";
+import { Edit2, MessageSquarePlus } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 
 import AttachmentView from "@/components/shared/attachment-view";
@@ -44,59 +36,18 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import WorkflowStateSelect from "@/components/workflows/workflow-state-select";
-import { TeamRequestDTO } from "@/types/team-requests";
+import {
+  PRIORITIES_ORDERED,
+  PRIORITY_CONFIG,
+} from "@/lib/constants/ticket-priorities";
+import { TeamRequestDTO, TeamRequestPriority } from "@/types/team-requests";
 import { UserWithTeamRoleDTO } from "@/types/users";
-
-type TeamRequestPriority = "Critical" | "High" | "Medium" | "Low" | "Trivial";
 
 type TaskDetailSheetProps = {
   isOpen: boolean;
   setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
   task: TeamRequestDTO | null;
   onTaskUpdate?: (updatedTask: TeamRequestDTO) => Promise<void> | void;
-};
-
-// Priority helper functions
-const priorities: TeamRequestPriority[] = [
-  "Critical",
-  "High",
-  "Medium",
-  "Low",
-  "Trivial",
-];
-
-const getPriorityIcon = (priority: TeamRequestPriority) => {
-  switch (priority) {
-    case "Critical":
-      return <AlertCircle className="text-red-600" />;
-    case "High":
-      return <ArrowUpCircle className="text-orange-500" />;
-    case "Medium":
-      return <ArrowRightCircle className="text-yellow-500" />;
-    case "Low":
-      return <ArrowDownCircle className="text-green-500" />;
-    case "Trivial":
-      return <Circle className="text-gray-400" />;
-    default:
-      return <Circle className="text-neutral-400" />;
-  }
-};
-
-const getPriorityStyle = (priority: TeamRequestPriority) => {
-  switch (priority) {
-    case "Critical":
-      return "text-red-600 font-bold";
-    case "High":
-      return "text-orange-500 font-medium";
-    case "Medium":
-      return "text-yellow-500";
-    case "Low":
-      return "text-green-500";
-    case "Trivial":
-      return "text-gray-400";
-    default:
-      return "text-neutral-500";
-  }
 };
 
 const TaskDetailSheet: React.FC<TaskDetailSheetProps> = ({
@@ -441,30 +392,40 @@ const TaskDetailSheet: React.FC<TaskDetailSheetProps> = ({
                       <SelectTrigger className="w-full">
                         <SelectValue placeholder="Select priority">
                           <div className="flex items-center gap-2">
-                            {getPriorityIcon(
-                              task.priority as TeamRequestPriority,
-                            )}
                             <span
-                              className={getPriorityStyle(
-                                task.priority as TeamRequestPriority,
-                              )}
+                              className={
+                                PRIORITY_CONFIG[
+                                  task.priority as TeamRequestPriority
+                                ].iconColor
+                              }
                             >
-                              {task.priority}
+                              {
+                                PRIORITY_CONFIG[
+                                  task.priority as TeamRequestPriority
+                                ].icon
+                              }
                             </span>
+                            <span>{task.priority}</span>
                           </div>
                         </SelectValue>
                       </SelectTrigger>
                       <SelectContent>
-                        {priorities.map((priority) => (
-                          <SelectItem key={priority} value={priority}>
-                            <div className="flex items-center gap-2">
-                              {getPriorityIcon(priority)}
-                              <span className={getPriorityStyle(priority)}>
-                                {priority}
-                              </span>
-                            </div>
-                          </SelectItem>
-                        ))}
+                        {PRIORITIES_ORDERED.map(
+                          (priority: TeamRequestPriority) => (
+                            <SelectItem key={priority} value={priority}>
+                              <div className="flex items-center gap-2">
+                                <span
+                                  className={
+                                    PRIORITY_CONFIG[priority].iconColor
+                                  }
+                                >
+                                  {PRIORITY_CONFIG[priority].icon}
+                                </span>
+                                <span>{priority}</span>
+                              </div>
+                            </SelectItem>
+                          ),
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
@@ -481,11 +442,25 @@ const TaskDetailSheet: React.FC<TaskDetailSheetProps> = ({
                           }
                         >
                           <div className="flex items-center gap-2">
-                            {getPriorityIcon(
-                              task.priority as TeamRequestPriority,
-                            )}
                             <span
-                              className={`${getPriorityStyle(task.priority as TeamRequestPriority)}`}
+                              className={
+                                PRIORITY_CONFIG[
+                                  task.priority as TeamRequestPriority
+                                ].iconColor
+                              }
+                            >
+                              {
+                                PRIORITY_CONFIG[
+                                  task.priority as TeamRequestPriority
+                                ].icon
+                              }
+                            </span>
+                            <span
+                              className={
+                                PRIORITY_CONFIG[
+                                  task.priority as TeamRequestPriority
+                                ].textColor
+                              }
                             >
                               {task.priority}
                             </span>
