@@ -472,7 +472,6 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
                 setIsSheetOpen={setIsSheetOpen}
                 setSelectedWorkflowState={() => setSelectedWorkflowState(state)}
                 columnColor={getColumnColor(state.id!)}
-                // We handle clicks in handleDragEnd now
               />
             ))}
         </div>

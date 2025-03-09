@@ -6,6 +6,7 @@ import React, { useEffect, useRef, useState } from "react";
 
 import AttachmentView from "@/components/shared/attachment-view";
 import AuditLogView from "@/components/shared/audit-log-view";
+import { UserAvatar } from "@/components/shared/avatar-display";
 import CommentsView from "@/components/shared/comments-view";
 import EntityWatchers from "@/components/shared/entity-watchers";
 import TeamUserSelect from "@/components/teams/team-user-select";
@@ -588,20 +589,8 @@ const TaskDetailSheet: React.FC<TaskDetailSheetProps> = ({
                   <p className="text-xs text-gray-500 dark:text-gray-400">
                     Requester
                   </p>
-                  <div className="flex items-center mt-1">
-                    {task.requestUserImageUrl ? (
-                      <img
-                        src={task.requestUserImageUrl}
-                        alt={task.requestUserName || ""}
-                        className="w-6 h-6 rounded-full mr-2"
-                      />
-                    ) : (
-                      <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mr-2">
-                        <span className="text-xs">
-                          {task.requestUserName?.charAt(0) || "?"}
-                        </span>
-                      </div>
-                    )}
+                  <div className="flex items-center mt-1 gap-2">
+                    <UserAvatar imageUrl={task.requestUserImageUrl} />
                     <span className="text-sm">
                       {task.requestUserName || "Not specified"}
                     </span>
@@ -626,30 +615,14 @@ const TaskDetailSheet: React.FC<TaskDetailSheetProps> = ({
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <div
-                            className={`flex items-center mt-1 p-2 rounded-md bg-gray-50 dark:bg-gray-800 ${editableClass}`}
+                            className={`flex items-center mt-1 p-2 rounded-md bg-gray-50 dark:bg-gray-800 gap-2 ${editableClass}`}
                             onClick={
                               canEdit
                                 ? () => setIsEditingAssignee(true)
                                 : undefined
                             }
                           >
-                            {task.assignUserImageUrl ? (
-                              <img
-                                src={task.assignUserImageUrl}
-                                alt={task.assignUserName || ""}
-                                className="w-6 h-6 rounded-full mr-2"
-                              />
-                            ) : task.assignUserName ? (
-                              <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mr-2">
-                                <span className="text-xs">
-                                  {task.assignUserName.charAt(0)}
-                                </span>
-                              </div>
-                            ) : (
-                              <div className="w-6 h-6 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center mr-2">
-                                <span className="text-xs">?</span>
-                              </div>
-                            )}
+                            <UserAvatar imageUrl={task.assignUserImageUrl} />
                             <span className="text-sm">
                               {task.assignUserName || "Unassigned"}
                             </span>

@@ -4,6 +4,7 @@ import { formatDistanceToNow } from "date-fns";
 import { motion } from "framer-motion";
 import React from "react";
 
+import { UserAvatar } from "@/components/shared/avatar-display";
 import {
   Tooltip,
   TooltipContent,
@@ -53,16 +54,8 @@ const TaskBlock: React.FC<TaskBlockProps> = ({ task, isDragging = false }) => {
 
               {task.assignUserName && (
                 <span className="flex items-center gap-1 text-gray-500 dark:text-gray-400">
-                  <span className="w-4 h-4 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
-                    {task.assignUserImageUrl ? (
-                      <img
-                        src={task.assignUserImageUrl}
-                        alt={task.assignUserName}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      task.assignUserName.charAt(0)
-                    )}
+                  <span className="w-8 h-8 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center overflow-hidden">
+                    <UserAvatar imageUrl={task.assignUserImageUrl} />
                   </span>
                   <span className="truncate max-w-[80px]">
                     {task.assignUserName}
