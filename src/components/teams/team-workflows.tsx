@@ -115,7 +115,7 @@ const TeamWorkflowsView = () => {
             {workflows.map((workflow) => (
               <div
                 key={workflow.id}
-                className="relative w-[28rem] grid grid-cols-1 gap-4 border px-4 py-4 rounded-2xl border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800"
+                className="relative w-[28rem] grid grid-cols-1 gap-4 border px-4 py-4 rounded-2xl"
               >
                 {workflow.ownerId === null && (
                   <div className="absolute bottom-0 right-0 bg-blue-600 text-white text-xs font-semibold px-2 py-1 rounded-bl-lg">

@@ -181,7 +181,7 @@ const WorkflowsView = () => {
           {items?.map((workflow) => (
             <div
               key={workflow.id}
-              className="w-[28rem] flex flex-col gap-4 border border-gray-200 px-4 py-4 rounded-2xl relative"
+              className="w-[28rem] flex flex-col gap-4 border px-4 py-4 rounded-2xl relative"
             >
               {/* Ribbon for visibility */}
               {workflow.visibility === "PUBLIC" && (

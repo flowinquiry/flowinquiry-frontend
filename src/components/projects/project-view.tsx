@@ -40,25 +40,6 @@ import { WorkflowDetailDTO, WorkflowStateDTO } from "@/types/workflows";
 // Function to generate a constant background color for workflow states.
 const getColumnColor = (_: number): string => "bg-[hsl(var(--card))]";
 
-// Helper function to determine badge color based on status
-const getStatusVariant = (
-  status: string,
-): "default" | "secondary" | "destructive" | "outline" => {
-  switch (status.toLowerCase()) {
-    case "active":
-    case "in progress":
-      return "default"; // Primary color
-    case "completed":
-    case "done":
-      return "secondary"; // Success color
-    case "on hold":
-    case "blocked":
-      return "destructive"; // Warning/error color
-    default:
-      return "outline"; // Neutral color
-  }
-};
-
 // Helper function to calculate duration between dates
 const calculateDuration = (
   startDate: string | Date,
@@ -404,9 +385,7 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
                 <span className="text-sm font-medium text-gray-500 dark:text-gray-400 mr-2">
                   Status:
                 </span>
-                <Badge variant={getStatusVariant(project.status)}>
-                  {project.status}
-                </Badge>
+                <Badge variant="default">{project.status}</Badge>
               </div>
             )}
 

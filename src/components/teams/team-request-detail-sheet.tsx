@@ -27,7 +27,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Sheet, SheetContent, SheetHeader } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import {
   Tooltip,
   TooltipContent,
@@ -123,10 +128,8 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
         setError,
       );
 
-      // Important: Update the local state with the server response
       setTeamRequest(updatedRequest);
 
-      // Close edit modes
       setIsEditingTitle(false);
       setIsEditingDescription(false);
       setIsEditingStatus(false);
@@ -145,12 +148,10 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
     estimatedCompletionDate?: string | null;
   }
 
-  // Helper function to format date for input
   const formatDateForInput = (
     dateString: string | null | undefined,
   ): string => {
     if (!dateString) return "";
-    // Extract the date part from ISO string
     return dateString.split("T")[0];
   };
 
@@ -170,111 +171,99 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
     return <Clock className="w-5 h-5 text-blue-500" />;
   };
 
-  // Priority options
-  // Using TeamRequestPrioritySelect component instead
-
-  // Using the TicketChannel type from the imported component
-
-  // Status options
-  // Using WorkflowStateSelectField component instead
-
   return (
     <FormProvider {...form}>
       <Sheet open={open} onOpenChange={onClose}>
         <SheetContent className="w-full sm:w-[64rem] h-full">
           <ScrollArea className="h-full px-4">
-            {/* Header Section */}
             <SheetHeader className="mb-6">
-              <div className="flex items-center gap-4 mb-2">
-                <span
-                  className="inline-block px-2 py-1 text-xs font-semibold rounded-md"
-                  style={{
-                    backgroundColor: workflowColor.background,
-                    color: workflowColor.text,
-                  }}
-                >
-                  {request.workflowRequestName}
-                </span>
-
-                {/* Editable Title */}
-                {isEditingTitle ? (
-                  <form
-                    onSubmit={form.handleSubmit(onSubmit)}
-                    className="flex items-center gap-2 flex-grow"
+              <SheetTitle>
+                <div className="flex items-center gap-4 mb-2">
+                  <span
+                    className="inline-block px-2 py-1 text-xs font-semibold rounded-md"
+                    style={{
+                      backgroundColor: workflowColor.background,
+                      color: workflowColor.text,
+                    }}
                   >
-                    <Controller
-                      name="requestTitle"
-                      control={form.control}
-                      render={({ field }) => (
-                        <Input
-                          {...field}
-                          className="text-xl"
-                          placeholder="Enter request title"
-                          autoFocus
-                        />
-                      )}
-                    />
-                    <div className="flex gap-2">
+                    {request.workflowRequestName}
+                  </span>
+
+                  {isEditingTitle ? (
+                    <form
+                      onSubmit={form.handleSubmit(onSubmit)}
+                      className="flex items-center gap-2 flex-grow"
+                    >
+                      <Controller
+                        name="requestTitle"
+                        control={form.control}
+                        render={({ field }) => (
+                          <Input
+                            {...field}
+                            className="text-xl"
+                            placeholder="Enter request title"
+                            autoFocus
+                          />
+                        )}
+                      />
+                      <div className="flex gap-2">
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => {
+                            form.handleSubmit(onSubmit)();
+                            setIsEditingTitle(false);
+                          }}
+                        >
+                          Save
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setIsEditingTitle(false)}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    </form>
+                  ) : (
+                    <div className="flex-grow">
                       <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          form.handleSubmit(onSubmit)();
-                          setIsEditingTitle(false);
+                        variant="link"
+                        className={`px-0 text-xl flex-grow text-left ${request.isCompleted ? "line-through" : ""}`}
+                        onClick={(e) => {
+                          // Allow the link navigation to proceed (don't call preventDefault)
+                        }}
+                        onDoubleClick={(e) => {
+                          e.preventDefault();
+                          setIsEditingTitle(true);
                         }}
                       >
-                        Save
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => setIsEditingTitle(false)}
-                      >
-                        Cancel
+                        <Link
+                          href={`/portal/teams/${obfuscate(teamRequest.teamId)}/requests/${obfuscate(
+                            teamRequest.id,
+                          )}`}
+                          className="break-words whitespace-normal text-left"
+                        >
+                          {teamRequest.requestTitle || request.requestTitle}
+                        </Link>
                       </Button>
                     </div>
-                  </form>
-                ) : (
-                  <div className="flex-grow">
-                    <Button
-                      variant="link"
-                      className={`px-0 text-xl flex-grow text-left ${request.isCompleted ? "line-through" : ""}`}
-                      onClick={(e) => {
-                        // Allow the link navigation to proceed (don't call preventDefault)
-                      }}
-                      onDoubleClick={(e) => {
-                        // Double-click to edit
-                        e.preventDefault();
-                        setIsEditingTitle(true);
-                      }}
-                    >
-                      <Link
-                        href={`/portal/teams/${obfuscate(teamRequest.teamId)}/requests/${obfuscate(
-                          teamRequest.id,
-                        )}`}
-                        className="break-words whitespace-normal text-left"
-                      >
-                        {teamRequest.requestTitle || request.requestTitle}
-                      </Link>
-                    </Button>
-                  </div>
-                )}
-              </div>
+                  )}
+                </div>
 
-              {request.conversationHealth?.healthLevel && (
-                <TeamRequestHealthLevel
-                  currentLevel={request.conversationHealth.healthLevel}
-                />
-              )}
+                {request.conversationHealth?.healthLevel && (
+                  <TeamRequestHealthLevel
+                    currentLevel={request.conversationHealth.healthLevel}
+                  />
+                )}
+              </SheetTitle>
             </SheetHeader>
 
-            {/* Main Content Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Left Column - Description and Details */}
               <div className="md:col-span-2 space-y-6">
-                {/* Description Section */}
                 <div
                   className={cn(
                     "p-4 rounded-lg border",
@@ -328,7 +317,6 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
                   )}
                 </div>
 
-                {/* Status and Priority Section */}
                 <div
                   className={cn(
                     "p-4 rounded-lg border",
@@ -343,7 +331,6 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
                     </h3>
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    {/* Status - Editable */}
                     <div>
                       <span className="text-xs text-gray-500 dark:text-gray-400 block mb-1">
                         Current Status
@@ -398,7 +385,6 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
                       )}
                     </div>
 
-                    {/* Priority - Editable */}
                     <div>
                       <span className="text-xs text-gray-500 dark:text-gray-400 block mb-1">
                         Priority
@@ -549,7 +535,6 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
                   </div>
                 </div>
 
-                {/* Attachments Section */}
                 <div
                   className={cn(
                     "p-4 rounded-lg border",
@@ -570,9 +555,7 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
                 </div>
               </div>
 
-              {/* Right Column - People and Watchers */}
               <div className="space-y-6">
-                {/* People and Assignment */}
                 <div
                   className={cn(
                     "p-4 rounded-lg border",
@@ -587,7 +570,6 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
                     </h3>
                   </div>
                   <div className="space-y-4">
-                    {/* Requested By */}
                     <div>
                       <span className="text-xs text-gray-500 dark:text-gray-400 block mb-1">
                         Requested By
@@ -606,7 +588,6 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
                       </div>
                     </div>
 
-                    {/* Assigned To - Editable */}
                     <div>
                       <span className="text-xs text-gray-500 dark:text-gray-400 block mb-1">
                         Assigned To

@@ -299,7 +299,6 @@ const TeamRequestDetailView = ({
             </div>
           </div>
 
-          {/* Action Buttons - Moved to right */}
           <div className="flex flex-wrap items-center justify-end gap-3">
             {canEdit && (
               <Button
@@ -377,12 +376,9 @@ const TeamRequestDetailView = ({
             />
           )}
 
-          {/* Main Content Card */}
           <Card className="overflow-hidden">
             <CardContent className="p-0">
-              {/* Top Section - Details */}
               <div className="p-6 space-y-6">
-                {/* Description */}
                 <div>
                   <h3 className="text-lg font-medium mb-2 flex items-center">
                     <FileText className="mr-2 h-5 w-5" /> Description
@@ -397,9 +393,7 @@ const TeamRequestDetailView = ({
 
                 <Separator />
 
-                {/* Information Grid - Simplified to 2 columns */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* People Section */}
                   <div className="space-y-4">
                     <h3 className="text-sm font-medium mb-2 flex items-center">
                       <Users className="mr-2 h-4 w-4" /> People
@@ -450,7 +444,6 @@ const TeamRequestDetailView = ({
                     </div>
                   </div>
 
-                  {/* Details Section - Now separate from dates */}
                   <div className="space-y-4">
                     <h3 className="text-sm font-medium mb-2 flex items-center">
                       <FileText className="mr-2 h-4 w-4" /> Ticket Details
@@ -496,7 +489,6 @@ const TeamRequestDetailView = ({
                   </div>
                 </div>
 
-                {/* Dates Section - Now as its own row */}
                 <div className="mt-6">
                   <h3 className="text-sm font-medium mb-2 flex items-center">
                     <Calendar className="mr-2 h-4 w-4" /> Important Dates
@@ -573,7 +565,6 @@ const TeamRequestDetailView = ({
 
                 <div className="space-y-4 mt-6"></div>
 
-                {/* Dedicated rows for Attachments and Watchers */}
                 <div className="space-y-4 mt-6">
                   <div>
                     <h3 className="text-sm font-medium mb-2 flex items-center">
@@ -599,7 +590,6 @@ const TeamRequestDetailView = ({
 
               <Separator />
 
-              {/* Tabs Section */}
               <div className="pb-6">
                 <Tabs
                   defaultValue="comments"

@@ -156,7 +156,7 @@ const TeamUsersView = () => {
                       {groupedUsers[role].map((user) => (
                         <div
                           key={user.id}
-                          className="w-[28rem] flex flex-row gap-4 border border-gray-200 px-4 py-4 rounded-2xl relative"
+                          className="w-[28rem] flex flex-row gap-4 border px-4 py-4 rounded-2xl relative"
                         >
                           <div>
                             <UserAvatar

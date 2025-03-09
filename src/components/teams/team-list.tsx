@@ -182,7 +182,7 @@ export const TeamList = () => {
             {teams.map((team) => (
               <div
                 key={team.id}
-                className="relative w-[24rem] flex flex-row gap-4 border border-gray-200 rounded-2xl"
+                className="relative w-[24rem] flex flex-row gap-4 border rounded-2xl"
               >
                 <div className="px-4 py-4">
                   <TooltipProvider>

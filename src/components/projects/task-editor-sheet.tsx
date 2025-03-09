@@ -153,143 +153,154 @@ const TaskEditorSheet = ({
 
   return (
     <Sheet open={isOpen} onOpenChange={setIsOpen}>
-      <SheetContent side="right" className="w-[90vw] sm:w-[42rem] lg:w-[56rem]">
-        <SheetHeader>
-          <SheetTitle>
-            Add New Task to {selectedWorkflowState?.stateName}
-          </SheetTitle>
-        </SheetHeader>
+      <SheetContent
+        side="right"
+        className="w-[90vw] sm:w-[42rem] lg:w-[56rem] p-0 overflow-hidden"
+      >
+        <div className="flex flex-col h-full max-h-screen">
+          <div className="p-6 border-b">
+            <SheetHeader>
+              <SheetTitle>
+                Add New Task to {selectedWorkflowState?.stateName}
+              </SheetTitle>
+            </SheetHeader>
+          </div>
 
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(onSubmit)}
-            className="flex flex-col flex-1"
-          >
-            <div className="flex-1 overflow-y-auto space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {/* ✅ Title Field */}
-                <div className="col-span-1 sm:col-span-2">
-                  <ExtInputField
-                    form={form}
-                    fieldName="requestTitle"
-                    label="Title"
-                    required
-                  />
-                </div>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="flex flex-col h-full"
+            >
+              {/* Scrollable form content */}
+              <div className="flex-1 overflow-y-auto p-6 pb-6">
+                <div className="space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {/* ✅ Title Field */}
+                    <div className="col-span-1 sm:col-span-2">
+                      <ExtInputField
+                        form={form}
+                        fieldName="requestTitle"
+                        label="Title"
+                        required
+                      />
+                    </div>
 
-                {/* ✅ Description Field */}
-                <div className="col-span-1 sm:col-span-2">
-                  <FormField
-                    control={form.control}
-                    name="requestDescription"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>
-                          Description{" "}
-                          <span className="text-destructive">*</span>
-                        </FormLabel>
-                        <FormControl>
-                          <RichTextEditor
-                            value={field.value}
-                            onChange={field.onChange}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
+                    {/* ✅ Description Field */}
+                    <div className="col-span-1 sm:col-span-2">
+                      <FormField
+                        control={form.control}
+                        name="requestDescription"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>
+                              Description{" "}
+                              <span className="text-destructive">*</span>
+                            </FormLabel>
+                            <FormControl>
+                              <RichTextEditor
+                                value={field.value}
+                                onChange={field.onChange}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
 
-                {/* ✅ File Uploader */}
-                <div className="col-span-1 sm:col-span-2">
-                  <FileUploader
-                    maxFileCount={8}
-                    maxSize={8 * 1024 * 1024}
-                    accept={{
-                      "application/pdf": [],
-                      "text/plain": [],
-                      "image/png": [],
-                      "image/jpeg": [],
-                      "image/jpg": [],
-                      "image/gif": [],
-                      "image/webp": [],
-                    }}
-                    onValueChange={setFiles}
-                  />
-                </div>
+                    {/* ✅ File Uploader */}
+                    <div className="col-span-1 sm:col-span-2">
+                      <FileUploader
+                        maxFileCount={8}
+                        maxSize={8 * 1024 * 1024}
+                        accept={{
+                          "application/pdf": [],
+                          "text/plain": [],
+                          "image/png": [],
+                          "image/jpeg": [],
+                          "image/jpg": [],
+                          "image/gif": [],
+                          "image/webp": [],
+                        }}
+                        onValueChange={setFiles}
+                      />
+                    </div>
 
-                {/* ✅ Priority Select */}
-                <FormField
-                  control={form.control}
-                  name="priority"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Priority</FormLabel>
+                    {/* ✅ Priority Select */}
+                    <FormField
+                      control={form.control}
+                      name="priority"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Priority</FormLabel>
+                          <FormControl>
+                            <TeamRequestPrioritySelect
+                              value={field.value}
+                              onChange={(value: TeamRequestPriority) =>
+                                field.onChange(value)
+                              }
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <TeamUserSelectField
+                      form={form}
+                      fieldName="assignUserId"
+                      label="Assignee"
+                      teamId={teamId}
+                    />
+
+                    <DatePickerField
+                      form={form}
+                      fieldName="estimatedCompletionDate"
+                      label="Target Completion Date"
+                      placeholder="Select a date"
+                    />
+
+                    <DatePickerField
+                      form={form}
+                      fieldName="actualCompletionDate"
+                      label="Actual Completion Date"
+                      placeholder="Select a date"
+                    />
+
+                    <TicketChannelSelectField form={form} />
+
+                    {/* Modified workflow state field to capture state name changes */}
+                    <FormItem className="mb-16">
+                      <FormLabel>
+                        State <span className="text-destructive">*</span>
+                      </FormLabel>
                       <FormControl>
-                        <TeamRequestPrioritySelect
-                          value={field.value}
-                          onChange={(value: TeamRequestPriority) =>
-                            field.onChange(value)
-                          }
+                        <WorkflowStateSelect
+                          workflowId={projectWorkflowId}
+                          currentStateId={form.getValues("currentStateId") || 0}
+                          onChange={handleWorkflowStateChange}
                         />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
-                  )}
-                />
-
-                <TeamUserSelectField
-                  form={form}
-                  fieldName="assignUserId"
-                  label="Assignee"
-                  teamId={teamId}
-                />
-
-                <DatePickerField
-                  form={form}
-                  fieldName="estimatedCompletionDate"
-                  label="Target Completion Date"
-                  placeholder="Select a date"
-                />
-
-                <DatePickerField
-                  form={form}
-                  fieldName="actualCompletionDate"
-                  label="Actual Completion Date"
-                  placeholder="Select a date"
-                />
-
-                <TicketChannelSelectField form={form} />
-
-                {/* Modified workflow state field to capture state name changes */}
-                <FormItem>
-                  <FormLabel>
-                    State <span className="text-destructive">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <WorkflowStateSelect
-                      workflowId={projectWorkflowId}
-                      currentStateId={form.getValues("currentStateId") || 0}
-                      onChange={handleWorkflowStateChange}
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                  </div>
+                </div>
               </div>
-            </div>
 
-            <div className="pt-4 flex gap-4">
-              <SubmitButton label="Save" labelWhileLoading="Saving ..." />
-              <button
-                type="button"
-                className="px-4 py-2 border rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700"
-                onClick={() => setIsOpen(false)}
-              >
-                Discard
-              </button>
-            </div>
-          </form>
-        </Form>
+              {/* Fixed footer with buttons */}
+              <div className="p-6 mt-auto border-t flex gap-4 sticky bottom-0 bg-background z-10">
+                <SubmitButton label="Save" labelWhileLoading="Saving ..." />
+                <button
+                  type="button"
+                  className="px-4 py-2 border rounded-md bg-gray-200 hover:bg-gray-300 dark:bg-gray-800 dark:hover:bg-gray-700"
+                  onClick={() => setIsOpen(false)}
+                >
+                  Discard
+                </button>
+              </div>
+            </form>
+          </Form>
+        </div>
       </SheetContent>
     </Sheet>
   );

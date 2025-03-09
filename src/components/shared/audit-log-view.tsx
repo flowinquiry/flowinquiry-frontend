@@ -67,7 +67,7 @@ const AuditLogView: React.FC<AuditLogViewProps> = ({
         <div
           key={index}
           className={cn(
-            "relative border-b py-2 gap-2 transition-colors",
+            "relative border-b pl-2 py-2 gap-2 transition-colors",
             "odd:bg-[hsl(var(--card))] odd:text-[hsl(var(--card-foreground))]",
             "even:bg-[hsl(var(--secondary))] even:text-[hsl(var(--secondary-foreground))]",
           )}

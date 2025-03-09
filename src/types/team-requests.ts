@@ -31,8 +31,8 @@ export const TeamRequestDTOSchema = z.object({
   id: z.number().optional(),
   teamId: z.number().optional(),
   teamName: z.string().optional(),
-  workflowId: z.onumber(),
-  projectId: z.onumber(),
+  workflowId: z.number().optional(),
+  projectId: z.number().nullish(),
   workflowName: z.string().nullish(),
   workflowRequestName: z.string().nullish(),
   priority: z
@@ -48,8 +48,8 @@ export const TeamRequestDTOSchema = z.object({
   currentStateName: z.string().nullish(),
   requestTitle: z.string().default(""),
   requestDescription: z.string().default(""),
-  isNew: z.oboolean(),
-  isCompleted: z.oboolean(),
+  isNew: z.boolean().optional(),
+  isCompleted: z.boolean().optional(),
   createdAt: z.preprocess((value) => {
     if (typeof value === "string") {
       return new Date(value);
@@ -75,9 +75,9 @@ export const TeamRequestDTOSchema = z.object({
     return value;
   }, z.date().nullish()),
   channel: z.string().nullish(),
-  numberAttachments: z.onumber(),
-  numberWatchers: z.onumber(),
-  conversationHealth: TeamRequestConversationHealthDTOSchema.optional(),
+  numberAttachments: z.number().optional(),
+  numberWatchers: z.number().optional(),
+  conversationHealth: TeamRequestConversationHealthDTOSchema.nullish(),
 });
 
 export type TeamRequestDTO = z.infer<typeof TeamRequestDTOSchema>;

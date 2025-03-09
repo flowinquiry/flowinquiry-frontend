@@ -11,7 +11,6 @@ import TeamRequestHealthLevel from "@/components/teams/team-requests-health-leve
 import { PriorityDisplay } from "@/components/teams/team-requests-priority-display";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
@@ -91,157 +90,191 @@ const TeamRequestsStatusView = ({ requests }: TeamRequestsStatusViewProps) => {
                 key={request.id}
                 className={cn(
                   "relative rounded-lg shadow-sm overflow-hidden",
-                  "border border-gray-300 dark:border-gray-700",
+                  "border",
                   "bg-white dark:bg-gray-900",
                   "hover:shadow-md transition-all duration-300",
                   request.isCompleted ? "opacity-70" : "",
                 )}
               >
-                <div className="p-4 grid grid-cols-[auto,1fr] gap-4">
-                  {/* Status Indicator with Tooltip */}
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <div className="mt-1">{statusDetails.icon}</div>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>{statusDetails.text}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  {/* Content Section */}
-                  <div>
-                    {/* Title and Workflow */}
-                    <div className="flex items-center gap-2 mb-3">
-                      <Button
-                        variant="link"
-                        className={`text-xl text-left p-0 group ${
-                          request.isCompleted ? "line-through" : ""
-                        }`}
-                        onClick={() => openSheet(request)}
-                        tabIndex={0}
-                        role="button"
-                        aria-label={`Open details for ${request.requestTitle}`}
-                      >
-                        <Badge
-                          style={{
-                            backgroundColor: workflowColor.background,
-                            color: workflowColor.text,
-                          }}
-                          className="mr-2 no-underline"
-                        >
-                          {request.workflowRequestName}
-                        </Badge>
-                        <span className="hover:no-underline">
-                          {request.requestTitle}
-                        </span>
-                      </Button>
-
-                      {/* Priority */}
-                      <PriorityDisplay priority={request.priority} />
+                <div className="p-4">
+                  {/* Two columns: Status icon and Content */}
+                  <div className="flex">
+                    {/* Status icon column */}
+                    <div className="mr-4 pt-1">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <div>{statusDetails.icon}</div>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{statusDetails.text}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
                     </div>
 
-                    {/* Conversation Health */}
-                    {request.conversationHealth?.healthLevel && (
-                      <div className="mb-3">
-                        <TeamRequestHealthLevel
-                          currentLevel={request.conversationHealth.healthLevel}
-                        />
-                      </div>
-                    )}
-
-                    {/* Description */}
-                    <div className="mb-3">
-                      <div className="text-sm font-medium text-gray-600 mb-1">
-                        Description
-                      </div>
-                      <TruncatedHtmlLabel
-                        htmlContent={request.requestDescription!}
-                        wordLimit={200}
-                      />
-                    </div>
-
-                    {/* Detailed Metadata Grid */}
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                      {/* Requester */}
-                      <div>
-                        <div className="text-xs font-medium text-gray-500 mb-1">
-                          Requested By
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <UserAvatar
-                            imageUrl={request.requestUserImageUrl}
-                            size="w-6 h-6"
-                          />
-                          <Link
-                            href={`/portal/users/${obfuscate(request.requestUserId)}`}
-                            className="text-sm hover:underline"
+                    {/* Content column */}
+                    <div className="flex-1 min-w-0">
+                      {/* Top section */}
+                      <div className="mb-8">
+                        {/* Workflow badge */}
+                        <div className="mb-2">
+                          <Badge
+                            style={{
+                              backgroundColor: workflowColor.background,
+                              color: workflowColor.text,
+                            }}
+                            className="inline-block"
                           >
-                            {request.requestUserName}
-                          </Link>
+                            {request.workflowRequestName}
+                          </Badge>
                         </div>
-                      </div>
 
-                      {/* Assigned User */}
-                      <div>
-                        <div className="text-xs font-medium text-gray-500 mb-1">
-                          Assigned To
-                        </div>
-                        <div className="flex items-center gap-2">
-                          {request.assignUserId ? (
-                            <>
-                              <UserAvatar
-                                imageUrl={request.assignUserImageUrl}
-                                size="w-6 h-6"
-                              />
-                              <Link
-                                href={`/portal/users/${obfuscate(request.assignUserId)}`}
-                                className="text-sm hover:underline"
-                              >
-                                {request.assignUserName}
-                              </Link>
-                            </>
-                          ) : (
-                            <span className="text-sm text-gray-500">
-                              Unassigned
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Channel */}
-                      {request.channel && (
-                        <div>
-                          <div className="text-xs font-medium text-gray-500 mb-1">
-                            Channel
+                        {/* Title and priority */}
+                        <div className="flex items-start mb-0">
+                          {/* Title area - using div instead of button to avoid layout issues */}
+                          <div
+                            className="flex-1 mr-2 cursor-pointer"
+                            onClick={() => openSheet(request)}
+                            role="button"
+                            tabIndex={0}
+                            aria-label={`Open details for ${request.requestTitle}`}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                openSheet(request);
+                              }
+                            }}
+                          >
+                            <TooltipProvider>
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <h3
+                                    className={`text-xl text-left text-blue-600 hover:underline ${
+                                      request.isCompleted ? "line-through" : ""
+                                    }`}
+                                  >
+                                    {request.requestTitle}
+                                  </h3>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p className="max-w-xs">
+                                    {request.requestTitle}
+                                  </p>
+                                </TooltipContent>
+                              </Tooltip>
+                            </TooltipProvider>
                           </div>
-                          <Badge variant="outline">{request.channel}</Badge>
+
+                          {/* Priority */}
+                          <div className="flex-shrink-0">
+                            <PriorityDisplay priority={request.priority} />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Health section */}
+                      {request.conversationHealth?.healthLevel && (
+                        <div className="mb-4">
+                          <TeamRequestHealthLevel
+                            currentLevel={
+                              request.conversationHealth.healthLevel
+                            }
+                          />
                         </div>
                       )}
 
-                      {/* Due Date */}
-                      <div>
-                        <div className="text-xs font-medium text-gray-500 mb-1">
-                          Target Completion
+                      {/* Description section */}
+                      <div className="mb-6">
+                        <div className="text-sm font-medium text-gray-600 mb-1">
+                          Description
                         </div>
-                        <div className="text-sm">
-                          {request.estimatedCompletionDate
-                            ? new Date(
-                                request.estimatedCompletionDate,
-                              ).toLocaleDateString()
-                            : "No due date"}
-                        </div>
+                        <TruncatedHtmlLabel
+                          htmlContent={request.requestDescription!}
+                          wordLimit={200}
+                        />
                       </div>
 
-                      {/* State */}
-                      <div>
-                        <div className="text-xs font-medium text-gray-500 mb-1">
-                          Current State
+                      {/* Metadata grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+                        {/* Requester */}
+                        <div>
+                          <div className="text-xs font-medium text-gray-500 mb-1">
+                            Requested By
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <UserAvatar
+                              imageUrl={request.requestUserImageUrl}
+                              size="w-6 h-6"
+                            />
+                            <Link
+                              href={`/portal/users/${obfuscate(request.requestUserId)}`}
+                              className="text-sm hover:underline truncate"
+                            >
+                              {request.requestUserName}
+                            </Link>
+                          </div>
                         </div>
-                        <Badge variant="outline">
-                          {request.currentStateName}
-                        </Badge>
+
+                        {/* Assigned User */}
+                        <div>
+                          <div className="text-xs font-medium text-gray-500 mb-1">
+                            Assigned To
+                          </div>
+                          <div className="flex items-center gap-2">
+                            {request.assignUserId ? (
+                              <>
+                                <UserAvatar
+                                  imageUrl={request.assignUserImageUrl}
+                                  size="w-6 h-6"
+                                />
+                                <Link
+                                  href={`/portal/users/${obfuscate(request.assignUserId)}`}
+                                  className="text-sm hover:underline truncate"
+                                >
+                                  {request.assignUserName}
+                                </Link>
+                              </>
+                            ) : (
+                              <span className="text-sm text-gray-500">
+                                Unassigned
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Channel */}
+                        {request.channel && (
+                          <div>
+                            <div className="text-xs font-medium text-gray-500 mb-1">
+                              Channel
+                            </div>
+                            <Badge variant="outline">{request.channel}</Badge>
+                          </div>
+                        )}
+
+                        {/* Due Date */}
+                        <div>
+                          <div className="text-xs font-medium text-gray-500 mb-1">
+                            Target Completion
+                          </div>
+                          <div className="text-sm">
+                            {request.estimatedCompletionDate
+                              ? new Date(
+                                  request.estimatedCompletionDate,
+                                ).toLocaleDateString()
+                              : "No due date"}
+                          </div>
+                        </div>
+
+                        {/* State */}
+                        <div>
+                          <div className="text-xs font-medium text-gray-500 mb-1">
+                            Current State
+                          </div>
+                          <Badge variant="outline">
+                            {request.currentStateName}
+                          </Badge>
+                        </div>
                       </div>
                     </div>
                   </div>
