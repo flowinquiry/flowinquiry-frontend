@@ -11,14 +11,20 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import React, { useState } from "react";
-import useSWR from "swr";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { Heading } from "@/components/heading";
 import { UserAvatar } from "@/components/shared/avatar-display";
 import LoadingPlaceholder from "@/components/shared/loading-place-holder";
 import PaginationExt from "@/components/shared/pagination-ext";
 import { Button, buttonVariants } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -32,6 +38,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import OrgChartDialog from "@/components/users/org-chart-dialog";
 import { useDebouncedCallback } from "@/hooks/use-debounced-callback";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import { useToast } from "@/hooks/use-toast";
@@ -41,7 +48,7 @@ import {
   resendActivationEmail,
 } from "@/lib/actions/users.action";
 import { obfuscate } from "@/lib/endecode";
-import { cn } from "@/lib/utils";
+import { cn, safeFormatDistanceToNow } from "@/lib/utils";
 import { useError } from "@/providers/error-provider";
 import { QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
@@ -49,7 +56,11 @@ import { UserDTO } from "@/types/users";
 
 export const UserList = () => {
   const { toast } = useToast();
+  const [items, setItems] = useState<Array<UserDTO>>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
+  const [loading, setLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<UserDTO | null>(null);
   const [userSearchTerm, setUserSearchTerm] = useState<string | undefined>(
@@ -59,13 +70,15 @@ export const UserList = () => {
   const [isOrgChartOpen, setIsOrgChartOpen] = useState(false);
 
   const permissionLevel = usePagePermission();
+
   const searchParams = useSearchParams();
   const { replace } = useRouter();
   const pathname = usePathname();
   const { setError } = useError();
 
-  // **SWR Fetcher Function**
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+
     const query: QueryDTO = {
       filters: userSearchTerm
         ? [
@@ -78,29 +91,37 @@ export const UserList = () => {
         : [],
     };
 
-    return findUsers(
+    findUsers(
       query,
       {
         page: currentPage,
         size: 10,
-        sort: [{ field: "firstName,lastName", direction: sortDirection }],
+        sort: [
+          {
+            field: "firstName,lastName",
+            direction: sortDirection,
+          },
+        ],
       },
       setError,
-    );
-  };
+    )
+      .then((pageResult) => {
+        setItems(pageResult.content);
+        setTotalElements(pageResult.totalElements);
+        setTotalPages(pageResult.totalPages);
+      })
+      .finally(() => setLoading(false));
+  }, [
+    userSearchTerm,
+    currentPage,
+    sortDirection,
+    setLoading,
+    setItems,
+    setTotalElements,
+    setTotalPages,
+  ]);
 
-  // **Use SWR for Fetching Users**
-  const { data, error, isLoading, mutate } = useSWR(
-    [`/api/users`, userSearchTerm, currentPage, sortDirection],
-    fetchUsers,
-  );
-
-  const users = data?.content ?? [];
-  const totalElements = data?.totalElements ?? 0;
-  const totalPages = data?.totalPages ?? 0;
-
-  // **Handle Search with Debouncing**
-  const handleSearchUsers = useDebouncedCallback((userName: string) => {
+  const handleSearchTeams = useDebouncedCallback((userName: string) => {
     const params = new URLSearchParams(searchParams);
     if (userName) {
       params.set("name", userName);
@@ -111,28 +132,36 @@ export const UserList = () => {
     replace(`${pathname}?${params.toString()}`);
   }, 2000);
 
-  // **Toggle Sorting**
-  const toggleSortDirection = () =>
-    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
 
-  // **Delete User and Refresh Data**
-  const confirmDeleteUser = async () => {
+  const toggleSortDirection = () => {
+    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+  };
+
+  function onDeleteUser(user: UserDTO) {
+    setSelectedUser(user);
+    setIsDialogOpen(true);
+  }
+
+  async function confirmDeleteUser() {
     if (selectedUser) {
       await deleteUser(selectedUser.id!, setError);
       setSelectedUser(null);
-      mutate(); // Refresh user list
+      await fetchUsers();
     }
     setIsDialogOpen(false);
-  };
+    setSelectedUser(null);
+  }
 
-  // **Resend Activation Email**
-  const onResendActivationEmail = (user: UserDTO) => {
+  function onResendActivationEmail(user: UserDTO) {
     resendActivationEmail(user.email, setError).then(() => {
       toast({
         description: `An activation email has been sent to ${user.email}`,
       });
     });
-  };
+  }
 
   return (
     <div className="grid grid-cols-1 gap-4">
@@ -146,7 +175,9 @@ export const UserList = () => {
           <Input
             className="w-[18rem]"
             placeholder="Search user names ..."
-            onChange={(e) => handleSearchUsers(e.target.value)}
+            onChange={(e) => {
+              handleSearchTeams(e.target.value);
+            }}
             defaultValue={searchParams.get("name")?.toString()}
           />
           <Tooltip>
@@ -176,7 +207,7 @@ export const UserList = () => {
         </div>
       </div>
       <Separator />
-      {isLoading ? (
+      {loading ? (
         <LoadingPlaceholder
           message="Loading user data..."
           skeletonCount={3}
@@ -184,10 +215,10 @@ export const UserList = () => {
         />
       ) : (
         <div className="flex flex-row flex-wrap gap-4 content-around">
-          {users.map((user) => (
+          {items?.map((user) => (
             <div
               key={user.id}
-              className="relative w-[28rem] flex flex-row gap-4 border px-4 py-4 rounded-2xl"
+              className="relative w-[28rem] flex flex-row gap-4 border px-4 py-4 rounded-2xl bg-white dark:bg-gray-800"
             >
               {PermissionUtils.canAccess(permissionLevel) && (
                 <div className="absolute top-2 right-2">
@@ -207,10 +238,7 @@ export const UserList = () => {
                       )}
                       <DropdownMenuItem
                         className="cursor-pointer"
-                        onClick={() => {
-                          setSelectedUser(user);
-                          setIsDialogOpen(true);
-                        }}
+                        onClick={() => onDeleteUser(user)}
                       >
                         <Trash />
                         Delete User
@@ -219,15 +247,43 @@ export const UserList = () => {
                   </DropdownMenu>
                 </div>
               )}
-              <UserAvatar imageUrl={user.imageUrl} size="w-24 h-24" />
-              <div>
-                <Button variant="link" asChild className="px-0">
-                  <Link href={`/portal/users/${obfuscate(user.id)}`}>
-                    {user.firstName}, {user.lastName}
-                  </Link>
-                </Button>
-                <div>Email: {user.email}</div>
+
+              <div className="relative w-24 h-24">
+                <UserAvatar imageUrl={user.imageUrl} size="w-24 h-24" />
+                {user.status !== "ACTIVE" && (
+                  <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center">
+                    <span className="text-white text-xs font-bold">
+                      Not Activated
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              {/* User Info */}
+              <div className="grid grid-cols-1">
+                <div className="text-2xl">
+                  <Button variant="link" className="px-0">
+                    <Link href={`/portal/users/${obfuscate(user.id)}`}>
+                      {user.firstName}, {user.lastName}
+                    </Link>
+                  </Button>
+                </div>
+                <div>
+                  Email:{" "}
+                  <Button variant="link" className="px-0 py-0 h-0">
+                    <Link href={`mailto:${user.email}`}>{user.email}</Link>
+                  </Button>
+                </div>
                 <div>Title: {user.title}</div>
+                <div>Timezone: {user.timezone}</div>
+                <div>
+                  Last login time:{" "}
+                  {user.lastLoginTime
+                    ? safeFormatDistanceToNow(user.lastLoginTime, {
+                        addSuffix: true,
+                      })
+                    : "No recent login"}
+                </div>
               </div>
             </div>
           ))}
@@ -236,8 +292,37 @@ export const UserList = () => {
       <PaginationExt
         currentPage={currentPage}
         totalPages={totalPages}
-        onPageChange={setCurrentPage}
+        onPageChange={(page) => setCurrentPage(page)}
       />
+
+      <OrgChartDialog
+        userId={undefined} // Pass undefined to load the top-level org chart
+        isOpen={isOrgChartOpen}
+        onClose={() => setIsOrgChartOpen(false)}
+      />
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Confirm Deletion</DialogTitle>
+          </DialogHeader>
+          <p>
+            Are you sure you want to delete{" "}
+            <strong>
+              {selectedUser?.firstName} {selectedUser?.lastName}
+            </strong>
+            ? This action cannot be undone.
+          </p>
+          <DialogFooter>
+            <Button variant="secondary" onClick={() => setIsDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button variant="destructive" onClick={confirmDeleteUser}>
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
