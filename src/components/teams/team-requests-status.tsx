@@ -2,6 +2,7 @@
 
 import { AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 import { UserAvatar } from "@/components/shared/avatar-display";
@@ -11,6 +12,7 @@ import TeamRequestHealthLevel from "@/components/teams/team-requests-health-leve
 import { PriorityDisplay } from "@/components/teams/team-requests-priority-display";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Tooltip,
   TooltipContent,
@@ -23,15 +25,32 @@ import { TeamRequestDTO } from "@/types/team-requests";
 
 interface TeamRequestsStatusViewProps {
   requests: TeamRequestDTO[];
+  instantView?: boolean;
 }
 
-const TeamRequestsStatusView = ({ requests }: TeamRequestsStatusViewProps) => {
+const TeamRequestsStatusView = ({
+  requests,
+  instantView = true,
+}: TeamRequestsStatusViewProps) => {
+  const router = useRouter();
   const [selectedRequest, setSelectedRequest] = useState<TeamRequestDTO | null>(
     null,
   );
 
-  const openSheet = (request: TeamRequestDTO) => {
-    setSelectedRequest(request);
+  const handleRequestClick = (request: TeamRequestDTO) => {
+    if (instantView) {
+      setSelectedRequest(request);
+    } else {
+      if (!request.projectId) {
+        router.push(
+          `/portal/teams/${obfuscate(request.teamId)}/requests/${obfuscate(request.id)}`,
+        );
+      } else {
+        router.push(
+          `/portal/teams/${obfuscate(request.teamId)}/projects/${obfuscate(request.projectId)}/${obfuscate(request.id)}`,
+        );
+      }
+    }
   };
 
   const closeSheet = () => {
@@ -135,13 +154,13 @@ const TeamRequestsStatusView = ({ requests }: TeamRequestsStatusViewProps) => {
                           {/* Title area - using div instead of button to avoid layout issues */}
                           <div
                             className="flex-1 mr-2 cursor-pointer"
-                            onClick={() => openSheet(request)}
+                            onClick={() => handleRequestClick(request)}
                             role="button"
                             tabIndex={0}
-                            aria-label={`Open details for ${request.requestTitle}`}
+                            aria-label={`${instantView ? "Open details for" : "Navigate to"} ${request.requestTitle}`}
                             onKeyDown={(e) => {
                               if (e.key === "Enter" || e.key === " ") {
-                                openSheet(request);
+                                handleRequestClick(request);
                               }
                             }}
                           >
@@ -275,6 +294,21 @@ const TeamRequestsStatusView = ({ requests }: TeamRequestsStatusViewProps) => {
                             {request.currentStateName}
                           </Badge>
                         </div>
+
+                        {request.projectId !== null && (
+                          <div>
+                            <div className="text-xs font-medium text-gray-500 mb-1">
+                              Project
+                            </div>
+                            <Button variant="link" className="p-0">
+                              <Link
+                                href={`/portal/teams/${obfuscate(request.teamId)}/projects/${obfuscate(request.projectId)}`}
+                              >
+                                {request.projectName}
+                              </Link>
+                            </Button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -283,8 +317,8 @@ const TeamRequestsStatusView = ({ requests }: TeamRequestsStatusViewProps) => {
             );
           })}
 
-          {/* Detail Sheet */}
-          {selectedRequest && (
+          {/* Only render the sheet if instantView is true and there's a selected request */}
+          {instantView && selectedRequest && (
             <TeamRequestDetailSheet
               open={!!selectedRequest}
               onClose={closeSheet}

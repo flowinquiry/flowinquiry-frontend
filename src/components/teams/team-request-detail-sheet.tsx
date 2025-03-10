@@ -55,6 +55,8 @@ const EditableSection = ({
   onEdit: () => void;
   editableClassName?: string;
 }) => {
+  const [isHovered, setIsHovered] = useState(false);
+
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
@@ -65,12 +67,14 @@ const EditableSection = ({
     <div
       className={cn(
         "group relative",
-        "hover:border-dashed hover:border-2 hover:border-gray-300",
-        "hover:rounded-lg",
-        "hover:bg-gray-50 hover:dark:bg-gray-800",
+        isHovered
+          ? "border border-dashed border-gray-500 rounded-lg bg-gray-50 dark:bg-gray-800"
+          : "",
         editableClassName,
       )}
       onClick={handleClick}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
     >
       <TooltipProvider delayDuration={300}>
         <Tooltip>

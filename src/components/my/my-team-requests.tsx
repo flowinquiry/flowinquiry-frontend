@@ -121,7 +121,10 @@ const MyTeamRequestsView = () => {
             </>
           ) : (
             <>
-              <TeamRequestsStatusView requests={data?.content || []} />
+              <TeamRequestsStatusView
+                requests={data?.content || []}
+                instantView={false}
+              />
               <PaginationExt
                 currentPage={pagination.page}
                 totalPages={totalPages}

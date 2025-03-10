@@ -22,7 +22,7 @@ const TaskBlock: React.FC<TaskBlockProps> = ({ task, isDragging = false }) => {
     <Tooltip>
       <TooltipTrigger asChild>
         <motion.div
-          className="w-full p-3 rounded-lg shadow-md mb-2 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+          className="w-full p-3 rounded-lg shadow-md mb-2 border bg-white dark:bg-gray-800"
           animate={{
             opacity: isDragging ? 0.5 : 1,
             scale: isDragging ? 0.95 : 1,

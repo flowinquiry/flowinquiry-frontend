@@ -124,15 +124,33 @@ export const TeamRequestForm = ({
       title: teamRequest.teamName!,
       link: `/portal/teams/${obfuscate(teamRequest.teamId!)}`,
     },
-    {
-      title: "Requests",
-      link: `/portal/teams/${obfuscate(teamRequest.teamId!)}/requests`,
-    },
-    {
-      title: teamRequest.requestTitle!,
-      link: `/portal/teams/${obfuscate(teamRequest.teamId!)}/requests/${obfuscate(teamRequest.id!)}`,
-    },
-    { title: "Edit", link: "#" },
+    ...(teamRequest.projectId
+      ? [
+          {
+            title: "Projects",
+            link: `/portal/teams/${obfuscate(teamRequest.teamId!)}/projects`,
+          },
+          {
+            title: teamRequest.projectName!,
+            link: `/portal/teams/${obfuscate(teamRequest.teamId!)}/projects/${obfuscate(teamRequest.projectId!)}`,
+          },
+          {
+            title: teamRequest.requestTitle!,
+            link: `/portal/teams/${obfuscate(teamRequest.teamId!)}/projects/${obfuscate(teamRequest.projectId!)}/${obfuscate(teamRequest.id!)}`,
+          },
+          { title: "Edit", link: "#" },
+        ]
+      : [
+          {
+            title: "Requests",
+            link: `/portal/teams/${obfuscate(teamRequest.teamId!)}/requests`,
+          },
+          {
+            title: teamRequest.requestTitle!,
+            link: `/portal/teams/${obfuscate(teamRequest.teamId!)}/requests/${obfuscate(teamRequest.id!)}`,
+          },
+          { title: "Edit", link: "#" },
+        ]),
   ];
 
   return (
@@ -147,7 +165,7 @@ export const TeamRequestForm = ({
 
       <Form {...form}>
         <form
-          className="grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-[72rem] mx-auto"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 max-w-[72rem]"
           onSubmit={form.handleSubmit(onSubmit)}
         >
           <div className="col-span-1 sm:col-span-2">

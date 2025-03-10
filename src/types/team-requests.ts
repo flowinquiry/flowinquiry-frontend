@@ -32,9 +32,10 @@ export const TeamRequestDTOSchema = z.object({
   teamId: z.number().optional(),
   teamName: z.string().optional(),
   workflowId: z.number().optional(),
-  projectId: z.number().nullish(),
   workflowName: z.string().nullish(),
   workflowRequestName: z.string().nullish(),
+  projectId: z.number().nullish(),
+  projectName: z.string().nullish(),
   priority: z
     .enum(["Critical", "High", "Medium", "Low", "Trivial"])
     .default("Medium"),

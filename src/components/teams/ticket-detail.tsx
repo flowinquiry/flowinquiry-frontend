@@ -54,7 +54,6 @@ import {
 import { getValidTargetStates } from "@/lib/actions/workflows.action";
 import { formatDateTimeDistanceToNow } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
-import { navigateToRecord } from "@/lib/navigation-record";
 import { getSpecifiedColor, randomPair } from "@/lib/utils";
 import { BreadcrumbProvider } from "@/providers/breadcrumb-provider";
 import { useError } from "@/providers/error-provider";
@@ -135,10 +134,9 @@ const TeamRequestDetailView = ({
 
   const navigateToPreviousRecord = async () => {
     if (!teamRequest) return;
-    const previousTeamRequest = await navigateToRecord(
-      findPreviousTeamRequest,
-      "You've reached the first record",
+    const previousTeamRequest = await findPreviousTeamRequest(
       teamRequest.id!,
+      teamRequest.projectId,
       setError,
     );
     setTeamRequest(previousTeamRequest);
@@ -146,10 +144,9 @@ const TeamRequestDetailView = ({
 
   const navigateToNextRecord = async () => {
     if (!teamRequest) return;
-    const nextTeamRequest = await navigateToRecord(
-      findNextTeamRequest,
-      "You've reached the last record",
+    const nextTeamRequest = await findNextTeamRequest(
       teamRequest.id!,
+      teamRequest.projectId,
       setError,
     );
     setTeamRequest(nextTeamRequest);
@@ -214,11 +211,28 @@ const TeamRequestDetailView = ({
       title: teamRequest.teamName!,
       link: `/portal/teams/${obfuscate(teamRequest.teamId)}`,
     },
-    {
-      title: "Tickets",
-      link: `/portal/teams/${obfuscate(teamRequest.teamId)}/requests`,
-    },
-    { title: teamRequest.requestTitle!, link: "#" },
+    ...(teamRequest.projectId
+      ? [
+          {
+            title: "Projects",
+            link: `/portal/teams/${obfuscate(teamRequest.teamId)}/projects`,
+          },
+          {
+            title: teamRequest.projectName!,
+            link: `/portal/teams/${obfuscate(teamRequest.teamId)}/projects/${obfuscate(teamRequest.projectId)}`,
+          },
+          {
+            title: teamRequest.requestTitle!,
+            link: "#",
+          },
+        ]
+      : [
+          {
+            title: "Tickets",
+            link: `/portal/teams/${obfuscate(teamRequest.teamId)}/requests`,
+          },
+          { title: teamRequest.requestTitle!, link: "#" },
+        ]),
   ];
 
   const workflowColor = getSpecifiedColor(teamRequest.workflowRequestName!);

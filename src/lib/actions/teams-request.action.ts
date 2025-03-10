@@ -65,19 +65,27 @@ export async function searchTeamRequests(
 
 export const findPreviousTeamRequest = async (
   requestId: number,
+  projectId?: number | null,
   setError?: (error: HttpError | string | null) => void,
 ) => {
-  return get<TeamRequestDTO>(
-    `/api/team-requests/${requestId}/previous`,
-    setError,
-  );
+  const url =
+    projectId != null
+      ? `/api/team-requests/${requestId}/previous?projectId=${projectId}`
+      : `/api/team-requests/${requestId}/previous`;
+
+  return get<TeamRequestDTO>(url, setError);
 };
 
 export const findNextTeamRequest = async (
   requestId: number,
+  projectId?: number | null,
   setError?: (error: HttpError | string | null) => void,
 ) => {
-  return get<TeamRequestDTO>(`/api/team-requests/${requestId}/next`, setError);
+  const url =
+    projectId != null
+      ? `/api/team-requests/${requestId}/next?projectId=${projectId}`
+      : `/api/team-requests/${requestId}/next`;
+  return get<TeamRequestDTO>(url, setError);
 };
 
 export const getTicketsAssignmentDistributionByTeam = async (
