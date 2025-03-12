@@ -10,6 +10,9 @@ import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
 
 import { DraggableTaskWrapper } from "@/components/projects/draggable-task-wrapper";
+import { usePagePermission } from "@/hooks/use-page-permission";
+import { useUserTeamRole } from "@/providers/user-team-role-provider";
+import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/team-requests";
 import { WorkflowStateDTO } from "@/types/workflows";
 
@@ -33,6 +36,8 @@ const StateColumn: React.FC<ColumnProps> = ({
   columnColor,
   onTaskClick,
 }) => {
+  const permissionLevel = usePagePermission();
+  const teamRole = useUserTeamRole().role;
   const { isOver, setNodeRef } = useDroppable({
     id: workflowState.id!.toString(),
     data: {
@@ -80,21 +85,24 @@ const StateColumn: React.FC<ColumnProps> = ({
           ))}
         </motion.div>
       </SortableContext>
-
-      <motion.button
-        onClick={() => {
-          setSelectedWorkflowState(workflowState);
-          setIsSheetOpen(true);
-        }}
-        className={clsx(
-          "mt-2 w-full flex items-center justify-center gap-2 py-2 border rounded-lg text-white font-semibold transition",
-          BUTTON_COLOR,
-        )}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-      >
-        <Plus className="w-5 h-5" /> Add item
-      </motion.button>
+      {(PermissionUtils.canWrite(permissionLevel) ||
+        teamRole === "Manager" ||
+        teamRole === "Member") && (
+        <motion.button
+          onClick={() => {
+            setSelectedWorkflowState(workflowState);
+            setIsSheetOpen(true);
+          }}
+          className={clsx(
+            "mt-2 w-full flex items-center justify-center gap-2 py-2 border rounded-lg text-white font-semibold transition",
+            BUTTON_COLOR,
+          )}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <Plus className="w-5 h-5" /> Add item
+        </motion.button>
+      )}
     </motion.div>
   );
 };

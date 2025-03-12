@@ -19,7 +19,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -46,7 +45,10 @@ const NotificationsDropdown = () => {
   const { toast } = useToast();
 
   const [notifications, setNotifications] = useState<NotificationDTO[]>(() => {
-    return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
+    if (typeof window !== "undefined") {
+      return JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY) || "[]");
+    }
+    return [];
   });
 
   const { notifications: notificationsSocket } = useWebSocket();
@@ -73,7 +75,7 @@ const NotificationsDropdown = () => {
     }
 
     fetchNotifications();
-  }, [session]);
+  }, [session, setError]);
 
   useEffect(() => {
     if (notificationsSocket.length > 0) {
@@ -92,7 +94,7 @@ const NotificationsDropdown = () => {
         return updated;
       });
     }
-  }, [notificationsSocket]);
+  }, [notificationsSocket, toast]);
 
   useEffect(() => {
     const handleVisibilityChange = () => {
@@ -172,75 +174,144 @@ const NotificationsDropdown = () => {
     }
   };
 
+  const getNotificationTypeLabel = (type: NotificationType) => {
+    switch (type) {
+      case NotificationType.INFO:
+        return "Info";
+      case NotificationType.WARNING:
+        return "Warning";
+      case NotificationType.ERROR:
+        return "Error";
+      case NotificationType.SLA_BREACH:
+        return "SLA Breach";
+      case NotificationType.SLA_WARNING:
+        return "SLA Warning";
+      case NotificationType.ESCALATION_NOTICE:
+        return "Escalation";
+      default:
+        return "Notification";
+    }
+  };
+
+  const getNotificationTypeBadgeColor = (type: NotificationType) => {
+    switch (type) {
+      case NotificationType.INFO:
+        return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300";
+      case NotificationType.WARNING:
+        return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-300";
+      case NotificationType.ERROR:
+        return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300";
+      case NotificationType.SLA_BREACH:
+        return "bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-300";
+      case NotificationType.SLA_WARNING:
+        return "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300";
+      case NotificationType.ESCALATION_NOTICE:
+        return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300";
+      default:
+        return "bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-300";
+    }
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="relative h-10 w-10 rounded-full">
-          <BellDot className="animate-tada h-8 w-8" />
+        <Button
+          variant="outline"
+          className="relative h-10 w-10 rounded-full p-0"
+        >
+          {notifications.length > 0 ? (
+            <BellDot className="animate-tada h-5 w-5" />
+          ) : (
+            <Bell className="h-5 w-5" />
+          )}
           {notifications.length > 0 && (
-            <div className="absolute top-[2px] right-[2px] translate-x-1/2 translate-y-[-50%] w-5 h-5 text-[10px] rounded-full font-semibold flex items-center justify-center bg-red-400 text-white dark:bg-red-500 dark:text-white">
+            <div className="absolute top-0 right-0 -mt-1 -mr-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-xs font-medium text-white">
               {notifications.length}
             </div>
           )}
         </Button>
       </DropdownMenuTrigger>
+
       <DropdownMenuContent
         align="end"
-        className="z-[999] mx-4 lg:w-[24rem] p-0"
+        className="z-[999] w-80 md:w-96 p-0 shadow-lg border dark:border-gray-700"
       >
+        <div className="flex items-center justify-between px-4 py-3 border-b dark:border-gray-700">
+          <h3 className="font-semibold text-sm text-gray-800 dark:text-gray-200">
+            Notifications
+            {notifications.length > 0 && (
+              <span className="ml-2 text-xs bg-gray-100 dark:bg-gray-800 px-2 py-0.5 rounded-full">
+                {notifications.length}
+              </span>
+            )}
+          </h3>
+          {notifications.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleMarkAllRead}
+              className="text-xs h-8 hover:bg-gray-100 dark:hover:bg-gray-800"
+            >
+              Clear all
+            </Button>
+          )}
+        </div>
+
         {notifications.length > 0 ? (
-          <>
-            <DropdownMenuLabel>
-              <div className="flex justify-between px-2 py-2">
-                <div className="text-sm font-medium">
-                  Notifications ({notifications.length})
-                </div>
-                <Button
-                  variant="link"
-                  onClick={handleMarkAllRead}
-                  className="text-sm px-0 h-0"
+          <ScrollArea className="max-h-80 overflow-y-auto">
+            <AnimatePresence>
+              {notifications.map((item, index) => (
+                <motion.div
+                  key={index}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.3 }}
                 >
-                  Mark all read
-                </Button>
-              </div>
-            </DropdownMenuLabel>
-            <ScrollArea className="max-h-[20rem] overflow-y-auto">
-              <AnimatePresence>
-                {notifications.map((item, index) => (
-                  <motion.div
-                    key={index}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.5 }}
+                  <DropdownMenuItem
+                    className="cursor-pointer p-0 focus:bg-transparent"
+                    onClick={() => handleNotificationClick(item.id, index)}
                   >
-                    <DropdownMenuItem
-                      className="cursor-pointer flex gap-3 items-start"
-                      onClick={() => handleNotificationClick(item.id, index)}
-                    >
-                      {getNotificationIcon(item.type)}
-                      <div className="flex-1 flex flex-col">
-                        <TruncatedHtmlLabel
-                          htmlContent={item.content}
-                          wordLimit={400}
-                        />
-                        <Tooltip>
-                          <TooltipTrigger className="w-auto text-left">
-                            {formatDateTimeDistanceToNow(
-                              new Date(item.createdAt),
-                            )}
-                          </TooltipTrigger>
-                          <TooltipContent side="right" align="start">
-                            <p>{formatDateTime(new Date(item.createdAt))}</p>
-                          </TooltipContent>
-                        </Tooltip>
+                    <div className="flex w-full p-3 hover:bg-gray-100 dark:hover:bg-gray-800 border-b dark:border-gray-700 last:border-0">
+                      <div className="mr-3 mt-1">
+                        {getNotificationIcon(item.type)}
                       </div>
-                    </DropdownMenuItem>
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </ScrollArea>
-          </>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <span
+                            className={`text-xs px-2 py-0.5 rounded-full ${getNotificationTypeBadgeColor(item.type)}`}
+                          >
+                            {getNotificationTypeLabel(item.type)}
+                          </span>
+                          <Tooltip>
+                            <TooltipTrigger className="text-xs text-gray-500 dark:text-gray-400 ml-auto">
+                              {formatDateTimeDistanceToNow(
+                                new Date(item.createdAt),
+                              )}
+                            </TooltipTrigger>
+                            <TooltipContent side="left">
+                              <p>{formatDateTime(new Date(item.createdAt))}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </div>
+                        <div className="text-sm text-gray-700 dark:text-gray-300">
+                          <TruncatedHtmlLabel
+                            htmlContent={item.content}
+                            wordLimit={400}
+                          />
+                        </div>
+                      </div>
+                    </div>
+                  </DropdownMenuItem>
+                </motion.div>
+              ))}
+            </AnimatePresence>
+          </ScrollArea>
         ) : (
-          <div className="p-4 text-center text-sm">No new notifications.</div>
+          <div className="flex flex-col items-center justify-center p-6 text-center">
+            <Bell className="text-gray-400 w-8 h-8 mb-2" />
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              No new notifications
+            </p>
+          </div>
         )}
       </DropdownMenuContent>
     </DropdownMenu>

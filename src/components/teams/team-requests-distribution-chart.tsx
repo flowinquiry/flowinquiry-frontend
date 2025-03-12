@@ -6,6 +6,7 @@ import {
   Bar,
   BarChart,
   CartesianGrid,
+  Cell,
   Legend,
   ResponsiveContainer,
   Tooltip,
@@ -25,7 +26,24 @@ interface TicketDistributionChartProps {
   teamId: number;
 }
 
-const COLORS = ["#8884d8", "#82ca9d", "#ffc658", "#ff6f61", "#d0ed57"];
+// Extended color palette with visually distinct colors
+const COLORS = [
+  "#8884d8", // Purple
+  "#82ca9d", // Green
+  "#ffc658", // Yellow
+  "#ff6f61", // Coral
+  "#d0ed57", // Lime
+  "#6a89cc", // Blue
+  "#f78fb3", // Pink
+  "#3dc1d3", // Cyan
+  "#e15f41", // Dark Orange
+  "#546de5", // Royal Blue
+  "#c44569", // Magenta
+  "#574b90", // Dark Purple
+  "#f19066", // Light Orange
+  "#303952", // Navy Blue
+  "#63cdda", // Light Blue
+];
 
 const TicketDistributionChart: React.FC<TicketDistributionChartProps> = ({
   teamId,
@@ -46,11 +64,16 @@ const TicketDistributionChart: React.FC<TicketDistributionChartProps> = ({
     () => getTicketsAssignmentDistributionByTeam(teamId, dateParams, setError),
   );
 
-  const chartData = data.map((item: TicketDistributionDTO) => ({
+  // Transform data and assign a unique color index to each user
+  const chartData = data.map((item: TicketDistributionDTO, index: number) => ({
     name: item.userName || "Unassigned",
     value: item.ticketCount,
     userId: item.userId,
+    colorIndex: index % COLORS.length, // Ensure we loop back if more users than colors
   }));
+
+  // Sort data by ticket count (descending) to make the chart more readable
+  chartData.sort((a, b) => b.value - a.value);
 
   const CustomYAxisTick = ({
     x,
@@ -73,6 +96,21 @@ const TicketDistributionChart: React.FC<TicketDistributionChartProps> = ({
         <tspan>{payload.value}</tspan>
       </text>
     );
+  };
+
+  // Custom tooltip to show user and count
+  const CustomTooltip = ({ active, payload }: any) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white dark:bg-gray-800 p-2 border rounded shadow">
+          <p className="font-medium">{payload[0].payload.name}</p>
+          <p>
+            <span className="font-semibold">{payload[0].value}</span> tickets
+          </p>
+        </div>
+      );
+    }
+    return null;
   };
 
   return (
@@ -122,9 +160,16 @@ const TicketDistributionChart: React.FC<TicketDistributionChartProps> = ({
                     tick={(props) => <CustomYAxisTick {...props} />}
                     width={150}
                   />
-                  <Tooltip />
+                  <Tooltip content={<CustomTooltip />} />
                   <Legend />
-                  <Bar dataKey="value" fill={COLORS[0]} name="Ticket Count" />
+                  <Bar dataKey="value" name="Ticket Count">
+                    {chartData.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={COLORS[entry.colorIndex]}
+                      />
+                    ))}
+                  </Bar>
                 </BarChart>
               </ResponsiveContainer>
             </div>

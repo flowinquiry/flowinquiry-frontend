@@ -35,3 +35,24 @@ export const formatDateParams = (dateParams: {
 
   return params.toString();
 };
+
+export const calculateDuration = (
+  startDate: string | Date,
+  endDate: string | Date,
+): string => {
+  const start = new Date(startDate);
+  const end = new Date(endDate);
+
+  // Calculate difference in days
+  const diffTime = Math.abs(end.getTime() - start.getTime());
+  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+  // Format as weeks + days or just days
+  if (diffDays >= 7) {
+    const weeks = Math.floor(diffDays / 7);
+    const days = diffDays % 7;
+    return `${weeks} week${weeks !== 1 ? "s" : ""}${days > 0 ? `, ${days} day${days !== 1 ? "s" : ""}` : ""}`;
+  } else {
+    return `${diffDays} day${diffDays !== 1 ? "s" : ""}`;
+  }
+};

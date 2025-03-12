@@ -2,9 +2,10 @@
 
 import { ChevronDown, ChevronRight } from "lucide-react";
 import Link from "next/link";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import useSWR from "swr";
 
+import { UserAvatar } from "@/components/shared/avatar-display";
 import PaginationExt from "@/components/shared/pagination-ext";
 import TruncatedHtmlLabel from "@/components/shared/truncate-html-label";
 import { PriorityDisplay } from "@/components/teams/team-requests-priority-display";
@@ -26,8 +27,13 @@ const TeamOverdueTickets = ({ teamId }: { teamId: number }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortBy] = useState("priority");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
-  const [collapsed, setCollapsed] = useState(false); // Collapsed state
+  const [collapsed, setCollapsed] = useState(false);
   const { setError } = useError();
+
+  // Reset to page 1 when sort direction changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [sortDirection]);
 
   // **SWR Fetcher Function**
   const fetchTickets = async () => {
@@ -44,11 +50,21 @@ const TeamOverdueTickets = ({ teamId }: { teamId: number }) => {
   const { data, error, isLoading, mutate } = useSWR(
     [`/api/team/${teamId}/overdue-tickets`, currentPage, sortBy, sortDirection],
     fetchTickets,
+    {
+      revalidateOnFocus: false,
+    },
   );
 
   const tickets = data?.content ?? [];
   const totalPages = data?.totalPages ?? 0;
   const totalTickets = data?.totalElements ?? 0;
+
+  // **Safe Page Change Handler**
+  const handlePageChange = (page: number) => {
+    if (page < 1) page = 1;
+    if (totalPages > 0 && page > totalPages) page = totalPages;
+    setCurrentPage(page);
+  };
 
   // **Toggle Sorting**
   const toggleSortDirection = () =>
@@ -56,7 +72,7 @@ const TeamOverdueTickets = ({ teamId }: { teamId: number }) => {
 
   return (
     <Card>
-      {/* Header */}
+      {/* Header Row */}
       <CardHeader>
         <div className="flex items-center justify-between w-full">
           {/* Left: Chevron Icon and Title */}
@@ -115,7 +131,9 @@ const TeamOverdueTickets = ({ teamId }: { teamId: number }) => {
               </Spinner>
             </div>
           ) : error ? (
-            <p className="text-sm text-red-500">Failed to load tickets.</p>
+            <p className="text-sm text-red-500">
+              Failed to load tickets. Please try refreshing the page.
+            </p>
           ) : (
             <div className="space-y-4">
               {tickets.length > 0 ? (
@@ -129,43 +147,93 @@ const TeamOverdueTickets = ({ teamId }: { teamId: number }) => {
                     }`}
                   >
                     <div className="flex items-start justify-between">
-                      <Button variant="link" className="px-0 h-auto">
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Link
-                              href={`/portal/teams/${obfuscate(
-                                ticket.teamId,
-                              )}/requests/${obfuscate(ticket.id)}`}
-                              className="truncate max-w-xs"
-                            >
-                              {ticket.requestTitle}
-                            </Link>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <span>{ticket.requestTitle}</span>
-                          </TooltipContent>
-                        </Tooltip>
-                      </Button>
-                      <div className="ml-4 text-sm">
+                      <div className="flex flex-col">
+                        <div className="flex items-center gap-2">
+                          <Button variant="link" className="px-0 h-auto">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Link
+                                  href={
+                                    ticket.projectId && ticket.projectId > 0
+                                      ? `/portal/teams/${obfuscate(ticket.teamId)}/projects/${obfuscate(ticket.projectId)}/${obfuscate(ticket.id)}`
+                                      : `/portal/teams/${obfuscate(ticket.teamId)}/requests/${obfuscate(ticket.id)}`
+                                  }
+                                  className="truncate max-w-xs"
+                                >
+                                  {ticket.requestTitle}
+                                </Link>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <span>{ticket.requestTitle}</span>
+                              </TooltipContent>
+                            </Tooltip>
+                          </Button>
+                        </div>
+
+                        {/* Project Info */}
+                        {ticket.projectId &&
+                          ticket.projectId > 0 &&
+                          ticket.projectName && (
+                            <div className="mt-1 ml-4 flex items-center gap-2">
+                              <span className="text-xs bg-emerald-200 text-emerald-800 px-2 py-0.5 rounded">
+                                Project
+                              </span>
+                              <Link
+                                href={`/portal/teams/${obfuscate(ticket.teamId)}/projects/${obfuscate(ticket.projectId)}`}
+                                className="text-xs font-medium text-blue-600 hover:underline"
+                              >
+                                {ticket.projectName}
+                              </Link>
+                            </div>
+                          )}
+
+                        {/* Assigned To Info */}
+                        {ticket.assignUserId && (
+                          <div className="mt-1 ml-4 flex items-center gap-2">
+                            <span className="text-xs text-gray-500">
+                              Assigned to:
+                            </span>
+                            <UserAvatar imageUrl={ticket.assignUserImageUrl} />
+                            <span className="text-xs font-medium">
+                              <Button variant="link" className="p-0">
+                                <Link
+                                  href={`/portal/users/${obfuscate(ticket.assignUserId)}`}
+                                >
+                                  {" "}
+                                  {ticket.assignUserName}
+                                </Link>
+                              </Button>
+                            </span>
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex flex-col items-end">
                         <PriorityDisplay
                           priority={ticket.priority as TeamRequestPriority}
                         />
                       </div>
                     </div>
+
                     <TruncatedHtmlLabel
-                      htmlContent={ticket.requestDescription!}
+                      htmlContent={ticket.requestDescription || ""}
                       wordLimit={100}
                     />
+
                     <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
                       Modified at:{" "}
                       <Tooltip>
                         <TooltipTrigger asChild>
                           <span className="cursor-pointer">
-                            {formatDateTimeDistanceToNow(ticket.modifiedAt)}
+                            {ticket.modifiedAt
+                              ? formatDateTimeDistanceToNow(ticket.modifiedAt)
+                              : "N/A"}
                           </span>
                         </TooltipTrigger>
                         <TooltipContent>
-                          {new Date(ticket.modifiedAt!).toLocaleString()}
+                          {ticket.modifiedAt
+                            ? new Date(ticket.modifiedAt).toLocaleString()
+                            : "N/A"}
                         </TooltipContent>
                       </Tooltip>
                     </p>
@@ -179,12 +247,14 @@ const TeamOverdueTickets = ({ teamId }: { teamId: number }) => {
             </div>
           )}
 
-          <PaginationExt
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            className="pt-2"
-          />
+          {totalPages > 0 && (
+            <PaginationExt
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+              className="pt-2"
+            />
+          )}
         </CardContent>
       )}
     </Card>

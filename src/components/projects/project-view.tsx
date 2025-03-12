@@ -20,6 +20,7 @@ import TaskEditorSheet, {
 } from "@/components/projects/task-editor-sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { usePagePermission } from "@/hooks/use-page-permission";
 import {
   findProjectById,
   findProjectWorkflowByTeam,
@@ -29,41 +30,24 @@ import {
   updateTeamRequest,
   updateTeamRequestState,
 } from "@/lib/actions/teams-request.action";
+import { calculateDuration } from "@/lib/datetime";
 import { obfuscate } from "@/lib/endecode";
 import { useError } from "@/providers/error-provider";
 import { useTeam } from "@/providers/team-provider";
+import { useUserTeamRole } from "@/providers/user-team-role-provider";
 import { ProjectDTO } from "@/types/projects";
 import { Pagination, QueryDTO } from "@/types/query";
+import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/team-requests";
 import { WorkflowDetailDTO, WorkflowStateDTO } from "@/types/workflows";
 
 // Function to generate a constant background color for workflow states.
 const getColumnColor = (_: number): string => "bg-[hsl(var(--card))]";
 
-// Helper function to calculate duration between dates
-const calculateDuration = (
-  startDate: string | Date,
-  endDate: string | Date,
-): string => {
-  const start = new Date(startDate);
-  const end = new Date(endDate);
-
-  // Calculate difference in days
-  const diffTime = Math.abs(end.getTime() - start.getTime());
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-
-  // Format as weeks + days or just days
-  if (diffDays >= 7) {
-    const weeks = Math.floor(diffDays / 7);
-    const days = diffDays % 7;
-    return `${weeks} week${weeks !== 1 ? "s" : ""}${days > 0 ? `, ${days} day${days !== 1 ? "s" : ""}` : ""}`;
-  } else {
-    return `${diffDays} day${diffDays !== 1 ? "s" : ""}`;
-  }
-};
-
 export const ProjectView = ({ projectId }: { projectId: number }) => {
   const team = useTeam();
+  const permissionLevel = usePagePermission();
+  const teamRole = useUserTeamRole().role;
   const [project, setProject] = useState<ProjectDTO | null>(null);
   const [workflow, setWorkflow] = useState<WorkflowDetailDTO | null>(null);
   const [tasks, setTasks] = useState<TaskBoard>({});
@@ -362,23 +346,24 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
           <Breadcrumbs items={breadcrumbItems} />
           <div className="flex items-center justify-between mb-2">
             <h1 className="text-3xl font-bold">{project.name}</h1>
-            <Button
-              onClick={() => setIsProjectEditDialogOpen(true)}
-              variant="default"
-              className="flex items-center gap-2"
-            >
-              <Edit className="w-4 h-4" />
-              Edit project
-            </Button>
+            {(PermissionUtils.canWrite(permissionLevel) ||
+              teamRole === "Manager") && (
+              <Button
+                onClick={() => setIsProjectEditDialogOpen(true)}
+                variant="default"
+                className="flex items-center gap-2"
+              >
+                <Edit className="w-4 h-4" />
+                Edit project
+              </Button>
+            )}
           </div>
 
-          {/* Description */}
           <div
             className="text-gray-600 dark:text-gray-300 text-sm mb-4"
             dangerouslySetInnerHTML={{ __html: project.description ?? "" }}
           />
 
-          {/* Project metadata: status, dates */}
           <div className="flex flex-wrap items-center gap-4 mb-6">
             {project.status && (
               <div className="flex items-center">
@@ -479,7 +464,6 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
         onTaskUpdate={handleTaskUpdate}
       />
 
-      {/* Project Edit Dialog */}
       <ProjectEditDialog
         open={isProjectEditDialogOpen}
         setOpen={setIsProjectEditDialogOpen}

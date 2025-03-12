@@ -2,7 +2,7 @@
 
 import { AlertTriangle, CheckCircle, Clock } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import React, { useState } from "react";
 
 import { UserAvatar } from "@/components/shared/avatar-display";

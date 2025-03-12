@@ -183,8 +183,7 @@ const ProjectListView = () => {
               />
             </div>
             {(PermissionUtils.canWrite(permissionLevel) ||
-              teamRole === "Manager" ||
-              teamRole === "Member") && (
+              teamRole === "Manager") && (
               <div className="flex items-center">
                 <Button
                   onClick={() => {
