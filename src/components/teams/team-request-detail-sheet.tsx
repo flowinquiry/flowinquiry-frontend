@@ -303,8 +303,6 @@ const TeamRequestDetailSheet: React.FC<RequestDetailsProps> = ({
                           form.handleSubmit(onSubmit)();
                           setIsEditingDescription(false);
                         }}
-                        // Explicitly prevent mode switching during mention selection
-                        onMentionSelect={() => false}
                       />
                     </div>
                   ) : (
