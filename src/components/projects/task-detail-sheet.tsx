@@ -9,6 +9,7 @@ import AuditLogView from "@/components/shared/audit-log-view";
 import { UserAvatar } from "@/components/shared/avatar-display";
 import CommentsView from "@/components/shared/comments-view";
 import EntityWatchers from "@/components/shared/entity-watchers";
+import RichTextEditor from "@/components/shared/rich-text-editor"; // Import RichTextEditor
 import TeamUserSelect from "@/components/teams/team-user-select";
 import TicketTimelineHistory from "@/components/teams/ticket-timeline-history";
 import { Button } from "@/components/ui/button";
@@ -29,7 +30,6 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Tooltip,
   TooltipContent,
@@ -77,7 +77,7 @@ const TaskDetailSheet: React.FC<TaskDetailSheetProps> = ({
 
   // Refs for input elements
   const titleInputRef = useRef<HTMLInputElement>(null);
-  const descriptionTextareaRef = useRef<HTMLTextAreaElement>(null);
+  const descriptionContainerRef = useRef<HTMLDivElement>(null);
 
   // Update local task when prop changes
   useEffect(() => {
@@ -98,17 +98,13 @@ const TaskDetailSheet: React.FC<TaskDetailSheetProps> = ({
     if (isEditingTitle && titleInputRef.current) {
       titleInputRef.current.focus();
     }
-    if (isEditingDescription && descriptionTextareaRef.current) {
-      descriptionTextareaRef.current.focus();
-    }
-  }, [isEditingTitle, isEditingDescription]);
+  }, [isEditingTitle]);
 
   // Start editing description
   const handleEditDescription = () => {
     if (task) {
-      setEditedDescription(task.requestDescription);
+      setEditedDescription(task.requestDescription || "");
       setIsEditingDescription(true);
-      // Focus will be set by useEffect above
     }
   };
 
@@ -143,8 +139,8 @@ const TaskDetailSheet: React.FC<TaskDetailSheetProps> = ({
     }
   };
 
-  // Handle blur for description (save on blur)
-  const handleDescriptionBlur = async () => {
+  // Handle save for description
+  const handleDescriptionSave = async () => {
     if (!task) return;
 
     // Create updated task with new description
@@ -172,6 +168,11 @@ const TaskDetailSheet: React.FC<TaskDetailSheetProps> = ({
         setIsSaving(false);
       }
     }
+  };
+
+  // Handler for RichTextEditor's onChange
+  const handleDescriptionChange = (content: string) => {
+    setEditedDescription(content);
   };
 
   // Handle priority change
@@ -521,21 +522,35 @@ const TaskDetailSheet: React.FC<TaskDetailSheetProps> = ({
               </div>
             </div>
 
-            {/* Description Section with Click-to-Edit */}
+            {/* Description Section with Click-to-Edit - REPLACED TEXTAREA WITH RICHTEXTEDITOR */}
             <div>
               <h3 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Description
               </h3>
 
               {isEditingDescription ? (
-                <Textarea
-                  ref={descriptionTextareaRef}
-                  value={editedDescription}
-                  onChange={(e) => setEditedDescription(e.target.value)}
-                  onBlur={handleDescriptionBlur}
-                  className="min-h-[150px]"
-                  placeholder="Add a description..."
-                />
+                <div ref={descriptionContainerRef}>
+                  <RichTextEditor
+                    value={editedDescription}
+                    onChange={handleDescriptionChange}
+                  />
+                  <div className="flex justify-end mt-2 gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setIsEditingDescription(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      size="sm"
+                      onClick={handleDescriptionSave}
+                      disabled={isSaving}
+                    >
+                      {isSaving ? "Saving..." : "Save"}
+                    </Button>
+                  </div>
+                </div>
               ) : (
                 <TooltipProvider>
                   <Tooltip>

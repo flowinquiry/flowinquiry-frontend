@@ -722,7 +722,7 @@ const RichTextEditor = ({
       </div>
 
       {/* Editor Content */}
-      <div className="px-4 py-3 bg-background">
+      <div className="bg-background">
         <EditorContent
           editor={editor}
           className="prose dark:prose-invert max-w-none focus:outline-none [&_.ProseMirror_table]:border-collapse [&_.ProseMirror_table_td]:border [&_.ProseMirror_table_td]:border-input [&_.ProseMirror_table_td]:p-2 [&_.ProseMirror_table_th]:border [&_.ProseMirror_table_th]:border-input [&_.ProseMirror_table_th]:p-2 [&_.ProseMirror_table_th]:bg-muted"

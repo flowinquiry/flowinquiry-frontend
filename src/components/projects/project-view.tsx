@@ -418,7 +418,16 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
         onDragEnd={handleDragEnd}
       >
         {/* Full height scrollable container with an extra div at the end */}
-        <div className="flex flex-grow overflow-x-auto gap-4 pb-2">
+        <div
+          className="flex flex-grow gap-4 pb-2"
+          style={{
+            overflowX: "scroll",
+            scrollbarWidth: "thin", // For Firefox
+            scrollbarGutter: "stable", // Reserves space for the scrollbar
+            WebkitOverflowScrolling: "touch", // For iOS
+            msOverflowStyle: "-ms-autohiding-scrollbar", // For IE/Edge
+          }}
+        >
           {workflow?.states
             .sort((a, b) => {
               if (a.isInitial && !b.isInitial) return -1;
