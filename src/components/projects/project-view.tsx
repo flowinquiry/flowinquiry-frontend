@@ -12,6 +12,8 @@ import React, { useCallback, useEffect, useState } from "react";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import ProjectEditDialog from "@/components/projects/project-edit-dialog";
+import CreateEpicDialog from "@/components/projects/project-epic-dialog";
+import CreateIterationDialog from "@/components/projects/project-iteration-dialog";
 import StateColumn from "@/components/projects/state-column";
 import TaskBlock from "@/components/projects/task-block";
 import TaskDetailSheet from "@/components/projects/task-detail-sheet";
@@ -24,7 +26,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -48,8 +49,6 @@ import { Pagination, QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/team-requests";
 import { WorkflowDetailDTO, WorkflowStateDTO } from "@/types/workflows";
-import CreateIterationDialog from "@/components/projects/project-iteration-dialog";
-import CreateEpicDialog from "@/components/projects/project-epic-dialog";
 
 // Function to generate a constant background color for workflow states.
 const getColumnColor = (_: number): string => "bg-[hsl(var(--card))]";
