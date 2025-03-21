@@ -3,6 +3,7 @@
 [![Build status](https://github.com/flowinquiry/flowinquiry-frontend/actions/workflows/node.js.yml/badge.svg)](https://github.com/flowinquiry/flowinquiry-frontend/actions/workflows/node.js.yml)
 [![Contributors](https://img.shields.io/github/contributors/flowinquiry/flowinquiry-frontend.svg)](https://github.com/flowinquiry/flowinquiry-frontend/graphs/contributors)
 [![Docker Pulls](https://img.shields.io/docker/pulls/flowinquiry/flowinquiry-frontend)](https://hub.docker.com/r/flowinquiry/flowinquiry-frontend)
+[![GitHub stars](https://img.shields.io/github/stars/flowinquiry/flowinquiry-frontend.svg?style=social)](https://github.com/flowinquiry/flowinquiry-frontend/stargazers)
 ![License](https://img.shields.io/badge/License-AGPLv3-blue)
 
 <div style="display: flex; justify-content: center; align-items: center;">
@@ -61,6 +62,10 @@ FlowInquiry Frontend is a Next.js application that offers a streamlined interfac
 </div>
 
 FlowInquiry integrates various open-source components, including Recharts and Xyflow for charts and graphs, Zod for schema validation, and TipTap for rich text editing. We deeply appreciate the open-source community's contributions and acknowledge all the libraries and tools we use on our tribute [page](https://docs.flowinquiry.io/about)
+
+## Stay Up-to-Date
+
+![Follow FlowInquiry](assets/github_project_star.gif)
 
 ## Getting Started
 

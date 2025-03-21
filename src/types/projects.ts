@@ -27,3 +27,27 @@ export const ProjectSchema = z.object({
 });
 
 export type ProjectDTO = z.infer<typeof ProjectSchema>;
+
+export const ProjectIterationDTOSchema = z.object({
+  id: z.number().optional(),
+  projectId: z.number(), // required
+  name: z.string(), // required
+  description: z.string().optional(),
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().optional(),
+  totalTickets: z.number().optional(),
+});
+
+export type ProjectIterationDTO = z.infer<typeof ProjectIterationDTOSchema>;
+
+export const ProjectEpicDTOSchema = z.object({
+  id: z.number().optional(),
+  projectId: z.number(), // required
+  name: z.string(), // required
+  description: z.string().optional(),
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().optional(),
+  totalTickets: z.number().optional(),
+});
+
+export type ProjectEpicDTOS = z.infer<typeof ProjectEpicDTOSchema>;

@@ -7,7 +7,7 @@ import {
   DragOverlay,
   DragStartEvent,
 } from "@dnd-kit/core";
-import { Edit } from "lucide-react";
+import { ChevronDown, Edit, Plus } from "lucide-react";
 import React, { useCallback, useEffect, useState } from "react";
 
 import { Breadcrumbs } from "@/components/breadcrumbs";
@@ -20,6 +20,14 @@ import TaskEditorSheet, {
 } from "@/components/projects/task-editor-sheet";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { usePagePermission } from "@/hooks/use-page-permission";
 import {
   findProjectById,
@@ -40,9 +48,94 @@ import { Pagination, QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/team-requests";
 import { WorkflowDetailDTO, WorkflowStateDTO } from "@/types/workflows";
+import CreateIterationDialog from "@/components/projects/project-iteration-dialog";
+import CreateEpicDialog from "@/components/projects/project-epic-dialog";
 
 // Function to generate a constant background color for workflow states.
 const getColumnColor = (_: number): string => "bg-[hsl(var(--card))]";
+
+// Type definitions for iteration and epic
+interface IterationDTO {
+  id: number;
+  name: string;
+  startDate: string;
+  endDate: string;
+  status: "Planned" | "In Progress" | "Completed";
+  description?: string;
+}
+
+interface EpicDTO {
+  id: number;
+  name: string;
+  description: string;
+  color: string;
+}
+
+// Mock data for iterations and epics
+const mockIterations: IterationDTO[] = [
+  {
+    id: 1,
+    name: "Sprint 1",
+    startDate: "2025-02-01",
+    endDate: "2025-02-14",
+    status: "Completed",
+    description: "Initial feature implementation",
+  },
+  {
+    id: 2,
+    name: "Sprint 2",
+    startDate: "2025-02-15",
+    endDate: "2025-02-28",
+    status: "In Progress",
+    description: "UI refinement and bug fixes",
+  },
+  {
+    id: 3,
+    name: "Sprint 3",
+    startDate: "2025-03-01",
+    endDate: "2025-03-14",
+    status: "Planned",
+    description: "Performance optimization",
+  },
+];
+
+const mockEpics: EpicDTO[] = [
+  {
+    id: 1,
+    name: "User Authentication",
+    description: "Implement secure login and registration",
+    color: "#8884d8",
+  },
+  {
+    id: 2,
+    name: "Dashboard Redesign",
+    description: "Update the UI for better user experience",
+    color: "#82ca9d",
+  },
+  {
+    id: 3,
+    name: "API Integration",
+    description: "Connect with third-party services",
+    color: "#ffc658",
+  },
+];
+
+// Mock task-iteration and task-epic relationships
+const mockTaskIterationMap: Record<number, number> = {
+  1: 2, // Task 1 belongs to Sprint 2
+  2: 1, // Task 2 belongs to Sprint 1
+  3: 3, // Task 3 belongs to Sprint 3
+  4: 2, // Task 4 belongs to Sprint 2
+  5: 1, // Task 5 belongs to Sprint 1
+};
+
+const mockTaskEpicMap: Record<number, number> = {
+  1: 2, // Task 1 is part of Dashboard Redesign
+  2: 1, // Task 2 is part of User Authentication
+  3: 3, // Task 3 is part of API Integration
+  4: 2, // Task 4 is part of Dashboard Redesign
+  5: 1, // Task 5 is part of User Authentication
+};
 
 export const ProjectView = ({ projectId }: { projectId: number }) => {
   const team = useTeam();
@@ -53,6 +146,24 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
   const [tasks, setTasks] = useState<TaskBoard>({});
   const [loading, setLoading] = useState(true);
   const { setError } = useError();
+
+  // State for iterations and epics
+  const [iterations, setIterations] = useState<IterationDTO[]>(mockIterations);
+  const [epics, setEpics] = useState<EpicDTO[]>(mockEpics);
+
+  // State for filters
+  const [selectedIteration, setSelectedIteration] = useState<number | null>(
+    null,
+  );
+  const [selectedEpic, setSelectedEpic] = useState<number | null>(null);
+
+  // State for dialogs
+  const [isCreateIterationDialogOpen, setIsCreateIterationDialogOpen] =
+    useState(false);
+  const [isCreateEpicDialogOpen, setIsCreateEpicDialogOpen] = useState(false);
+
+  // State for filtered tasks
+  const [filteredTasks, setFilteredTasks] = useState<TaskBoard>({});
 
   // State for drag and click management.
   const [activeTask, setActiveTask] = useState<TeamRequestDTO | null>(null);
@@ -118,6 +229,7 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
         });
 
         setTasks(newTasks);
+        setFilteredTasks(newTasks); // Initialize filtered tasks with all tasks
       }
     } finally {
       setLoading(false);
@@ -127,6 +239,95 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
   useEffect(() => {
     fetchProjectData();
   }, [fetchProjectData]);
+
+  // Filter tasks based on selected iteration and epic
+  useEffect(() => {
+    if (!Object.keys(tasks).length) return;
+
+    const newFilteredTasks: TaskBoard = {};
+
+    // Deep copy of tasks to avoid reference issues
+    Object.keys(tasks).forEach((stateId) => {
+      // Filter tasks based on selected iteration and epic
+      const filteredTasksForState = tasks[stateId].filter((task) => {
+        const taskId = task.id!;
+        const matchesIteration =
+          selectedIteration === null ||
+          mockTaskIterationMap[taskId] === selectedIteration;
+        const matchesEpic =
+          selectedEpic === null || mockTaskEpicMap[taskId] === selectedEpic;
+        return matchesIteration && matchesEpic;
+      });
+
+      newFilteredTasks[stateId] = filteredTasksForState;
+    });
+
+    setFilteredTasks(newFilteredTasks);
+  }, [tasks, selectedIteration, selectedEpic]);
+
+  // Reset filters
+  const handleClearFilters = () => {
+    setSelectedIteration(null);
+    setSelectedEpic(null);
+  };
+
+  // Handler for adding a new iteration
+  const handleAddNewIteration = () => {
+    setIsCreateIterationDialogOpen(true);
+  };
+
+  // Handler for saving a new iteration
+  const handleSaveIteration = (values: any) => {
+    // Create new iteration object with proper date formatting
+    const newIteration: IterationDTO = {
+      id: iterations.length + 1,
+      name: values.name,
+      // Convert Date objects to strings for the DTO
+      startDate: values.startDate
+        ? values.startDate.toISOString().split("T")[0]
+        : new Date().toISOString().split("T")[0],
+      endDate: values.endDate
+        ? values.endDate.toISOString().split("T")[0]
+        : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
+            .toISOString()
+            .split("T")[0],
+      status: "Planned", // Default status
+      description: values.description || "",
+    };
+
+    // Add to iterations array
+    setIterations([...iterations, newIteration]);
+
+    // Close the dialog
+    setIsCreateIterationDialogOpen(false);
+  };
+
+  // Handler for adding a new epic
+  const handleAddNewEpic = () => {
+    setIsCreateEpicDialogOpen(true);
+  };
+
+  // Handler for saving a new epic
+  const handleSaveEpic = (values: any) => {
+    // Create new epic object with proper formatting
+    const newEpic: EpicDTO = {
+      id: epics.length + 1,
+      name: values.name,
+      description: values.description || "",
+      // Generate a random color on the front-end
+      color: `#${Math.floor(Math.random() * 16777215)
+        .toString(16)
+        .padStart(6, "0")}`,
+      // Store any additional fields from form values as needed
+      // In a real implementation, this would be handled by your API
+    };
+
+    // Add to epics array
+    setEpics([...epics, newEpic]);
+
+    // Close the dialog
+    setIsCreateEpicDialogOpen(false);
+  };
 
   // Handler for updating task details, including state changes
   const handleTaskUpdate = async (updatedTask: TeamRequestDTO) => {
@@ -226,8 +427,8 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
 
     // Find the task being dragged
     let foundTask: TeamRequestDTO | null = null;
-    Object.keys(tasks).forEach((columnId) => {
-      const task = tasks[columnId].find(
+    Object.keys(filteredTasks).forEach((columnId) => {
+      const task = filteredTasks[columnId].find(
         (task) => task.id?.toString() === activeId,
       );
       if (task) {
@@ -261,7 +462,7 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
     const targetColumn = workflow?.states.find(
       (state) =>
         state.id!.toString() === overId ||
-        tasks[state.id!.toString()]?.some(
+        filteredTasks[state.id!.toString()]?.some(
           (task) => task.id!.toString() === overId,
         ),
     );
@@ -270,7 +471,7 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
 
     // Find source column.
     const sourceColumn = workflow?.states.find((state) =>
-      tasks[state.id!.toString()]?.some(
+      filteredTasks[state.id!.toString()]?.some(
         (task) => task.id!.toString() === activeId,
       ),
     );
@@ -279,7 +480,7 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
       // If drag was very short and in the same column, treat as a click
       if (dragDuration < 200 && sourceColumn) {
         // Find the task
-        const clickedTask = tasks[sourceColumn.id!.toString()]?.find(
+        const clickedTask = filteredTasks[sourceColumn.id!.toString()]?.find(
           (task) => task.id!.toString() === activeId,
         );
 
@@ -293,7 +494,7 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
     }
 
     // Get moved task.
-    const movedTask = tasks[sourceColumn.id!.toString()]?.find(
+    const movedTask = filteredTasks[sourceColumn.id!.toString()]?.find(
       (task) => task.id!.toString() === activeId,
     );
 
@@ -310,8 +511,26 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
       modifiedAt: new Date(),
     };
 
-    // Update local state to move the task between columns
+    // Update both tasks and filteredTasks state
     setTasks((prevTasks) => {
+      const updatedTasks = { ...prevTasks };
+
+      // Remove task from source column
+      updatedTasks[sourceColumn.id!.toString()] = updatedTasks[
+        sourceColumn.id!.toString()
+      ]?.filter((task) => task.id!.toString() !== activeId);
+
+      // Add task to target column
+      updatedTasks[targetColumn.id!.toString()] = [
+        ...(updatedTasks[targetColumn.id!.toString()] || []),
+        updatedTask,
+      ];
+
+      return updatedTasks;
+    });
+
+    // Also update filtered tasks directly for immediate UI feedback
+    setFilteredTasks((prevTasks) => {
       const updatedTasks = { ...prevTasks };
 
       // Remove task from source column
@@ -407,6 +626,191 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
               </div>
             )}
           </div>
+
+          {/* Epic and Iteration Filters */}
+          <div className="flex flex-wrap items-center gap-4 mb-4 p-3 bg-muted rounded-md">
+            <div className="flex items-center">
+              <span className="text-sm font-medium mr-2">Iteration:</span>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8">
+                    {selectedIteration
+                      ? iterations.find((i) => i.id === selectedIteration)?.name
+                      : "All Iterations"}
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem
+                    onClick={() => setSelectedIteration(null)}
+                    className="cursor-pointer"
+                  >
+                    All Iterations
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  {iterations.map((iteration) => (
+                    <DropdownMenuItem
+                      key={iteration.id}
+                      onClick={() => setSelectedIteration(iteration.id)}
+                      className="cursor-pointer"
+                    >
+                      <div>
+                        <div>{iteration.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {iteration.status} |{" "}
+                          {new Date(iteration.startDate).toLocaleDateString()} -{" "}
+                          {new Date(iteration.endDate).toLocaleDateString()}
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={handleAddNewIteration}
+                    className="cursor-pointer text-primary"
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add New Iteration
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            <div className="flex items-center">
+              <span className="text-sm font-medium mr-2">Epic:</span>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8">
+                    {selectedEpic
+                      ? epics.find((e) => e.id === selectedEpic)?.name
+                      : "All Epics"}
+                    <ChevronDown className="ml-2 h-4 w-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="start">
+                  <DropdownMenuItem
+                    onClick={() => setSelectedEpic(null)}
+                    className="cursor-pointer"
+                  >
+                    All Epics
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  {epics.map((epic) => (
+                    <DropdownMenuItem
+                      key={epic.id}
+                      onClick={() => setSelectedEpic(epic.id)}
+                      className="cursor-pointer"
+                      style={{ borderLeft: `4px solid ${epic.color}` }}
+                    >
+                      <div>
+                        <div>{epic.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {epic.description}
+                        </div>
+                      </div>
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    onClick={handleAddNewEpic}
+                    className="cursor-pointer text-primary"
+                  >
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add New Epic
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+
+            {(selectedIteration !== null || selectedEpic !== null) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleClearFilters}
+                className="ml-auto"
+              >
+                Clear Filters
+              </Button>
+            )}
+          </div>
+
+          {/* Selected Filters Summary with Edit Options */}
+          {(selectedIteration !== null || selectedEpic !== null) && (
+            <div className="mb-4 p-3 border rounded-md bg-background">
+              <h3 className="text-sm font-medium mb-2">Active Filters:</h3>
+              <div className="space-y-3">
+                {selectedIteration !== null && (
+                  <div className="flex flex-col sm:flex-row sm:items-center gap-2 p-2 bg-secondary/20 rounded-md">
+                    <div className="flex-1">
+                      <div className="font-medium">
+                        Iteration:{" "}
+                        {
+                          iterations.find((i) => i.id === selectedIteration)
+                            ?.name
+                        }
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {new Date(
+                          iterations.find((i) => i.id === selectedIteration)
+                            ?.startDate || "",
+                        ).toLocaleDateString()}{" "}
+                        -
+                        {new Date(
+                          iterations.find((i) => i.id === selectedIteration)
+                            ?.endDate || "",
+                        ).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="h-8 gap-1 self-start"
+                    >
+                      <Edit className="h-4 w-4" />
+                      Edit Iteration
+                    </Button>
+                  </div>
+                )}
+
+                {selectedEpic !== null && (
+                  <div
+                    className="flex flex-col sm:flex-row sm:items-center gap-2 p-2 rounded-md"
+                    style={{
+                      backgroundColor: `${epics.find((e) => e.id === selectedEpic)?.color}20`,
+                    }}
+                  >
+                    <div className="flex-1">
+                      <div
+                        className="font-medium"
+                        style={{
+                          color: epics.find((e) => e.id === selectedEpic)
+                            ?.color,
+                        }}
+                      >
+                        Epic: {epics.find((e) => e.id === selectedEpic)?.name}
+                      </div>
+                      <div className="text-xs text-muted-foreground mt-1">
+                        {epics.find((e) => e.id === selectedEpic)?.description}
+                      </div>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="h-8 gap-1 self-start"
+                      style={{
+                        borderColor: epics.find((e) => e.id === selectedEpic)
+                          ?.color,
+                        color: epics.find((e) => e.id === selectedEpic)?.color,
+                      }}
+                    >
+                      <Edit className="h-4 w-4" />
+                      Edit Epic
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </>
       ) : (
         <p className="text-red-500">Project not found.</p>
@@ -440,7 +844,7 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
               <StateColumn
                 key={state.id}
                 workflowState={state}
-                tasks={tasks[state.id!.toString()] || []}
+                tasks={filteredTasks[state.id!.toString()] || []}
                 setIsSheetOpen={setIsSheetOpen}
                 setSelectedWorkflowState={() => setSelectedWorkflowState(state)}
                 columnColor={getColumnColor(state.id!)}
@@ -482,6 +886,24 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
           setIsProjectEditDialogOpen(false);
           await fetchProjectData();
         }}
+      />
+
+      {/* Create Iteration Dialog */}
+      <CreateIterationDialog
+        open={isCreateIterationDialogOpen}
+        onOpenChange={setIsCreateIterationDialogOpen}
+        onSave={handleSaveIteration}
+        onCancel={() => setIsCreateIterationDialogOpen(false)}
+        projectId={projectId}
+      />
+
+      {/* Create Epic Dialog */}
+      <CreateEpicDialog
+        open={isCreateEpicDialogOpen}
+        onOpenChange={setIsCreateEpicDialogOpen}
+        onSave={handleSaveEpic}
+        onCancel={() => setIsCreateEpicDialogOpen(false)}
+        projectId={projectId}
       />
     </div>
   );
