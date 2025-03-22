@@ -101,8 +101,8 @@ importers:
         specifier: ^1.1.8
         version: 1.1.8(@types/react-dom@19.0.4(@types/react@19.0.12))(@types/react@19.0.12)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       "@stomp/stompjs":
-        specifier: ^7.0.1
-        version: 7.0.1
+        specifier: ^7.1.0
+        version: 7.1.0
       "@tailwindcss/typography":
         specifier: ^0.5.16
         version: 0.5.16(tailwindcss@3.4.17)
@@ -1730,10 +1730,10 @@ packages:
         integrity: sha512-zxnHvoMQVqewTJr/W4pKjF0bMGiKJv1WX7bSrkl46Hg0QjESbzBROWK0Wg4RphzSOS5Jiy7eFimmM3UgMrMZbQ==,
       }
 
-  "@stomp/stompjs@7.0.1":
+  "@stomp/stompjs@7.1.0":
     resolution:
       {
-        integrity: sha512-qip3juB0JiInS70QSYVdgMoNLxbrRwDiYN5xx6b/RWcy/vSIUUZKLQOkSJTH2Z0x3rOvDHT/sPvs9gDJM32Yzg==,
+        integrity: sha512-73myzb9gKUIu6hq/NoN8yvR2hPnFfWcxDAZ3/wp4UQ1+JXaX7LR3CDJHx68BNYrFpuC0NgXry1krIb3q3SHUOg==,
       }
 
   "@swc/counter@0.1.3":
@@ -6965,7 +6965,7 @@ snapshots:
 
   "@rushstack/eslint-patch@1.11.0": {}
 
-  "@stomp/stompjs@7.0.1": {}
+  "@stomp/stompjs@7.1.0": {}
 
   "@swc/counter@0.1.3": {}
 

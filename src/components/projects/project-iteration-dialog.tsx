@@ -3,7 +3,6 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -31,42 +30,19 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
-
-// Using the provided schema
-const ProjectIterationDTOSchema = z.object({
-  id: z.number().optional(),
-  projectId: z.number(), // required
-  name: z.string(), // required
-  description: z.string().optional(),
-  startDate: z.string().datetime().optional(),
-  endDate: z.string().datetime().optional(),
-  totalTickets: z.number().optional(),
-});
-
-// Extend the schema with some validation
-const createIterationSchema = ProjectIterationDTOSchema.extend({
-  // Override datetime to use Date objects in the form
-  startDate: z.date().optional(),
-  endDate: z.date().optional(),
-}).refine(
-  (data) => {
-    // Skip validation if either date is missing
-    if (!data.startDate || !data.endDate) return true;
-    return data.endDate > data.startDate;
-  },
-  {
-    message: "End date must be after start date",
-    path: ["endDate"],
-  },
-);
-
-type CreateIterationFormValues = z.infer<typeof createIterationSchema>;
+import { useToast } from "@/components/ui/use-toast";
+import { createProjectIteration } from "@/lib/actions/project-iteration.action";
+import { useError } from "@/providers/error-provider";
+import {
+  ProjectIterationDTO,
+  ProjectIterationDTOSchema,
+} from "@/types/projects";
 
 interface CreateIterationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (iteration: CreateIterationFormValues) => void;
-  onCancel: () => void;
+  onSave?: (iteration: ProjectIterationDTO) => void;
+  onCancel?: () => void;
   projectId: number;
 }
 
@@ -78,45 +54,46 @@ export function CreateIterationDialog({
   projectId,
 }: CreateIterationDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { setError } = useError();
+  const { toast } = useToast();
 
-  // Get default values with the current project ID
-  const defaultValues: Partial<CreateIterationFormValues> = {
-    projectId,
-    name: "",
-    description: "",
-    totalTickets: 0,
-  };
-
-  // Initialize form
-  const form = useForm<CreateIterationFormValues>({
-    resolver: zodResolver(createIterationSchema),
-    defaultValues,
+  // Initialize form with the ProjectIterationDTOSchema
+  const form = useForm<ProjectIterationDTO>({
+    resolver: zodResolver(ProjectIterationDTOSchema),
+    defaultValues: {
+      projectId,
+      name: "",
+      description: "",
+      startDate: new Date(),
+      endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000), // Default to 2 weeks
+      totalTickets: 0,
+    },
   });
 
-  // Reset form when dialog opens
+  // Reset form when dialog opens/closes
   useState(() => {
     if (open) {
-      form.reset(defaultValues);
+      form.reset({
+        projectId,
+        name: "",
+        description: "",
+        startDate: new Date(),
+        endDate: new Date(Date.now() + 14 * 24 * 60 * 60 * 1000),
+        totalTickets: 0,
+      });
     }
   });
 
-  const handleSubmit = async (values: CreateIterationFormValues) => {
+  const handleSubmit = async (values: ProjectIterationDTO) => {
     setIsSubmitting(true);
     try {
-      // Create a copy of the values for submission
-      // This ensures proper type conversion between the form and API
-      const submissionValues = {
-        ...values,
-        // Keep the Date objects as they are for the onSave callback
-        // The parent component will handle any necessary conversions
-      };
+      const createdIteration = await createProjectIteration(values, setError);
 
-      // Pass the values to the parent component to handle the save
-      await onSave(submissionValues);
-      // Reset the form
-      form.reset(defaultValues);
-    } catch (error) {
-      console.error("Failed to save iteration:", error);
+      onOpenChange(false);
+
+      if (onSave) {
+        onSave(createdIteration);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -188,9 +165,6 @@ export function CreateIterationDialog({
                         />
                       </PopoverContent>
                     </Popover>
-                    <FormDescription>
-                      When this iteration begins.
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -229,9 +203,6 @@ export function CreateIterationDialog({
                         />
                       </PopoverContent>
                     </Popover>
-                    <FormDescription>
-                      When this iteration is scheduled to end.
-                    </FormDescription>
                     <FormMessage />
                   </FormItem>
                 )}

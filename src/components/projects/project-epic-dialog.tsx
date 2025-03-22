@@ -3,7 +3,6 @@ import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
@@ -31,34 +30,16 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Textarea } from "@/components/ui/textarea";
-// Import the existing schema
-import { ProjectEpicDTOSchema } from "@/types/projects";
-
-// Extend the schema only to handle form specifics (Date objects for UI)
-// The core validation remains from the original schema
-const formEpicSchema = ProjectEpicDTOSchema.extend({
-  // Override datetime strings to use Date objects in the form
-  startDate: z.date().optional(),
-  endDate: z.date().optional(),
-}).refine(
-  (data) => {
-    // Skip validation if either date is missing
-    if (!data.startDate || !data.endDate) return true;
-    return data.endDate > data.startDate;
-  },
-  {
-    message: "End date must be after start date",
-    path: ["endDate"],
-  },
-);
-
-type EpicFormValues = z.infer<typeof formEpicSchema>;
+import { useToast } from "@/components/ui/use-toast";
+import { createProjectEpic } from "@/lib/actions/project-epic.action";
+import { useError } from "@/providers/error-provider";
+import { ProjectEpicDTO, ProjectEpicDTOSchema } from "@/types/projects";
 
 interface CreateEpicDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (epic: EpicFormValues) => void;
-  onCancel: () => void;
+  onSave?: (epic: ProjectEpicDTO) => void;
+  onCancel?: () => void;
   projectId: number;
 }
 
@@ -70,37 +51,44 @@ export function CreateEpicDialog({
   projectId,
 }: CreateEpicDialogProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { setError } = useError();
+  const { toast } = useToast();
 
-  // Get default values with the current project ID
-  const defaultValues: Partial<EpicFormValues> = {
-    projectId,
-    name: "",
-    description: "",
-    totalTickets: 0,
-  };
-
-  // Initialize form
-  const form = useForm<EpicFormValues>({
-    resolver: zodResolver(formEpicSchema),
-    defaultValues,
+  // Initialize form with the ProjectEpicDTOSchema
+  const form = useForm<ProjectEpicDTO>({
+    resolver: zodResolver(ProjectEpicDTOSchema),
+    defaultValues: {
+      projectId,
+      name: "",
+      description: "",
+      startDate: new Date(),
+      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // Default to 30 days
+      totalTickets: 0,
+    },
   });
 
-  // Reset form when dialog opens
+  // Reset form when dialog opens/closes
   useState(() => {
     if (open) {
-      form.reset(defaultValues);
+      form.reset({
+        projectId,
+        name: "",
+        description: "",
+        startDate: new Date(),
+        endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        totalTickets: 0,
+      });
     }
   });
 
-  const handleSubmit = async (values: EpicFormValues) => {
+  const handleSubmit = async (values: ProjectEpicDTO) => {
     setIsSubmitting(true);
     try {
-      // Pass the values directly to the parent component
-      await onSave(values);
-      // Reset the form
-      form.reset(defaultValues);
-    } catch (error) {
-      console.error("Failed to save epic:", error);
+      const createdEpic = await createProjectEpic(values, setError);
+      onOpenChange(false);
+      if (onSave) {
+        onSave(createdEpic);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -144,7 +132,7 @@ export function CreateEpicDialog({
                 name="startDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Start Date (Optional)</FormLabel>
+                    <FormLabel>Start Date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -166,7 +154,11 @@ export function CreateEpicDialog({
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
-                          selected={field.value}
+                          selected={
+                            field.value instanceof Date
+                              ? field.value
+                              : undefined
+                          }
                           onSelect={field.onChange}
                           initialFocus
                         />
@@ -182,7 +174,7 @@ export function CreateEpicDialog({
                 name="endDate"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Target End Date (Optional)</FormLabel>
+                    <FormLabel>Target End Date</FormLabel>
                     <Popover>
                       <PopoverTrigger asChild>
                         <FormControl>
@@ -204,7 +196,11 @@ export function CreateEpicDialog({
                       <PopoverContent className="w-auto p-0" align="start">
                         <Calendar
                           mode="single"
-                          selected={field.value}
+                          selected={
+                            field.value instanceof Date
+                              ? field.value
+                              : undefined
+                          }
                           onSelect={field.onChange}
                           initialFocus
                         />

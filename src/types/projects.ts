@@ -30,11 +30,21 @@ export type ProjectDTO = z.infer<typeof ProjectSchema>;
 
 export const ProjectIterationDTOSchema = z.object({
   id: z.number().optional(),
-  projectId: z.number(), // required
-  name: z.string(), // required
+  projectId: z.number(),
+  name: z.string(),
   description: z.string().optional(),
-  startDate: z.string().datetime().optional(),
-  endDate: z.string().datetime().optional(),
+  startDate: z.preprocess((value) => {
+    if (typeof value === "string") {
+      return new Date(value);
+    }
+    return value;
+  }, z.date()),
+  endDate: z.preprocess((value) => {
+    if (typeof value === "string") {
+      return new Date(value);
+    }
+    return value;
+  }, z.date()),
   totalTickets: z.number().optional(),
 });
 
@@ -45,9 +55,19 @@ export const ProjectEpicDTOSchema = z.object({
   projectId: z.number(), // required
   name: z.string(), // required
   description: z.string().optional(),
-  startDate: z.string().datetime().optional(),
-  endDate: z.string().datetime().optional(),
+  startDate: z.preprocess((value) => {
+    if (typeof value === "string") {
+      return new Date(value);
+    }
+    return value;
+  }, z.date().nullish()),
+  endDate: z.preprocess((value) => {
+    if (typeof value === "string") {
+      return new Date(value);
+    }
+    return value;
+  }, z.date().nullish()),
   totalTickets: z.number().optional(),
 });
 
-export type ProjectEpicDTOS = z.infer<typeof ProjectEpicDTOSchema>;
+export type ProjectEpicDTO = z.infer<typeof ProjectEpicDTOSchema>;
