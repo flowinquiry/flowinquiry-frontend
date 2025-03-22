@@ -34,6 +34,8 @@ import {
   findProjectById,
   findProjectWorkflowByTeam,
 } from "@/lib/actions/project.action";
+import { findEpicsByProjectId } from "@/lib/actions/project-epic.action";
+import { findIterationsByProjectId } from "@/lib/actions/project-iteration.action";
 import {
   searchTeamRequests,
   updateTeamRequest,
@@ -44,7 +46,11 @@ import { obfuscate } from "@/lib/endecode";
 import { useError } from "@/providers/error-provider";
 import { useTeam } from "@/providers/team-provider";
 import { useUserTeamRole } from "@/providers/user-team-role-provider";
-import { ProjectDTO } from "@/types/projects";
+import {
+  ProjectDTO,
+  ProjectEpicDTO,
+  ProjectIterationDTO,
+} from "@/types/projects";
 import { Pagination, QueryDTO } from "@/types/query";
 import { PermissionUtils } from "@/types/resources";
 import { TeamRequestDTO } from "@/types/team-requests";
@@ -52,89 +58,6 @@ import { WorkflowDetailDTO, WorkflowStateDTO } from "@/types/workflows";
 
 // Function to generate a constant background color for workflow states.
 const getColumnColor = (_: number): string => "bg-[hsl(var(--card))]";
-
-// Type definitions for iteration and epic
-interface IterationDTO {
-  id: number;
-  name: string;
-  startDate: string;
-  endDate: string;
-  status: "Planned" | "In Progress" | "Completed";
-  description?: string;
-}
-
-interface EpicDTO {
-  id: number;
-  name: string;
-  description: string;
-  color: string;
-}
-
-// Mock data for iterations and epics
-const mockIterations: IterationDTO[] = [
-  {
-    id: 1,
-    name: "Sprint 1",
-    startDate: "2025-02-01",
-    endDate: "2025-02-14",
-    status: "Completed",
-    description: "Initial feature implementation",
-  },
-  {
-    id: 2,
-    name: "Sprint 2",
-    startDate: "2025-02-15",
-    endDate: "2025-02-28",
-    status: "In Progress",
-    description: "UI refinement and bug fixes",
-  },
-  {
-    id: 3,
-    name: "Sprint 3",
-    startDate: "2025-03-01",
-    endDate: "2025-03-14",
-    status: "Planned",
-    description: "Performance optimization",
-  },
-];
-
-const mockEpics: EpicDTO[] = [
-  {
-    id: 1,
-    name: "User Authentication",
-    description: "Implement secure login and registration",
-    color: "#8884d8",
-  },
-  {
-    id: 2,
-    name: "Dashboard Redesign",
-    description: "Update the UI for better user experience",
-    color: "#82ca9d",
-  },
-  {
-    id: 3,
-    name: "API Integration",
-    description: "Connect with third-party services",
-    color: "#ffc658",
-  },
-];
-
-// Mock task-iteration and task-epic relationships
-const mockTaskIterationMap: Record<number, number> = {
-  1: 2, // Task 1 belongs to Sprint 2
-  2: 1, // Task 2 belongs to Sprint 1
-  3: 3, // Task 3 belongs to Sprint 3
-  4: 2, // Task 4 belongs to Sprint 2
-  5: 1, // Task 5 belongs to Sprint 1
-};
-
-const mockTaskEpicMap: Record<number, number> = {
-  1: 2, // Task 1 is part of Dashboard Redesign
-  2: 1, // Task 2 is part of User Authentication
-  3: 3, // Task 3 is part of API Integration
-  4: 2, // Task 4 is part of Dashboard Redesign
-  5: 1, // Task 5 is part of User Authentication
-};
 
 export const ProjectView = ({ projectId }: { projectId: number }) => {
   const team = useTeam();
@@ -146,9 +69,11 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
   const [loading, setLoading] = useState(true);
   const { setError } = useError();
 
-  // State for iterations and epics
-  const [iterations, setIterations] = useState<IterationDTO[]>(mockIterations);
-  const [epics, setEpics] = useState<EpicDTO[]>(mockEpics);
+  // State for iterations and epics from API
+  const [iterations, setIterations] = useState<ProjectIterationDTO[]>([]);
+  const [epics, setEpics] = useState<ProjectEpicDTO[]>([]);
+  const [loadingIterations, setLoadingIterations] = useState(false);
+  const [loadingEpics, setLoadingEpics] = useState(false);
 
   // State for filters
   const [selectedIteration, setSelectedIteration] = useState<number | null>(
@@ -180,7 +105,37 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
   // Track the time when drag starts
   const [dragStartTime, setDragStartTime] = useState<number | null>(null);
 
-  // Extracted fetchProjectData so we can use it on mount and after saving a project.
+  // Function to fetch iterations
+  const fetchIterations = useCallback(async () => {
+    if (!projectId) return;
+
+    setLoadingIterations(true);
+    try {
+      const data = await findIterationsByProjectId(projectId, setError);
+      setIterations(data || []);
+    } catch (error) {
+      console.error("Failed to fetch iterations:", error);
+    } finally {
+      setLoadingIterations(false);
+    }
+  }, [projectId, setError]);
+
+  // Function to fetch epics
+  const fetchEpics = useCallback(async () => {
+    if (!projectId) return;
+
+    setLoadingEpics(true);
+    try {
+      const data = await findEpicsByProjectId(projectId, setError);
+      setEpics(data || []);
+    } catch (error) {
+      console.error("Failed to fetch epics:", error);
+    } finally {
+      setLoadingEpics(false);
+    }
+  }, [projectId, setError]);
+
+  // Extracted fetchProjectData to fetch project, workflow, and tasks
   const fetchProjectData = useCallback(async () => {
     setLoading(true);
     try {
@@ -235,9 +190,16 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
     }
   }, [projectId, team.id, setError]);
 
+  // Initial data fetch
   useEffect(() => {
-    fetchProjectData();
-  }, [fetchProjectData]);
+    const fetchAllData = async () => {
+      await fetchProjectData();
+      await fetchIterations();
+      await fetchEpics();
+    };
+
+    fetchAllData();
+  }, [fetchProjectData, fetchIterations, fetchEpics]);
 
   // Filter tasks based on selected iteration and epic
   useEffect(() => {
@@ -249,12 +211,12 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
     Object.keys(tasks).forEach((stateId) => {
       // Filter tasks based on selected iteration and epic
       const filteredTasksForState = tasks[stateId].filter((task) => {
-        const taskId = task.id!;
         const matchesIteration =
-          selectedIteration === null ||
-          mockTaskIterationMap[taskId] === selectedIteration;
+          selectedIteration === null || task.iterationId === selectedIteration;
+
         const matchesEpic =
-          selectedEpic === null || mockTaskEpicMap[taskId] === selectedEpic;
+          selectedEpic === null || task.epicId === selectedEpic;
+
         return matchesIteration && matchesEpic;
       });
 
@@ -276,26 +238,9 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
   };
 
   // Handler for saving a new iteration
-  const handleSaveIteration = (values: any) => {
-    // Create new iteration object with proper date formatting
-    const newIteration: IterationDTO = {
-      id: iterations.length + 1,
-      name: values.name,
-      // Convert Date objects to strings for the DTO
-      startDate: values.startDate
-        ? values.startDate.toISOString().split("T")[0]
-        : new Date().toISOString().split("T")[0],
-      endDate: values.endDate
-        ? values.endDate.toISOString().split("T")[0]
-        : new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
-            .toISOString()
-            .split("T")[0],
-      status: "Planned", // Default status
-      description: values.description || "",
-    };
-
-    // Add to iterations array
-    setIterations([...iterations, newIteration]);
+  const handleSaveIteration = async (createdIteration: ProjectIterationDTO) => {
+    // Refresh iterations list after creating a new one
+    await fetchIterations();
 
     // Close the dialog
     setIsCreateIterationDialogOpen(false);
@@ -307,22 +252,9 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
   };
 
   // Handler for saving a new epic
-  const handleSaveEpic = (values: any) => {
-    // Create new epic object with proper formatting
-    const newEpic: EpicDTO = {
-      id: epics.length + 1,
-      name: values.name,
-      description: values.description || "",
-      // Generate a random color on the front-end
-      color: `#${Math.floor(Math.random() * 16777215)
-        .toString(16)
-        .padStart(6, "0")}`,
-      // Store any additional fields from form values as needed
-      // In a real implementation, this would be handled by your API
-    };
-
-    // Add to epics array
-    setEpics([...epics, newEpic]);
+  const handleSaveEpic = async (createdEpic: ProjectEpicDTO) => {
+    // Refresh epics list after creating a new one
+    await fetchEpics();
 
     // Close the dialog
     setIsCreateEpicDialogOpen(false);
@@ -555,6 +487,39 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
     { title: project?.name!, link: "#" },
   ];
 
+  // Helper to get iteration status display
+  const getIterationStatus = (iteration: ProjectIterationDTO) => {
+    const now = new Date();
+    const startDate = new Date(iteration.startDate);
+    const endDate = new Date(iteration.endDate);
+
+    if (now < startDate) {
+      return "Planned";
+    } else if (now <= endDate) {
+      return "In Progress";
+    } else {
+      return "Completed";
+    }
+  };
+
+  // Helper to generate a color for an epic if none exists
+  const getEpicColor = (epicId: number) => {
+    // This ensures consistent colors for the same epic ID
+    const colors = [
+      "#8884d8",
+      "#82ca9d",
+      "#ffc658",
+      "#ff8042",
+      "#0088FE",
+      "#00C49F",
+      "#FFBB28",
+      "#FF8042",
+      "#a4de6c",
+      "#d0ed57",
+    ];
+    return colors[epicId % colors.length];
+  };
+
   return (
     <div className="p-6 h-screen flex flex-col">
       {loading ? (
@@ -647,22 +612,32 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
                     All Iterations
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  {iterations.map((iteration) => (
-                    <DropdownMenuItem
-                      key={iteration.id}
-                      onClick={() => setSelectedIteration(iteration.id)}
-                      className="cursor-pointer"
-                    >
-                      <div>
-                        <div>{iteration.name}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {iteration.status} |{" "}
-                          {new Date(iteration.startDate).toLocaleDateString()} -{" "}
-                          {new Date(iteration.endDate).toLocaleDateString()}
-                        </div>
-                      </div>
+                  {loadingIterations ? (
+                    <DropdownMenuItem disabled>
+                      Loading iterations...
                     </DropdownMenuItem>
-                  ))}
+                  ) : iterations.length > 0 ? (
+                    iterations.map((iteration) => (
+                      <DropdownMenuItem
+                        key={iteration.id}
+                        onClick={() => setSelectedIteration(iteration.id!)}
+                        className="cursor-pointer"
+                      >
+                        <div>
+                          <div>{iteration.name}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {getIterationStatus(iteration)} |{" "}
+                            {new Date(iteration.startDate).toLocaleDateString()}{" "}
+                            - {new Date(iteration.endDate).toLocaleDateString()}
+                          </div>
+                        </div>
+                      </DropdownMenuItem>
+                    ))
+                  ) : (
+                    <DropdownMenuItem disabled>
+                      No iterations found
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={handleAddNewIteration}
@@ -694,21 +669,31 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
                     All Epics
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  {epics.map((epic) => (
-                    <DropdownMenuItem
-                      key={epic.id}
-                      onClick={() => setSelectedEpic(epic.id)}
-                      className="cursor-pointer"
-                      style={{ borderLeft: `4px solid ${epic.color}` }}
-                    >
-                      <div>
-                        <div>{epic.name}</div>
-                        <div className="text-xs text-muted-foreground">
-                          {epic.description}
-                        </div>
-                      </div>
+                  {loadingEpics ? (
+                    <DropdownMenuItem disabled>
+                      Loading epics...
                     </DropdownMenuItem>
-                  ))}
+                  ) : epics.length > 0 ? (
+                    epics.map((epic) => (
+                      <DropdownMenuItem
+                        key={epic.id}
+                        onClick={() => setSelectedEpic(epic.id!)}
+                        className="cursor-pointer"
+                        style={{
+                          borderLeft: `4px solid ${getEpicColor(epic.id!)}`,
+                        }}
+                      >
+                        <div>
+                          <div>{epic.name}</div>
+                          <div className="text-xs text-muted-foreground">
+                            {epic.description}
+                          </div>
+                        </div>
+                      </DropdownMenuItem>
+                    ))
+                  ) : (
+                    <DropdownMenuItem disabled>No epics found</DropdownMenuItem>
+                  )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
                     onClick={handleAddNewEpic}
@@ -764,6 +749,10 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
                       variant="secondary"
                       size="sm"
                       className="h-8 gap-1 self-start"
+                      onClick={() => {
+                        // TODO: Implement edit iteration functionality
+                        console.log("Edit iteration", selectedIteration);
+                      }}
                     >
                       <Edit className="h-4 w-4" />
                       Edit Iteration
@@ -775,15 +764,14 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
                   <div
                     className="flex flex-col sm:flex-row sm:items-center gap-2 p-2 rounded-md"
                     style={{
-                      backgroundColor: `${epics.find((e) => e.id === selectedEpic)?.color}20`,
+                      backgroundColor: `${getEpicColor(selectedEpic)}20`,
                     }}
                   >
                     <div className="flex-1">
                       <div
                         className="font-medium"
                         style={{
-                          color: epics.find((e) => e.id === selectedEpic)
-                            ?.color,
+                          color: getEpicColor(selectedEpic),
                         }}
                       >
                         Epic: {epics.find((e) => e.id === selectedEpic)?.name}
@@ -797,9 +785,12 @@ export const ProjectView = ({ projectId }: { projectId: number }) => {
                       size="sm"
                       className="h-8 gap-1 self-start"
                       style={{
-                        borderColor: epics.find((e) => e.id === selectedEpic)
-                          ?.color,
-                        color: epics.find((e) => e.id === selectedEpic)?.color,
+                        borderColor: getEpicColor(selectedEpic),
+                        color: getEpicColor(selectedEpic),
+                      }}
+                      onClick={() => {
+                        // TODO: Implement edit epic functionality
+                        console.log("Edit epic", selectedEpic);
                       }}
                     >
                       <Edit className="h-4 w-4" />
